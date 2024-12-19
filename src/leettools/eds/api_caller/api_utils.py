@@ -2,7 +2,6 @@ import re
 import traceback
 from typing import Any, Dict, List, Optional, Tuple
 
-import cohere
 from openai import OpenAI
 from openai.resources.chat.completions import ChatCompletion
 from pydantic import BaseModel
@@ -19,6 +18,7 @@ from leettools.core.schemas.api_provider_config import (
 )
 from leettools.core.schemas.user import User
 from leettools.core.user.user_settings_helper import get_value_from_settings
+from leettools.eds.api_caller.rerank_client import AbstractRerankClient
 from leettools.eds.usage.schemas.usage_api_call import (
     API_CALL_ENDPOINT_COMPLETION,
     UsageAPICallCreate,
@@ -386,9 +386,9 @@ def get_openai_client_for_user(
 
 def get_rerank_client_for_user(
     context: Context, user: User, api_provider_config: APIProviderConfig
-) -> cohere.Client:
+) -> AbstractRerankClient:
     """
-    TODO: define a universal rerank client interface
+    Right now rerank client is only for Cohere.
     """
 
     if api_provider_config is None:
@@ -396,6 +396,8 @@ def get_rerank_client_for_user(
 
     api_key = api_provider_config.api_key
     base_url = api_provider_config.base_url
+
+    import cohere
 
     if api_provider_config.base_url is not None:
         cohere_client = cohere.Client(api_key=api_key, base_url=base_url)

@@ -2,8 +2,6 @@ import os
 import uuid
 from typing import Any, Dict, List
 
-import cohere
-
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context
@@ -45,6 +43,9 @@ class RerankerCohere(AbstractReranker, APICallerBase):
         top_k: int,
         rerank_options: Dict[str, Any] = None,
     ) -> RerankResult:
+
+        import cohere
+
         logger().info(f"Calling cohere reranker for query {query}")
         docs = [d.content for d in documents]
 
