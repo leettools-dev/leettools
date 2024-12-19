@@ -5,35 +5,34 @@
 
 ## Open Source AI Search Tools
 
-LeetTools allow you to run highly customizable search workflows to find, extract, and 
-generate information from the web or local knowledge bases. The system is designed to 
-be modular and extensible, allowing you to use different components and configurations
-easily.
+LeetTools allows you to run highly customizable search workflows to query, extract, and 
+generate information from the web or local knowledge bases. Instead of using a web
+page to interact with the search engine, we can run complex search workflows or automated
+search tasks from the command line.
 
-For example, since the content we need may not always be available on the first page of
-search results, can we go a few more pages to find only relevant documents and then
-summary the relevant information? For such a search workflow, we can:
-1. Use a search engine to fetch the top documents, up to X pages.
-2. Crawl the result URLs to fetch the content.
-3. Use LLM to summarize the content of each page to see if the content is relevant.
-4. We can also crawl links found in the content to fetch more relevant information.
-5. When we reach a predefind threshold, say number of relevant documents, or number of
-   iterations, we can stop the search.
-6. Aggregate all the relevant summaries to generate a list of topics discussed in the
-   search results.
-7. Use the topics to generate a digest article that summarizes the search results.
-
-This flow is similar to a lot of adavanced AI deep research tools. But with LeetTools,
-you can customize the search workflow to fit your needs. For example, you can easily
+For example, when we search for a topic, we can go through the top X pages of the search
+results instead of only the first one, filter out the unrelated ones, and then generate
+a digest article from the relevant search results with citation to the source. This 
+process works very similar to other AI search engines such as Perplexity and ChatGPT
+Search, but with LeetTools, you can customize the search workflow to fit your needs. 
+For example, you can easily
 
 1. ask the question in language X, search in language Y, and summarize in language Z.
 2. only search in a specific domain, or exclude certain domains from the search.
 3. only search for recent documents from the last X days.
 4. control the output: style, number of words, and number of sections, etc.
+5. extract structured inforation instead of generating answers.
 
 The relevant documents scraped during the search are stored in a local knowledge base
 and you can query it again for related questions. You can add your own documents to the
-knowledge base and use them in the search workflow.
+knowledge base and use them in the search workflow. The system is designed to 
+be modular and extensible; all the compotents are implemented as plugins allowing to use
+different components and configurations.
+
+LeetTools provides an easy way to implement search-related function in daily workflows.
+For this version, all the data operations are backed by the in-memory database DuckDB to
+reduce the resource footprints. You can easily to run it on the command line or a cron
+job to automate the search tasks. 
 
 ## Features
 
@@ -52,7 +51,7 @@ knowledge base and use them in the search workflow.
 % git clone https://github.com/leettools-dev/leettools.git
 % cd leettools
 
-% conda create -n leettools python=3.11
+% conda create -y -n leettools python=3.11
 % conda activate leettools
 % pip install -r requirements.txt
 % pip install -e .
@@ -65,6 +64,8 @@ knowledge base and use them in the search workflow.
 % export PATH=`pwd`/scripts:${PATH}
 
 # set the OPENAI_API_KEY or put it in the .env file
+# or any OpenAI-compatible LLM inference endpoint
+# export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
 % export EDS_OPENAI_API_KEY=your_openai_api_key
 # or
 % echo "EDS_OPENAI_API_KEY=your_openai_api_key" > `pwd`/.env
@@ -75,10 +76,39 @@ knowledge base and use them in the search workflow.
 # -q the query
 # -k save the scraped web page to the knowledge base
 # -l log level, info shows the essential log messages
-% leet flow -t answer -q "How does GraphRAG work?" -k GraphRAG -l info
+% leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-Right now we provide the following flows:
+** Sample Output **
+```markdown"
+# What Is Graphrag
+GraphRAG is an advanced approach to Retrieval-Augmented Generation (RAG) that integrates knowledge graphs with large language models (LLMs) to enhance the generation of responses based on retrieved information. Its primary purpose is to improve the accuracy and relevance of generated outputs by leveraging the structured relationships within knowledge graphs, which allows for a more comprehensive contextual understanding of the data being processed[[1](#reference-1)][[2](#reference-2)].
+
+One of the key enhancements GraphRAG brings to traditional RAG techniques is its ability to connect disparate pieces of information through their shared attributes, enabling the model to synthesize new insights. This is particularly beneficial for complex queries that require multi-hop reasoning or the integration of information from various sources[[3](#reference-3)][[4](#reference-4)]. By utilizing knowledge graphs, GraphRAG can better understand the relationships and dependencies between different pieces of information, leading to more coherent and contextually appropriate responses[[5](#reference-5)][[6](#reference-6)].
+
+The benefits of GraphRAG compared to traditional RAG techniques include:
+
+1. **Enhanced Knowledge Representation**: GraphRAG captures complex relationships between entities and concepts, allowing for a richer understanding of the data[[7](#reference-7)][[8](#reference-8)].
+2. **Explainability**: The use of knowledge graphs makes the decision-making process of the AI more transparent, enabling users to trace errors and understand the reasoning behind outputs[[9](#reference-9)][[10](#reference-10)].
+3. **Improved Contextual Understanding**: By grounding responses in factual knowledge, GraphRAG reduces the risk of generating incorrect or misleading information, a common issue in traditional RAG systems[[11](#reference-11)][[12](#reference-12)].
+4. **Scalability and Efficiency**: GraphRAG can handle large datasets more efficiently, as it is built on fast knowledge graph stores, which can optimize performance and reduce costs associated with vector databases[[13](#reference-13)][[14](#reference-14)].
+
+Overall, GraphRAG represents a significant advancement in the field of AI, particularly in applications requiring high precision and the ability to reason over complex relationships within data[[15](#reference-15)][[16](#reference-16)].
+## References
+[1] [https://medium.com/@amrwrites/you-probably-dont-need-graphrag-0bc9cf671db1](https://medium.com/@amrwrites/you-probably-dont-need-graphrag-0bc9cf671db1)
+
+[2] [https://medium.com/@zilliz_learn/graphrag-explained-enhancing-rag-with-knowledge-graphs-3312065f99e1](https://medium.com/@zilliz_learn/graphrag-explained-enhancing-rag-with-knowledge-graphs-3312065f99e1)
+
+[3] [https://www.datastax.com/guides/graph-rag](https://www.datastax.com/guides/graph-rag)
+
+[4] [https://www.falkordb.com/blog/what-is-graphrag/](https://www.falkordb.com/blog/what-is-graphrag/)
+
+[5] [https://www.ontotext.com/knowledgehub/fundamentals/what-is-graph-rag/](https://www.ontotext.com/knowledgehub/fundamentals/what-is-graph-rag/)
+
+[6] [https://microsoft.github.io/graphrag/](https://microsoft.github.io/graphrag/)
+```
+
+Right now LeetTools provides the following flows:
 
 * answer  : Answer the query directly with source references.
 * digest  : Generate a multi-section digest article from search results.
@@ -87,8 +117,22 @@ Right now we provide the following flows:
 * extract : Extract information from the search results and output as csv.
 
 
-See the [Documentation](docs/documentation.md) for more design details.
+See the [Documentation](docs/documentation.md) for more details.
 
+
+## Libraries and APIs used
+
+Right now the default settings are using the following libraries and APIs:
+
+- [Google Search API](https://developers.google.com/custom-search/v1/overview)
+- [OpenAI API](https://beta.openai.com/docs/api-reference/completions/create)
+- [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
+- [bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+- [DuckDB](https://github.com/duckdb/duckdb)
+- [Docling](https://github.com/DS4SD/docling)
+- [Chonkie](https://github.com/bhavnicksm/chonkie)
+
+We plan to add more plugins for different components to support different workloads.
 
 ## Get help and support
 

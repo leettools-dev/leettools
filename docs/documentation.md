@@ -7,7 +7,22 @@ increasingly popular recently. However, instead of simple question-answering int
 sometimes we need perform more complex search-based tasks that need iterative workflows, 
 personalized data curation, and domain-specific knowledge integration. 
 
-Here are a few examples:
+```Markdown title="Example: Search and Summarize"
+When we do a web seartch, since the content we need may not always be available on the 
+first page of search results, can we go a few more pages to find only relevant documents
+and then summary the relevant information? For such a search workflow, we can:
+1. Use a search engine to fetch the top documents, up to X pages.
+2. Crawl the result URLs to fetch the content.
+3. Use LLM to summarize the content of each page to see if the content is relevant.
+4. We can also crawl links found in the content to fetch more relevant information.
+5. When we reach a predefind threshold, say number of relevant documents, or number of
+   iterations, we can stop the search.
+6. Aggregate all the relevant summaries to generate a list of topics discussed in the
+   search results.
+7. Use the topics to generate a digest article that summarizes the search results.
+```
+
+Here are a few more examples:
 - Simple:
     - Search and summarize: search for a topic, in the search results, go through the top
         X instead of only the top 10, filter out the unrelated ones, generate a digest 
@@ -134,8 +149,7 @@ Extra structured data from web or local KB search results:
 
 ### Search and generate with style
 
-You can generate an article with a specific style from the search results. For example,
-you can generate a news article with a specific style:
+You can generate an article with a specific style from the search results. 
 
 - Specify the number of days to search for news (right now only Google search is 
   supported for this option);
@@ -151,10 +165,10 @@ you can generate a news article with a specific style:
 ## Local command line commands
 
 Then you can run the command line commands, assuming all commands are run under the root
-directory of the project. Run the "eds list" command to see all the available commands:
+directory of the project. Run the "leet list" command to see all the available commands:
 
 ```bash
-% eds list
+% leet list
 list	List all CLI commands and subcommands.
 ...
 flow	Run the flow for the query.
@@ -166,27 +180,20 @@ You can run any flow using the `eds flow` command.
 
 ```bash
 # list all the flows
-eds flow --list
+leet flow --list
 # check the parameters for a flow
-eds flow -t answer --info
+leet flow -t answer --info
 # run an answer flow with the default settings
-eds flow -t answer -q "What is GraphRAG"
-# run an answer flow with extra parameters
-eds flow -t answer -q "What is GraphRAG" -p days_limit=3 -p output_language=fr
+leet flow -t answer -q "What is GraphRAG"
+# run an answer flow with extra parameters, such as the days_limit and output_language
+leet flow -t answer -q "What is GraphRAG" -p days_limit=3 -p output_language=es
 # run an answer flow and save the output to a KB
-eds flow -t answer -q "What is GraphRAG" -k graphrag_kb
+leet flow -t answer -q "What is GraphRAG" -k graphrag
 # run an anwser flow on the local KB
-eds flow -t answer -q "What is GraphRAG" -k graphrag_kb -p retriever_type=local
-```
-
-### Add a local directory to the KB
-
-For example, to add a directory to the default KB:
-
-```bash
-# you need to specify the ingestion_dir and the doc_source
-# export ingestion_dir=<your_dir>
-# export doc_source=<name_of_doc_source>
-# you can also specify a -k option to specify the KB name
-eds kb add-local-dir -p ${ingestion_dir} -s ${doc_source} -k ${kb_name}
+leet flow -t answer -q "What is GraphRAG" -k graphrag -p retriever_type=local
+# run an digest of seach results from the last three days and output in Spanish
+# this query will run for a while to fetch and analyze the search results
+leet flow -t digest -q "LLM GenAI News" -k genai -p days_limit=3 -p output_language=es -l info
+# extract the structured data from the search results
+leet flow -t extract -q "LLM GenAI Startup" -k genai -p extract_pydantic=docs/company.py -l info
 ```
