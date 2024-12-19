@@ -205,6 +205,7 @@ class Context:
         self._intention_store = None
         self._strategy_store = None
         self._usage_store = None
+        self._user_settings_store = None
 
         # now the context is ready to be used
         self.status = ContextStatus.RUNNING

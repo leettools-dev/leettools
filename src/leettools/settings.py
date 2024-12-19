@@ -4,6 +4,7 @@ from typing import ClassVar, Dict, List
 
 from pydantic import BaseModel, Field
 
+from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.utils.obj_utils import ENV_VAR_PREFIX, add_env_var_constants
 from leettools.core.schemas.user_settings import UserSettingsItem
@@ -75,8 +76,6 @@ class SystemSettings(BaseModel):
     Most of the programs should read the settings only from this class.
     In testing environments, we can set the settings to a specific value.
     """
-
-    REQUIRED_ENV_VARS: ClassVar[List[str]] = ["EDS_DATA_ROOT", "EDS_LOG_ROOT"]
 
     # system settings that should not be changed unless the version of the system changes
     API_V1_STR: ClassVar[str] = "/api/v1"
@@ -524,8 +523,6 @@ class SystemSettings(BaseModel):
             if not eds_log_root:
                 os.environ["EDS_LOG_ROOT"] = f"{leet_home}/logs"
 
-        self.check_required_env_vars()
-
         for field_name in self.model_fields.keys():
             if field_name in self.__class_vars__:
                 continue
@@ -552,6 +549,8 @@ class SystemSettings(BaseModel):
 
         if self.DUCKDB_PATH is None:
             self.DUCKDB_PATH = self.DATA_ROOT + "/duckdb"
+
+        self.check_required_vars()
 
         logger().debug("Finished initializing settings.")
         return self
@@ -640,12 +639,28 @@ class SystemSettings(BaseModel):
             ),
         }
 
-    def check_required_env_vars(self) -> None:
-        for var in self.REQUIRED_ENV_VARS:
-            if var not in os.environ:
-                raise EnvironmentError(
-                    f"Required environment variable {var} is not set."
-                )
+    def check_required_vars(self) -> None:
+        err_msgs = []
+        if not self.DATA_ROOT:
+            err_msgs.append(
+                "Required variable DATA_ROOT is not set. "
+                "Set the environment variable EDS_DATA_ROOT or LEET_HOME."
+            )
+
+        if not self.LOG_ROOT:
+            err_msgs.append(
+                "Required variable LOG_ROOT is not set. "
+                "Set the environment variable EDS_LOG_ROOT or LEET_HOME."
+            )
+
+        if not self.OPENAI_API_KEY:
+            err_msgs.append(
+                "Required variable OPENAI_API_KEY is not set. "
+                "Set the environment variable EDS_OPENAI_API_KEY."
+            )
+
+        if err_msgs:
+            raise exceptions.ParametersValidationException(err_msgs)
 
     def __repr__(self) -> str:
         return f"SystemSettings({self.__dict__})"
