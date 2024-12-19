@@ -286,7 +286,7 @@ def get_default_embed_api_provider_config(
         default_env="OPENAI_API_KEY",
         first_key="OPENAI_API_KEY",
         second_key=None,
-        allow_empty=True,
+        allow_empty=False,
     )
     base_url = get_value_from_settings(
         context=context,

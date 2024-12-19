@@ -1,5 +1,48 @@
-
 # LeetTools
+
+## Problems
+
+LLM-based search applications such as Perplexity and ChatGPT search have become 
+increasingly popular recently. However, instead of simple question-answering interactions, 
+sometimes we need perform more complex search-based tasks that need iterative workflows, 
+personalized data curation, and domain-specific knowledge integration. 
+
+Here are a few examples:
+- Simple:
+    - Search and summarize: search for a topic, in the search results, go through the top
+        X instead of only the top 10, filter out the unrelated ones, generate a digest 
+        article from the search results.
+    - Customized search: Can I limit my search to a specific domain or source or a date range? 
+        Can I query in language X, search in language Y, and generate the answer in language Z?
+        Can I exclude the search results from a specific source? Can I generate the results
+        in a specific style with a specific length?
+- Complex:
+    - Extract and dedupe: find all entities that satisfy a condition, extract required
+        information as structured data, and deduplicate the results.
+    - Search and aggregate: given a product, search for all recently reviews and feedbacks,
+        identify the sentiment, the product aspects, and the suggestions, aggregate the
+        results based on the sentiment and the aspects.
+- Hard:
+    - Dynamic streaming queries: monitor the web for a specific topic, find the "new" and "hot"
+        information that I have not seen before and satisfies a certain criteria, summarize
+        or extract the content I need and generate a report in my customized format.
+
+After analyzing why it is hard to implement such tasks, we found that the main reason
+is the lack of data support for the iterative workflows. Therefore, we want to make 
+a persistent data layer to support the complex logic required for such tasks.
+
+
+## Solution: search flow with a document pipeline
+LeetTools enables implementation of automated search flows backed by a local document
+pipeline. Besides the common benefits of a private deployment such as security and using
+local models, LeetTools provides many benefits:
+
+- integrated pipeline to abstract away the complex setup for all the components;
+- easier to implement customized/automated/complex search-task logic;
+- better control over the indexing, retrieval, and ranking process;
+- allow personalized data curations and annotations process;
+- more flexible to adapt models and functionalities suitable for the requirements.
+
 
 ## Key Componets
 

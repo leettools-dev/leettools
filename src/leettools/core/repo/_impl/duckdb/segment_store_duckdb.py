@@ -72,7 +72,7 @@ class SegmentStoreDuckDB(AbstractSegmentStore):
         )
         if existing_segment is not None:
             if existing_segment.content == segment_create.content:
-                logger().warning(
+                logger().debug(
                     f"Segment {segment_create.document_uuid} at {segment_create.position_in_doc} "
                     "already exists in the collection. Most likely it is created by a "
                     "partially finished operation."

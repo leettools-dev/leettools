@@ -41,10 +41,7 @@ class GoogleSearch(AbstractRetriever):
         super().__init__(context, org, kb, user)
         self.api_key = self._get_api_key()
         self.cx_key = self._get_cx_key(cx_name="GOOGLE_CX_KEY")
-        self.google_url_base = os.environ.get(
-            SystemSettings.EDS_GOOGLE_SEARCH_URL,
-            "https://www.googleapis.com/customsearch/v1",
-        )
+        self.google_url_base = context.settings.GOOGLE_SEARCH_URL
 
     def retrieve_search_result(
         self,
@@ -322,8 +319,9 @@ class GoogleSearch(AbstractRetriever):
                 allow_empty=False,
             )
         except Exception as e:
-            self.logger.warning(
-                "Failed to get Google API key. Please set the GOOGLE_API_KEY environment variable. "
+            self.logger.debug(
+                "Failed to get Google API key. Maybe using a proxy, set the dummp key "
+                "instead. If possible, please set the EDS_GOOGLE_API_KEY environment variable. "
                 "You can get a key at https://developers.google.com/custom-search/v1/overview:\n"
                 f"{e}"
             )
@@ -348,10 +346,11 @@ class GoogleSearch(AbstractRetriever):
                 allow_empty=False,
             )
         except:
-            self.logger.warning(
-                f"Failed to get Google CX key {cx_name}. Please set the {cx_name} environment "
-                "variable. This should be your custom search engine ID. You can get "
-                "a key at https://cse.google.com/cse"
+            self.logger.debug(
+                f"Failed to get Google CX key {cx_name}. Maybe using a proxy, set the "
+                f"dummy key instead. If possible, please set the {cx_name} environment "
+                "variable. This should be your custom search engine ID. You can get a "
+                "key at https://cse.google.com/cse"
             )
             api_key = "dummy_google_cx_key"
         return api_key
