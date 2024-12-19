@@ -1,0 +1,6 @@
+{
+    "title": "Rewritten RAG LLM query",
+    "search_query": "RAG LLM",
+    "user_prompt_template": "\n{{ context_presentation }}, please write the section {{ lang_instruction }}\nfollowing the instructions below.\n\nSummarize the key details about LLM and RAG usage.\n{{ reference_instruction }}\n{{ style_instruction }}\n{{ ouput_example_instruction }}\n                    \nHere is the query: LLM and RAG usage                    \nHere is the topic: RAG and LLM Usage\nHere is the context: {{ context }}\n",
+    "system_prompt_template": "\nYou are an expert news writer, you can write a detailed section about the topic \nusing the provided context and the specified style shown in the example.\n"
+}

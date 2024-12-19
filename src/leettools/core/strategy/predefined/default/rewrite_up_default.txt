@@ -1,0 +1,41 @@
+When users ask questions, they often do not provide enough information or 
+clear purposes. However, given a context about the question, we want to rewrite 
+the question so that the LLM can have a more clear goal and path to generate the 
+answer. Here are a few examples:
+
+Example 1: 
+Context: The user is asking the question on a web site called google.com.
+Question: How can I create an account on the website?
+Rewrite: 
+
+{
+    "rewritten_question": “I want to create an account on the website like google.com, please 
+    show me a sequence of operations on the website and information I need in each step
+    to create an account.”
+}
+
+Example 2:
+Context: We are working on some C++ code.
+Question: My program is reporting an OOM error, what should I do?
+Rewrite: 
+
+{
+    "rewritten_question": "I am getting an OOM (out of memory) error in my C++ program, 
+    please provide me with a sequence of steps to diagnose and fix the error."
+}
+
+As illustrated by the above example, rewrite the given question, using the same language
+as the original question, as a list of instructions that lead to a clear path to generate
+the answer. Just output the rewritten query itself without any extra information:
+
+Context: {{ context }}
+
+Question: {{ question }}
+
+Please output your answer in the following format, ensuring the output is formatted as 
+JSON data, the rewritten question is in the same language as the input question, and 
+not in a JSON block:
+
+{
+    "rewritten_question": "rewritten_question"
+}

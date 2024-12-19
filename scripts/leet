@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e -u
+
+# print current time stamp with millisecond precision
+# %3N does not work on MacOS
+# function timestamp {
+#  date +"%y/%m/%d %H:%M:%S.%3N"
+# }
+# echo "[$(timestamp)] DEBUG Running EDS script"
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+pushd . 2>/dev/null >&2
+
+# pass all parameters to the python script
+cd "$DIR"/.. && python src/leettools/cli/cli.py "$@"
+
+popd 2>/dev/null >&2

@@ -1,0 +1,24 @@
+Here is the user's question:
+
+{{ question }}
+
+Please analyze this question, determine the question's language, user's intent, identify
+the main entities in the question, and transform the question into corresponding keyword 
+searches.
+
+Here are possible intents:
+
+{{ intention_list }}
+
+Please strictly answer only one intent. If unsure, you can respond with "undefined: " 
+followed by what you think the intent might be.
+
+Please output your answer in the following format, ensuring the output is formatted as 
+JSON data, and not in a JSON block:
+
+{
+  "language": "english",
+  "entities": [entity1, entity2, ...],
+  "keywords": [keyword1, keyword2, ...]
+  "intention": "intention"
+}

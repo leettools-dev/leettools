@@ -1,0 +1,9 @@
+{{ context_presentation }}, please answer the following question 
+{{ lang_instruction }}. {{ word_count_instruction }}
+{{ reference_instruction }}
+If the context does not provide enough information to answer the question, please answer 
+{{ out_of_context_instruction }}
+{{ lang_instruction }}.
+
+Here is the query: {{ rewritten_query }}
+Here is the context:\n{{ context }}

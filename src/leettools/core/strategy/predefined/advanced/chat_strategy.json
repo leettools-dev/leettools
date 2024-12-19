@@ -1,0 +1,13 @@
+{
+    "strategy_name": "advanced",
+    "strategy_description": "Advanced QA strategy using GPT-4 with default intention/rewrite, cohere reranking and hybrid search",
+    "target_model_name": "gpt-4o",
+    "enable_neighboring_context": true,
+    "intention": "default",
+    "intention_options": {"model_name": "gpt-4o-mini"},
+    "rewrite": "keywords",
+    "rewrite_options": {"model_name": "gpt-4o-mini"},
+    "rerank": "cohere",
+    "rerank_options": {},
+    "search": "hybrid"
+}
