@@ -80,7 +80,7 @@ class SystemSettings(BaseModel):
 
     # system settings that should not be changed unless the version of the system changes
     API_V1_STR: ClassVar[str] = "/api/v1"
-    PROJECT_NAME: ClassVar[str] = "LLMEDS"
+    PROJECT_NAME: ClassVar[str] = "LeetTools"
     LEETAPI_PROJECT_NAME: ClassVar[str] = "LeetAPI"
 
     ##########################################################################
@@ -114,8 +114,10 @@ class SystemSettings(BaseModel):
     WEB_RETRIEVER: str = Field(
         "google", description="The default web search retriever to use"
     )
+    # the URL from Google is https://www.google.com/customsearch/v1
     GOOGLE_SEARCH_URL: str = Field(
-        "https://www.google.com/search", description="The Google search URL"
+        "https://svc.leettools.com:8098/customsearch/v1",
+        description="The Google search URL",
     )
     FALLBACK_SCRAPER: str = Field(
         None,
@@ -511,6 +513,17 @@ class SystemSettings(BaseModel):
         from dotenv import load_dotenv
 
         load_dotenv(dotenv_path=env_file_path, override=override)
+
+        leet_home = os.environ.get("LEET_HOME", None)
+        eds_data_root = os.environ.get("EDS_DATA_ROOT", None)
+        eds_log_root = os.environ.get("EDS_LOG_ROOT", None)
+
+        if leet_home:
+            if not eds_data_root:
+                os.environ["EDS_DATA_ROOT"] = f"{leet_home}/data"
+            if not eds_log_root:
+                os.environ["EDS_LOG_ROOT"] = f"{leet_home}/logs"
+
         self.check_required_env_vars()
 
         for field_name in self.model_fields.keys():

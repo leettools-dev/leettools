@@ -89,10 +89,15 @@ local models, LeetTools provides many benefits:
 % echo "EDS_OPENAI_API_KEY=your_openai_api_key" > `pwd`/.env
 
 # now you can run the command line commands
-% leet flow -t query -q "How does GraphRAG work?"
+# flow: the subcommand to run different flows, use --list to see all the available flows
+# -t run this 'answer' flow, use --info option to see the function description
+# -q the query
+# -k save the scraped web page to the knowledge base
+# -l log level, info shows the essential log messages
+% leet flow -t answer -q "How does GraphRAG work?" -k GraphRAG -l info
 ```
 
-See the [Documentation](docs/documentation.md) for more details.
+See the [Documentation](docs/documentation.md) for more design details.
 
 
 ## Get help and support
