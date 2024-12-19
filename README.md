@@ -77,6 +77,34 @@ job to automate the search tasks.
 % leet flow -t answer -q "How does GraphRAG work?" -k GraphRAG -l info
 ```
 
+```markdown title="Sample Output"
+# What Is Graphrag
+GraphRAG is an advanced approach to Retrieval-Augmented Generation (RAG) that integrates knowledge graphs with large language models (LLMs) to enhance the generation of responses based on retrieved information. Its primary purpose is to improve the accuracy and relevance of generated outputs by leveraging the structured relationships within knowledge graphs, which allows for a more comprehensive contextual understanding of the data being processed[[1](#reference-1)][[2](#reference-2)].
+
+One of the key enhancements GraphRAG brings to traditional RAG techniques is its ability to connect disparate pieces of information through their shared attributes, enabling the model to synthesize new insights. This is particularly beneficial for complex queries that require multi-hop reasoning or the integration of information from various sources[[3](#reference-3)][[4](#reference-4)]. By utilizing knowledge graphs, GraphRAG can better understand the relationships and dependencies between different pieces of information, leading to more coherent and contextually appropriate responses[[5](#reference-5)][[6](#reference-6)].
+
+The benefits of GraphRAG compared to traditional RAG techniques include:
+
+1. **Enhanced Knowledge Representation**: GraphRAG captures complex relationships between entities and concepts, allowing for a richer understanding of the data[[7](#reference-7)][[8](#reference-8)].
+2. **Explainability**: The use of knowledge graphs makes the decision-making process of the AI more transparent, enabling users to trace errors and understand the reasoning behind outputs[[9](#reference-9)][[10](#reference-10)].
+3. **Improved Contextual Understanding**: By grounding responses in factual knowledge, GraphRAG reduces the risk of generating incorrect or misleading information, a common issue in traditional RAG systems[[11](#reference-11)][[12](#reference-12)].
+4. **Scalability and Efficiency**: GraphRAG can handle large datasets more efficiently, as it is built on fast knowledge graph stores, which can optimize performance and reduce costs associated with vector databases[[13](#reference-13)][[14](#reference-14)].
+
+Overall, GraphRAG represents a significant advancement in the field of AI, particularly in applications requiring high precision and the ability to reason over complex relationships within data[[15](#reference-15)][[16](#reference-16)].
+## References
+[1] [https://medium.com/@amrwrites/you-probably-dont-need-graphrag-0bc9cf671db1](https://medium.com/@amrwrites/you-probably-dont-need-graphrag-0bc9cf671db1)
+
+[2] [https://medium.com/@zilliz_learn/graphrag-explained-enhancing-rag-with-knowledge-graphs-3312065f99e1](https://medium.com/@zilliz_learn/graphrag-explained-enhancing-rag-with-knowledge-graphs-3312065f99e1)
+
+[3] [https://www.datastax.com/guides/graph-rag](https://www.datastax.com/guides/graph-rag)
+
+[4] [https://www.falkordb.com/blog/what-is-graphrag/](https://www.falkordb.com/blog/what-is-graphrag/)
+
+[5] [https://www.ontotext.com/knowledgehub/fundamentals/what-is-graph-rag/](https://www.ontotext.com/knowledgehub/fundamentals/what-is-graph-rag/)
+
+[6] [https://microsoft.github.io/graphrag/](https://microsoft.github.io/graphrag/)
+```
+
 Right now LeetTools provides the following flows:
 
 * answer  : Answer the query directly with source references.
