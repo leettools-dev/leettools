@@ -191,4 +191,9 @@ leet flow -t answer -q "What is GraphRAG" -p days_limit=3 -p output_language=es
 leet flow -t answer -q "What is GraphRAG" -k graphrag
 # run an anwser flow on the local KB
 leet flow -t answer -q "What is GraphRAG" -k graphrag -p retriever_type=local
+# run an digest of seach results from the last three days and output in Spanish
+# this query will run for a while to fetch and analyze the search results
+leet flow -t digest -q "LLM GenAI News" -k genai -p days_limit=3 -p output_language=es -l info
+# extract the structured data from the search results
+leet flow -t extract -q "LLM GenAI Startup" -k genai -p extract_pydantic=docs/company.py -l info
 ```

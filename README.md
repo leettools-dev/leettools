@@ -51,7 +51,7 @@ job to automate the search tasks.
 % git clone https://github.com/leettools-dev/leettools.git
 % cd leettools
 
-% conda create -n leettools python=3.11
+% conda create -y -n leettools python=3.11
 % conda activate leettools
 % pip install -r requirements.txt
 % pip install -e .
@@ -64,6 +64,8 @@ job to automate the search tasks.
 % export PATH=`pwd`/scripts:${PATH}
 
 # set the OPENAI_API_KEY or put it in the .env file
+# or any OpenAI-compatible LLM inference endpoint
+# export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
 % export EDS_OPENAI_API_KEY=your_openai_api_key
 # or
 % echo "EDS_OPENAI_API_KEY=your_openai_api_key" > `pwd`/.env
@@ -74,10 +76,11 @@ job to automate the search tasks.
 # -q the query
 # -k save the scraped web page to the knowledge base
 # -l log level, info shows the essential log messages
-% leet flow -t answer -q "How does GraphRAG work?" -k GraphRAG -l info
+% leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-```markdown title="Sample Output"
+** Sample Output **
+```markdown"
 # What Is Graphrag
 GraphRAG is an advanced approach to Retrieval-Augmented Generation (RAG) that integrates knowledge graphs with large language models (LLMs) to enhance the generation of responses based on retrieved information. Its primary purpose is to improve the accuracy and relevance of generated outputs by leveraging the structured relationships within knowledge graphs, which allows for a more comprehensive contextual understanding of the data being processed[[1](#reference-1)][[2](#reference-2)].
 
@@ -116,6 +119,20 @@ Right now LeetTools provides the following flows:
 
 See the [Documentation](docs/documentation.md) for more details.
 
+
+## Libraries and APIs used
+
+Right now the default settings are using the following libraries and APIs:
+
+- [Google Search API](https://developers.google.com/custom-search/v1/overview)
+- [OpenAI API](https://beta.openai.com/docs/api-reference/completions/create)
+- [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
+- [bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+- [DuckDB](https://github.com/duckdb/duckdb)
+- [Docling](https://github.com/DS4SD/docling)
+- [Chonkie](https://github.com/bhavnicksm/chonkie)
+
+We plan to add more plugins for different components to support different workloads.
 
 ## Get help and support
 
