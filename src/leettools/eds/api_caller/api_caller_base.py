@@ -15,6 +15,7 @@ from leettools.core.schemas.user import User
 from leettools.core.strategy.schemas.strategy_section import StrategySection
 from leettools.core.strategy.schemas.strategy_section_name import StrategySectionName
 from leettools.eds.api_caller import api_utils
+from leettools.eds.api_caller.rerank_client import AbstractRerankClient
 from leettools.eds.rag.intention.intention_getter import DEFAULT_INTENTION
 
 
@@ -47,7 +48,6 @@ class APICallerBase:
         -   display_logger: The event logger object.
         """
 
-        import cohere
         from openai import OpenAI
 
         self.context = context
@@ -78,7 +78,7 @@ class APICallerBase:
         api_provider_config_name = self.strategy_section.api_provider_config_name
         self.model_name = self.strategy_section.api_model_name
         self.model_options = self.strategy_section.api_model_options
-        self.api_client: Union[OpenAI, cohere.Client] = None
+        self.api_client: Union[OpenAI, AbstractRerankClient] = None
 
         if (
             strategy_section.section_name == StrategySectionName.INTENTION
