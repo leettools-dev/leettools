@@ -48,7 +48,6 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
         )
 
         self.segmentstore = self.repo_manager.get_segment_store()
-        self.sparse_vectorstore = create_vector_store_sparse(context)
         self.dense_vectorstore = create_vector_store_dense(context)
         self.tokenizer = Tokenizer(context.settings)
 
@@ -88,8 +87,9 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
                 )
             )
         elif kb.embedder_type == SegmentEmbedderType.HYBRID:
+            sparse_vectorstore = create_vector_store_sparse(context)
             results_from_search: List[VectorSearchResult] = (
-                self.sparse_vectorstore.search_in_kb(
+                sparse_vectorstore.search_in_kb(
                     org=org,
                     kb=kb,
                     user=self.user,
@@ -116,9 +116,6 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
                 logger().warning(
                     f"Sparse search returned segment {result.segment_uuid} not found in "
                     "segment store, maybe from a deleted document."
-                )
-                self.sparse_vectorstore.delete_segment_vector(
-                    org, kb, result.segment_uuid
                 )
                 continue
             segment_token_count = self.tokenizer.token_count(segment.content)
