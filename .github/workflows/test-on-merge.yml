@@ -25,6 +25,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r dev-requirements.txt
+          pip install -e .
+
+      - name: Set up required environment variables
+        run: |
+          export LEET_HOME=$(mktemp -d)
+          echo "LEET_HOME=${LEET_HOME}" >> .env
+          echo "EDS_DEFAULT_OPENAI_BASE_URL=${{ secrets.OPENAI_BASE_URL }}" >> .env
+          echo "EDS_OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+
 
       # Run pytest
       - name: Run tests
