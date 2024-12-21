@@ -49,6 +49,20 @@ class TokenConverterBasic(AbstractTokenConverter):
                     "batch_output": 30,
                 },
             },
+            "leettools": {
+                "default": {
+                    "input": 15,
+                    "output": 60,
+                    "batch_input": 7.5,
+                    "batch_output": 30,
+                },
+                "gpt-4o-mini": {
+                    "input": 15,
+                    "output": 60,
+                    "batch_input": 7.5,
+                    "batch_output": 30,
+                },
+            },
         }
         return token_map
 

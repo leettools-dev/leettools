@@ -9,7 +9,6 @@ from leettools.cli import cli_util
 from leettools.cli.cli_util import DELIM_LINE, load_params_from_file, parse_name_value
 from leettools.cli.options_common import common_options
 from leettools.common.logging import logger
-from leettools.common.utils.dynamic_exec_util import execute_pydantic_snippet
 from leettools.context_manager import ContextManager
 from leettools.core.knowledgebase.kb_manager import get_kb_name_from_query
 from leettools.flow.flow_manager import FlowManager
@@ -107,6 +106,14 @@ def _run_flow_cli(
     help="Path to a file containing parameters as name=value pairs. The -p option can be used to override these parameters.",
 )
 @click.option(
+    "-o",
+    "--output-file",
+    type=click.Path(exists=False, dir_okay=False, writable=True),
+    required=False,
+    default=None,
+    help="Path to a file to save the output. Print to stdout if not specified.",
+)
+@click.option(
     "--strategy",
     "strategy_name",
     required=False,
@@ -154,6 +161,7 @@ def flow(
     flow_type: str,
     param: Dict[str, Any],
     param_file: click.Path,
+    output_file: click.Path,
     strategy_name: str,
     show_info: bool,
     list: bool,
@@ -282,7 +290,12 @@ def flow(
         logger().info(f"Loaded flow_options: {flow_options}")
 
         result_article = _run_flow_cli(**locals())
-        click.echo(result_article)
+
+        if output_file:
+            with open(output_file, "w") as f:
+                f.write(result_article)
+        else:
+            click.echo(result_article)
     except Exception as e:
         click.echo(f"\nError: {e}\n\nUse -l DEBUG to see the details.\n", err=True)
         trace = traceback.format_exc()

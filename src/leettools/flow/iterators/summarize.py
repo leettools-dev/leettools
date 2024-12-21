@@ -73,7 +73,9 @@ links, content, authors, etc. and save them to the database.
                     all_links=all_links,
                     force_summarize=force_summarize,
                 )
-                successful_documents[document.original_uri] = update_document
+                # the return value is None if the document has not been processed
+                if update_document is not None:
+                    successful_documents[document.original_uri] = update_document
             except Exception as e:
                 display_logger.warning(
                     f"Failed to summarize document {document.document_uuid}: {e}. Ignored."
