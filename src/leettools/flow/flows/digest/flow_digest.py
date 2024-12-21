@@ -149,8 +149,9 @@ When interested in a topic, you can generate a digest article:
 
             for url, doc in summarized_docs.items():
                 visted_links.add(url)
-                if doc.relevance_score >= threshold:
-                    final_docs[url] = doc
+                if doc:
+                    if doc.relevance_score >= threshold:
+                        final_docs[url] = doc
 
             if recursive_scrape:
                 while (
