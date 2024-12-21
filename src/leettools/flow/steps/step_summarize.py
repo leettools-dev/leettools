@@ -95,7 +95,7 @@ Here is the content:
         document: Document,
         all_links: Dict[str, int],
         force_summarize: Optional[bool] = False,
-    ) -> Document:
+    ) -> Optional[Document]:
         """
         Summarizes the given document content based on the queries and the model specified
         in the flow options.
@@ -107,6 +107,11 @@ Here is the content:
             the dictionary with the links found in the document.
         - force_summarize (bool): Whether to force summarize the document if the document
             has already been summarized.
+
+        Returns:
+        - Document: The updated document with the summarized information. If the document
+            has not been processed yet, return None. If the document has already been
+            summarized and force_summarize is False, return the document without updating.
         """
 
         display_logger = exec_info.display_logger
@@ -127,7 +132,7 @@ Here is the content:
                 display_logger.debug(
                     f"Document {document.document_uuid} has already been summarized."
                 )
-                return None
+                return document
 
         document_summary = StepSummarize._summarize_content(
             exec_info=exec_info, content=document.content

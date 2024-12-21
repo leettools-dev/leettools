@@ -165,6 +165,5 @@ cython_debug/
 **/tmp*
 .idea
 test*.log.*
-startup_list.*.csv
-startup_list.*.json
 tests/data
+outputs/*
