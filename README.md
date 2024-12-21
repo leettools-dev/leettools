@@ -21,17 +21,17 @@ For example, you can easily
 2. only search in a specific domain, or exclude certain domains from the search.
 3. only search for recent documents from the last X days.
 4. control the output: style, number of words, and number of sections, etc.
-5. extract structured inforation instead of generating answers.
+5. extract structured information instead of generating answers.
 
 The relevant documents scraped during the search are stored in a local knowledge base
 and you can query it again for related questions. You can add your own documents to the
 knowledge base and use them in the search workflow. The system is designed to 
-be modular and extensible; all the compotents are implemented as plugins allowing to use
+be modular and extensible; all the components are implemented as plugins allowing to use
 different components and configurations.
 
 LeetTools provides an easy way to implement search-related function in daily workflows.
 For this version, all the data operations are backed by the in-memory database DuckDB to
-reduce the resource footprints. You can easily to run it on the command line or a cron
+reduce the resource footprints. You can easily run it on the command line or a cron
 job to automate the search tasks. 
 
 ## Features
@@ -79,9 +79,9 @@ job to automate the search tasks.
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
+```markdown
 ** Sample Output **
-```markdown"
-# What Is Graphrag
+# What Is GraphRAG
 GraphRAG is an advanced approach to Retrieval-Augmented Generation (RAG) that integrates knowledge graphs with large language models (LLMs) to enhance the generation of responses based on retrieved information. Its primary purpose is to improve the accuracy and relevance of generated outputs by leveraging the structured relationships within knowledge graphs, which allows for a more comprehensive contextual understanding of the data being processed[[1](#reference-1)][[2](#reference-2)].
 
 One of the key enhancements GraphRAG brings to traditional RAG techniques is its ability to connect disparate pieces of information through their shared attributes, enabling the model to synthesize new insights. This is particularly beneficial for complex queries that require multi-hop reasoning or the integration of information from various sources[[3](#reference-3)][[4](#reference-4)]. By utilizing knowledge graphs, GraphRAG can better understand the relationships and dependencies between different pieces of information, leading to more coherent and contextually appropriate responses[[5](#reference-5)][[6](#reference-6)].
@@ -113,7 +113,7 @@ Right now LeetTools provides the following flows:
 * answer  : Answer the query directly with source references.
 * digest  : Generate a multi-section digest article from search results.
 * search  : Search for top segements that match the query.
-* news    : Generating a news-style article from the search results.
+* news    : Generate a news-style article from the search results.
 * extract : Extract information from the search results and output as csv.
 
 
@@ -127,7 +127,7 @@ Right now the default settings are using the following libraries and APIs:
 - [Google Search API](https://developers.google.com/custom-search/v1/overview)
 - [OpenAI API](https://beta.openai.com/docs/api-reference/completions/create)
 - [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
-- [bs4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+- [BS4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 - [DuckDB](https://github.com/duckdb/duckdb)
 - [Docling](https://github.com/DS4SD/docling)
 - [Chonkie](https://github.com/bhavnicksm/chonkie)

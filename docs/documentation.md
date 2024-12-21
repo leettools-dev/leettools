@@ -8,9 +8,9 @@ sometimes we need perform more complex search-based tasks that need iterative wo
 personalized data curation, and domain-specific knowledge integration. 
 
 ```Markdown title="Example: Search and Summarize"
-When we do a web seartch, since the content we need may not always be available on the 
+When we do a web search, since the content we need may not always be available on the 
 first page of search results, can we go a few more pages to find only relevant documents
-and then summary the relevant information? For such a search workflow, we can:
+and then summarize the relevant information? For such a search workflow, we can:
 1. Use a search engine to fetch the top documents, up to X pages.
 2. Crawl the result URLs to fetch the content.
 3. Use LLM to summarize the content of each page to see if the content is relevant.
@@ -59,12 +59,12 @@ local models, LeetTools provides many benefits:
 - more flexible to adapt models and functionalities suitable for the requirements.
 
 
-## Key Componets
+## Key Components
 
 LeetTools provides the following key components:
 
-- A document pipelines to ingest, convert, chunkm, embed, and index documents. User 
-  specifies a document source such as a searfch query, a local directory, or a single 
+- A document pipelines to ingest, convert, chunk, embed, and index documents. User 
+  specifies a document source such as a search query, a local directory, or a single 
   file, the pipeline will ingest the documents specified by the source to a document 
   sink (the original form of the document) and convert the original document into the
   standard Markdown format document. The Markdown document is then split and indexed 
@@ -75,7 +75,7 @@ LeetTools provides the following key components:
   the segments, the embeddings, the document graph, the entity graph, which can be 
   supported by different storage plugins. In this version, we provide the DuckDB-based
   implementations to minimize the resource footprint.
-- A search and retrieval libaray used by the document pipeline to retrieve documents. 
+- A search and retrieval library used by the document pipeline to retrieve documents. 
   We can use search APIs such as Google, Bing, and Tavily, and scraper APIs such as 
   Firecrawl or Crawl4AI. 
 - A workflow engine to implement search-based AI workflows, which provides a thin-layer
@@ -86,8 +86,8 @@ LeetTools provides the following key components:
 - A scheduler to schedule the execution of the ingestions. We provide a simple pull-based
   scheduler that queries the knowledgebase and execute different tasks (ingestion,
   converting, splitting, indexing) based on the status of the documents. It is possible to
-  schedule the tasks using more sophisicated schedulers, but we provide an integrated
-  simple scheduler to avoid complex setup and unecessary dependencies for basic workloads.
+  schedule the tasks using more sophisticated schedulers, but we provide an integrated
+  simple scheduler to avoid complex setup and unnecessary dependencies for basic workloads.
 - An accounting system to track the usage of the LLM APIs. For all LLM API calls used in
   the pipeline and workflow, the system records the prompts, the provider, the tokens
   used, the results to returned. The goal is to provide observability to the whole
@@ -189,7 +189,7 @@ leet flow -t answer -q "What is GraphRAG"
 leet flow -t answer -q "What is GraphRAG" -p days_limit=3 -p output_language=es
 # run an answer flow and save the output to a KB
 leet flow -t answer -q "What is GraphRAG" -k graphrag
-# run an anwser flow on the local KB
+# run an answer flow on the local KB
 leet flow -t answer -q "What is GraphRAG" -k graphrag -p retriever_type=local
 # run an digest of seach results from the last three days and output in Spanish
 # this query will run for a while to fetch and analyze the search results
