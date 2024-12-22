@@ -8,7 +8,6 @@ from pydantic import BaseModel, Field
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.consts.docsource_type import DocSourceType
-from leettools.core.consts.schedule_type import ScheduleType
 from leettools.core.schemas.schedule_config import ScheduleConfig
 
 

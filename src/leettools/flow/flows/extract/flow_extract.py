@@ -19,6 +19,11 @@ from leettools.core.schemas.chat_query_result import ChatQueryResultCreate
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
+from leettools.core.strategy.schemas.prompt import (
+    PromptBase,
+    PromptCategory,
+    PromptType,
+)
 from leettools.flow import flow_option_items, iterators, steps
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
@@ -29,23 +34,6 @@ from leettools.web import search_utils
 from leettools.web.retrievers.retriever import create_retriever
 
 script_path = os.path.dirname(os.path.realpath(__file__))
-
-
-default_instruction_py_template = """
-from typing import List, Dict
-
-from pydantic import BaseModel
-
-instructions = \"\"\"
-If the article contains the information about {{ query }}, extract the following information:
-
-{{ schema }}
-
-Use -1 for unknown numeric values and "n/a" for unknown string values.
-\"\"\"
-
-{{ schema }}
-"""
 
 
 class FlowExtract(AbstractFlow):
@@ -74,6 +62,35 @@ Extra structured data from web or local KB search results:
 - Extract structured data from matched documents based on the specified model.
 - Display the extracted data as a table in the output.
 """
+
+    @classmethod
+    def used_prompt_templates(cls):
+        instruction_py_template = """
+from typing import List, Dict
+
+from pydantic import BaseModel
+
+instructions = \"\"\"
+If the article contains the information about {{ query }}, extract the following information:
+
+{{ schema }}
+
+Use -1 for unknown numeric values and "n/a" for unknown string values.
+\"\"\"
+
+{{ schema }}
+"""
+        return {
+            cls.COMPONENT_NAME: PromptBase(
+                prompt_category=PromptCategory.EXTRACTION,
+                prompt_type=PromptType.USER,
+                prompt_template=instruction_py_template,
+                prompt_variables={
+                    "schema": "The Pydantic schema for the model class to extract.",
+                    "query": "The query content.",
+                },
+            )
+        }
 
     @classmethod
     def depends_on(cls) -> List[Type["FlowComponent"]]:
@@ -145,6 +162,10 @@ Extra structured data from web or local KB search results:
                     raise exceptions.ParametersValidationException(
                         f"File {pydantic_schema} not found at [{filepath}]"
                     )
+
+        default_instruction_py_template = self.used_prompt_templates()[
+            self.COMPONENT_NAME
+        ].prompt_template
 
         schema_code = render_template(
             template_str=default_instruction_py_template,

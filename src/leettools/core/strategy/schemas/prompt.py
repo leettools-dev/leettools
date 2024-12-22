@@ -40,6 +40,7 @@ class PromptCategory(str, Enum):
     SUMMARIZATION = "summarization"
     EXTRACTION = "extraction"
     PLANNING = "planning"
+    WRITING = "writing"
 
 
 class PromptType(str, Enum):
