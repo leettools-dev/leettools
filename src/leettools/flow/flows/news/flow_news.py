@@ -1,12 +1,18 @@
 from typing import ClassVar, Dict, List, Optional, Type
 
 from leettools.common.logging.event_logger import EventLogger
+from leettools.common.utils import template_eval
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.chat_query_result import ChatQueryResultCreate, SourceItem
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
+from leettools.core.strategy.schemas.prompt import (
+    PromptBase,
+    PromptCategory,
+    PromptType,
+)
 from leettools.flow import flow_option_items, iterators, steps, subflows
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
@@ -18,25 +24,27 @@ from leettools.flow.utils import flow_util
 
 
 def _section_plan_for_news(query: str, search_phrases: str) -> ArticleSectionPlan:
+
+    user_prompt_template = FlowNews.used_prompt_templates()[
+        FlowNews.COMPONENT_NAME
+    ].prompt_template
+
+    # other variables are instantiated in the gen-section step
+    # using variables defined in the flow_options.
+    user_prompt_template = template_eval.render_template(
+        template_str=user_prompt_template,
+        variables={"query": query},
+        allow_partial=True,
+    )
+
     section_plan = ArticleSectionPlan(
         title=query,
         search_query=search_phrases + " " + query,
         system_prompt_template="""
-You are an expert news writer, you can write a brief news report about the topic 
-using the provided context and the specified style shown in the example.
-""",
-        user_prompt_template=f"""
-{{{{ context_presentation }}}}, please write the news report {{{{ lang_instruction }}}}
-following the instructions below.
-
-{{{{ reference_instruction }}}}
-{{{{ style_instruction }}}}
-{{{{ word_count_instruction }}}}
-{{{{ ouput_example }}}}
-                    
-Here is the query: {query}                    
-Here is the context: {{{{ context }}}}
-""",
+    You are an expert news writer, you can write a brief news report about the topic 
+    using the provided context and the specified style shown in the example.
+    """,
+        user_prompt_template=user_prompt_template,
     )
     return section_plan
 
@@ -76,6 +84,40 @@ Specify the topic of the news post,
             iterators.Summarize,
             subflows.SubflowGenSection,
         ]
+
+    @classmethod
+    def used_prompt_templates(cls) -> Dict[str, PromptBase]:
+        # the difficult part of using a generic template evaluation step is that
+        # the variables are instantiated at varies steps in the flow
+        news_prompt_template = """
+{{ context_presentation }}, please write the news report {{ lang_instruction }}
+following the instructions below.
+
+{{ reference_instruction }}
+{{ style_instruction }}
+{{ word_count_instruction }}
+{{ ouput_example }}
+                    
+Here is the query: {{ query }}
+Here is the context: {{ context }}
+"""
+        return {
+            cls.COMPONENT_NAME: PromptBase(
+                prompt_category=PromptCategory.SUMMARIZATION,
+                prompt_type=PromptType.USER,
+                prompt_template=news_prompt_template,
+                prompt_variables={
+                    "context_presentation": "The context presentation.",
+                    "lang_instruction": "The instruction for the language.",
+                    "reference_instruction": "The instruction for the reference.",
+                    "style_instruction": "The instruction for the style.",
+                    "word_count_instruction": "The instruction for the word count.",
+                    "ouput_example": "The output example.",
+                    "query": "The query.",
+                    "context": "The context.",
+                },
+            )
+        }
 
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
@@ -124,6 +166,9 @@ Specify the topic of the news post,
 
         display_logger.info(f"DocSource has been added to knowledge base: {kb.name}")
 
+        # TODO: right now the document summarization is actually no longger used
+        # in the news generation. The gen-section step will query the KB using
+        # the rewritten query and generate the news article.
         iterators.Summarize.run(
             exec_info=exec_info,
             docsource=docsource,
@@ -141,7 +186,6 @@ Specify the topic of the news post,
         section_plan = _section_plan_for_news(
             query=query, search_phrases=search_phrases
         )
-
         section = subflows.SubflowGenSection.run_subflow(
             exec_info=exec_info,
             section_plan=section_plan,
