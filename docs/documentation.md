@@ -4,7 +4,7 @@
 
 LLM-based search applications such as Perplexity and ChatGPT search have become 
 increasingly popular recently. However, instead of simple question-answering interactions, 
-sometimes we need perform more complex search-based tasks that need iterative workflows, 
+sometimes we need to perform more complex search-based tasks that need iterative workflows,
 personalized data curation, and domain-specific knowledge integration. 
 
 ```Markdown title="Example: Search and Summarize"
@@ -15,7 +15,7 @@ and then summarize the relevant information? For such a search workflow, we can:
 2. Crawl the result URLs to fetch the content.
 3. Use LLM to summarize the content of each page to see if the content is relevant.
 4. We can also crawl links found in the content to fetch more relevant information.
-5. When we reach a predefind threshold, say number of relevant documents, or number of
+5. When we reach a predefined threshold, say number of relevant documents, or number of
    iterations, we can stop the search.
 6. Aggregate all the relevant summaries to generate a list of topics discussed in the
    search results.
@@ -63,7 +63,7 @@ local models, LeetTools provides many benefits:
 
 LeetTools provides the following key components:
 
-- A document pipelines to ingest, convert, chunk, embed, and index documents. User 
+- A document pipeline to ingest, convert, chunk, embed, and index documents. User 
   specifies a document source such as a search query, a local directory, or a single 
   file, the pipeline will ingest the documents specified by the source to a document 
   sink (the original form of the document) and convert the original document into the
@@ -90,10 +90,10 @@ LeetTools provides the following key components:
   simple scheduler to avoid complex setup and unnecessary dependencies for basic workloads.
 - An accounting system to track the usage of the LLM APIs. For all LLM API calls used in
   the pipeline and workflow, the system records the prompts, the provider, the tokens
-  used, the results to returned. The goal is to provide observability to the whole
+  used, the results returned. The goal is to provide observability to the whole
   pipeline and foundation for optimization.
 
-All you need to do to implement a search-based AI tool is to write a signal Python script
+All you need to do to implement a search-based AI tool is to write a single Python script
 that organizes different components in the LeetTools framework. An example of such a
 script is shown in 
 [src/leettools/flow/flows/answer/flow_answer.py](src/leettools/flow/flows/answer/flow_answer.py), 
@@ -162,7 +162,7 @@ You can generate an article with a specific style from the search results.
 - You can specify the output language, the number of words, and article style.
 
 
-## Local command line commands
+## Command line commands
 
 Then you can run the command line commands, assuming all commands are run under the root
 directory of the project. Run the "leet list" command to see all the available commands:
@@ -176,7 +176,7 @@ flow	Run the flow for the query.
 
 ### flow execution
 
-You can run any flow using the `eds flow` command.
+You can run any flow using the `leet flow` command.
 
 ```bash
 # list all the flows
