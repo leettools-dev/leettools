@@ -20,6 +20,41 @@ class IngestConfig(BaseModel):
 See [README](./README.md) about the usage of different pydantic models.
 """
 
+"""
+Each DocSource may be ingest many times if the schedule config is set. 
+
+    MANUAL = "manual"  # manual run, no retry, no schedule
+    ONCE = "once"  # run once until success or retry limit reached
+    RECURRING = "recurring"  # run on a schedule
+
+## Manual
+
+Scheduling for this type is very simple: it will be only triggered by a command line
+or an API call.
+
+## Once
+
+When created, this type of docsource will be triggered once. If it fails, it will be
+retried until the retry limit is reached. However, we can also trigger to run the 
+docsource again manually.
+
+## Recurring
+
+This type of docsource will be triggered on a schedule. The schedule config will
+determine how often the docsource will be triggered.
+
+# Different versions of the same DocSink
+
+For each URI determined by the DocSource in each ingest operations, we will create a 
+DocSink in the system whose key is the URI and the ingestion job id (kind of like a
+batch id). If the raw document for the DocSink has the same hash with an existing
+document, or the DocSource can tell the ingestion job that the document has not been
+updated, we will not ingest the document again. In this case, the DocSource will be
+a placeholder to indicate that the URI has been processed in this batch.
+
+
+"""
+
 
 class DocSourceBase(BaseModel):
 
@@ -46,10 +81,10 @@ class DocSourceCreate(DocSourceBase):
 
 class DocSourceInDBBase(DocSourceBase):
     # The UUID of the document source after it has been stored
-    docsource_uuid: str = Field(..., description="UUID of the document source")
+    docsource_uuid: str = Field(..., description="UUID of the docsource")
     is_deleted: Optional[bool] = Field(False, description="Deletion flag")
-    source_status: Optional[DocSourceStatus] = Field(
-        None, description="Status of the document source"
+    docsource_status: Optional[DocSourceStatus] = Field(
+        None, description="Status of the docsource"
     )
 
 
@@ -73,7 +108,7 @@ class DocSourceInDB(DocSourceInDBBase):
             docsource_uuid="",
             kb_id=docsource_create.kb_id,
             source_type=docsource_create.source_type,
-            source_status=DocSourceStatus.CREATED,
+            docsource_status=DocSourceStatus.CREATED,
             uri=docsource_create.uri,
             created_at=ct,
             updated_at=ct,
@@ -95,7 +130,7 @@ class DocSourceInDB(DocSourceInDBBase):
             uri=docsource_update.uri,
             kb_id=docsource_update.kb_id,
             is_deleted=docsource_update.is_deleted,
-            source_status=docsource_update.source_status,
+            docsource_status=docsource_update.docsource_status,
             updated_at=datetime.now(),
         )
         assign_properties(docsource_update, docsource_in_store)
@@ -118,7 +153,7 @@ class DocSource(DocSourceInDB):
             kb_id=docsource_instore.kb_id,
             source_type=docsource_instore.source_type,
             is_deleted=docsource_instore.is_deleted,
-            source_status=docsource_instore.source_status,
+            docsource_status=docsource_instore.docsource_status,
             uri=docsource_instore.uri,
             ingest_config=docsource_instore.ingest_config,
             schedule_config=docsource_instore.schedule_config,
@@ -128,7 +163,7 @@ class DocSource(DocSourceInDB):
         return docsource
 
     def is_finished(self) -> bool:
-        return self.source_status in [
+        return self.docsource_status in [
             DocSourceStatus.COMPLETED,
             DocSourceStatus.FAILED,
             DocSourceStatus.ABORTED,
@@ -155,7 +190,7 @@ class BaseDocSourceSchema(ABC):
             DocSource.FIELD_DOCSOURCE_UUID: "VARCHAR PRIMARY KEY",
             DocSource.FIELD_KB_ID: "VARCHAR",
             DocSource.FIELD_SOURCE_TYPE: "VARCHAR",
-            DocSource.FIELD_SOURCE_STATUS: "VARCHAR",
+            DocSource.FIELD_DOCSOURCE_STATUS: "VARCHAR",
             DocSource.FIELD_URI: "VARCHAR",
             DocSource.FIELD_IS_DELETED: "BOOLEAN DEFAULT FALSE",
             DocSource.FIELD_DISPLAY_NAME: "VARCHAR",

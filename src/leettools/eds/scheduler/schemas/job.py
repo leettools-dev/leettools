@@ -1,61 +1,57 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
+from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.program import ProgramSpec
 
-JOB_UUID_ATTR = "job_uuid"
-JOB_STATUS_ATTR = "job_status"
-UPDATED_AT_ATTR = "updated_at"
-JOB_DELETE_ATTR = "is_deleted"
+"""
+See [README](./README.md) about the usage of different pydantic models.
+"""
 
-
-class JobStatus(str, Enum):
-    CREATED = "created"  # the task has been created but no job has been started
-    PENDING = "pending"  # the job is in the queue
-    RUNNING = "running"  # the job is running
-    PAUSED = "paused"  # the job is paused
-    COMPLETED = "completed"  # the kob is completed successfully
-    FAILED = "failed"  # the job has failed
-    ABORTED = "aborted"  # the job has been aborted
-
-
-class JobStatusDescription(BaseModel):
-    status: JobStatus
-    display_name: str
-    description: str
+"""
+Each task may have multiple jobs associated with it. Each job is a specific run of the task.
+"""
 
 
 # Shared properties
 class JobBase(BaseModel):
-    task_uuid: str
-    program_spec: ProgramSpec
+    task_uuid: str = Field(..., description="The UUID of the task.")
+    program_spec: ProgramSpec = Field(
+        ...,
+        description=(
+            "The parameters needed to run the task. A new job will created based on the "
+            "task_uuid and the spec."
+        ),
+    )
 
 
 class JobCreate(JobBase):
     pass
 
 
-# Properties shared by models stored in DB
 class JobInDBBase(JobBase):
-    job_uuid: str
-    job_status: Optional[JobStatus] = None
-    progress: Optional[float] = None
-    result: Optional[Dict] = None
-    log_location: Optional[str] = None
-    output_dir: Optional[str] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    paused_at: Optional[datetime] = None
-    last_failed_at: Optional[datetime] = None
-    retry_count: Optional[int] = None
-    is_deleted: Optional[bool] = False
+    job_uuid: str = Field(..., description="The UUID of the job.")
+    job_status: Optional[JobStatus] = Field(None, description="The status of the job.")
+    progress: Optional[float] = Field(
+        None, description="The progress percentage of the job."
+    )
+    result: Optional[Dict] = Field(None, description="The result of the job.")
+    log_location: Optional[str] = Field(
+        None, description="The location of the log file."
+    )
+    output_dir: Optional[str] = Field(None, description="The location of the output.")
+    paused_at: Optional[datetime] = Field(None, description="The pause time.")
+    last_failed_at: Optional[datetime] = Field(
+        None, description="The last failed time."
+    )
+    retry_count: Optional[int] = Field(None, description="The retry count.")
+    is_deleted: Optional[bool] = Field(False, description="The deletion flag.")
 
 
 class JobUpdate(JobInDBBase):
@@ -64,6 +60,10 @@ class JobUpdate(JobInDBBase):
 
 # Properties properties stored in DB
 class JobInDB(JobInDBBase):
+
+    created_at: Optional[datetime] = Field(None, description="The creation time.")
+    updated_at: Optional[datetime] = Field(None, description="The update time.")
+
     @classmethod
     def from_job_create(JobInDB, job_create: JobCreate) -> "JobInDB":
         ct = datetime.now()
@@ -111,48 +111,7 @@ class JobInDB(JobInDBBase):
 
 # Properties to return to client
 @add_fieldname_constants
-class Job(JobInDBBase):
-
-    @classmethod
-    def get_job_status_descriptions(cls) -> list[JobStatusDescription]:
-        job_status_descriptions = [
-            JobStatusDescription(
-                status=JobStatus.CREATED,
-                display_name="Created",
-                description="The job has been created.",
-            ),
-            JobStatusDescription(
-                status=JobStatus.PENDING,
-                display_name="Pending",
-                description="The job is in the queue",
-            ),
-            JobStatusDescription(
-                status=JobStatus.RUNNING,
-                display_name="Running",
-                description="The job is running",
-            ),
-            JobStatusDescription(
-                status=JobStatus.PAUSED,
-                display_name="Paused",
-                description="The job is paused",
-            ),
-            JobStatusDescription(
-                status=JobStatus.COMPLETED,
-                display_name="Completed",
-                description="The job has completed successfully",
-            ),
-            JobStatusDescription(
-                status=JobStatus.FAILED,
-                display_name="Failed",
-                description="The job has failed",
-            ),
-            JobStatusDescription(
-                status=JobStatus.ABORTED,
-                display_name="Aborted",
-                description="The job has been aborted",
-            ),
-        ]
-        return job_status_descriptions
+class Job(JobInDB):
 
     @classmethod
     def from_job_in_db(Job, job_in_db: JobInDB) -> "Job":

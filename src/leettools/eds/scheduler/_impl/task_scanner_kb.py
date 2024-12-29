@@ -78,7 +78,7 @@ class TaskScannerKB(AbstractTaskScanner):
             total_tasks_count += 1
 
         if task_counts[TaskStatus.COMPLETED] == total_tasks_count:
-            docsource.source_status = DocSourceStatus.COMPLETED
+            docsource.docsource_status = DocSourceStatus.COMPLETED
         else:
             if (
                 task_counts[TaskStatus.CREATED] > 0
@@ -86,14 +86,14 @@ class TaskScannerKB(AbstractTaskScanner):
                 or task_counts[TaskStatus.RUNNING] > 0
                 or task_counts[TaskStatus.PENDING] > 0
             ):
-                docsource.source_status = DocSourceStatus.PROCESSING
+                docsource.docsource_status = DocSourceStatus.PROCESSING
             else:
                 if task_counts[TaskStatus.COMPLETED] > 0:
-                    docsource.source_status = DocSourceStatus.PARTIAL
+                    docsource.docsource_status = DocSourceStatus.PARTIAL
                 else:
-                    docsource.source_status = DocSourceStatus.FAILED
+                    docsource.docsource_status = DocSourceStatus.FAILED
         self.docsource_store.update_docsource(org, kb, docsource)
-        return docsource.source_status
+        return docsource.docsource_status
 
     def _update_docsink_status(
         self, org: Org, kb: KnowledgeBase, docsink: DocSink
@@ -482,7 +482,7 @@ class TaskScannerKB(AbstractTaskScanner):
                         # now we deal with run-to-finish docsources
                         if not docsource.is_finished():
                             self.logger.debug(
-                                f"Docsource is not finished [{docsource.source_status}]: {dssig}"
+                                f"Docsource is not finished [{docsource.docsource_status}]: {dssig}"
                             )
                             return True
 
@@ -509,14 +509,14 @@ class TaskScannerKB(AbstractTaskScanner):
                         )
                         if len(all_new_tasks) > 0:
                             new_tasks += all_new_tasks
-                            docsource.source_status = DocSourceStatus.PROCESSING
+                            docsource.docsource_status = DocSourceStatus.PROCESSING
                             self.docsource_store.update_docsource(org, kb, docsource)
                         else:
                             if not docsource.is_finished():
                                 self._update_docsource_status(org, kb, docsource)
                             else:
                                 self.logger.debug(
-                                    f"DocSource is already marked as {docsource.source_status}: {dssig}"
+                                    f"DocSource is already marked as {docsource.docsource_status}: {dssig}"
                                 )
                         # last_scan_time is intended to compare the updated_at time of the docsource
                         # but right now the updated_at time is not updated when the status is changed

@@ -76,7 +76,7 @@ def list(
     for docsource in docsources:
         click.echo(
             f"{docsource.docsource_uuid:<{uid_width}}"
-            f"{docsource.source_status:<15}"
+            f"{docsource.docsource_status:<15}"
             f"{docsource.display_name:<40}"
             f"{docsource.uri}"
         )

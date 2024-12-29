@@ -8,7 +8,8 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
 from leettools.eds.scheduler._impl.task_runner_eds import TaskRunnerEDS
-from leettools.eds.scheduler.schemas.job import JobCreate, JobStatus
+from leettools.eds.scheduler.schemas.job import JobCreate
+from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.program import (
     ConnectorProgramSpec,
     ConvertProgramSpec,

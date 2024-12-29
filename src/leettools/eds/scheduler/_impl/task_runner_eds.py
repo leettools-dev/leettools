@@ -11,7 +11,8 @@ from leettools.eds.pipeline.convert.converter import create_converter
 from leettools.eds.pipeline.embed.segment_embedder import create_segment_embedder_for_kb
 from leettools.eds.pipeline.ingest.connector import create_connector
 from leettools.eds.pipeline.split.splitter import Splitter
-from leettools.eds.scheduler.schemas.job import Job, JobStatus
+from leettools.eds.scheduler.schemas.job import Job
+from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.program import (
     ConnectorProgramSpec,
     ConvertProgramSpec,

@@ -12,7 +12,8 @@ from leettools.context_manager import Context
 from leettools.eds.scheduler._impl.task_runner_eds import TaskRunnerEDS
 from leettools.eds.scheduler._impl.task_scanner_kb import TaskScannerKB
 from leettools.eds.scheduler.scheduler import AbstractScheduler
-from leettools.eds.scheduler.schemas.job import Job, JobCreate, JobStatus
+from leettools.eds.scheduler.schemas.job import Job, JobCreate
+from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.scheduler_status import SchedulerStatus
 from leettools.eds.scheduler.schemas.task import Task, TaskStatus
 

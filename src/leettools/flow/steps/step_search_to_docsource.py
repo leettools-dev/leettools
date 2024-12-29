@@ -124,7 +124,7 @@ processed immediately. The function will return after the document source is pro
                     )
                 else:
                     display_logger.info("The document source has finished processing.")
-                    docsource.source_status = DocSourceStatus.COMPLETED
+                    docsource.docsource_status = DocSourceStatus.COMPLETED
                     docsource_store.update_docsource(org, kb, docsource)
             else:
                 # the scheduler has been started and finished processing
@@ -143,7 +143,7 @@ processed immediately. The function will return after the document source is pro
             return docsource
         except Exception as e:
             display_logger.error(f"Failed to run the web search pipeline: {e}")
-            docsource.source_status = DocSourceStatus.FAILED
+            docsource.docsource_status = DocSourceStatus.FAILED
             docsource_store.update_docsource(org, kb, docsource)
             raise e
 
@@ -177,14 +177,14 @@ def _run_web_search_pipeline(
 
     if docsink_create_list is None or len(docsink_create_list) == 0:
         display_logger.warning(f"No results found for the query {query}.")
-        docsource.source_status = DocSourceStatus.COMPLETED
+        docsource.docsource_status = DocSourceStatus.COMPLETED
         docsource_store.update_docsource(org, kb, docsource)
         return []
 
     success_documents = pipeline_utils.run_adhoc_pipeline_for_docsinks(
         exec_info=exec_info, docsink_create_list=docsink_create_list
     )
-    docsource.source_status = DocSourceStatus.COMPLETED
+    docsource.docsource_status = DocSourceStatus.COMPLETED
     docsource_store.update_docsource(org, kb, docsource)
     return success_documents
 

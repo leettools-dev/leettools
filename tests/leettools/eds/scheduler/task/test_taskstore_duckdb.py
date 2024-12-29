@@ -5,7 +5,7 @@ from leettools.core.schemas.docsink import DocSink, DocSinkCreate
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate, DocSourceInDB
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
-from leettools.eds.scheduler.schemas.job import JobStatus
+from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.program import (
     ConnectorProgramSpec,
     ConvertProgramSpec,

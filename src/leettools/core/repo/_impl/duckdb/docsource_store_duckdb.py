@@ -69,9 +69,9 @@ class DocsourceStoreDuckDB(AbstractDocsourceStore):
             data["tags"] = json.dumps(data["tags"])
         if data.get(DocSource.FIELD_SOURCE_TYPE):
             data[DocSource.FIELD_SOURCE_TYPE] = data[DocSource.FIELD_SOURCE_TYPE].value
-        if data.get(DocSource.FIELD_SOURCE_STATUS):
-            data[DocSource.FIELD_SOURCE_STATUS] = data[
-                DocSource.FIELD_SOURCE_STATUS
+        if data.get(DocSource.FIELD_DOCSOURCE_STATUS):
+            data[DocSource.FIELD_DOCSOURCE_STATUS] = data[
+                DocSource.FIELD_DOCSOURCE_STATUS
             ].value
         return data
 
@@ -83,9 +83,9 @@ class DocsourceStoreDuckDB(AbstractDocsourceStore):
             data["schedule_config"] = json.loads(data["schedule_config"])
         if data.get("tags"):
             data["tags"] = json.loads(data["tags"])
-        if data.get(DocSource.FIELD_SOURCE_STATUS):
-            data[DocSource.FIELD_SOURCE_STATUS] = DocSourceStatus(
-                data[DocSource.FIELD_SOURCE_STATUS]
+        if data.get(DocSource.FIELD_DOCSOURCE_STATUS):
+            data[DocSource.FIELD_DOCSOURCE_STATUS] = DocSourceStatus(
+                data[DocSource.FIELD_DOCSOURCE_STATUS]
             )
         return DocSource.from_docsource_in_db(DocSourceInDB.model_validate(data))
 
@@ -113,7 +113,7 @@ class DocsourceStoreDuckDB(AbstractDocsourceStore):
 
         # Create new docsource
         docsource_in_db = DocSourceInDB.from_docsource_create(docsource_create)
-        docsource_in_db.source_status = init_status
+        docsource_in_db.docsource_status = init_status
         data = self._docsource_to_dict(docsource_in_db)
 
         if not data.get(DocSource.FIELD_DOCSOURCE_UUID):
@@ -135,7 +135,7 @@ class DocsourceStoreDuckDB(AbstractDocsourceStore):
         table_name = self._get_table_name(org, kb)
         column_list = [
             DocSource.FIELD_IS_DELETED,
-            DocSource.FIELD_SOURCE_STATUS,
+            DocSource.FIELD_DOCSOURCE_STATUS,
             DocSource.FIELD_UPDATED_AT,
         ]
         value_list = [True, DocSourceStatus.ABORTED, datetime.now()]
@@ -234,7 +234,7 @@ class DocsourceStoreDuckDB(AbstractDocsourceStore):
                     logger().info(
                         f"Finished processing docsource {docsource.docsource_uuid} "
                         f"after {wait_time} seconds, "
-                        f"status {docsource_retrieved.source_status}."
+                        f"status {docsource_retrieved.docsource_status}."
                     )
                     break
             else:
