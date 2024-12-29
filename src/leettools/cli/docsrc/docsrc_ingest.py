@@ -51,11 +51,10 @@ def ingest(
     **kwargs,
 ) -> None:
     from leettools.context_manager import ContextManager
-    from leettools.flow.flows.extractor.flow_extractor import FlowExtractor
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = FlowExtractor.FLOW_TYPE
+    context.name = "cli_docsource_ingest"
     docsource_store = context.get_repo_manager().get_docsource_store()
     docsink_store = context.get_repo_manager().get_docsink_store()
     document_store = context.get_repo_manager().get_document_store()
@@ -91,10 +90,10 @@ def ingest(
 
     if not docsource.is_finished():
         raise exceptions.UnexpectedCaseException(
-            f"Docsource {docsource_uuid} is already in {docsource.source_status} status."
+            f"Docsource {docsource_uuid} is already in {docsource.docsource_status} status."
         )
 
-    docsource.source_status = DocSourceStatus.CREATED
+    docsource.docsource_status = DocSourceStatus.CREATED
     docsource.updated_at = datetime.now()
 
     update_docsource = docsource_store.update_docsource(org, kb, docsource)

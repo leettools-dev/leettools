@@ -50,8 +50,6 @@ class DocSinkInDBBase(DocSinkBase):
     docsink_status: Optional[DocSinkStatus] = Field(
         None, description="The status of the docsink."
     )
-    created_at: Optional[datetime] = Field(None, description="The creation time.")
-    updated_at: Optional[datetime] = Field(None, description="The last update time.")
 
 
 class DocSinkUpdate(DocSinkInDBBase):
@@ -59,6 +57,9 @@ class DocSinkUpdate(DocSinkInDBBase):
 
 
 class DocSinkInDB(DocSinkInDBBase):
+    created_at: Optional[datetime] = Field(None, description="The creation time.")
+    updated_at: Optional[datetime] = Field(None, description="The last update time.")
+
     @classmethod
     def from_docsink_create(cls, docsink_create: DocSinkCreate) -> "DocSinkInDB":
         ct = datetime.now()

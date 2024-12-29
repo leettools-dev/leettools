@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from leettools.common.utils import factory_util
-from leettools.eds.scheduler.schemas.job import Job, JobCreate, JobStatus, JobUpdate
+from leettools.eds.scheduler.schemas.job import Job, JobCreate, JobUpdate
+from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.settings import SystemSettings
 
 

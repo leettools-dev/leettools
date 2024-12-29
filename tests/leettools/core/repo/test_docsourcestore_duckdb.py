@@ -98,7 +98,7 @@ def test_create_docsource(store, org, kb, docsource_create):
     assert docsource.kb_id == kb.kb_id
     assert docsource.uri == docsource_create.uri
     assert docsource.source_type == DocSourceType.FILE
-    assert docsource.source_status == DocSourceStatus.CREATED
+    assert docsource.docsource_status == DocSourceStatus.CREATED
     assert docsource.tags == ["test"]
 
 
@@ -124,7 +124,7 @@ def test_delete_docsource(store, org, kb, docsource_create):
     assert result is True
     retrieved = store.get_docsource(org, kb, created.docsource_uuid)
     assert retrieved.is_deleted is True
-    assert retrieved.source_status == DocSourceStatus.ABORTED
+    assert retrieved.docsource_status == DocSourceStatus.ABORTED
 
 
 def test_update_docsource(store, org, kb, docsource_create):
@@ -136,14 +136,14 @@ def test_update_docsource(store, org, kb, docsource_create):
         kb_id=created.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
-        source_status=DocSourceStatus.PROCESSING,
+        docsource_status=DocSourceStatus.PROCESSING,
         display_name="Updated Name",
     )
 
     updated = store.update_docsource(org, kb, update_data)
     assert updated is not None
     assert updated.docsource_uuid == created.docsource_uuid
-    assert updated.source_status == DocSourceStatus.PROCESSING
+    assert updated.docsource_status == DocSourceStatus.PROCESSING
     assert updated.display_name == "Updated Name"
 
 
@@ -173,7 +173,7 @@ def test_wait_for_docsource_immediate_completion(store, org, kb, docsource_creat
         kb_id=created.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
-        source_status=DocSourceStatus.COMPLETED,
+        docsource_status=DocSourceStatus.COMPLETED,
     )
     store.update_docsource(org, kb, update)
 
@@ -190,7 +190,7 @@ def test_wait_for_docsource_failure(store, org, kb, docsource_create):
         kb_id=created.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
-        source_status=DocSourceStatus.FAILED,
+        docsource_status=DocSourceStatus.FAILED,
     )
     store.update_docsource(org, kb, update)
 
@@ -211,7 +211,7 @@ def test_wait_for_docsource_no_timeout(store, org, kb, docsource_create):
             kb_id=created.kb_id,
             source_type=DocSourceType.FILE,
             uri="test_uri",
-            source_status=DocSourceStatus.COMPLETED,
+            docsource_status=DocSourceStatus.COMPLETED,
         )
         store.update_docsource(org, kb, update)
 
@@ -249,7 +249,7 @@ def test_wait_for_docsource_processing_to_completed(store, org, kb, docsource_cr
         kb_id=created.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
-        source_status=DocSourceStatus.PROCESSING,
+        docsource_status=DocSourceStatus.PROCESSING,
     )
     store.update_docsource(org, kb, processing_update)
 
@@ -262,7 +262,7 @@ def test_wait_for_docsource_processing_to_completed(store, org, kb, docsource_cr
             kb_id=created.kb_id,
             source_type=DocSourceType.FILE,
             uri="test_uri",
-            source_status=DocSourceStatus.COMPLETED,
+            docsource_status=DocSourceStatus.COMPLETED,
         )
         store.update_docsource(org, kb, completed_update)
 
@@ -280,7 +280,7 @@ def test_wait_for_docsource_processing_to_completed(store, org, kb, docsource_cr
         kb_id=created.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
-        source_status=DocSourceStatus.PROCESSING,
+        docsource_status=DocSourceStatus.PROCESSING,
     )
     store.update_docsource(org, kb, processing_update)
     result = store.wait_for_docsource(org, kb, created, timeout_in_secs=1)

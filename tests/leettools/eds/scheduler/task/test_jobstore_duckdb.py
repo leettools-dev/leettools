@@ -8,7 +8,8 @@ from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate, DocSourceInDB
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
-from leettools.eds.scheduler.schemas.job import JobCreate, JobStatus
+from leettools.eds.scheduler.schemas.job import JobCreate
+from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.program import (
     ConnectorProgramSpec,
     ProgramSpec,

@@ -127,7 +127,7 @@ and save them as a list of DocSinks in the DocSource.
                     )
                     continue
                 successful_documents[document.original_uri] = document
-            docsource.source_status = DocSourceStatus.COMPLETED
+            docsource.docsource_status = DocSourceStatus.COMPLETED
             docsource_store.update_docsource(org, kb, docsource)
 
         display_logger.info(f"Scraped {len(successful_documents)} useful URLs.")

@@ -4,13 +4,8 @@ from typing import Any, Dict, List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.exceptions import EntityNotFoundException
-from leettools.eds.scheduler.schemas.job import (
-    Job,
-    JobCreate,
-    JobInDB,
-    JobStatus,
-    JobUpdate,
-)
+from leettools.eds.scheduler.schemas.job import Job, JobCreate, JobInDB, JobUpdate
+from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.program import ProgramSpec
 from leettools.eds.scheduler.task._impl.duckdb.jobstore_duckdb_schema import (
     JobDuckDBSchema,

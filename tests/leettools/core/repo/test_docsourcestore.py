@@ -67,7 +67,7 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
         source_type=docsource1.source_type,
         uri="http://www.example.com",
         kb_id=kb_id,
-        source_status=DocSourceStatus.COMPLETED,
+        docsource_status=DocSourceStatus.COMPLETED,
     )
     docsource3 = dsstore.update_docsource(org, kb, docsource_update)
     assert docsource3 is not None
