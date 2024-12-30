@@ -10,6 +10,7 @@ from leettools.core.consts.retriever_type import RetrieverType
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
+from leettools.settings import SystemSettings
 from leettools.web.schemas.search_result import SearchResult
 
 

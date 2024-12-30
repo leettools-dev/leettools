@@ -5,6 +5,7 @@ from typing import Type, TypeVar
 
 from leettools.common import exceptions
 from leettools.common.logging import logger
+from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 
 T = TypeVar("T", bound=ABC)
 
@@ -31,11 +32,12 @@ def get_subclass_from_module(module_name: str, base_class: Type[T]) -> Type[T]:
 
         if len(subclasses) == 0:
             raise exceptions.UnexpectedCaseException(
-                f"No subclasses of {base_class} found in the module {module_name}."
+                f"No subclasses of {base_class} found in the module {module_name}"
             )
         elif len(subclasses) > 1:
+            err_msg = ", ".join([cls.__name__ for cls in subclasses])
             raise exceptions.UnexpectedCaseException(
-                f"More than one subclass of {base_class} found in the module {module_name}."
+                f"More than one subclass of {base_class} found in the module {module_name}: {err_msg}"
             )
 
         # Return an instance of the found class
@@ -57,22 +59,26 @@ def create_manager_with_repo_type(
 ) -> T:
     """
     Dynamically creates and returns an instance of a manager class based on the given
-    repository type. This function constructs the module name for the manager class
-    using the provided `manager_name` and `repo_type`. It then imports the module and
-    creates an instance of the manager class, ensuring it is a subclass of `base_class`.
+    repository type.
+
+    This function constructs the module name for the manager class using the provided
+    `manager_name` and `repo_type`. It then imports the module and creates an instance
+    of the manager class, ensuring it is a subclass of `base_class`. We can override
+    the module name by setting the environment variable EDS_{manager_name.upper()} with
+    a relative or absolute module path.
 
     Args:
-    -    manager_name (str): The name of the manager.
-    -    repo_type (str): The type of the repository.
-    -    base_class (Type[T]): The base class that the manager class should inherit from.
-    -    *args: Additional positional arguments to pass to the manager class constructor.
-    -    **kwwargs: Additional keyword arguments to pass to the manager class constructor.
+    - manager_name (str): The name of the manager.
+    - repo_type (str): The type of the repository.
+    - base_class (Type[T]): The base class that the manager class should inherit from.
+    - *args: Additional positional arguments to pass to the manager class constructor.
+    - **kwwargs: Additional keyword arguments to pass to the manager class constructor.
     Returns:
-    -    T: An instance of the manager class.
+    - T: An instance of the manager class.
     """
     import os
 
-    module_name = os.environ.get(f"EDS_{manager_name.upper()}")
+    module_name = os.environ.get(f"{ENV_VAR_PREFIX}{manager_name.upper()}")
     if module_name is None or module_name == "":
         module_name = f"{manager_name}_{repo_type}"
 

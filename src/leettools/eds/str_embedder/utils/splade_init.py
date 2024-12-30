@@ -1,11 +1,13 @@
 import os
 
+from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
+
 if __name__ == "__main__":
     """
     This script can be used to download and cache the SPLADE model.
     """
-    os.environ["EDS_DATA_ROOT"] = "dummy"
-    os.environ["EDS_LOG_ROOT"] = "dummy"
+    os.environ[f"{ENV_VAR_PREFIX}DATA_ROOT"] = "dummy"
+    os.environ[f"{ENV_VAR_PREFIX}LOG_ROOT"] = "dummy"
 
     # put the imports after the dummy environment variables
     from leettools.context_manager import Context, ContextManager

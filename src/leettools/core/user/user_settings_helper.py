@@ -3,9 +3,11 @@ from typing import Optional
 
 from leettools.common.exceptions import ConfigValueException
 from leettools.common.logging import logger
+from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 from leettools.context_manager import Context
 from leettools.core.schemas.user import User
 from leettools.core.schemas.user_settings import UserSettings
+from leettools.settings import SystemSettings
 
 
 def _get_settings_value(
@@ -35,17 +37,21 @@ def get_value_from_settings(
     allow_empty: Optional[bool] = False,
 ) -> str:
     """
-    Get a value from the user settings, admin settings, or environment variables.
+    Get a value from the settings in this order:
+        - user's user-settings,
+        - admin's user-settings
+        - value in the context settings,
+        - environment variables
 
     args:
-        context: Context
-        user_settings: UserSettings
-        default_env: if no value is found in the settings, this environment variable
-            will be checked
-        first_key: the first key to check in the settings
-        second_key: if the first key is not found, this key will be checked, e.g., we
+    - context: Context
+    - user_settings: UserSettings
+    - default_env: if no value is found in the settings, this environment variable
+        will be checked
+    - first_key: the first key to check in the settings
+    - second_key: if the first key is not found, this key will be checked, e.g., we
             will use default open_ai_api_key if no embedly_api_key is found
-        allow_empty: if false, an exception will be raised if no value is found
+    - allow_empty: if false, an exception will be raised if no value is found
     """
     value = _get_settings_value(
         user_settings=user_settings,
@@ -72,12 +78,13 @@ def get_value_from_settings(
     try:
         value = context.settings.__getattribute__(default_env)
         if value is not None and value != "":
-            logger().debug(f"Using system settings variable {default_env}.")
+            logger().debug(f"Using system settings variable {default_env}: {value}.")
             return value
     except AttributeError:
         logger().debug(f"No system settings variable {default_env}.")
 
-    value = os.environ.get(default_env, None)
+    env_var_name = f"{ENV_VAR_PREFIX}{default_env.upper()}"
+    value = os.environ.get(env_var_name, None)
     if value is not None and value != "":
         logger().debug(f"Using env variable {default_env}.")
         return value
