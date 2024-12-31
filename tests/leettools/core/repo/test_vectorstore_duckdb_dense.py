@@ -187,7 +187,7 @@ def test_search_in_kb(vector_store, org, kb, user, segment):
         vector_store.save_segments(org, kb, user, [segment])
 
         # Mock the search parameters
-        query = "test query"
+        query = "test segment"
         top_k = 5
         results = vector_store.search_in_kb(org, kb, user, query, top_k)
 
@@ -199,6 +199,12 @@ def test_search_in_kb(vector_store, org, kb, user, segment):
         results = vector_store.search_in_kb(
             org, kb, user, query, top_k, filter_expr=filter_expr
         )
+        assert len(results) > 0
+        assert results[0].segment_uuid == segment.segment_uuid
+
+        # test full text search
+        vector_store.rebuild_full_text_index(org, kb, user)
+        results = vector_store.full_text_search_in_kb(org, kb, user, query, top_k)
         assert len(results) > 0
         assert results[0].segment_uuid == segment.segment_uuid
 

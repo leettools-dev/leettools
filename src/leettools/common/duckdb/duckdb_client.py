@@ -91,9 +91,6 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                     new_table_name = "t" + new_table_name
 
                 with self.conn.cursor() as cursor:
-                    if create_sequence_sql is not None:
-                        cursor.execute(create_sequence_sql)
-
                     result = cursor.execute(
                         f"""
                         SELECT name 
@@ -103,6 +100,9 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                     ).fetchone()
 
                     if result is None:
+                        if create_sequence_sql is not None:
+                            cursor.execute(create_sequence_sql)
+
                         create_table_sql = self._get_create_table_sql(
                             new_schema_name, new_table_name, columns
                         )
@@ -143,6 +143,34 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             {create_table_sql}
             CREATE TABLE IF NOT EXISTS {schema_name}.{table_name} ({','.join(columns)})
         """
+
+    def execute_sql(self, sql: str, value_list: List[Any] = None) -> None:
+        try:
+            with self.conn.cursor() as cursor:
+                if value_list is not None:
+                    cursor.execute(sql, value_list)
+                else:
+                    cursor.execute(sql)
+        except Exception as e:
+            raise UnexpectedOperationFailureException(
+                operation_desc=f"Error executing SQL {sql}", error=str(e)
+            )
+
+    def execute_and_fetch_all(
+        self, sql: str, value_list: List[Any] = None
+    ) -> List[Dict[str, Any]]:
+        try:
+            with self.conn.cursor() as cursor:
+                if value_list is not None:
+                    results = cursor.execute(sql, value_list).fetchall()
+                else:
+                    results = cursor.execute(sql).fetchall()
+                column_names = [desc[0] for desc in cursor.description]
+                return [dict(zip(column_names, row)) for row in results]
+        except Exception as e:
+            raise UnexpectedOperationFailureException(
+                operation_desc=f"Error executing SQL {sql}", error=str(e)
+            )
 
     def fetch_all_from_table(
         self,
