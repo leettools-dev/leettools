@@ -2,8 +2,10 @@
 
 from leettools.common.temp_setup import TempSetup
 from leettools.context_manager import Context, ContextManager
+from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.consts.return_code import ReturnCode
 from leettools.core.schemas.docsink import DocSink, DocSinkCreate, DocSinkInDB
+from leettools.core.schemas.docsource import DocSourceCreate
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.eds.pipeline.convert.converter import create_converter
@@ -39,18 +41,33 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     )
 
     repo_manager = context.get_repo_manager()
-    kb_id = kb.kb_id
 
-    docstore = repo_manager.get_document_store()
+    docsource_store = repo_manager.get_docsource_store()
+    docsource_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
+        source_type=DocSourceType.URL,
+        uri="http://www.test1.com",
+    )
+    docsource = docsource_store.create_docsource(
+        org=org,
+        kb=kb,
+        docsource_create=docsource_create,
+    )
+
+    docsink_store = repo_manager.get_docsink_store()
     docsink_create = DocSinkCreate(
-        docsource_uuid="source1",
-        kb_id=kb_id,
+        docsource=docsource,
         original_doc_uri="http://example.com/test.html",
         raw_doc_uri=str(file_path),
     )
-    docsink_in_db = DocSinkInDB.from_docsink_create(docsink_create)
-    docsink_in_db.docsink_uuid = "12345"
-    docsink = DocSink.from_docsink_in_db(docsink_in_db)
+    docsink = docsink_store.create_docsink(
+        org=org,
+        kb=kb,
+        docsink_create=docsink_create,
+    )
+
+    docstore = repo_manager.get_document_store()
 
     file_loader = create_converter(
         org=org,

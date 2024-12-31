@@ -5,6 +5,7 @@ from typing import List, Optional
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.exceptions import EntityExistsException
 from leettools.common.logging import logger
+from leettools.context_manager import ContextManager
 from leettools.core.repo._impl.duckdb.segment_store_duckdb_schema import (
     SegmentDuckDBSchema,
 )
@@ -233,16 +234,34 @@ class SegmentStoreDuckDB(AbstractSegmentStore):
     def get_segments_for_docsource(
         self, org: Org, kb: KnowledgeBase, docsource: DocSource
     ) -> List[Segment]:
-        """Get all segments for a docsource."""
+        """
+        Get all segments for a docsource.
+
+        Since we no longer have a direct relationship between docsource and segment,
+        we need to first get all documents for the docsource and then get all segments
+        for each document.
+
+        This function should not used in regular queries, as it is inefficient.
+        """
         table_name = self._get_table_name(org, kb)
-        where_clause = f"WHERE {Segment.FIELD_DOCSOURCE_UUID} = ? ORDER BY {Segment.FIELD_DOCUMENT_UUID}, {Segment.FIELD_POSITION_IN_DOC}"
-        value_list = [docsource.docsource_uuid]
-        results = self.duckdb_client.fetch_all_from_table(
-            table_name=table_name,
-            where_clause=where_clause,
-            value_list=value_list,
-        )
-        return [self._dict_to_segment(row) for row in results]
+
+        context = ContextManager().get_context()
+        repo_manager = context.get_repo_manager()
+        doc_store = repo_manager.get_document_store()
+        all_segments: List[Segment] = []
+        for doc in doc_store.get_documents_for_docsource(org, kb, docsource):
+            document_uuid = doc.document_uuid
+            where_clause = f"WHERE {Segment.FIELD_DOCUMENT_UUID} = '{document_uuid}'"
+
+            results = self.duckdb_client.fetch_all_from_table(
+                table_name=table_name,
+                where_clause=where_clause,
+            )
+            segments = [self._dict_to_segment(row) for row in results]
+            if results:
+                all_segments.extend(segments)
+
+        return all_segments
 
     def get_younger_sibling_segment(
         self, org: Org, kb: KnowledgeBase, segment: Segment

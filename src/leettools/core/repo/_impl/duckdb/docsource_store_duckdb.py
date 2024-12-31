@@ -4,8 +4,8 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
+from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
-from leettools.common.exceptions import UnexpectedCaseException
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.repo._impl.duckdb.docsource_store_duckdb_schema import (
@@ -238,7 +238,7 @@ class DocsourceStoreDuckDB(AbstractDocsourceStore):
                     )
                     break
             else:
-                raise UnexpectedCaseException(
+                raise exceptions.UnexpectedCaseException(
                     f"Docsource {docsource.docsource_uuid} not found in the DB."
                 )
 

@@ -1,8 +1,8 @@
-import json
 import uuid
 from datetime import datetime
 from typing import List, Optional
 
+from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.core.consts.docsink_status import DocSinkStatus
@@ -21,7 +21,7 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.settings import SystemSettings
 
-DOCSINK_COLLECTION_SUFFIX = "_docsinks"
+_DOCSINK_COLLECTION_SUFFIX = "_docsinks"
 
 
 class DocsinkStoreDuckDB(AbstractDocsinkStore):
@@ -32,45 +32,6 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         self.settings = settings
         self.is_test = is_test
         self.duckdb_client = DuckDBClient(settings)
-
-    def _add_extra_original_doc_uri(
-        self,
-        org: Org,
-        kb: KnowledgeBase,
-        docsink: DocSink,
-        original_doc_uri: str,
-        extra_docsource_uuid: str,
-    ) -> DocSink:
-        """Add extra original doc URI to a docsink."""
-        need_update = False
-
-        if docsink.extra_original_doc_uri is None:
-            docsink.extra_original_doc_uri = [original_doc_uri]
-            need_update = True
-        else:
-            if original_doc_uri not in docsink.extra_original_doc_uri:
-                docsink.extra_original_doc_uri.append(original_doc_uri)
-                need_update = True
-            else:
-                logger().info(
-                    f"original_doc_uri {original_doc_uri} already exists in extra_original_doc_uri"
-                )
-
-        if docsink.extra_docsource_uuid is None:
-            docsink.extra_docsource_uuid = [extra_docsource_uuid]
-            need_update = True
-        else:
-            if extra_docsource_uuid not in docsink.extra_docsource_uuid:
-                docsink.extra_docsource_uuid.append(extra_docsource_uuid)
-                need_update = True
-            else:
-                logger().info(
-                    f"extra_docsource_uuid {extra_docsource_uuid} already exists in extra_docsource_uuid"
-                )
-
-        if need_update:
-            return self.update_docsink(org, kb, docsink)
-        return docsink
 
     def _clean_up_related_data(self, org: Org, kb: KnowledgeBase, docsink: DocSink):
         """Clean up related data for a docsink."""
@@ -88,45 +49,81 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
     def _docsink_to_dict(self, docsink: DocSinkInDB) -> dict:
         """Convert DocSinkInDB to dictionary for storage."""
         data = docsink.model_dump()
-        if data.get(DocSink.FIELD_EXTRA_ORIGINAL_DOC_URI):
-            data[DocSink.FIELD_EXTRA_ORIGINAL_DOC_URI] = json.dumps(
-                data[DocSink.FIELD_EXTRA_ORIGINAL_DOC_URI]
+
+        if DocSink.FIELD_ORIGINAL_DOC_URI in data:
+            data[DocSink.FIELD_ORIGINAL_DOC_URI] = str(
+                data[DocSink.FIELD_ORIGINAL_DOC_URI]
             )
-        if data.get(DocSink.FIELD_EXTRA_DOCSOURCE_UUID):
-            data[DocSink.FIELD_EXTRA_DOCSOURCE_UUID] = json.dumps(
-                data[DocSink.FIELD_EXTRA_DOCSOURCE_UUID]
-            )
+        if DocSink.FIELD_RAW_DOC_URI in data:
+            data[DocSink.FIELD_RAW_DOC_URI] = str(data[DocSink.FIELD_RAW_DOC_URI])
+
         if data.get(DocSink.FIELD_DOCSINK_STATUS):
             data[DocSink.FIELD_DOCSINK_STATUS] = data[
                 DocSink.FIELD_DOCSINK_STATUS
             ].value
+        if data.get(DocSink.FIELD_DOCSOURCE_UUIDS):
+            if type(data[DocSink.FIELD_DOCSOURCE_UUIDS]) == list:
+                data[DocSink.FIELD_DOCSOURCE_UUIDS] = ",".join(
+                    data[DocSink.FIELD_DOCSOURCE_UUIDS]
+                )
+            elif type(data[DocSink.FIELD_DOCSOURCE_UUIDS]) == str:
+                pass
+            else:
+                raise exceptions.UnexpectedOperationFailureException(
+                    operation_desc="Error converting DocSink to dict",
+                    error=f"Unexpected type for docsource_uuids: {data[DocSink.FIELD_DOCSOURCE_UUIDS]}",
+                )
         return data
 
     def _dict_to_docsink(self, data: dict) -> DocSink:
         """Convert stored dictionary to DocSink."""
-        if data.get(DocSink.FIELD_EXTRA_ORIGINAL_DOC_URI):
-            data[DocSink.FIELD_EXTRA_ORIGINAL_DOC_URI] = json.loads(
-                data[DocSink.FIELD_EXTRA_ORIGINAL_DOC_URI]
-            )
-        if data.get(DocSink.FIELD_EXTRA_DOCSOURCE_UUID):
-            data[DocSink.FIELD_EXTRA_DOCSOURCE_UUID] = json.loads(
-                data[DocSink.FIELD_EXTRA_DOCSOURCE_UUID]
-            )
         if data.get(DocSink.FIELD_DOCSINK_STATUS):
             data[DocSink.FIELD_DOCSINK_STATUS] = DocSinkStatus(
                 data[DocSink.FIELD_DOCSINK_STATUS]
             )
+        if data.get(DocSink.FIELD_DOCSOURCE_UUIDS):
+            uuids = data[DocSink.FIELD_DOCSOURCE_UUIDS]
+            print(f"uuids is {uuids}, type is {type(uuids)}")
+            if type(uuids) == str:
+                data[DocSink.FIELD_DOCSOURCE_UUIDS] = uuids.split(",")
+            elif type(uuids) == list:
+                pass
+            else:
+                raise exceptions.UnexpectedOperationFailureException(
+                    operation_desc="Error converting dict to DocSink",
+                    error=f"Unexpected type for docsource_uuids: {uuids}",
+                )
+
+        print(
+            f"data[DocSink.FIELD_DOCSOURCE_UUIDS] is {data[DocSink.FIELD_DOCSOURCE_UUIDS]}"
+        )
+
         return DocSink.from_docsink_in_db(DocSinkInDB.model_validate(data))
 
     def _get_table_name(self, org: Org, kb: KnowledgeBase) -> str:
         """Get the dynamic table name for the org and kb combination."""
         org_db_name = Org.get_org_db_name(org.org_id)
-        collection_name = f"{kb.kb_id}{DOCSINK_COLLECTION_SUFFIX}"
+        collection_name = f"{kb.kb_id}{_DOCSINK_COLLECTION_SUFFIX}"
         return self.duckdb_client.create_table_if_not_exists(
             org_db_name,
             collection_name,
             DocsinkDuckDBSchema.get_schema(),
         )
+
+    def _get_docsinks_in_kb(
+        self, org: Org, kb: KnowledgeBase, where_clause: str
+    ) -> List[DocSink]:
+        table_name = self._get_table_name(org, kb)
+        docsink_dicts = self.duckdb_client.fetch_all_from_table(
+            table_name,
+            where_clause=where_clause,
+        )
+        docsinks = []
+        if docsink_dicts:
+            for docsink_dict in docsink_dicts:
+                docsink = self._dict_to_docsink(docsink_dict)
+                docsinks.append(docsink)
+        return docsinks
 
     def create_docsink(
         self, org: Org, kb: KnowledgeBase, docsink_create: DocSinkCreate
@@ -134,63 +131,87 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         """Create a new docsink."""
         table_name = self._get_table_name(org, kb)
 
-        # First check for existing docsink with same hash
-        if docsink_create.raw_doc_hash:
-            where_clause = f"WHERE {DocSink.FIELD_RAW_DOC_HASH} = ? AND {DocSink.FIELD_IS_DELETED} = FALSE"
-            value_list = [docsink_create.raw_doc_hash]
-            existing_dict = self.duckdb_client.fetch_one_from_table(
-                table_name,
-                where_clause=where_clause,
+        docsink_in_db = DocSinkInDB.from_docsink_create(docsink_create)
+        docsink_dict = self._docsink_to_dict(docsink_in_db)
+
+        # make sure the original_doc_uri and raw_doc_uri are strings
+        def _create_helper(
+            existing_docsinks: Optional[List[DocSink]] = [],
+        ) -> Optional[DocSink]:
+            docsink_uuid = str(uuid.uuid4())
+            docsink_dict[DocSink.FIELD_DOCSINK_UUID] = docsink_uuid
+
+            column_list = list(docsink_dict.keys())
+            value_list = list(docsink_dict.values())
+            self.duckdb_client.insert_into_table(
+                table_name=table_name,
+                column_list=column_list,
                 value_list=value_list,
             )
-            if existing_dict is not None:
-                existing_docsink = self._dict_to_docsink(existing_dict)
-                return self._add_extra_original_doc_uri(
-                    org,
-                    kb,
-                    existing_docsink,
-                    docsink_create.original_doc_uri,
-                    docsink_create.docsource_uuid,
+            result = self.get_docsink_by_id(org, kb, docsink_uuid)
+
+            if result is not None:
+                logger().debug(f"Successfllly created a new DocSink: {docsink_uuid}.")
+                creation_time = result.created_at
+                for existing in existing_docsinks:
+                    if existing.expired_at is None:
+                        existing.expired_at = creation_time
+                        self.update_docsink(org, kb, existing)
+                return result
+            else:
+                raise exceptions.UnexpectedOperationFailureException(
+                    operation_desc="Error creating DocSink",
+                    error=f"Failed to create DocSink {docsink_uuid}: {docsink_dict}",
                 )
 
-        # Check for existing docsink with same URIs
-        where_clause = (
-            f"WHERE {DocSink.FIELD_ORIGINAL_DOC_URI} = ? "
-            f"AND {DocSink.FIELD_RAW_DOC_URI} = ? "
-            f"AND {DocSink.FIELD_KB_ID} = ? "
-            f"AND {DocSink.FIELD_IS_DELETED} = FALSE"
+        # check if the original_doc_uri already has docsinks in this KB
+        ori_doc_uri = docsink_dict[DocSink.FIELD_ORIGINAL_DOC_URI]
+        existing_docsinks = self._get_docsinks_in_kb(
+            org,
+            kb,
+            (
+                f"WHERE {DocSink.FIELD_ORIGINAL_DOC_URI} = '{ori_doc_uri}' "
+                f"AND {DocSink.FIELD_IS_DELETED} = False"
+            ),
         )
-        value_list = [
-            docsink_create.original_doc_uri,
-            docsink_create.raw_doc_uri,
-            docsink_create.kb_id,
-        ]
-        existing_dict = self.duckdb_client.fetch_one_from_table(
-            table_name,
-            where_clause=where_clause,
-            value_list=value_list,
-        )
+        if len(existing_docsinks) == 0:
+            logger().debug(
+                f"No existing DocSink found, creating new DocSink: {ori_doc_uri}"
+            )
+            return _create_helper(existing_docsinks)
 
-        if existing_dict is not None:
-            # Return existing docsink if found
-            return self._dict_to_docsink(existing_dict)
+        logger().debug(f"Found existing docsink for: {ori_doc_uri}")
+        if docsink_create.raw_doc_hash is None:
+            logger().debug(f"No raw_doc_hash, creating new DocSink: {ori_doc_uri}")
+            return _create_helper(existing_docsinks)
 
-        # Create new docsink if no existing one found
-        docsink_in_db = DocSinkInDB.from_docsink_create(docsink_create)
-        data = self._docsink_to_dict(docsink_in_db)
+        using_existing = None
+        docsource_uuid = docsink_create.docsource.docsource_uuid
+        for existing in existing_docsinks:
+            if existing.raw_doc_hash == docsink_create.raw_doc_hash:
+                logger().info(
+                    f"Found existing DocSink {existing.docsink_uuid} with same hash"
+                )
+                if existing.expired_at is not None:
+                    logger().debug(
+                        f"The existing DocSink {existing.docsink_uuid} has already expired"
+                    )
+                else:
+                    using_existing = existing
+                    break
+        if using_existing is not None:
+            if docsource_uuid in using_existing.docsource_uuids:
+                logger().debug(
+                    f"DocSink {using_existing.docsink_uuid} already has docsource {docsource_uuid}"
+                )
+            else:
+                using_existing.docsource_uuids.append(docsource_uuid)
+            using_existing.updated_at = datetime.now()
+            update_docsink = self.update_docsink(org, kb, using_existing)
+            return update_docsink
 
-        # Generate UUID if not present
-        if not data.get(DocSink.FIELD_DOCSINK_UUID):
-            data[DocSink.FIELD_DOCSINK_UUID] = str(uuid.uuid4())
-
-        column_list = list(data.keys())
-        value_list = list(data.values())
-        self.duckdb_client.insert_into_table(
-            table_name=table_name,
-            column_list=column_list,
-            value_list=value_list,
-        )
-        return self.get_docsink_by_id(org, kb, data[DocSink.FIELD_DOCSINK_UUID])
+        logger().debug("No existing docsink with same hash, creating new docsink")
+        return _create_helper(existing_docsinks)
 
     def delete_docsink(self, org: Org, kb: KnowledgeBase, docsink: DocSink) -> bool:
         table_name = self._get_table_name(org, kb)
@@ -215,15 +236,15 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         table_name = self._get_table_name(org, kb)
 
         # Get column names from schema
-        where_clause = f"WHERE {DocSink.FIELD_DOCSINK_UUID} = ?"
-        value_list = [docsink_uuid]
+        where_clause = f"WHERE {DocSink.FIELD_DOCSINK_UUID} = '{docsink_uuid}'"
         existing_dict = self.duckdb_client.fetch_one_from_table(
             table_name,
             where_clause=where_clause,
-            value_list=value_list,
         )
 
         if existing_dict is not None:
+            uuids = existing_dict[DocSink.FIELD_DOCSOURCE_UUIDS]
+            print(f"existing_dict has uuids {uuids}: {type(uuids)}")
             return self._dict_to_docsink(existing_dict)
         return None
 
@@ -231,7 +252,10 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         table_name = self._get_table_name(org, kb)
 
         # Get column names from schema
-        where_clause = f"WHERE {DocSink.FIELD_IS_DELETED} = FALSE"
+        where_clause = (
+            f"WHERE {DocSink.FIELD_IS_DELETED} = FALSE "
+            f"AND {DocSink.FIELD_EXPIRED_AT} IS NULL"
+        )
         results = self.duckdb_client.fetch_all_from_table(
             table_name=table_name,
             where_clause=where_clause,
@@ -244,11 +268,14 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         org: Org,
         kb: KnowledgeBase,
         docsource: DocSource,
-        check_extra: bool = False,
     ) -> List[DocSink]:
         table_name = self._get_table_name(org, kb)
 
-        where_clause = f"WHERE {DocSink.FIELD_DOCSOURCE_UUID} = ? AND {DocSink.FIELD_IS_DELETED} = FALSE"
+        where_clause = (
+            f"WHERE {DocSink.FIELD_DOCSOURCE_UUIDS} = ? "
+            f"AND {DocSink.FIELD_IS_DELETED} = FALSE "
+            f"AND {DocSink.FIELD_EXPIRED_AT} IS NULL"
+        )
         value_list = [docsource.docsource_uuid]
         results = self.duckdb_client.fetch_all_from_table(
             table_name=table_name,
@@ -258,18 +285,6 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
 
         docsinks = [self._dict_to_docsink(row) for row in results]
 
-        if check_extra:
-            where_clause = (
-                f"WHERE {DocSink.FIELD_EXTRA_DOCSOURCE_UUID} LIKE ? "
-                f"AND {DocSink.FIELD_IS_DELETED} = FALSE"
-            )
-            value_list = [f"%{docsource.docsource_uuid}%"]
-            extra_results = self.duckdb_client.fetch_all_from_table(
-                table_name=table_name,
-                where_clause=where_clause,
-                value_list=value_list,
-            )
-            docsinks.extend([self._dict_to_docsink(row) for row in extra_results])
         return docsinks
 
     def update_docsink(

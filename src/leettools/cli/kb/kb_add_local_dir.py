@@ -109,6 +109,7 @@ def add_local_dir(
 
     # ingest the docsource
     docsource_create = DocSourceCreate(
+        org_id=org.org_id,
         kb_id=kb.kb_id,
         source_type=DocSourceType.LOCAL,
         uri=str(path),

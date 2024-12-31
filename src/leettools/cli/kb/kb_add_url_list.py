@@ -100,6 +100,7 @@ def add_url_list(
         if line == "" or line.startswith("#"):
             continue
         docsource_create = DocSourceCreate(
+            org_id=org.org_id,
             kb_id=kb.kb_id,
             source_type=DocSourceType.URL,
             display_name=line,

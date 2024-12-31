@@ -16,7 +16,7 @@ from leettools.settings import SystemSettings
 
 
 @pytest.fixture()
-def test_kb_identifier() -> str:
+def test_kb_id() -> str:
     return f"test_kbid_{str(uuid.uuid4())}"
 
 
@@ -64,17 +64,18 @@ def org():
 
 
 @pytest.fixture
-def kb(test_kb_identifier: str):
+def kb(test_kb_id: str):
     """Create test knowledge base."""
-    return KnowledgeBase(name="test_kb", kb_id=test_kb_identifier)
+    return KnowledgeBase(name="test_kb", kb_id=test_kb_id)
 
 
 @pytest.fixture
-def docsource(test_kb_identifier: str):
+def docsource(test_kb_id: str):
     """Create test document source."""
     return DocSource(
         docsource_uuid=str(uuid.uuid4()),
-        kb_id=test_kb_identifier,
+        org_id="test_org_id",
+        kb_id=test_kb_id,
         source_type="file",
         uri="test_uri",
         source_location="test_location",
@@ -82,11 +83,10 @@ def docsource(test_kb_identifier: str):
 
 
 @pytest.fixture
-def docsink_create(kb: KnowledgeBase, docsource: DocSource):
+def docsink_create(docsource: DocSource):
     """Create a test DocSinkCreate instance."""
     return DocSinkCreate(
-        docsource_uuid=docsource.docsource_uuid,
-        kb_id=kb.kb_id,
+        docsource=docsource,
         original_doc_uri="test_uri",
         raw_doc_uri="test_raw_uri",
         raw_doc_hash="test_hash",
@@ -103,7 +103,7 @@ def test_create_docsink(
     docsink = store.create_docsink(org, kb, docsink_create)
 
     assert isinstance(docsink, DocSink)
-    assert docsink.docsource_uuid == docsink_create.docsource_uuid
+    assert docsink.docsource_uuids == [docsink_create.docsource.docsource_uuid]
     assert docsink.kb_id == kb.kb_id
     assert docsink.original_doc_uri == "test_uri"
     assert docsink.raw_doc_uri == "test_raw_uri"
@@ -122,8 +122,7 @@ def test_create_docsink_with_same_hash(
 
     # Create second docsink with same hash but different URI
     second_create = DocSinkCreate(
-        docsource_uuid=docsink_create.docsource_uuid,
-        kb_id=kb.kb_id,
+        docsource=docsink_create.docsource,
         original_doc_uri="test_uri",
         raw_doc_uri="test_raw_uri",
         raw_doc_hash=docsink_create.raw_doc_hash,
@@ -131,7 +130,6 @@ def test_create_docsink_with_same_hash(
 
     second_docsink = store.create_docsink(org, kb, second_create)
     assert second_docsink.docsink_uuid == first_docsink.docsink_uuid
-    assert "test_uri" in second_docsink.extra_original_doc_uri
 
 
 def test_create_duplicate_docsink(
@@ -142,19 +140,22 @@ def test_create_duplicate_docsink(
 ):
     """Test creating a docsink with duplicate hash."""
     first_docsink = store.create_docsink(org, kb, docsink_create)
+    assert first_docsink is not None
+    assert first_docsink.expired_at is None
 
     # Create second docsink with same hash but different URI
     second_create = DocSinkCreate(
-        docsource_uuid=docsink_create.docsource_uuid,
-        kb_id=kb.kb_id,
-        original_doc_uri="different_uri",
-        raw_doc_uri="different_raw_uri",
+        docsource=docsink_create.docsource,
+        original_doc_uri=first_docsink.original_doc_uri,
+        raw_doc_uri=first_docsink.raw_doc_uri,
         raw_doc_hash=docsink_create.raw_doc_hash,
     )
 
     second_docsink = store.create_docsink(org, kb, second_create)
     assert second_docsink.docsink_uuid == first_docsink.docsink_uuid
-    assert "different_uri" in second_docsink.extra_original_doc_uri
+    assert second_docsink.original_doc_uri == first_docsink.original_doc_uri
+    assert second_docsink.raw_doc_uri == first_docsink.raw_doc_uri
+    assert second_docsink.expired_at is None
 
 
 def test_get_docsink_by_id(
@@ -201,8 +202,7 @@ def test_get_docsinks_for_kb(
     created_docsinks = []
     for i in range(3):
         docsink_create = DocSinkCreate(
-            docsource_uuid=docsource.docsource_uuid,
-            kb_id=kb.kb_id,
+            docsource=docsource,
             original_doc_uri=f"test_uri_{i}",
             raw_doc_uri=f"test_raw_uri_{i}",
             raw_doc_hash=f"test_hash_{i}",
@@ -228,9 +228,7 @@ def test_get_docsinks_for_docsource(
     assert len(retrieved_docsinks) == 1
     assert retrieved_docsinks[0].docsink_uuid == created_docsink.docsink_uuid
 
-    retrieved_docsinks = store.get_docsinks_for_docsource(
-        org, kb, docsource, check_extra=True
-    )
+    retrieved_docsinks = store.get_docsinks_for_docsource(org, kb, docsource)
     assert len(retrieved_docsinks) == 1
     assert retrieved_docsinks[0].docsink_uuid == created_docsink.docsink_uuid
 
@@ -249,7 +247,8 @@ def test_update_docsink(
     # Create update with the existing UUID
     update_data = DocSinkUpdate(
         docsink_uuid=created_docsink.docsink_uuid,  # Important: use existing UUID
-        docsource_uuid=created_docsink.docsource_uuid,
+        docsource_uuids=created_docsink.docsource_uuids,
+        org_id=created_docsink.org_id,
         kb_id=created_docsink.kb_id,
         original_doc_uri=created_docsink.original_doc_uri,
         raw_doc_uri=created_docsink.raw_doc_uri,
@@ -275,22 +274,25 @@ def test_create_duplicate_uri_docsink(
     # Create first docsink
     first_docsink = store.create_docsink(org, kb, docsink_create)
     assert first_docsink is not None
+    assert first_docsink.expired_at is None
 
     # Create second docsink with same URIs but different hash
     second_create = DocSinkCreate(
-        docsource_uuid=docsink_create.docsource_uuid,
-        kb_id=kb.kb_id,
+        docsource=docsink_create.docsource,
         original_doc_uri=docsink_create.original_doc_uri,  # Same URI
         raw_doc_uri=docsink_create.raw_doc_uri,  # Same URI
         raw_doc_hash="different_hash",  # Different hash
     )
-
-    # Should return the existing docsink
     second_docsink = store.create_docsink(org, kb, second_create)
+
+    # should create a new docsink
     assert second_docsink is not None
-    assert second_docsink.docsink_uuid == first_docsink.docsink_uuid
-    assert (
-        second_docsink.raw_doc_hash == first_docsink.raw_doc_hash
-    )  # Should keep original hash
+    assert second_docsink.docsink_uuid != first_docsink.docsink_uuid
     assert second_docsink.original_doc_uri == first_docsink.original_doc_uri
     assert second_docsink.raw_doc_uri == first_docsink.raw_doc_uri
+    assert second_docsink.expired_at is None
+
+    # the first docsink should be marked as expired
+    first_docsink = store.get_docsink_by_id(org, kb, first_docsink.docsink_uuid)
+    assert first_docsink is not None
+    assert first_docsink.expired_at == second_docsink.created_at

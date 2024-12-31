@@ -69,8 +69,7 @@ def run_adhoc_pipeline_for_docsinks(
         display_logger.debug(
             f"The docsink created has status: {docsink.docsink_status}"
         )
-        docsource_uuid = docsink_create.docsource_uuid
-        if docsource_uuid != docsink.docsource_uuid:
+        if len(docsink.docsource_uuids) > 1:
             display_logger.info(
                 f"Adhoc query: docsink {docsink.docsink_uuid} already created before."
             )

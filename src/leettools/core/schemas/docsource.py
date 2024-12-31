@@ -45,19 +45,32 @@ determine how often the docsource will be triggered.
 
 # Different versions of the same DocSink
 
-For each URI determined by the DocSource in each ingest operations, we will create a 
-DocSink in the system whose key is the URI and the ingestion job id (kind of like a
-batch id). If the raw document for the DocSink has the same hash with an existing
-document, or the DocSource can tell the ingestion job that the document has not been
-updated, we will not ingest the document again. In this case, the DocSource will be
-a placeholder to indicate that the URI has been processed in this batch.
+For each URI determined by the DocSource in each ingest operations, we will try create a 
+DocSink in the system whose key is the URI and the creation timestamp. 
+- If the raw document for the DocSink has the same hash with an existing DocSink, or 
+the DocSource can tell the ingestion job that the document has not been updated, we will
+not ingest the document again and no new DocSink is created.
+- If the raw document for the DocSink has a different hash with an existing DocSink, we
+will create a new DocSink with the same URI and new creation timestamp. The last DocSink
+will be marked with a new "expired_timestamp" whose value is the creation timestamp of the
+new DocSink.
 
+DocSink has a one-to-one relation with the Document object. The Document object is the
+converted markdown document. The Document object should have the same "expired_timestamp"
+field as the DocSink object. 
+
+In the segment store and embedding store, all the segments and embeddings should have the
+same "expired_timestamp" field as the DocSink object. It is not ideal to have to set
+the expired_timestamp field for all the objects when updated, but right now a lot of
+vector store does not support complex filtering and we have to use the expired_timestamp
+to support multiple versions of the same document.
 
 """
 
 
 class DocSourceBase(BaseModel):
 
+    org_id: str = Field(..., description="Organization ID")
     kb_id: str = Field(..., description="Knowledge base ID")
     source_type: DocSourceType = Field(..., description="Type of document source")
     uri: str = Field(..., description="The original URI of the document source")
@@ -76,6 +89,8 @@ class DocSourceBase(BaseModel):
 
 
 class DocSourceCreate(DocSourceBase):
+    # this class is used by the API to allow the user to create a docsource
+    # so the fields should be plain variables
     pass
 
 
@@ -106,6 +121,7 @@ class DocSourceInDB(DocSourceInDBBase):
             # caller needs to update uuid later document is
             # stored in store and get the uuid back.
             docsource_uuid="",
+            org_id=docsource_create.org_id,
             kb_id=docsource_create.kb_id,
             source_type=docsource_create.source_type,
             docsource_status=DocSourceStatus.CREATED,
@@ -128,6 +144,7 @@ class DocSourceInDB(DocSourceInDBBase):
             docsource_uuid=docsource_update.docsource_uuid,
             source_type=docsource_update.source_type,
             uri=docsource_update.uri,
+            org_id=docsource_update.org_id,
             kb_id=docsource_update.kb_id,
             is_deleted=docsource_update.is_deleted,
             docsource_status=docsource_update.docsource_status,
@@ -150,6 +167,7 @@ class DocSource(DocSourceInDB):
     ) -> "DocSource":
         docsource = DocSource(
             docsource_uuid=docsource_instore.docsource_uuid,
+            org_id=docsource_instore.org_id,
             kb_id=docsource_instore.kb_id,
             source_type=docsource_instore.source_type,
             is_deleted=docsource_instore.is_deleted,
@@ -188,6 +206,7 @@ class BaseDocSourceSchema(ABC):
         """Get base column definitions shared across implementations."""
         return {
             DocSource.FIELD_DOCSOURCE_UUID: "VARCHAR PRIMARY KEY",
+            DocSource.FIELD_ORG_ID: "VARCHAR",
             DocSource.FIELD_KB_ID: "VARCHAR",
             DocSource.FIELD_SOURCE_TYPE: "VARCHAR",
             DocSource.FIELD_DOCSOURCE_STATUS: "VARCHAR",

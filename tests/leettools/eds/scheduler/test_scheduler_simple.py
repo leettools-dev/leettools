@@ -47,9 +47,10 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
 
     # create docsource
     doc_source_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
         source_type=DocSourceType.LOCAL,
         uri=filepath.absolute().as_uri(),
-        kb_id=kb_id,
     )
     docsource_store.create_docsource(org, kb, doc_source_create)
 

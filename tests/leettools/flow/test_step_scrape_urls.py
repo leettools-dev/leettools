@@ -34,6 +34,7 @@ def _test_flow_step(context: Context, org: Org, kb: KnowledgeBase, user: User):
         org=org,
         kb=kb,
         docsource_create=DocSourceCreate(
+            org_id=org.org_id,
             kb_id=kb.kb_id,
             source_type=DocSourceType.SEARCH,
             uri=f"search://google?q={query}&date_range=0&max_results=10",

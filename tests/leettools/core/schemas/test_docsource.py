@@ -19,7 +19,8 @@ def test_docsource_create():
     }
 
     docsource_create = DocSourceCreate(
-        kb_id="111",
+        org_id="org1",
+        kb_id="kb1",
         source_type=DocSourceType.SEARCH,
         uri=(
             f"search://{retriever_type}?q={query}&date_range={days_limit}"
@@ -33,7 +34,8 @@ def test_docsource_create():
 
     dcsource_in_db = DocSourceInDB.from_docsource_create(docsource_create)
 
-    assert dcsource_in_db.kb_id == "111"
+    assert dcsource_in_db.org_id == "org1"
+    assert dcsource_in_db.kb_id == "kb1"
     assert dcsource_in_db.source_type == DocSourceType.SEARCH
     assert dcsource_in_db.uri == (
         f"search://{retriever_type}?q={query}&date_range={days_limit}"

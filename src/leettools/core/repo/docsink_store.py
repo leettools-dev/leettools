@@ -16,15 +16,15 @@ class AbstractDocsinkStore(ABC):
         self, org: Org, kb: KnowledgeBase, docsink_create: DocSinkCreate
     ) -> Optional[DocSink]:
         """
-        Add a docsink to the store. If the docsink already exists, it will be updated.
+        Add a docsink to the store.
 
         Args:
-        org: The organization.
-        kb: The knowledgebase.
-        docsink_create: The docsink to be added.
+        - org: The organization.
+        - kb: The knowledgebase.
+        - docsink_create: The docsink to be added.
 
         Returns:
-        The added docsink.
+        - The added docsink.
         """
         pass
 
@@ -34,12 +34,12 @@ class AbstractDocsinkStore(ABC):
         Delete a docsink from the store.
 
         Args:
-        org: The organization.
-        kb: The knowledgebase.
-        docsink: The docsink to be deleted.
+        - org: The organization.
+        - kb: The knowledgebase.
+        - docsink: The docsink to be deleted.
 
         Returns:
-        True if the docsink was deleted, False otherwise.
+        - True if the docsink was deleted, False otherwise.
         """
         pass
 
@@ -51,12 +51,12 @@ class AbstractDocsinkStore(ABC):
         Get a docsink from the store.
 
         Args:
-        org: The organization.
-        kb: The knowledgebase.
-        docsink_uuid: The uuid of the docsink.
+        - org: The organization.
+        - kb: The knowledgebase.
+        - docsink_uuid: The uuid of the docsink.
 
         Returns:
-        The docsink.
+        - The docsink.
         """
         pass
 
@@ -66,11 +66,11 @@ class AbstractDocsinkStore(ABC):
         List all docsinks in the knowledgebase.
 
         Args:
-        org: The organization.
-        kb: The knowledgebase.
+        - org: The organization.
+        - kb: The knowledgebase.
 
         Returns:
-        A list of docsinks.
+        - A list of docsinks.
         """
         pass
 
@@ -80,19 +80,17 @@ class AbstractDocsinkStore(ABC):
         org: Org,
         kb: KnowledgeBase,
         docsource: DocSource,
-        check_extra: bool = False,
     ) -> List[DocSink]:
         """
         List all docsinks in the knowledgebase for a docsource.
 
         Args:
-        org: The organization.
-        kb: The knowledgebase.
-        docsource: The docsource to get docsinks for.
-        check_extra: If True, check extra_original_doc_uri for the docsource.
+        - org: The organization.
+        - kb: The knowledgebase.
+        - docsource: The docsource to get docsinks for.
 
         Returns:
-        A list of docsinks.
+        - A list of docsinks.
         """
         pass
 
@@ -104,12 +102,12 @@ class AbstractDocsinkStore(ABC):
         Update a docsink in the store.
 
         Args:
-        org: The organization.
-        kb: The knowledgebase.
-        docsink_update: The docsink to be updated.
+        - org: The organization.
+        - kb: The knowledgebase.
+        - docsink_update: The docsink to be updated.
 
         Returns:
-        The updated docsink.
+        - The updated docsink.
         """
         pass
 

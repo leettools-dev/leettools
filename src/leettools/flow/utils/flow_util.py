@@ -194,9 +194,7 @@ def get_doc_summaries_for_docsource(
     settings = exec_info.context.settings
     display_logger = exec_info.display_logger
 
-    docsinks = docsink_store.get_docsinks_for_docsource(
-        org, kb, docsource, check_extra=True
-    )
+    docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)
     all_documents = []
     all_keywords: Dict[str, int] = {}
     document_summaries: str = ""

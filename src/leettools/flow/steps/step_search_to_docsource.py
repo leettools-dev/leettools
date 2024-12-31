@@ -229,6 +229,7 @@ def _create_docsrc_for_search(
     timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     docsource_create = DocSourceCreate(
+        org_id=org.org_id,
         kb_id=kb.kb_id,
         source_type=DocSourceType.SEARCH,
         uri=(

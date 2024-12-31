@@ -38,9 +38,10 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
 
     # create docsource
     doc_source_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
         source_type=DocSourceType.URL,
         uri="https://www.examples.com/",
-        kb_id=kb_id,
     )
     docsource_uuid = "123456"
     docsource_in_db = DocSourceInDB.from_docsource_create(doc_source_create)
@@ -69,8 +70,7 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     # create another task
     docsink = DocSink.from_docsink_create(
         DocSinkCreate(
-            docsource_uuid=docsource_uuid,
-            kb_id=kb_id,
+            docsource=docsource,
             original_doc_uri="https://www.examples.com/",
             raw_doc_uri="/tmp/www_examples_com",
         )

@@ -75,7 +75,6 @@ class ConnectorSimple(AbstractConnector):
 
         self.docsource = docsource
         self.docsource_uri = docsource.uri
-        self.docsource_uuid = docsource.docsource_uuid
 
         self.docsource_type = docsource.source_type
         self.visited: set = set()
@@ -278,8 +277,7 @@ class ConnectorSimple(AbstractConnector):
             file_uri = Path(file_path).as_uri()
             doc_hash, doc_size = file_hash_and_size(Path(file_path))
             docsink_create = DocSinkCreate(
-                docsource_uuid=self.docsource_uuid,
-                kb_id=self.kb_id,
+                docsource=self.docsource,
                 original_doc_uri=file_uri,
                 raw_doc_uri=file_path,
                 raw_doc_hash=doc_hash,
@@ -311,8 +309,7 @@ class ConnectorSimple(AbstractConnector):
             self.display_logger.info(f"Finished copying {file_path} to {dest}")
             doc_hash, doc_size = file_hash_and_size(Path(dest))
             docsink_create = DocSinkCreate(
-                docsource_uuid=self.docsource_uuid,
-                kb_id=self.kb_id,
+                docsource=self.docsource,
                 original_doc_uri=file_path,
                 raw_doc_uri=dest,
                 raw_doc_hash=doc_hash,
@@ -397,8 +394,7 @@ class ConnectorSimple(AbstractConnector):
         doc_hash, doc_size = file_hash_and_size(Path(file_path))
 
         docsink_create = DocSinkCreate(
-            docsource_uuid=self.docsource_uuid,
-            kb_id=self.kb_id,
+            docsource=self.docsource,
             original_doc_uri=url,
             raw_doc_uri=file_path,
             raw_doc_hash=doc_hash,

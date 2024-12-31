@@ -80,52 +80,43 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
     # Private helper methods
     def _dict_to_document(self, data: dict) -> Document:
         """Convert stored dictionary to Document."""
-        for field in [
-            Document.FIELD_KEYWORDS,
-            Document.FIELD_AUTHORS,
-            Document.FIELD_LINKS,
-            Document.FIELD_MANUAL_SUMMARY,
-        ]:
-            if data.get(field):
-                try:
-                    data[field] = json.loads(data[field])
-                except json.JSONDecodeError:
-                    logger().warning(f"Failed to decode JSON for field {field}")
-                    data[field] = None
+        if data.get(Document.FIELD_DOCSOURCE_UUIDS):
+            uuids = data[Document.FIELD_DOCSOURCE_UUIDS]
+            data[Document.FIELD_DOCSOURCE_UUIDS] = uuids.split(",")
         return Document.from_document_in_db(DocumentInDB.model_validate(data))
 
     def _document_to_dict(self, document: DocumentInDB) -> dict:
         """Convert DocumentInDB to dictionary for storage."""
         data = document.model_dump()
-        for field in [
-            Document.FIELD_KEYWORDS,
-            Document.FIELD_AUTHORS,
-            Document.FIELD_LINKS,
-            Document.FIELD_MANUAL_SUMMARY,
-        ]:
-            if data.get(field):
-                data[field] = json.dumps(data[field])
+        if data.get(Document.FIELD_DOCSOURCE_UUIDS):
+            data[Document.FIELD_DOCSOURCE_UUIDS] = ",".join(
+                data[Document.FIELD_DOCSOURCE_UUIDS]
+            )
+        return data
+
+    def _document_update_to_dict(self, document_update: DocumentUpdate) -> dict:
+        """Convert DocumentUpdate to dictionary for query."""
+        data = document_update.model_dump()
+        if data.get(Document.FIELD_DOCSOURCE_UUIDS):
+            data[Document.FIELD_DOCSOURCE_UUIDS] = ",".join(
+                data[Document.FIELD_DOCSOURCE_UUIDS]
+            )
         return data
 
     def _get_documents_in_kb(
-        self, org: Org, kb: KnowledgeBase, query: Dict[str, Any]
+        self, org: Org, kb: KnowledgeBase, query: str
     ) -> List[Document]:
         """Get documents matching the query."""
         table_name = self._get_table_name(org, kb)
 
-        conditions = []
-        params = []
-        for key, value in query.items():
-            conditions.append(f"{key} = ?")
-            params.append(value)
-
-        where_clause = " AND ".join(conditions) if conditions else "1=1"
-        where_clause = f"WHERE {where_clause}"
+        if query:
+            where_clause = f"WHERE {query}"
+        else:
+            where_clause = None
 
         results = self.duckdb_client.fetch_all_from_table(
             table_name=table_name,
             where_clause=where_clause,
-            value_list=params,
         )
 
         return [self._dict_to_document(row) for row in results]
@@ -152,10 +143,10 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         existing_docs = self._get_documents_in_kb(
             org,
             kb,
-            {
-                DocSink.FIELD_DOCSINK_UUID: document_in_store.docsink_uuid,
-                Document.FIELD_IS_DELETED: False,
-            },
+            (
+                f"{DocSink.FIELD_DOCSINK_UUID} = '{document_in_store.docsink_uuid}' "
+                f"AND {Document.FIELD_IS_DELETED} = False"
+            ),
         )
         if existing_docs:
             logger().debug(
@@ -211,7 +202,7 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
     ) -> Optional[Document]:
         """Get a document by its UUID."""
         documents = self._get_documents_in_kb(
-            org, kb, {Document.FIELD_DOCUMENT_UUID: document_uuid}
+            org, kb, f"{Document.FIELD_DOCUMENT_UUID} = '{document_uuid}'"
         )
 
         if not documents:
@@ -234,10 +225,10 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         return self._get_documents_in_kb(
             org,
             kb,
-            {
-                DocSink.FIELD_DOCSINK_UUID: docsink.docsink_uuid,
-                Document.FIELD_IS_DELETED: False,
-            },
+            (
+                f"{DocSink.FIELD_DOCSINK_UUID} = '{docsink.docsink_uuid}' "
+                f"AND {Document.FIELD_IS_DELETED} = False"
+            ),
         )
 
     def get_documents_for_docsource(
@@ -247,15 +238,17 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         return self._get_documents_in_kb(
             org,
             kb,
-            {
-                Document.FIELD_DOCSOURCE_UUID: docsource.docsource_uuid,
-                Document.FIELD_IS_DELETED: False,
-            },
+            (
+                f"{Document.FIELD_DOCSOURCE_UUIDS} like '%{docsource.docsource_uuid}%' "
+                f"AND {Document.FIELD_IS_DELETED} = False"
+            ),
         )
 
     def get_documents_for_kb(self, org: Org, kb: KnowledgeBase) -> List[Document]:
         """Get all non-deleted documents for a knowledge base."""
-        return self._get_documents_in_kb(org, kb, {Document.FIELD_IS_DELETED: False})
+        return self._get_documents_in_kb(
+            org, kb, f"{Document.FIELD_IS_DELETED} = False"
+        )
 
     def update_document(
         self, org: Org, kb: KnowledgeBase, document_update: DocumentUpdate
@@ -263,8 +256,7 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         """Update an existing document."""
         table_name = self._get_table_name(org, kb)
 
-        document_in_store = DocumentInDB.from_document_update(document_update)
-        data = self._document_to_dict(document_in_store)
+        data = self._document_update_to_dict(document_update)
         document_uuid = data.pop(Document.FIELD_DOCUMENT_UUID)
 
         column_list = list(data.keys())

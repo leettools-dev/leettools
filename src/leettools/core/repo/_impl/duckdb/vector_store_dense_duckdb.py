@@ -82,7 +82,6 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
             Segment.FIELD_LABEL_TAG,
             Segment.FIELD_DOCUMENT_UUID,
-            Segment.FIELD_DOCSOURCE_UUID,
             Segment.FIELD_DOCSINK_UUID,
             Segment.FIELD_SEGMENT_UUID,
         ]
@@ -100,7 +99,6 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 segment.created_timestamp_in_ms,
                 segment.label_tag,
                 segment.document_uuid,
-                segment.docsource_uuid,
                 segment.docsink_uuid,
                 segment.segment_uuid,
             ]
@@ -122,18 +120,21 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         return embed_result.dense_embeddings
 
     def _get_table_name(
-        self, org: Org, kb: KnowledgeBase, dense_embedder_dimension: int = 0
+        self, org: Org, kb: KnowledgeBase, dense_embedder_dimension: int = None
     ) -> str:
         """Get the dynamic table name for the org and kb combination."""
         org_db_name = Org.get_org_db_name(org.org_id)
         collection_name = f"kb_{kb.kb_id}{DENSE_VECTOR_COLLECTION_SUFFIX}"
-        install_fts_sql = "INSTALL fts; LOAD fts;"
-        return self.duckdb_client.create_table_if_not_exists(
-            schema_name=org_db_name,
-            table_name=collection_name,
-            columns=VectorDuckDBSchema.get_schema(dense_embedder_dimension),
-            create_sequence_sql=install_fts_sql,
-        )
+        if dense_embedder_dimension is not None:
+            install_fts_sql = "INSTALL fts; LOAD fts;"
+            return self.duckdb_client.create_table_if_not_exists(
+                schema_name=org_db_name,
+                table_name=collection_name,
+                columns=VectorDuckDBSchema.get_schema(dense_embedder_dimension),
+                create_sequence_sql=install_fts_sql,
+            )
+        else:
+            return self.duckdb_client.get_table(org_db_name, collection_name)
 
     def _normalize_vector(self, vector: List[float]) -> List[float]:
         """
@@ -206,6 +207,8 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> bool:
         """Delete a segment vector from the store."""
         table_name = self._get_table_name(org, kb)
+        if table_name is None:
+            return False
         where_clause = f"WHERE {Segment.FIELD_SEGMENT_UUID} = ?"
         value_list = [segment_uuid]
         self.duckdb_client.delete_from_table(
@@ -220,6 +223,9 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> bool:
         """Delete a list of segment vectors from the store by docsink uuid."""
         table_name = self._get_table_name(org, kb)
+        if table_name is None:
+            return False
+
         where_clause = f"WHERE {Segment.FIELD_DOCSINK_UUID} = ?"
         value_list = [docsink_uuid]
         self.duckdb_client.delete_from_table(
@@ -234,20 +240,31 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> bool:
         """Delete a list of segment vectors from the store by docsource uuid."""
         table_name = self._get_table_name(org, kb)
-        where_clause = f"WHERE {Segment.FIELD_DOCSOURCE_UUID} = ?"
-        value_list = [docsource_uuid]
-        self.duckdb_client.delete_from_table(
-            table_name=table_name,
-            where_clause=where_clause,
-            value_list=value_list,
+        if table_name is None:
+            return False
+
+        repo_manger = self.context.get_repo_manager()
+        docsource = repo_manger.get_docsource_store().get_docsource(
+            org, kb, docsource_uuid
         )
-        return True
+        documents = repo_manger.get_document_store().get_documents_for_docsource(
+            org, kb, docsource
+        )
+        deleted = False
+        for document in documents:
+            if self.delete_segment_vectors_by_document_id(
+                org, kb, document.document_uuid
+            ):
+                deleted = True
+        return deleted
 
     def delete_segment_vectors_by_document_id(
         self, org: Org, kb: KnowledgeBase, document_uuid: str
     ) -> bool:
         """Delete a list of segment vectors from the store by document id."""
         table_name = self._get_table_name(org, kb)
+        if table_name is None:
+            return False
         where_clause = f"WHERE {Segment.FIELD_DOCUMENT_UUID} = ?"
         value_list = [document_uuid]
         self.duckdb_client.delete_from_table(
@@ -261,7 +278,10 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         self, org: Org, kb: KnowledgeBase, segment_uuid: str
     ) -> List[float]:
         """Get a segment vector from the store."""
-        table_name = self._get_table_name(org, kb, 0)
+        table_name = self._get_table_name(org, kb)
+        if table_name is None:
+            return []
+
         column_list = [Segment.FIELD_EMBEDDINGS]
         where_clause = f"WHERE {Segment.FIELD_SEGMENT_UUID} = ?"
         value_list = [segment_uuid]
@@ -322,7 +342,6 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
                 Segment.FIELD_LABEL_TAG,
                 Segment.FIELD_DOCUMENT_UUID,
-                Segment.FIELD_DOCSOURCE_UUID,
                 Segment.FIELD_DOCSINK_UUID,
                 Segment.FIELD_SEGMENT_UUID,
             ]
@@ -405,8 +424,8 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         embedding_dimension = dense_embedder.get_dimension()
         table_name = self._get_table_name(org, kb, embedding_dimension)
         rebuild_fts_index_sql = f"""
-                PRAGMA create_fts_index({table_name}, {Segment.FIELD_SEGMENT_UUID}, {Segment.FIELD_CONTENT}, stemmer = 'porter',
-                    stopwords = 'english', ignore = '(\\.|[^a-z])+',
-                    strip_accents = 1, lower = 1, overwrite = 0)        
-                """
+        PRAGMA create_fts_index({table_name}, {Segment.FIELD_SEGMENT_UUID}, {Segment.FIELD_CONTENT}, stemmer = 'porter',
+            stopwords = 'english', ignore = '(\\.|[^a-z])+',
+            strip_accents = 1, lower = 1, overwrite = 0)        
+        """
         self.duckdb_client.execute_sql(rebuild_fts_index_sql)

@@ -80,9 +80,7 @@ def list(
     uid_width = 26
 
     def traverse_docsource():
-        docsinks = docsink_store.get_docsinks_for_docsource(
-            org, kb, docsource, check_extra=True
-        )
+        docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)
 
         for docsink in docsinks:
             documents = document_store.get_documents_for_docsink(org, kb, docsink)
@@ -98,7 +96,7 @@ def list(
                 doc_original_uri = document.doc_uri
 
             click.echo(
-                f"{document.docsource_uuid:<{uid_width}}"
+                f"{document.docsink_uuid:<{uid_width}}"
                 f"{document.document_uuid:<{uid_width}}"
                 f"{doc_original_uri}"
             )

@@ -111,7 +111,6 @@ class StepVectorSearch(AbstractStep):
                     segment_uuid="test-segment-uuid",
                     document_uuid="test-doc-id",
                     doc_uri="test-doc-uri",
-                    docsource_uuid="test-docsource-uuid",
                     docsink_uuid="test-docsink-uuid",
                     kb_id=kb.kb_id,
                     content="This is a test segment.",

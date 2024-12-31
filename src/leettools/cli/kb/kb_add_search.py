@@ -140,10 +140,10 @@ def add_search(
     )
 
     documents = document_store.get_documents_for_docsource(org, kb, docsource)
-    click.echo("org\tkb\tdocsource_id\tdocsink_id\tdocument_uuid\tURI")
+    click.echo("org\tkb\tdocsink_id\tdocument_uuid\tURI")
     for document in documents:
         click.echo(
-            f"{org.name}\t{kb.name}\t{document.docsource_uuid}"
+            f"{org.name}\t{kb.name}"
             f"\t{document.docsink_uuid}\t{document.document_uuid}"
             f"\t{document.original_uri}"
         )
