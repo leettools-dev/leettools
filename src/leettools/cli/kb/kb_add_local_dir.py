@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import click
@@ -9,6 +10,7 @@ from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSourceCreate
 from leettools.eds.scheduler.scheduler_manager import run_scheduler
+from leettools.flow.utils import pipeline_utils
 
 
 @click.command(help="Add a local dir to a kb.")
@@ -80,6 +82,8 @@ def add_local_dir(
     username: str,
     chunk_size: str,
     scheduler_check: bool,
+    json_output: bool,
+    indent: int,
     **kwargs,
 ) -> None:
     """Add a local directory to repository."""
@@ -101,6 +105,7 @@ def add_local_dir(
     repo_manager = context.get_repo_manager()
     docsource_store = repo_manager.get_docsource_store()
     document_store = repo_manager.get_document_store()
+    display_logger = logger()
 
     org, kb, user = setup_org_kb_user(context, org_name, kb_name, username)
 
@@ -116,28 +121,32 @@ def add_local_dir(
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
 
-    # start the scheduler
-    if context.scheduler_is_running:
-        started = False
-    else:
-        # start the scheduler, if started is false, we are using the system scheduler
-        # so that we have to wait for the docsource to finish.
-        started = run_scheduler(context)
-
-    if started == False:
-        finished = docsource_store.wait_for_docsource(
-            org, kb, docsource, timeout_in_secs=None
+    if kb.auto_schedule:
+        docsource = pipeline_utils.process_docsource_auto(
+            org=org,
+            kb=kb,
+            docsource=docsource,
+            context=context,
+            display_logger=display_logger,
         )
-        if finished == False:
-            raise UnexpectedOperationFailureException(
-                "The doc source has not been finished."
-            )
+    else:
+        docsource = pipeline_utils.process_docsource_manual(
+            org=org,
+            kb=kb,
+            docsource=docsource,
+            context=context,
+            display_logger=display_logger,
+        )
 
     documents = document_store.get_documents_for_docsource(org, kb, docsource)
-    click.echo("org\tkb\tdocsource_id\tdocsink_id\tdocument_uuid\tURI")
-    for document in documents:
-        click.echo(
-            f"{org.name}\t{kb.name}\t{docsource.docsource_uuid}"
-            f"\t{document.docsink_uuid}\t{document.document_uuid}"
-            f"\t{document.original_uri}"
-        )
+    if json_output:
+        for document in documents:
+            click.echo(json.dumps(document, indent=indent))
+    else:
+        click.echo("org\tkb\tdocsource_id\tdocsink_id\tdocument_uuid\tURI")
+        for document in documents:
+            click.echo(
+                f"{org.name}\t{kb.name}\t{docsource.docsource_uuid}"
+                f"\t{document.docsink_uuid}\t{document.document_uuid}"
+                f"\t{document.original_uri}"
+            )

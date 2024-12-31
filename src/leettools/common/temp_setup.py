@@ -1,14 +1,20 @@
 import inspect
 import random
+from datetime import datetime
+from pathlib import Path
 from typing import Optional, Tuple
 
 from leettools.chat.history_manager import _HMInstances
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
+from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate
 from leettools.core.schemas.knowledgebase import KBCreate, KnowledgeBase
 from leettools.core.schemas.organization import Org, OrgCreate
 from leettools.core.schemas.user import User, UserCreate
+from leettools.eds.pipeline.ingest.connector import create_connector
+from leettools.flow.exec_info import ExecInfo
+from leettools.flow.utils import pipeline_utils
 
 
 class TempSetup:
@@ -157,3 +163,71 @@ class TempSetup:
             ),
         )
         return docsource
+
+    def create_and_process_docsource(
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        user: User,
+        tmp_path: Path,
+        file_name: str,
+        content: str,
+    ) -> DocSource:
+        docsource_store = self.context.get_repo_manager().get_docsource_store()
+
+        file_path = tmp_path / file_name
+        with open(file_path, "w") as f:
+            f.write(content)
+
+        file_uri = f"file://{file_path.absolute()}"
+
+        docsource = docsource_store.create_docsource(
+            org,
+            kb,
+            DocSourceCreate(
+                org_id=org.org_id,
+                kb_id=kb.kb_id,
+                source_type=DocSourceType.LOCAL,
+                uri=file_uri,
+                display_name="test doc source",
+            ),
+        )
+
+        if kb.auto_schedule:
+            docsource = pipeline_utils.process_docsource_auto(
+                org=org,
+                kb=kb,
+                docsource=docsource,
+                context=self.context,
+                display_logger=logger(),
+            )
+        else:
+            docsink_store = self.context.get_repo_manager().get_docsink_store()
+            connector = create_connector(
+                context=self.context,
+                connector="connector_simple",
+                org=org,
+                kb=kb,
+                docsource=docsource,
+                docsinkstore=docsink_store,
+                display_logger=logger(),
+            )
+            connector.ingest()
+            docsink_create_list = connector.get_ingested_docsink_list()
+
+            exec_info: ExecInfo = ExecInfo(
+                context=self.context,
+                org=org,
+                kb=kb,
+                user=user,
+                display_logger=logger(),
+                target_chat_query_item=ChatQueryItem(
+                    query_content="dummy query",
+                    query_id="dummy query id",
+                    created_at=datetime.now(),
+                ),
+            )
+            pipeline_utils.run_adhoc_pipeline_for_docsinks(
+                exec_info=exec_info, docsink_create_list=docsink_create_list
+            )
+        return docsource_store.get_docsource(org, kb, docsource.docsource_uuid)

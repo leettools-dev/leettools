@@ -63,7 +63,6 @@ class SubflowGenSection(AbstractSubflow):
         # however, since we know the intention, we can start from the search step.
         # also, how can we support loop / branches of the process?
         display_logger = exec_info.display_logger
-        strategy = exec_info.strategy
 
         # search query is usually the original query + the section title
         search_query = section_plan.search_query

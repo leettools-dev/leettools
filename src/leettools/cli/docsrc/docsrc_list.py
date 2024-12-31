@@ -31,22 +31,6 @@ from leettools.common import exceptions
     required=False,
     help="The user to use, default the admin user.",
 )
-@click.option(
-    "-j",
-    "--json",
-    "json_output",
-    is_flag=True,
-    required=False,
-    help="Output the full record results in JSON format.",
-)
-@click.option(
-    "--indent",
-    "indent",
-    default=None,
-    type=int,
-    required=False,
-    help="The number of spaces to indent the JSON output.",
-)
 @common_options
 def list(
     kb_name: str,

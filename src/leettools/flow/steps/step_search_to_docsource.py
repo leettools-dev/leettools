@@ -103,33 +103,13 @@ processed immediately. The function will return after the document source is pro
         )
 
         if exec_info.kb.auto_schedule:
-            if exec_info.context.scheduler_is_running:
-                display_logger.info("Scheduled the new DocSource to be processed ...")
-                started = False
-            else:
-                display_logger.info(
-                    "Start the scheduler to process the new DocSource ..."
-                )
-                started = run_scheduler(context=context)
-
-            # TODO next: we should let the caller to check the docsource status
-            if started == False:
-                # another process is running the scheduler
-                finished = docsource_store.wait_for_docsource(
-                    org, kb, docsource, timeout_in_secs=300
-                )
-                if finished == False:
-                    display_logger.warning(
-                        "The document source has not finished processing yet."
-                    )
-                else:
-                    display_logger.info("The document source has finished processing.")
-                    docsource.docsource_status = DocSourceStatus.COMPLETED
-                    docsource_store.update_docsource(org, kb, docsource)
-            else:
-                # the scheduler has been started and finished processing
-                pass
-            return docsource
+            return pipeline_utils.process_docsource_auto(
+                org=org,
+                kb=kb,
+                docsource=docsource,
+                context=context,
+                display_logger=display_logger,
+            )
 
         display_logger.info("[Status]Start the document process pipeline ...")
         try:

@@ -106,21 +106,26 @@ class StepVectorSearch(AbstractStep):
         # the actual search is pretty expensive, so we skip it in test mode
         # may need a better way to test the full flow
         if context.is_test:
-            top_ranked_result_segments = [
-                SearchResultSegment(
-                    segment_uuid="test-segment-uuid",
-                    document_uuid="test-doc-id",
-                    doc_uri="test-doc-uri",
-                    docsink_uuid="test-docsink-uuid",
-                    kb_id=kb.kb_id,
-                    content="This is a test segment.",
-                    search_score=1.0,
-                    position_in_doc="1.1",
-                    start_offset=0,
-                    end_offset=0,
-                )
-            ]
-            return top_ranked_result_segments
+            document_store = context.get_repo_manager().get_document_store()
+            documents = document_store.get_documents_for_kb(org, kb)
+            if len(documents) == 0:
+                top_ranked_result_segments = [
+                    SearchResultSegment(
+                        segment_uuid="test-segment-uuid",
+                        document_uuid="test-doc-id",
+                        doc_uri="test-doc-uri",
+                        docsink_uuid="test-docsink-uuid",
+                        kb_id=kb.kb_id,
+                        content="This is a test segment.",
+                        search_score=1.0,
+                        position_in_doc="1.1",
+                        start_offset=0,
+                        end_offset=0,
+                    )
+                ]
+                return top_ranked_result_segments
+            else:
+                display_logger.info("Found data in the test KB. Using real logic.")
 
         filter_expr = None
 

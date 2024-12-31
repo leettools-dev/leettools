@@ -12,22 +12,6 @@ from leettools.cli.options_common import common_options
     required=False,
     help="The org to list the knowledgebases for.",
 )
-@click.option(
-    "-j",
-    "--json",
-    "json_output",
-    is_flag=True,
-    required=False,
-    help="Output the full record results in JSON format.",
-)
-@click.option(
-    "--indent",
-    "indent",
-    default=None,
-    type=int,
-    required=False,
-    help="The number of spaces to indent the JSON output.",
-)
 @common_options
 def list(
     org_name: str, json_output: bool = False, indent: int = None, **kwargs

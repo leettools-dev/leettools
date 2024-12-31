@@ -55,76 +55,50 @@ class SubflowGenEssay(AbstractSubflow):
         Returns:
         - the chat query result create
         """
+        display_logger = exec_info.display_logger
+        query = exec_info.target_chat_query_item.query_content
 
-        return _subflow_gen_essay_from_summary(
+        query_metadata = steps.StepIntention.run_step(exec_info=exec_info)
+
+        intro_section = steps.StepGenIntro.run_step(
             exec_info=exec_info,
+            content=document_summaries,
+            query_metadata=query_metadata,
+        )
+
+        topic_list = steps.StepPlanTopic.run_step(
+            exec_info=exec_info,
+            content=document_summaries,
+            query_metadata=query_metadata,
+        )
+
+        sections: List[ArticleSection] = [intro_section]
+
+        # the key is segment_uuid
+        accumulated_source_items: Dict[str, SourceItem] = {}
+        for topic in topic_list.topics:
+            display_logger.info(f"Topic: {topic}")
+
+            section_plan = _section_plan_for_research(topic=topic, query=query)
+
+            section = subflows.SubflowGenSection.run_subflow(
+                exec_info=exec_info,
+                section_plan=section_plan,
+                accumulated_source_items=accumulated_source_items,
+                previous_sections=sections,
+            )
+            display_logger.debug(
+                f"Section created, the source_items now have {len(accumulated_source_items)} items."
+            )
+            sections.append(section)
+
+        return flow_util.create_chat_result_with_sections(
+            exec_info=exec_info,
+            query=query,
             article_type=article_type,
-            document_summaries=document_summaries,
-        )
-
-
-def _subflow_gen_essay_from_summary(
-    exec_info: ExecInfo,
-    article_type: str,
-    document_summaries: str,
-) -> ChatQueryResultCreate:
-
-    display_logger = exec_info.display_logger
-    query = exec_info.target_chat_query_item.query_content
-
-    # Right now we do not filter based on the docsource_uuid anymore
-    # because if a url is in the search result multiple times, it will not
-    # be added again to the new docsources. Although we can still find the
-    # docsinks and documents when iterating all docsinks in the docsource,
-    # the segment search will not include the existing URLs.
-    # See leettools/issues/533
-
-    # this will make the query using the docsource_uuid in the filter
-    # exec_info.flow_options[DOCSOURCE_UUID_ATTR] = (
-    #    docsource.docsource_uuid
-    # )
-
-    query_metadata = steps.StepIntention.run_step(exec_info=exec_info)
-
-    intro_section = steps.StepGenIntro.run_step(
-        exec_info=exec_info,
-        content=document_summaries,
-        query_metadata=query_metadata,
-    )
-
-    topic_list = steps.StepPlanTopic.run_step(
-        exec_info=exec_info,
-        content=document_summaries,
-        query_metadata=query_metadata,
-    )
-
-    sections: List[ArticleSection] = [intro_section]
-
-    # the key is segment_uuid
-    accumulated_source_items: Dict[str, SourceItem] = {}
-    for topic in topic_list.topics:
-        display_logger.info(f"Topic: {topic}")
-
-        section_plan = _section_plan_for_research(topic=topic, query=query)
-
-        section = subflows.SubflowGenSection.run_subflow(
-            exec_info=exec_info,
-            section_plan=section_plan,
+            sections=sections,
             accumulated_source_items=accumulated_source_items,
-            previous_sections=sections,
         )
-        display_logger.debug(
-            f"Section created, the source_items now have {len(accumulated_source_items)} items."
-        )
-        sections.append(section)
-
-    return flow_util.create_chat_result_with_sections(
-        exec_info=exec_info,
-        query=query,
-        article_type=article_type,
-        sections=sections,
-        accumulated_source_items=accumulated_source_items,
-    )
 
 
 def _section_plan_for_research(topic: TopicSpec, query: str):
