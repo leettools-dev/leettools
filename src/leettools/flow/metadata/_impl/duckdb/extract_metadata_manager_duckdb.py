@@ -4,13 +4,13 @@ from typing import Any, Dict, List
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
-from leettools.eds.metadata.schemas.extract_metadata import ExtractMetadata
 from leettools.flow.metadata._impl.duckdb.extract_metadata_duckdb_schema import (
     DuckDBExtractMetadataSchema,
 )
 from leettools.flow.metadata.extract_metadata_manager import (
     AbstractExtractMetadataManager,
 )
+from leettools.flow.schemas.extract_metadata import ExtractMetadata
 from leettools.settings import SystemSettings
 
 

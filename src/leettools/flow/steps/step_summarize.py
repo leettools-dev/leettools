@@ -16,7 +16,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_utils, prompt_util
+from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepSummarize(AbstractStep):
@@ -210,7 +210,7 @@ Here is the content:
         prompt_base = StepSummarize.used_prompt_templates()["summarize"]
         summarize_prompt_template = prompt_base.prompt_template
 
-        template_vars = prompt_util.get_template_vars(
+        template_vars = prompt_utils.get_template_vars(
             flow_options=flow_options,
             inference_context=content,
             rewritten_query=exec_info.query,

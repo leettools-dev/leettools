@@ -270,7 +270,7 @@ def replace_reference_in_result(
             existing_references[new_index] = section_cited_item
 
         if reference_style == "full":
-            replacement = f"[[{new_index}_XXXXX](#reference-{new_index})]"
+            replacement = f"[[{new_index}_XYZUVW](#reference-{new_index})]"
         elif reference_style == "news":
             replacement = ""
         else:
@@ -278,11 +278,11 @@ def replace_reference_in_result(
                 display_logger.warning(
                     f"Unknown reference style {reference_style}. Use the default style."
                 )
-            replacement = f"[{new_index}_XXXXX]"
+            replacement = f"[{new_index}_XYZUVW]"
         result = re.sub(pattern, replacement, result)
 
     for new_index in index_mapping_old_to_new.values():
-        pattern = re.escape(f"[{new_index}_XXXXX]")
+        pattern = re.escape(f"[{new_index}_XYZUVW]")
         replacement = f"[{new_index}]"
         result = re.sub(pattern, replacement, result)
         if reference_style == "default":

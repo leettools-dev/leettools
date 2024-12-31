@@ -16,7 +16,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_utils, prompt_util
+from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepExtractInfo(AbstractStep):
@@ -124,7 +124,7 @@ Below is the provided content:
         template_vars = {
             "content": content,
             "extraction_instructions": extraction_instructions,
-            "lang_instruction": prompt_util.lang_instruction(output_lang),
+            "lang_instruction": prompt_utils.lang_instruction(output_lang),
         }
 
         for var in prompt_base.prompt_variables.keys():

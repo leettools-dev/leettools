@@ -11,7 +11,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_utils, prompt_util
+from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepInference(AbstractStep):
@@ -24,7 +24,7 @@ class StepInference(AbstractStep):
 
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
-        return prompt_util.get_supported_template_option_items()
+        return prompt_utils.get_supported_template_option_items()
 
     @staticmethod
     def run_step(
@@ -69,7 +69,7 @@ class StepInference(AbstractStep):
             exec_info=exec_info, query_metadata=query_metadata
         )
 
-        template_vars = prompt_util.get_template_vars(
+        template_vars = prompt_utils.get_template_vars(
             flow_options=exec_info.flow_options,
             inference_context=extended_context,
             rewritten_query=rewritten_query,
