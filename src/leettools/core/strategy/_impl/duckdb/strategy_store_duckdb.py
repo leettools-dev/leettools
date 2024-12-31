@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import traceback
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -59,6 +60,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         Initialize the DuckDB StrategyStore.
         """
         logger().info("Initializing the DuckDB StrategyStore.")
+        logger().info(traceback.format_stack())
 
         self.settings = settings
         self.duckdb_client = DuckDBClient(self.settings)

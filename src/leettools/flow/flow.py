@@ -22,13 +22,6 @@ class AbstractFlow(ABC, FlowComponent):
     def __init__(self, context: Context):
         self.context = context
         self.settings = context.settings
-
-        self.kb_manager = context.get_kb_manager()
-        repo_manager = context.get_repo_manager()
-        self.docsource_store = repo_manager.get_docsource_store()
-        self.docsink_store = repo_manager.get_docsink_store()
-        self.document_store = repo_manager.get_document_store()
-        self.strategy_store = context.get_strategy_store()
         self.display_logger = logger()
 
     @abstractmethod

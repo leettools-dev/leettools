@@ -186,6 +186,7 @@ def flow(
         supported_flow_options = flow.get_flow_option_items()
 
         def _print_flow_info():
+            click.echo(cli_utils.DELIM_LINE)
             click.echo(f"{flow_type}: {flow.short_description()}")
             click.echo(flow.full_description())
             click.echo(cli_utils.DELIM_LINE)
