@@ -29,7 +29,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
-from leettools.flow.utils import flow_util
+from leettools.flow.utils import flow_utils
 from leettools.web import search_utils
 from leettools.web.retrievers.retriever import create_retriever
 
@@ -308,7 +308,7 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                 row_data.append(doc_original_uri)
                 rows_data.append(row_data)
 
-        return flow_util.create_chat_result_with_csv_data(
+        return flow_utils.create_chat_result_with_csv_data(
             header=display_headers,
             rows=rows_data,
             exec_info=exec_info,

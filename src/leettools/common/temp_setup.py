@@ -114,6 +114,8 @@ class TempSetup:
         if not org.name.startswith(Org.TEST_ORG_PREFIX):
             logger().warning(f"Trying to remove non-test org {org.name}. Ignored.")
             return
+        for kb in kb_manager.get_all_kbs_for_org(org, list_adhoc=True):
+            kb_manager.delete_kb_by_name(org, kb.name)
         org_manager.delete_org_by_name(org.name)
 
         if user is not None:

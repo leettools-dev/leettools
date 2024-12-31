@@ -1,6 +1,6 @@
 import click
 
-from leettools.cli.cli_util import setup_org_kb_user
+from leettools.cli.cli_utils import setup_org_kb_user
 from leettools.cli.options_common import common_options
 from leettools.flow.metadata.extract_metadata_manager import (
     create_extraction_metadata_manager,

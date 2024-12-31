@@ -14,7 +14,7 @@ from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
 from leettools.flow.schemas.article import ArticleSection, ArticleSectionPlan, TopicSpec
 from leettools.flow.subflow import AbstractSubflow
-from leettools.flow.utils import flow_util
+from leettools.flow.utils import flow_utils
 
 
 class SubflowGenEssay(AbstractSubflow):
@@ -92,7 +92,7 @@ class SubflowGenEssay(AbstractSubflow):
             )
             sections.append(section)
 
-        return flow_util.create_chat_result_with_sections(
+        return flow_utils.create_chat_result_with_sections(
             exec_info=exec_info,
             query=query,
             article_type=article_type,
@@ -252,7 +252,7 @@ def report_for_docsource(
         )
 
     document_summaries, all_docs, all_keywords = (
-        flow_util.get_doc_summaries_for_docsource(
+        flow_utils.get_doc_summaries_for_docsource(
             docsource=docsource,
             exec_info=exec_info,
         )

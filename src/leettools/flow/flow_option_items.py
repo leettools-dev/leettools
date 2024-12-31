@@ -515,7 +515,7 @@ def _reference_style(
             "The style of the references in the output article. Right now only "
             "default and news are supported."
         ),
-        default_value="news",
+        default_value="default",
         value_type="str",
         example_value="default",
         multiline=False,

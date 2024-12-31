@@ -123,7 +123,7 @@ def search(query: str, searcher_type: SearcherType, kb_name: str) -> None:
     search_params = None
 
     filter = Filter(
-        relation="AND",
+        relation="and",
         conditions=[
             BaseCondition(
                 field=Segment.FIELD_CREATED_TIMESTAMP_IN_MS, operator=">=", value=0

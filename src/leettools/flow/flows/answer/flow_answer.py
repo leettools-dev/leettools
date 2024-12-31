@@ -2,6 +2,7 @@ from typing import ClassVar, List, Type
 
 from openai.resources.chat.completions import ChatCompletion
 
+import leettools.flow.utils.citation_utils
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import config_utils
 from leettools.core.consts import flow_option
@@ -24,7 +25,7 @@ from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
-from leettools.flow.utils import flow_util
+from leettools.flow.utils import flow_utils
 
 
 class FlowAnswer(AbstractFlow):
@@ -68,6 +69,7 @@ Search the web or local KB with the query and answer with source references:
         return AbstractFlow.direct_flow_option_items() + [
             flow_option_items.FOI_RETRIEVER(explicit=True),
             flow_option_items.FOI_REFERENCE_STYLE(),
+            flow_option_items.FOI_REFERENCE_STYLE(),
         ]
 
     def execute_query(
@@ -97,11 +99,18 @@ Search the web or local KB with the query and answer with source references:
             display_logger=display_logger,
         )
 
+        reference_style = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_REFERENCE_STYLE,
+            default_value=flow_option_items.FOI_REFERENCE_STYLE().default_value,
+            display_logger=display_logger,
+        )
+
         # flow starts there
         if retriever_type == RetrieverType.GOOGLE.value:
             # query the web first, after this function, the search results
             # are processed and stored in the KB
-            # TODO oss: make this function async
+            # TODO: make this function async
             docsource = steps.StepSearchToDocsource.run_step(exec_info=exec_info)
             # we will answer using the whole KB
             # right now filter by docsource cannot include re-used docsinks
@@ -125,7 +134,7 @@ Search the web or local KB with the query and answer with source references:
             rewritten_query=rewritten_query,
         )
         if len(top_ranked_result_segments) == 0:
-            return flow_util.create_chat_result_for_empty_search(
+            return flow_utils.create_chat_result_for_empty_search(
                 exec_info=exec_info,
                 query_metadata=query_metadata,
             )
@@ -159,10 +168,13 @@ Search the web or local KB with the query and answer with source references:
         display_logger.info(f"Query finished successfully: {query}.")
 
         result_content = completion.choices[0].message.content
+
         answer_content, reorder_cited_source_items = (
-            flow_util.inference_result_to_answer(
+            flow_utils.inference_result_to_answer(
                 result_content=result_content,
                 source_items=source_items,
+                reference_style=reference_style,
+                display_logger=display_logger,
             )
         )
 
@@ -178,9 +190,10 @@ Search the web or local KB with the query and answer with source references:
         )
         caic_list.append(caic_answer)
 
-        # used flow_option_items.FOI_REFERENCE_STYLE() here
-        reference_section_str = flow_util._create_reference_section(
-            exec_info, reorder_cited_source_items
+        reference_section_str = (
+            leettools.flow.utils.citation_utils.create_reference_section(
+                exec_info, reorder_cited_source_items
+            )
         )
 
         if reference_section_str != "":

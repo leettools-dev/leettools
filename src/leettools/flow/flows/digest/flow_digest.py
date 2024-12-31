@@ -17,7 +17,7 @@ from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
-from leettools.flow.utils import flow_util
+from leettools.flow.utils import flow_utils
 from leettools.web.web_searcher import WebSearcher
 
 
@@ -223,7 +223,7 @@ When interested in a topic, you can generate a digest article:
         # now we have the document summaries from either local or web search
         if document_summaries == "" or document_summaries is None:
             display_logger.debug(f"[Digest] Document summaries is empty")
-            return flow_util.create_chat_result_for_empty_search(
+            return flow_utils.create_chat_result_for_empty_search(
                 exec_info=exec_info, query_metadata=None
             )
         else:

@@ -79,7 +79,7 @@ class LocalSearch(AbstractRetriever):
         if days_limit != 0:
             start_ts, end_ts = config_utils.days_limit_to_timestamps(days_limit)
             filter = Filter(
-                relation="AND",
+                relation="and",
                 conditions=[
                     BaseCondition(
                         field=Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
@@ -129,7 +129,7 @@ class LocalSearch(AbstractRetriever):
                 docsink_uuids = [docsink.docsink_uuid for docsink in docsinks]
                 if filter is not None:
                     filter = Filter(
-                        relation="AND",
+                        relation="and",
                         conditions=[
                             filter,
                             BaseCondition(
