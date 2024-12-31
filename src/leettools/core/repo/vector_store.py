@@ -9,6 +9,7 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import Segment
 from leettools.core.schemas.user import User
+from leettools.eds.rag.search.filter import Filter
 
 
 class VectorType(str, Enum):
@@ -79,7 +80,7 @@ class AbstractVectorStore(ABC):
         query: str,
         top_k: int,
         search_params: Dict[str, Any] = None,
-        filter_expr: str = None,
+        filter: Filter = None,
     ) -> List[VectorSearchResult]:
         """
         Search for segments in the store.
@@ -91,7 +92,7 @@ class AbstractVectorStore(ABC):
         - query: The query to search for.
         - top_k: The number of results to return.
         - search_params: The parameters to use for the search.
-        - filter_expr: The filter expression to use for the search.
+        - filter: The filter expression to use for the search.
 
         Returns:
         - A list of segment ids that match the query.

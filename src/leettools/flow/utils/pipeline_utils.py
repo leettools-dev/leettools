@@ -275,6 +275,6 @@ def run_adhoc_pipeline_for_docsinks(
         docsink.docsink_status = DocSinkStatus.COMPLETED
         docsink_store.update_docsink(org, kb, docsink)
 
-    display_logger.info("✅ Adhoc query: finished embedding documents chunks.")
+    display_logger.info("✅ Adhoc query: finished processing docsinks.")
 
     return success_documents

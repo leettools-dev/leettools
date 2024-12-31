@@ -19,6 +19,8 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import Segment
 from leettools.core.schemas.user import User
+from leettools.eds.rag.search.filter import Filter
+from leettools.eds.rag.search.filter_duckdb import to_duckdb_filter
 from leettools.eds.str_embedder.dense_embedder import (
     AbstractDenseEmbedder,
     create_dense_embedder_for_kb,
@@ -310,7 +312,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         query: str,
         top_k: int,
         search_params: Dict[str, Any] = None,
-        filter_expr: str = None,
+        filter: Filter = None,
     ) -> List[VectorSearchResult]:
         """Search for segments in the store."""
         # Implement your search logic here
@@ -328,29 +330,22 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             f"CAST(? AS FLOAT[{embedding_dimension}])) AS {SIMILARITY_METRIC_ATTR}",
         ]
 
-        where_clause = f"ORDER BY {SIMILARITY_METRIC_ATTR} DESC LIMIT ?"
-        if filter_expr is not None:
+        order_clause = f"ORDER BY {SIMILARITY_METRIC_ATTR} DESC LIMIT ?"
+        value_list = [query_vector]
+
+        if filter is not None:
             # duckdb does not support double quotes in the where clause
-            filter_expr = filter_expr.replace('"', "'")
-            where_clause = f"WHERE {filter_expr} {where_clause}"
-            # need to find columns used in filter_expr
-            # and add them to the column_list
-            # hack, may need to parse the filter string to get the columns
-            all_columns = [
-                Segment.FIELD_EMBEDDINGS,
-                Segment.FIELD_CONTENT,
-                Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
-                Segment.FIELD_LABEL_TAG,
-                Segment.FIELD_DOCUMENT_UUID,
-                Segment.FIELD_DOCSINK_UUID,
-                Segment.FIELD_SEGMENT_UUID,
-            ]
+            filter_expr, fields, values = to_duckdb_filter(filter)
+            where_clause = f"WHERE {filter_expr} {order_clause}"
 
-            for column in all_columns:
-                if column in filter_expr and column not in column_list:
+            for column in fields:
+                if column not in column_list:
                     column_list.append(column)
+            value_list.extend(values)
+        else:
+            where_clause = order_clause
 
-        value_list = [query_vector, top_k]
+        value_list.append(top_k)
 
         results = self.duckdb_client.fetch_all_from_table(
             table_name=table_name,

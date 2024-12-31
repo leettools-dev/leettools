@@ -23,7 +23,7 @@ class EventLogger:
     # todo: the value is Logger, need to figure out how to type hint
     __instances: Dict[str, "EventLogger"] = {}
 
-    global_default_level: str = "INFO"
+    global_default_level: str = os.environ.get("EDS_LOG_LEVEL", "INFO")
 
     @staticmethod
     def set_global_default_level(level: str) -> None:
