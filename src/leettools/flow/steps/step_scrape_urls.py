@@ -58,10 +58,10 @@ and save them as a list of DocSinks in the DocSource.
         Returns:
         - Dict[str, Docoumnet]: The documents created successfully, the key is the url.
         """
-
-        docsink_store = exec_info.context.get_repo_manager().get_docsink_store()
-        docsource_store = exec_info.context.get_repo_manager().get_docsource_store()
-        document_store = exec_info.context.get_repo_manager().get_document_store()
+        context = exec_info.context
+        docsink_store = context.get_repo_manager().get_docsink_store()
+        docsource_store = context.get_repo_manager().get_docsource_store()
+        document_store = context.get_repo_manager().get_document_store()
         display_logger = exec_info.display_logger
         org = exec_info.org
         kb = exec_info.kb
@@ -75,7 +75,7 @@ and save them as a list of DocSinks in the DocSource.
             kb=kb,
             docsource=docsource,
             links=links,
-            display_logger=exec_info.display_logger,
+            display_logger=display_logger,
         )
 
         docsinks: List[DocSink] = []
@@ -85,16 +85,13 @@ and save them as a list of DocSinks in the DocSource.
 
         successful_documents: Dict[str, Document] = {}
         if kb.auto_schedule == True:
-            timeout_in_seconds = 300
-            finished = docsource_store.wait_for_docsource(
-                org, kb, docsource, timeout_in_secs=timeout_in_seconds
+            docsource = pipeline_utils.process_docsource_auto(
+                org=org,
+                kb=kb,
+                docsource=docsource,
+                context=context,
+                display_logger=display_logger,
             )
-            if finished == False:
-                cn = StepScrpaeUrlsToDocSource.COMPONENT_NAME
-                display_logger.warning(
-                    f"[{cn}] The newly scraped DocSinks have not finished processing yet."
-                )
-
             for docsink in docsinks:
                 try:
                     documents = document_store.get_documents_for_docsink(

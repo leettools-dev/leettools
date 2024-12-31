@@ -7,6 +7,7 @@ from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSourceCreate
 from leettools.eds.scheduler.scheduler_manager import run_scheduler
+from leettools.flow.utils import pipeline_utils
 
 
 @click.command(help="Add one URL to the kb.")
@@ -95,21 +96,22 @@ def add_url(
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
 
-    if context.scheduler_is_running:
-        started = False
-    else:
-        # start the scheduler, if started is false, we are using the system scheduler
-        # so that we have to wait for the docsource to finish.
-        started = run_scheduler(context)
-
-    if started == False:
-        finished = docsource_store.wait_for_docsource(
-            org, kb, docsource, timeout_in_secs=None
+    if kb.auto_schedule:
+        docsource = pipeline_utils.process_docsource_auto(
+            org=org,
+            kb=kb,
+            docsource=docsource,
+            context=context,
+            display_logger=logger(),
         )
-        if finished == False:
-            raise UnexpectedOperationFailureException(
-                "The doc source has not been finished."
-            )
+    else:
+        docsource = pipeline_utils.process_docsource_manual(
+            org=org,
+            kb=kb,
+            docsource=docsource,
+            context=context,
+            display_logger=logger(),
+        )
 
     documents = document_store.get_documents_for_docsource(org, kb, docsource)
     if len(documents) == 0:

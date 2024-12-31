@@ -4,18 +4,112 @@ from functools import partial
 from pathlib import Path
 from typing import List
 
+from leettools.common import exceptions
 from leettools.common.logging import logger
+from leettools.common.logging.event_logger import EventLogger
 from leettools.common.logging.log_location import LogLocator
+from leettools.context_manager import Context
 from leettools.core.consts.docsink_status import DocSinkStatus
+from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.consts.document_status import DocumentStatus
 from leettools.core.consts.return_code import ReturnCode
 from leettools.core.schemas.docsink import DocSink, DocSinkCreate
+from leettools.core.schemas.docsource import DocSource
 from leettools.core.schemas.document import Document
+from leettools.core.schemas.knowledgebase import KnowledgeBase
+from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import Segment
 from leettools.eds.pipeline.convert.converter import create_converter
 from leettools.eds.pipeline.embed.segment_embedder import create_segment_embedder_for_kb
+from leettools.eds.pipeline.ingest.connector import create_connector
 from leettools.eds.pipeline.split.splitter import Splitter
+from leettools.eds.scheduler.scheduler_manager import run_scheduler
 from leettools.flow.exec_info import ExecInfo
+
+
+def process_docsource_auto(
+    org: Org,
+    kb: KnowledgeBase,
+    docsource: DocSource,
+    context: Context,
+    display_logger: EventLogger,
+) -> DocSource:
+    """
+    Process the docsource that is auto-scheduled. This function will check if the scheduler
+    is running, if not, it will start the scheduler to process the docsource. If the scheduler
+    is running, it will wait for the docsource to be processed.
+
+    Args:
+    - org: The organization
+    - kb: The knowledge base
+    - docsource: The docsource to process
+    - context: The context
+    - display_logger: The display logger
+
+    Returns:
+    - The updated docsource
+    """
+    if kb.auto_schedule == False:
+        raise exceptions.UnexpectedCaseException(
+            f"The KB {kb.name} is not set to auto-schedule."
+        )
+
+    docsource_store = context.get_repo_manager().get_docsource_store()
+
+    if context.scheduler_is_running:
+        display_logger.info("Scheduled the new DocSource to be processed ...")
+        started = False
+    else:
+        display_logger.info("Start the scheduler to process the new DocSource ...")
+        # TODO next: let the run_scheduler function to take a specific docsource
+        # to process.
+        started = run_scheduler(context=context)
+
+    # TODO next: we should let the caller to check the docsource status
+    # TODO next: the timeout is hard-coded here
+    if started == False:
+        # another process is running the scheduler
+        finished = docsource_store.wait_for_docsource(
+            org, kb, docsource, timeout_in_secs=300
+        )
+        if finished == False:
+            display_logger.warning(
+                "The document source has not finished processing yet."
+            )
+        else:
+            display_logger.info("The document source has finished processing.")
+            docsource.docsource_status = DocSourceStatus.COMPLETED
+            docsource_store.update_docsource(org, kb, docsource)
+    else:
+        # the scheduler has been started and finished processing
+        pass
+    return docsource_store.get_docsource(org, kb, docsource.docsource_uuid)
+
+
+def process_docsource_manual(
+    org: Org,
+    kb: KnowledgeBase,
+    docsource: DocSource,
+    context: Context,
+    display_logger: EventLogger,
+) -> DocSource:
+    docsink_store = context.get_repo_manager().get_docsink_store()
+    docsource_store = context.get_repo_manager().get_docsource_store()
+    connector = create_connector(
+        context=context,
+        connector="connector_simple",
+        org=org,
+        kb=kb,
+        docsource=docsource,
+        docsinkstore=docsink_store,
+        display_logger=display_logger,
+    )
+    connector.ingest()
+    docsink_create_list = connector.get_ingested_docsink_list()
+    run_adhoc_pipeline_for_docsinks(
+        exec_info=None, docsink_create_list=docsink_create_list
+    )
+    return docsource_store.get_docsource(org, kb, docsource.docsource_uuid)
 
 
 def run_adhoc_pipeline_for_docsinks(
@@ -39,22 +133,23 @@ def run_adhoc_pipeline_for_docsinks(
     org = exec_info.org
     kb = exec_info.kb
     user = exec_info.user
-    query = exec_info.query
 
     docsink_store = context.get_repo_manager().get_docsink_store()
     docstore = context.get_repo_manager().get_document_store()
     segment_store = context.get_repo_manager().get_segment_store()
 
-    log_dir = LogLocator.get_log_dir_for_query(
-        chat_id=exec_info.target_chat_query_item.chat_id,
-        query_id=exec_info.target_chat_query_item.query_id,
-    )
-    log_dir_path = Path(log_dir)
-    log_dir_path.mkdir(parents=True, exist_ok=True)
-    log_location = f"{log_dir}/web_search_job.log"
-    display_logger.info(f"Web search job log location: {log_location}")
-    with open(log_location, "a+") as f:
-        f.write(f"Job log for web search {query} created at {datetime.now()}\n")
+    if exec_info.target_chat_query_item is not None:
+        query = exec_info.query
+        log_dir = LogLocator.get_log_dir_for_query(
+            chat_id=exec_info.target_chat_query_item.chat_id,
+            query_id=exec_info.target_chat_query_item.query_id,
+        )
+        log_dir_path = Path(log_dir)
+        log_dir_path.mkdir(parents=True, exist_ok=True)
+        log_location = f"{log_dir}/web_search_job.log"
+        display_logger.info(f"Web search job log location: {log_location}")
+        with open(log_location, "a+") as f:
+            f.write(f"Job log for web search {query} created at {datetime.now()}\n")
 
     display_logger.info("Adhoc query: converting documents to markdown ...")
 

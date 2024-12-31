@@ -274,7 +274,11 @@ class ConnectorSimple(AbstractConnector):
         True if the file was ingested successfully, False otherwise.
         """
         if is_local:
-            file_uri = Path(file_path).as_uri()
+            if file_path.startswith("file://"):
+                file_uri = file_path
+                file_path = file_path[7:]
+            else:
+                file_uri = Path(file_path).as_uri()
             doc_hash, doc_size = file_hash_and_size(Path(file_path))
             docsink_create = DocSinkCreate(
                 docsource=self.docsource,

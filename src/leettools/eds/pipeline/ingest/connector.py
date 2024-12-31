@@ -60,6 +60,7 @@ class AbstractConnector(ABC):
         pass
 
 
+# TODO: remove docsinkstore from the API?
 def create_connector(
     context: Context,
     connector: str,

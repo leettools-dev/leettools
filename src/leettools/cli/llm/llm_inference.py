@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Optional
 
@@ -142,14 +143,6 @@ You are an expert of answerting questions based on the content povided by the us
     help="system prompt to use",
 )
 @click.option(
-    "-j",
-    "--json",
-    "need_json",
-    default=False,
-    required=False,
-    help="return the json format",
-)
-@click.option(
     "-u",
     "--user",
     "user",
@@ -171,9 +164,10 @@ def inference(
     input_text: Optional[str],
     user_prompt_file: Optional[str] = None,
     system_prompt: Optional[str] = None,
-    need_json: Optional[bool] = False,
     username: Optional[str] = None,
     strategy_name: Optional[str] = None,
+    json_output: bool = False,
+    indent: int = None,
     **kwargs,
 ) -> None:
     response = inference_func(
@@ -181,11 +175,15 @@ def inference(
         input_text=input_text,
         user_prompt_file=user_prompt_file,
         system_prompt=system_prompt,
-        need_json=need_json,
+        need_json=json_output,
         username=username,
         strategy_name=strategy_name,
     )
-    print(response)
+    if json_output:
+        result_dict = json.loads(response)
+        click.echo(json.dumps(result_dict, indent=indent))
+    else:
+        click.echo(response)
 
 
 if __name__ == "__main__":

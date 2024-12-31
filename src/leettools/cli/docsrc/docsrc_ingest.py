@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from typing import Optional
 
@@ -9,6 +8,7 @@ from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.eds.scheduler.scheduler_manager import run_scheduler
+from leettools.flow.utils import pipeline_utils
 
 
 @click.command(help="Manually ingest a doc source.")
@@ -44,22 +44,6 @@ from leettools.eds.scheduler.scheduler_manager import run_scheduler
     required=False,
     help="The user to use, default the admin user.",
 )
-@click.option(
-    "-j",
-    "--json",
-    "json_output",
-    is_flag=True,
-    required=False,
-    help="Output the full record results in JSON format.",
-)
-@click.option(
-    "--indent",
-    "indent",
-    default=None,
-    type=int,
-    required=False,
-    help="The number of spaces to indent the JSON output.",
-)
 @common_options
 def ingest(
     docsource_uuid: str,
@@ -76,8 +60,6 @@ def ingest(
     context.is_svc = False
     context.name = "cli_docsource_ingest"
     docsource_store = context.get_repo_manager().get_docsource_store()
-    docsink_store = context.get_repo_manager().get_docsink_store()
-    document_store = context.get_repo_manager().get_document_store()
     org_manager = context.get_org_manager()
     kb_manager = context.get_kb_manager()
     display_logger = logger()
@@ -113,31 +95,22 @@ def ingest(
     docsource.updated_at = datetime.now()
     docsource_store.update_docsource(org, kb, docsource)
 
-    display_logger.info("Updated docsource. Waiting for the docsource to be ingested.")
-
-    if context.scheduler_is_running:
-        display_logger.info("Scheduled the new DocSource to be processed ...")
-        started = False
-    else:
-        display_logger.info("Start the scheduler to process the new DocSource ...")
-        started = run_scheduler(context=context)
-
-    if started == False:
-        # another process is running the scheduler
-        finished = docsource_store.wait_for_docsource(
-            org, kb, docsource, timeout_in_secs=300
+    if kb.auto_schedule:
+        pipeline_utils.process_docsource_auto(
+            org=org,
+            kb=kb,
+            docsource=docsource,
+            context=context,
+            display_logger=display_logger,
         )
-        if finished == False:
-            display_logger.warning(
-                "The document source has not finished processing yet."
-            )
-        else:
-            display_logger.info("The document source has finished processing.")
-            docsource.docsource_status = DocSourceStatus.COMPLETED
-            docsource_store.update_docsource(org, kb, docsource)
     else:
-        # the scheduler has been started and finished processing
-        display_logger.info("Docsource has been ingested.")
+        pipeline_utils.process_docsource_manual(
+            org=org,
+            kb=kb,
+            docsource=docsource,
+            context=context,
+            display_logger=display_logger,
+        )
 
     docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
     if json_output:

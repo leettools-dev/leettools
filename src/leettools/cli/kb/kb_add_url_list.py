@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import click
@@ -9,6 +10,7 @@ from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSourceCreate
 from leettools.eds.scheduler.scheduler_manager import run_scheduler
+from leettools.flow.utils import pipeline_utils
 
 
 @click.command(help="Add a list of URLs to the kb.")
@@ -69,6 +71,8 @@ def add_url_list(
     username: str,
     chunk_size: str,
     scheduler_check: bool,
+    json_output: bool,
+    indent: int,
     **kwargs,
 ) -> None:
     """Add a local directory to repository."""
@@ -94,6 +98,7 @@ def add_url_list(
     if chunk_size is not None:
         context.settings.DEFAULT_CHUNK_SIZE = int(chunk_size)
 
+    docsources = []
     # read the file_path line by line and create
     for line in file_path.open():
         line = line.strip()
@@ -107,29 +112,36 @@ def add_url_list(
             uri=line,
         )
         docsource = docsource_store.create_docsource(org, kb, docsource_create)
+        docsources.append(docsource)
 
-    # start the scheduler
-    if context.scheduler_is_running:
-        started = False
+    if kb.auto_schedule:
+        # TODO next: take more than one docsources
+        docsource = pipeline_utils.process_docsource_auto(
+            org=org,
+            kb=kb,
+            docsource=docsource,
+            context=context,
+            display_logger=logger(),
+        )
     else:
-        # start the scheduler, if started is false, we are using the system scheduler
-        # so that we have to wait for the docsource to finish.
-        started = run_scheduler(context)
-
-    if started == False:
-        finished = docsource_store.wait_for_docsource(
-            org, kb, docsource, timeout_in_secs=None
+        docsource = pipeline_utils.process_docsource_manual(
+            org=org,
+            kb=kb,
+            docsource=docsource,
+            context=context,
+            display_logger=logger(),
         )
-        if finished == False:
-            raise UnexpectedOperationFailureException(
-                "The doc source has not been finished."
-            )
 
-    documents = document_store.get_documents_for_docsource(org, kb, docsource)
-    click.echo("org\tkb\tdocsource_id\tdocsink_id\tdocument_uuid\tURI")
-    for document in documents:
-        click.echo(
-            f"{org.name}\t{kb.name}\t{docsource.docsource_uuid}"
-            f"\t{document.docsink_uuid}\t{document.document_uuid}"
-            f"\t{document.original_uri}"
-        )
+    for docsource in docsources:
+        documents = document_store.get_documents_for_docsource(org, kb, docsource)
+        if json_output:
+            for document in documents:
+                click.echo(json.dumps(document, indent=indent))
+        else:
+            click.echo("org\tkb\tdocsource_id\tdocsink_id\tdocument_uuid\tURI")
+            for document in documents:
+                click.echo(
+                    f"{org.name}\t{kb.name}\t{docsource.docsource_uuid}"
+                    f"\t{document.docsink_uuid}\t{document.document_uuid}"
+                    f"\t{document.original_uri}"
+                )

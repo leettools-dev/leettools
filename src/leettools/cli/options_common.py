@@ -17,6 +17,22 @@ def common_options(f):
         show_default=True,
         callback=_set_log_level,
     )
+    @click.option(
+        "-j",
+        "--json",
+        "json_output",
+        is_flag=True,
+        required=False,
+        help="Output the full record results in JSON format.",
+    )
+    @click.option(
+        "--indent",
+        "indent",
+        default=None,
+        type=int,
+        required=False,
+        help="The number of spaces to indent the JSON output.",
+    )
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
 
