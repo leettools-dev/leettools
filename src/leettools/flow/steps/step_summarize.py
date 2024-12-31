@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import ClassVar, Dict, List, Optional, Type
 
 from leettools.common import exceptions
@@ -127,7 +126,8 @@ Here is the content:
                 f"Document {document.document_uuid} has not been processed yet."
             )
             return None
-        if document.summary is not None:
+
+        if document.summary() is not None:
             if not force_summarize:
                 display_logger.debug(
                     f"Document {document.document_uuid} has already been summarized."
@@ -137,28 +137,10 @@ Here is the content:
         document_summary = StepSummarize._summarize_content(
             exec_info=exec_info, content=document.content
         )
-        document.keywords = document_summary.keywords
-        document.summary = document_summary.summary
-        if document_summary.content_date is not None:
-            try:
-                document.content_date = datetime.strptime(
-                    document_summary.content_date, "%Y-%m-%d"
-                )
-            except Exception as e:
-                display_logger.debug(
-                    f"Invalid content_date format from LLM inference result, "
-                    f"expecting yyyy-mm-dd : {document_summary.content_date}"
-                )
-                document.content_date = None
-        else:
-            document.content_date = None
-
-        document.links = document_summary.links
-        document.authors = document_summary.authors
-        document.relevance_score = document_summary.relevance_score
+        document.auto_summary = document_summary
 
         # Only update the all_links if the document is relevant
-        if document.relevance_score >= context.settings.RELEVANCE_THRESHOLD:
+        if document.summary().relevance_score >= context.settings.RELEVANCE_THRESHOLD:
             for link in document_summary.links:
                 if link in all_links:
                     all_links[link] += 1

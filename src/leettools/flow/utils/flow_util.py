@@ -215,27 +215,28 @@ def get_doc_summaries_for_docsource(
             )
             continue
 
-        if document.summary is None:
+        if document.summary() is None:
             display_logger.info(f"Document {document.document_uuid} has no summary.")
             continue
 
+        summary = document.summary()
         if (
-            document.relevance_score is not None
-            and document.relevance_score < settings.RELEVANCE_THRESHOLD
+            summary.relevance_score is not None
+            and summary.relevance_score < settings.RELEVANCE_THRESHOLD
         ):
             display_logger.info(
-                f"Document has a low relevance score: {document.relevance_score}."
+                f"Document has a low relevance score: {summary.relevance_score}."
                 f"[{document.original_uri}]"
             )
             continue
 
-        for keyword in document.keywords:
+        for keyword in summary.keywords:
             if keyword in all_keywords:
                 all_keywords[keyword] += 1
             else:
                 all_keywords[keyword] = 1
         all_documents.append(document)
-        document_summaries = document_summaries + "\n" + document.summary
+        document_summaries = document_summaries + "\n" + summary.summary
     return document_summaries, all_documents, all_keywords
 
 
