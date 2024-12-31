@@ -1,7 +1,7 @@
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
@@ -83,6 +83,14 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         if data.get(Document.FIELD_DOCSOURCE_UUIDS):
             uuids = data[Document.FIELD_DOCSOURCE_UUIDS]
             data[Document.FIELD_DOCSOURCE_UUIDS] = uuids.split(",")
+        if data.get(Document.FIELD_AUTO_SUMMARY):
+            data[Document.FIELD_AUTO_SUMMARY] = json.loads(
+                data[Document.FIELD_AUTO_SUMMARY]
+            )
+        if data.get(Document.FIELD_MANUAL_SUMMARY):
+            data[Document.FIELD_MANUAL_SUMMARY] = json.loads(
+                data[Document.FIELD_MANUAL_SUMMARY]
+            )
         return Document.from_document_in_db(DocumentInDB.model_validate(data))
 
     def _document_to_dict(self, document: DocumentInDB) -> dict:
@@ -92,6 +100,14 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
             data[Document.FIELD_DOCSOURCE_UUIDS] = ",".join(
                 data[Document.FIELD_DOCSOURCE_UUIDS]
             )
+        if data.get(Document.FIELD_AUTO_SUMMARY):
+            data[Document.FIELD_AUTO_SUMMARY] = json.dumps(
+                data[Document.FIELD_AUTO_SUMMARY]
+            )
+        if data.get(Document.FIELD_MANUAL_SUMMARY):
+            data[Document.FIELD_MANUAL_SUMMARY] = json.dumps(
+                data[Document.FIELD_MANUAL_SUMMARY]
+            )
         return data
 
     def _document_update_to_dict(self, document_update: DocumentUpdate) -> dict:
@@ -100,6 +116,14 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         if data.get(Document.FIELD_DOCSOURCE_UUIDS):
             data[Document.FIELD_DOCSOURCE_UUIDS] = ",".join(
                 data[Document.FIELD_DOCSOURCE_UUIDS]
+            )
+        if data.get(Document.FIELD_AUTO_SUMMARY):
+            data[Document.FIELD_AUTO_SUMMARY] = json.dumps(
+                data[Document.FIELD_AUTO_SUMMARY]
+            )
+        if data.get(Document.FIELD_MANUAL_SUMMARY):
+            data[Document.FIELD_MANUAL_SUMMARY] = json.dumps(
+                data[Document.FIELD_MANUAL_SUMMARY]
             )
         return data
 
@@ -257,8 +281,8 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         table_name = self._get_table_name(org, kb)
 
         data = self._document_update_to_dict(document_update)
-        document_uuid = data.pop(Document.FIELD_DOCUMENT_UUID)
 
+        document_uuid = data.pop(Document.FIELD_DOCUMENT_UUID)
         column_list = list(data.keys())
         where_clause = f"WHERE {Document.FIELD_DOCUMENT_UUID} = ?"
         value_list = list(data.values()) + [document_uuid]

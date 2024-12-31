@@ -397,7 +397,7 @@ def get_openai_client_for_user(
     base_url = api_provider_config.base_url
 
     trace = traceback.format_stack()
-    logger().info(
+    logger().debug(
         f"Creating OpenAI client with base_url: {base_url} "
         f"and api_key: {api_key[:5]}******{api_key[-5:]}"
     )

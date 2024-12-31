@@ -83,7 +83,6 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
             )
         if data.get(DocSink.FIELD_DOCSOURCE_UUIDS):
             uuids = data[DocSink.FIELD_DOCSOURCE_UUIDS]
-            print(f"uuids is {uuids}, type is {type(uuids)}")
             if type(uuids) == str:
                 data[DocSink.FIELD_DOCSOURCE_UUIDS] = uuids.split(",")
             elif type(uuids) == list:
@@ -93,10 +92,6 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
                     operation_desc="Error converting dict to DocSink",
                     error=f"Unexpected type for docsource_uuids: {uuids}",
                 )
-
-        print(
-            f"data[DocSink.FIELD_DOCSOURCE_UUIDS] is {data[DocSink.FIELD_DOCSOURCE_UUIDS]}"
-        )
 
         return DocSink.from_docsink_in_db(DocSinkInDB.model_validate(data))
 
@@ -244,7 +239,6 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
 
         if existing_dict is not None:
             uuids = existing_dict[DocSink.FIELD_DOCSOURCE_UUIDS]
-            print(f"existing_dict has uuids {uuids}: {type(uuids)}")
             return self._dict_to_docsink(existing_dict)
         return None
 
