@@ -30,4 +30,5 @@ class DisplayType(str, Enum):
     IMAGE = "IMAGE"
     TABLE = "TABLE"
     CSV = "CSV"
+    JSON = "JSON"
     REFERENCES = "REFERENCES"

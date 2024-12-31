@@ -87,7 +87,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
         Args:
         - schema_name: The schema name.
         - table_name: The table name.
-        - columns: The columns of the table.
+        - columns: The columns of the table as a name-type dictionary.
         - create_sequence_sql: The SQL to create a sequence after the table is created.
 
         Returns:

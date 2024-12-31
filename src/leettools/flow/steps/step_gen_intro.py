@@ -8,7 +8,7 @@ from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.schemas.article import ArticleSection, ArticleSectionPlan
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_utils, prompt_util
+from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepGenIntro(AbstractStep):
@@ -21,7 +21,7 @@ class StepGenIntro(AbstractStep):
 
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
-        return prompt_util.get_supported_template_option_items()
+        return prompt_utils.get_supported_template_option_items()
 
     @staticmethod
     def run_step(
@@ -105,7 +105,7 @@ section for the conttent.
 
     user_prompt = template_eval.render_template(
         user_prompt_template,
-        prompt_util.get_template_vars(
+        prompt_utils.get_template_vars(
             flow_options=flow_options,
             inference_context=content,
             rewritten_query=query,

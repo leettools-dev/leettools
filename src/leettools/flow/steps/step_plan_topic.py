@@ -15,7 +15,7 @@ from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.schemas.article import TopicList
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_utils, prompt_util
+from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepPlanTopic(AbstractStep):
@@ -204,14 +204,14 @@ def _step_plan_topic_for_style(
     user_prompt_template = prompt_base.prompt_template
 
     template_vars = {
-        "context_presentation": prompt_util.context_presentation(),
+        "context_presentation": prompt_utils.context_presentation(),
         "num_of_section_instruction": num_of_section_instruction,
         "article_style": article_style,
         "query": query,
         "content_instruction": content_instruction,
-        "output_lang_instruction": prompt_util.lang_instruction(output_lang),
-        "search_lang_instruction": prompt_util.lang_instruction(search_lang),
-        "json_format_instruction": prompt_util.json_format_instruction(),
+        "output_lang_instruction": prompt_utils.lang_instruction(output_lang),
+        "search_lang_instruction": prompt_utils.lang_instruction(search_lang),
+        "json_format_instruction": prompt_utils.json_format_instruction(),
         "content": content,
     }
 

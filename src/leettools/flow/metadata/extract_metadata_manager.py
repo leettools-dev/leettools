@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
-from leettools.eds.metadata.schemas.extract_metadata import ExtractMetadata
+from leettools.flow.schemas.extract_metadata import ExtractMetadata
 from leettools.settings import SystemSettings
 
 

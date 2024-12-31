@@ -106,7 +106,7 @@ local storage.
 
         self.output_root = f"{self.settings.DATA_ROOT}/websearch"
         # visited_urls stores the url to path mapping
-        self.visited_urls_xxx: Dict[str, str] = {}
+        self.visited_urls: Dict[str, str] = {}
 
         self.logger = logger()  # default logger
         self.display_logger = self.logger  # logs that we want to show on UI
@@ -123,7 +123,7 @@ local storage.
 
         new_urls = []
         for url in url_list:
-            if url not in self.visited_urls_xxx:
+            if url not in self.visited_urls:
                 new_urls.append(url)
                 self.display_logger.info(f"✅ Added url to scraper: {url}")
 

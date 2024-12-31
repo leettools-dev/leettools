@@ -11,7 +11,7 @@ from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.schemas.article import ArticleSection, ArticleSectionPlan
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_utils, prompt_util
+from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepGenSection(AbstractStep):
@@ -40,7 +40,7 @@ options set in the query such as style, words, language, etc.
 
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
-        return prompt_util.get_supported_template_option_items() + [
+        return prompt_utils.get_supported_template_option_items() + [
             flow_option_items.FOI_PLANNING_MODEL(),
         ]
 
@@ -80,7 +80,7 @@ options set in the query such as style, words, language, etc.
         if flow_options is None:
             flow_options = {}
 
-        user_template_vars = prompt_util.get_template_vars(
+        user_template_vars = prompt_utils.get_template_vars(
             flow_options=flow_options,
             inference_context=extended_context,
             rewritten_query=rewritten_query,

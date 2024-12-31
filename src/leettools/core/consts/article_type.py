@@ -15,3 +15,4 @@ class ArticleType(str, Enum):
     SHOPPING = "shopping"  # a shopping list with links
     SEARCH = "search"  # a search result
     CSV = "csv"  # a CSV file
+    JSON = "json"  # a JSON file

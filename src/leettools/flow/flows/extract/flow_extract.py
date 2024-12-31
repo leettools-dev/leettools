@@ -24,6 +24,7 @@ from leettools.core.strategy.schemas.prompt import (
     PromptCategory,
     PromptType,
 )
+from leettools.eds.extract.extract_store import get_extended_model
 from leettools.flow import flow_option_items, iterators, steps
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
@@ -102,6 +103,8 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
         return AbstractFlow.get_flow_option_items() + [
             flow_option_items.FOI_RETRIEVER(explicit=True),
             flow_option_items.FOI_EXTRACT_PYDANTIC(explicit=True, required=True),
+            flow_option_items.FOI_EXTRACT_SAVE_TO_BACKEND(),
+            flow_option_items.FOI_EXTRACT_OUTPUT_FORMAT(),
             flow_option_items.FOI_TARGET_SITE(),
             flow_option_items.FOI_SEARCH_LANGUAGE(),
             flow_option_items.FOI_SEARCH_MAX_RESULTS(),
@@ -142,6 +145,13 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
             raise exceptions.ParametersValidationException(
                 f"Missing required flow option {fn}."
             )
+
+        save_to_backend = config_utils.get_bool_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_EXTRACT_SAVE_TO_BACKEND,
+            default_value=True,
+            display_logger=display_logger,
+        )
 
         # check if pydantic schema has multiple lines
         if "\n" not in pydantic_schema:
@@ -228,7 +238,6 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
             display_logger=display_logger,
         )
 
-        # the agent flow starts here
         retriever_type = config_utils.get_str_option_value(
             options=flow_options,
             option_name=flow_option.FLOW_OPTION_RETRIEVER_TYPE,
@@ -236,7 +245,16 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
             display_logger=display_logger,
         )
 
-        extracted_objs_dict: Dict[str, List[TypeVar_BaseModel]] = {}
+        output_format = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_EXTRACT_OUTPUT_FORMAT,
+            default_value="json",
+            display_logger=display_logger,
+        )
+
+        # the agent flow starts here
+        new_objs_dict: Dict[str, List[TypeVar_BaseModel]] = {}
+        existing_objs_list: Dict[str, List[TypeVar_BaseModel]] = {}
 
         if retriever_type == RetrieverType.LOCAL:
             retriever = create_retriever(
@@ -261,7 +279,7 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                 else:
                     updated_time_threshold = None
 
-                extracted_objs_dict = iterators.ExtractKB.run(
+                new_objs_dict, existing_objs_list = iterators.ExtractKB.run(
                     exec_info=exec_info,
                     docsource=None,
                     extraction_instructions=instructions,
@@ -269,6 +287,7 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                     model_class=target_model,
                     query_metadata=None,
                     updated_time_threshold=updated_time_threshold,
+                    save_to_backend=save_to_backend,
                 )
 
             else:
@@ -278,39 +297,71 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                     display_logger=display_logger,
                 )
 
-                extracted_objs_dict = iterators.ExtractSearch.run(
+                new_objs_dict, existing_objs_list = iterators.ExtractSearch.run(
                     exec_info=exec_info,
                     search_results=search_results,
                     extraction_instructions=instructions,
                     target_model_name=target_model_name,
                     model_class=target_model,
+                    save_to_backend=save_to_backend,
                 )
 
         else:
             docsource = steps.StepSearchToDocsource.run_step(exec_info=exec_info)
 
             # the key is the document.original_uri and the value is the list of extracted objects
-            extracted_objs_dict = iterators.ExtractKB.run(
+            new_objs_dict, existing_objs_list = iterators.ExtractKB.run(
                 exec_info=exec_info,
                 docsource=docsource,
                 extraction_instructions=instructions,
                 target_model_name=target_model_name,
                 model_class=target_model,
+                save_to_backend=save_to_backend,
             )
 
-        # convert the extracted objects to a csv table
-        display_headers: List[str] = list(target_model.model_fields.keys())
-        display_headers.append("doc_original_uri")
+        all_objs_dict: Dict[str, List[TypeVar_BaseModel]] = {
+            **new_objs_dict,
+            **existing_objs_list,
+        }
+        extended_model = get_extended_model(target_model_name, target_model)
+        display_headers: List[str] = list(extended_model.model_fields.keys())
         rows_data: List[List] = []
-        for doc_original_uri, extracted_objs in extracted_objs_dict.items():
+        all_objs_list: List[TypeVar_BaseModel] = []
+        for extracted_objs in all_objs_dict.values():
+            all_objs_list.extend(extracted_objs)
             for obj in extracted_objs:
-                row_data: List[str] = list(obj.model_dump().values())
-                row_data.append(doc_original_uri)
-                rows_data.append(row_data)
+                rows_data.append([str(x) for x in obj.model_dump().values()])
 
-        return flow_utils.create_chat_result_with_csv_data(
-            header=display_headers,
-            rows=rows_data,
+        if output_format.lower() == "csv":
+            # convert the extracted objects to a csv table
+            return flow_utils.create_chat_result_with_csv_data(
+                header=display_headers,
+                rows=rows_data,
+                exec_info=exec_info,
+                query_metadata=None,
+            )
+
+        if output_format.lower() == "md" or output_format.lower() == "mardown":
+            results = flow_utils.to_markdown_table(instances=all_objs_list)
+            return flow_utils.create_chat_result_with_table_msg(
+                msg=results,
+                header=display_headers,
+                rows=rows_data,
+                exec_info=exec_info,
+                query_metadata=None,
+            )
+
+        if output_format.lower() != "json":
+            display_logger.warning(
+                f"Unsupported output format {output_format}. Defaulting to json."
+            )
+
+        json_data = {}
+        for key, objs in all_objs_dict.items():
+            json_data[key] = [obj.model_dump_json() for obj in objs]
+
+        return flow_utils.create_chat_result_with_json_data(
+            json_data=json_data,
             exec_info=exec_info,
             query_metadata=None,
         )

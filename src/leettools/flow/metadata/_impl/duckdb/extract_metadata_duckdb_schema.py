@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from leettools.eds.metadata.schemas.extract_metadata import BaseExtractMetadataSchema
+from leettools.flow.schemas.extract_metadata import BaseExtractMetadataSchema
 
 
 @dataclass

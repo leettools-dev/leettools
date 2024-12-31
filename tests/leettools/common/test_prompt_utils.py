@@ -1,14 +1,14 @@
 from leettools.common.utils import template_eval
-from leettools.flow.utils import prompt_util
+from leettools.flow.utils import prompt_utils
 
 
 def test_prompt_direct():
 
-    lang_instruction = prompt_util.lang_instruction()
+    lang_instruction = prompt_utils.lang_instruction()
     context = "This my context"
     prompt = f"""
 { lang_instruction }
-{ prompt_util.json_format_instruction() }
+{ prompt_utils.json_format_instruction() }
 {{
     "key": "context",
     "value": "{ context }"
@@ -39,7 +39,7 @@ def test_prompt_without_fstr():
 """
 
     # get the system suppored template variables
-    template_vars = prompt_util.get_template_vars(
+    template_vars = prompt_utils.get_template_vars(
         flow_options={},
         inference_context="This is inference context",
         rewritten_query="This is rewritten query",
@@ -80,7 +80,7 @@ def test_prompt_with_fstr():
 """
 
     # get the system suppored template variables
-    template_vars = prompt_util.get_template_vars(
+    template_vars = prompt_utils.get_template_vars(
         flow_options={},
         inference_context="This is inference context",
         rewritten_query="This is rewritten query",

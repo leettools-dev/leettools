@@ -6,7 +6,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_utils, prompt_util
+from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepGenSearchPhrases(AbstractStep):
@@ -61,7 +61,7 @@ def _step_get_search_phrases_for_query(
         system_prompt="You are an expert of creating good search phrases for a query topic.",
         user_prompt=f"""
 Given the following query, create a web search query
-{prompt_util.lang_instruction(search_lang)}
+{prompt_utils.lang_instruction(search_lang)}
 that will return most relavant information about the query from the the web search engine.
 
 Return the result as a string without quotes, do not include the title in the result.

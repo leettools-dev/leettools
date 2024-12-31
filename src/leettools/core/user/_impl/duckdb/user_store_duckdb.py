@@ -25,9 +25,9 @@ class UserStoreDuckDB(AbstractUserStore):
 
     def _get_table_name(self) -> str:
         return self.duckdb_client.create_table_if_not_exists(
-            self.settings.DB_COMMOM,
-            self.settings.COLLECTION_USERS,
-            UserDuckDBSchema.get_schema(),
+            schema_name=self.settings.DB_COMMOM,
+            table_name=self.settings.COLLECTION_USERS,
+            columns=UserDuckDBSchema.get_schema(),
         )
 
     def change_user_balance(self, user_uuid: str, balance_change: int) -> User:

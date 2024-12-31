@@ -574,6 +574,61 @@ def create_chat_result_with_csv_data(
     )
 
 
+def create_chat_result_with_json_data(
+    json_data: Dict[str, Any],
+    exec_info: ExecInfo,
+    query_metadata: ChatQueryMetadata,
+) -> ChatQueryResultCreate:
+    """
+    Create a chat result with a json message. We need the json data as the
+    the user data so that display can render the data as needed. The data will also
+    be stored as the answer content.
+
+    Args:
+    - json_data: The json data to display.
+    - exec_info: The execution information.
+    - query_metadata: The query metadata.
+
+    Returns:
+    - The chat query result.
+    """
+    chat_query_item = exec_info.target_chat_query_item
+
+    chat_answer_item_create_list = []
+
+    answer_content = json.dumps(json_data, indent=2)
+
+    # The 0th item is the full report
+    chat_answer_item_create = ChatAnswerItemCreate(
+        chat_id=chat_query_item.chat_id,
+        query_id=chat_query_item.query_id,
+        answer_content=answer_content,
+        answer_plan=None,
+        position_in_answer="all",
+        answer_score=0,
+    )
+    chat_answer_item_create_list.append(chat_answer_item_create)
+
+    # the 1st item is the detailed section
+    chat_answer_item_create = ChatAnswerItemCreate(
+        chat_id=chat_query_item.chat_id,
+        query_id=chat_query_item.query_id,
+        answer_content=answer_content,
+        answer_plan=None,
+        position_in_answer="1",
+        answer_title="Results",
+        answer_score=1,
+        display_type=DisplayType.JSON,
+        user_data={"json_data": json_data},
+    )
+    chat_answer_item_create_list.append(chat_answer_item_create)
+
+    return ChatQueryResultCreate(
+        chat_answer_item_create_list=chat_answer_item_create_list,
+        article_type=ArticleType.CSV,
+    )
+
+
 def limit_content(content: str, model_name: str, display_logger: EventLogger) -> str:
     # TODO: the way we need to pass the display_logger around is not ideal
     # TODO: use proper language or tokenzier to get the token count
@@ -699,7 +754,7 @@ def chat_query_result_to_post(chat_query_result: ChatQueryResult) -> str:
 
 def to_markdown_table(
     instances: List[BaseModel],
-    skip_fields: List[str] = {},
+    skip_fields: List[str] = [],
     output_fields: Optional[List[str]] = None,
     url_compact_fields: Optional[List[List]] = None,
 ) -> str:

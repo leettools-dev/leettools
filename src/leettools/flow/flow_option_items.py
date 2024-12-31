@@ -11,8 +11,10 @@ from leettools.core.consts.flow_option import (
     FLOW_OPTION_EXTRACT_INSTRUCTION,
     FLOW_OPTION_EXTRACT_JSON_SCHEMA_DEPRCATE,
     FLOW_OPTION_EXTRACT_KEY_FIELDS,
+    FLOW_OPTION_EXTRACT_OUTPUT_FORMAT,
     FLOW_OPTION_EXTRACT_PYDANTIC,
     FLOW_OPTION_EXTRACT_PYTHON_INSTRUCTION,
+    FLOW_OPTION_EXTRACT_SAVE_TO_BACKEND,
     FLOW_OPTION_EXTRACT_TARGET_MODEL_NAME,
     FLOW_OPTION_EXTRACT_VERIFY_FIELDS,
     FLOW_OPTION_IMAGE_SEARCH,
@@ -486,6 +488,25 @@ def _extract_key_fields(
     )
 
 
+def _extract_save_to_backend(
+    explicit: Optional[bool] = False, required: Optional[bool] = False
+) -> FlowOptionItem:
+    return FlowOptionItem(
+        name=FLOW_OPTION_EXTRACT_SAVE_TO_BACKEND,
+        display_name="Save extracted data to backend",
+        description=(
+            "Save the extracted data to the backend. Default True. If False, the "
+            "extracted data will not be saved. The saved data will have the same "
+            "schema specified in the pydantic model, plus metadata such as the "
+            "import time and the original document URI."
+        ),
+        default_value="True",
+        value_type="bool",
+        explicit=explicit,
+        required=required,
+    )
+
+
 def _extract_verify_fields(
     explicit: Optional[bool] = False, required: Optional[bool] = False
 ) -> FlowOptionItem:
@@ -497,6 +518,23 @@ def _extract_verify_fields(
             "For example, although the address of a company is not in the key fields, and a "
             "company may have multiple addresses for different offices, we want to verify and "
             "dedup all the addresses extracted. If left empty, no verification will be performed."
+        ),
+        default_value=None,
+        value_type="str",
+        explicit=explicit,
+        required=required,
+    )
+
+
+def _extract_output_format(
+    explicit: Optional[bool] = False, required: Optional[bool] = False
+) -> FlowOptionItem:
+    return FlowOptionItem(
+        name=FLOW_OPTION_EXTRACT_OUTPUT_FORMAT,
+        display_name="Output format",
+        description=(
+            "The output of the extracted data. Default is json. Currently also support "
+            " csv, md."
         ),
         default_value=None,
         value_type="str",
@@ -698,6 +736,7 @@ FOI_SEARCH_EXCLUDED_SITES = _search_excluded_sites
 FOI_TARGET_SITE = _target_site
 FOI_STRICT_CONTEXT = _strict_context
 FOI_REFERENCE_STYLE = _reference_style
+FOI_EXTRACT_SAVE_TO_BACKEND = _extract_save_to_backend
 FOI_EXTRACT_VERIFY_FIELDS = _extract_verify_fields
 FOI_EXTRACT_KEY_FIELDS = _extract_key_fields
 FOI_EXTRACT_PYTHON_TARGET_MODEL_NAME = _extract_target_model_name
@@ -705,6 +744,7 @@ FOI_EXTRACT_PYTHON_INSTRUCTION = _extract_python_instruction
 FOI_EXTRACT_JSON_SCHEMA = _extract_json_schema
 FOI_EXTRACT_PYDANTIC = _extract_pydantic
 FOI_EXTRACT_INSTRUCTION = _extract_instruction
+FOI_EXTRACT_OUTPUT_FORMAT = _extract_output_format
 FOI_WORD_COUNT = _word_count
 FOI_ARTICLE_STYLE = _article_style
 FOI_NUM_OF_SECTIONS = _num_of_sections
