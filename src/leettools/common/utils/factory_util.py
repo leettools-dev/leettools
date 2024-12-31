@@ -1,7 +1,7 @@
 import importlib
 import inspect
 from abc import ABC
-from typing import Type, TypeVar
+from typing import List, Type, TypeVar
 
 from leettools.common import exceptions
 from leettools.common.logging import logger
@@ -10,7 +10,7 @@ from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 T = TypeVar("T", bound=ABC)
 
 
-def get_subclass_from_module(module_name: str, base_class: Type[T]) -> Type[T]:
+def get_subclass_from_module(module_name: str, base_class: Type[T]) -> List[Type[T]]:
     # Ensure the base_class is a subclass of ABC
     if not issubclass(base_class, ABC):
         raise exceptions.InvalidValueException(
@@ -18,7 +18,6 @@ def get_subclass_from_module(module_name: str, base_class: Type[T]) -> Type[T]:
             expected="subclass of ABC",
             actual=base_class.__name__,
         )
-
     try:
         # Import the specified module
         module = importlib.import_module(module_name)
@@ -29,20 +28,7 @@ def get_subclass_from_module(module_name: str, base_class: Type[T]) -> Type[T]:
             for _, cls in inspect.getmembers(module, inspect.isclass)
             if issubclass(cls, base_class) and cls is not base_class
         ]
-
-        if len(subclasses) == 0:
-            raise exceptions.UnexpectedCaseException(
-                f"No subclasses of {base_class} found in the module {module_name}"
-            )
-        elif len(subclasses) > 1:
-            err_msg = ", ".join([cls.__name__ for cls in subclasses])
-            raise exceptions.UnexpectedCaseException(
-                f"More than one subclass of {base_class} found in the module {module_name}: {err_msg}"
-            )
-
-        # Return an instance of the found class
-        cls = subclasses[0]
-        return cls
+        return subclasses
     except ModuleNotFoundError as e:
         raise exceptions.EntityNotFoundException(
             entity_name=module_name, entity_type="module"
@@ -50,7 +36,18 @@ def get_subclass_from_module(module_name: str, base_class: Type[T]) -> Type[T]:
 
 
 def create_object(module_name: str, base_class: Type[T], *args, **kwwargs) -> T:
-    cls = get_subclass_from_module(module_name, base_class)
+    subclasses = get_subclass_from_module(module_name, base_class)
+
+    if len(subclasses) == 0:
+        raise exceptions.UnexpectedCaseException(
+            f"No subclasses of {base_class} found in the module {module_name}"
+        )
+    elif len(subclasses) > 1:
+        err_msg = ", ".join([cls.__name__ for cls in subclasses])
+        raise exceptions.UnexpectedCaseException(
+            f"More than one subclass of {base_class} found in the module {module_name}: {err_msg}"
+        )
+    cls = subclasses[0]
     return cls(*args, **kwwargs)
 
 
