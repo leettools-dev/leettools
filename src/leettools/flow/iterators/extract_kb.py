@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Type
 
@@ -135,7 +136,11 @@ newly extracted data will be saved to the backend storage.
                             f"Original URI {doc_original_uri} already extracted. Reading existing results."
                         )
                         existing_objs[doc_original_uri] = existing_objs_for_doc
-                    continue
+                        continue
+                    else:
+                        display_logger.debug(
+                            f"Extracting from document {document.document_uuid} ..."
+                        )
 
                 extracted_obj_list = steps.StepExtractInfo.run_step(
                     exec_info=exec_info,
@@ -172,6 +177,7 @@ newly extracted data will be saved to the backend storage.
                 display_logger.warning(
                     f"Failed to extract from document {document.document_uuid}: {e}. Ignored."
                 )
+                display_logger.warning(traceback.format_exc())
                 continue
 
         display_logger.info(

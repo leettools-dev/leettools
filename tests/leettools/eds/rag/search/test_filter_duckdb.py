@@ -21,7 +21,7 @@ def test_to_duckdb_filter():
         ],
     )
     duckdb_query, fields, values = to_duckdb_filter(nested_condition)
-    assert duckdb_query == "(age < ?) OR (city == ?)"
+    assert duckdb_query == "(age < ?) OR (city = ?)"
     assert fields == ["age", "city"]
     assert values == [25, "New York"]
 
@@ -36,7 +36,7 @@ def test_to_duckdb_filter():
         ],
     )
     duckdb_query, fields, values = to_duckdb_filter(special_char_condition)
-    assert duckdb_query == "description like ?"
+    assert duckdb_query == "description LIKE ?"
     assert fields == ["description"]
     assert values == ["He said 'Hello' and \"Welcome\""]
 
@@ -60,7 +60,7 @@ def test_to_duckdb_filter():
         ],
     )
     duckdb_query, fields, values = to_duckdb_filter(complex_nested_condition)
-    assert duckdb_query == "((age < ?) OR (city == ?)) AND (NOT (status == ?))"
+    assert duckdb_query == "((age < ?) OR (city = ?)) AND (NOT (status = ?))"
     assert fields == ["age", "city", "status"]
     assert values == [25, "New York", "inactive"]
 

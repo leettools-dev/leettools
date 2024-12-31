@@ -1,3 +1,4 @@
+import traceback
 from typing import Dict, List, Optional, Tuple, Type
 
 from leettools.common.utils import time_utils
@@ -169,6 +170,7 @@ if exists and the newly extracted data will be saved to the backend storage.
                 display_logger.warning(
                     f"Failed to extract from document {document.document_uuid}: {e}. Ignored."
                 )
+                display_logger.warning(traceback.format_exc())
                 continue
 
         display_logger.info(
