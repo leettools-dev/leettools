@@ -59,7 +59,6 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         Initialize the DuckDB StrategyStore.
         """
         logger().info("Initializing the DuckDB StrategyStore.")
-
         self.settings = settings
         self.duckdb_client = DuckDBClient(self.settings)
 
