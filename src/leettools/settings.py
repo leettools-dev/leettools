@@ -514,14 +514,14 @@ class SystemSettings(BaseModel):
         load_dotenv(dotenv_path=env_file_path, override=override)
 
         leet_home = os.environ.get("LEET_HOME", None)
-        eds_data_root = os.environ.get("EDS_DATA_ROOT", None)
-        eds_log_root = os.environ.get("EDS_LOG_ROOT", None)
+        eds_data_root = os.environ.get(f"{ENV_VAR_PREFIX}DATA_ROOT", None)
+        eds_log_root = os.environ.get(f"{ENV_VAR_PREFIX}LOG_ROOT", None)
 
         if leet_home:
             if not eds_data_root:
-                os.environ["EDS_DATA_ROOT"] = f"{leet_home}/data"
+                os.environ[f"{ENV_VAR_PREFIX}DATA_ROOT"] = f"{leet_home}/data"
             if not eds_log_root:
-                os.environ["EDS_LOG_ROOT"] = f"{leet_home}/logs"
+                os.environ[f"{ENV_VAR_PREFIX}LOG_ROOT"] = f"{leet_home}/logs"
 
         for field_name in self.model_fields.keys():
             if field_name in self.__class_vars__:

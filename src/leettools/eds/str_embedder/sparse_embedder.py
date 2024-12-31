@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, TypeVar
 
+from leettools.common import exceptions
+from leettools.common.logging import logger
 from leettools.context_manager import Context
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
@@ -81,7 +83,22 @@ def get_sparse_embedder_class(
 
     if "." not in module_name:
         module_name = f"{__package__}._impl.{module_name}"
-    return factory_util.get_subclass_from_module(module_name, AbstractSparseEmbedder)
+
+    base_class = AbstractSparseEmbedder
+    subclasses = factory_util.get_subclass_from_module(module_name, base_class)
+    if len(subclasses) == 0:
+        raise exceptions.UnexpectedCaseException(
+            f"No subclasses of {base_class} found in the module {module_name}"
+        )
+    elif len(subclasses) > 1:
+        err_msg = ", ".join([cls.__name__ for cls in subclasses])
+        logger().debug(
+            f"More than one subclass of {base_class} found in the module {module_name}: {err_msg}."
+            f"Using the first one: {subclasses[0].__name__}"
+        )
+
+    cls = subclasses[0]
+    return cls
 
 
 def create_sparse_embber_for_kb(

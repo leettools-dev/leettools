@@ -23,6 +23,7 @@ from leettools.eds.usage.schemas.usage_api_call import (
     API_CALL_ENDPOINT_COMPLETION,
     UsageAPICallCreate,
 )
+from leettools.settings import SystemSettings
 
 
 def run_inference_call_direct(
@@ -283,19 +284,39 @@ def get_default_embed_api_provider_config(
     api_key = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="OPENAI_API_KEY",
-        first_key="OPENAI_API_KEY",
-        second_key=None,
-        allow_empty=False,
+        default_env="EMBEDDING_OPENAI_API_KEY",
+        first_key="EMBEDDING_OPENAI_API_KEY",
+        second_key="OPENAI_API_KEY",
+        allow_empty=True,
     )
+    if api_key is None:
+        api_key = get_value_from_settings(
+            context=context,
+            user_settings=user_settings,
+            default_env="OPENAI_API_KEY",
+            first_key="OPENAI_API_KEY",
+            second_key=None,
+            allow_empty=False,
+        )
+
     base_url = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="DEFAULT_OPENAI_BASE_URL",
-        first_key="OPENAI_BASE_URL",
-        second_key=None,
-        allow_empty=False,
+        default_env="DEFAULT_EMBEDDING_OPENAI_BASE_URL",
+        first_key="EMBEDDING_OPENAI_BASE_URL",
+        second_key="OPENAI_BASE_URL",
+        allow_empty=True,
     )
+
+    if base_url is None:
+        base_url = get_value_from_settings(
+            context=context,
+            user_settings=user_settings,
+            default_env="DEFAULT_OPENAI_BASE_URL",
+            first_key="OPENAI_BASE_URL",
+            second_key=None,
+            allow_empty=False,
+        )
 
     tld = url_utils.get_first_level_domain_from_url(base_url)
 

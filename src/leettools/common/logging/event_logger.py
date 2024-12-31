@@ -104,7 +104,7 @@ class EventLogger:
             handler = None
 
             try:
-                if os.getenv("EDS_LOGGING_ENABLE_RICH"):
+                if os.getenv(f"EDS_LOGGING_ENABLE_RICH"):
                     from rich.logging import Console, RichHandler
 
                     formatter = logging.Formatter("%(message)s")

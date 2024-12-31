@@ -25,7 +25,7 @@ def add_env_var_constants(cls: TypeVar_BaseModel) -> TypeVar_BaseModel:
             raise exceptions.ParametersValidationException(
                 [f"Field '{env_var_name}' already exists in the model object {cls}"]
             )
-        setattr(cls, f"{ENV_VAR_PREFIX}{field_name.upper()}", field_name)
+        setattr(cls, env_var_name, field_name)
     return cls
 
 

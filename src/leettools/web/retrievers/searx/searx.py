@@ -5,6 +5,7 @@ import requests
 
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
+from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 from leettools.context_manager import Context, ContextManager
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
@@ -28,7 +29,9 @@ class SearxSearch(AbstractRetriever):
             query:
         """
         super().__init__(context, org, kb, user)
-        self.api_key = os.environ.get("EDS_SEARX_URL", "https://baresearch.org/")
+        self.api_key = os.environ.get(
+            f"{ENV_VAR_PREFIX}SEARX_URL", "https://baresearch.org/"
+        )
 
     def retrieve_search_result(
         self,
