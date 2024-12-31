@@ -14,6 +14,7 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import SearchResultSegment, Segment
 from leettools.core.schemas.user import User
+from leettools.eds.rag.search.filter import BaseCondition, Filter
 from leettools.eds.rag.search.searcher_type import SearcherType
 
 
@@ -30,7 +31,7 @@ class AbstractSearcher(ABC):
         top_k: int,
         search_params: Dict[str, Any],
         query_meta: ChatQueryMetadata,
-        filter_expr: str = None,
+        filter: Filter = None,
     ) -> List[SearchResultSegment]:
         """
         Search for segments in the knowledge base.
@@ -121,7 +122,19 @@ def search(query: str, searcher_type: SearcherType, kb_name: str) -> None:
     top_k = 10
     search_params = None
 
-    filter_expr = f"{Segment.FIELD_CREATED_TIMESTAMP_IN_MS} >= 0 and {Segment.FIELD_CREATED_TIMESTAMP_IN_MS} <= {sys.maxsize} "
+    filter = Filter(
+        relation="AND",
+        conditions=[
+            BaseCondition(
+                field=Segment.FIELD_CREATED_TIMESTAMP_IN_MS, operator=">=", value=0
+            ),
+            BaseCondition(
+                field=Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
+                operator="<=",
+                value=sys.maxsize,
+            ),
+        ],
+    )
 
     segments = searcher.execute_kb_search(
         org=org,
@@ -132,7 +145,7 @@ def search(query: str, searcher_type: SearcherType, kb_name: str) -> None:
         top_k=top_k,
         search_params=search_params,
         query_meta=ChatQueryMetadata(),
-        filter_expr=filter_expr,
+        filter=filter,
     )
     dense_vector = 0
     sparse_vector = 0

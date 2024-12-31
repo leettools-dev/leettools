@@ -19,6 +19,7 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import SearchResultSegment
 from leettools.core.schemas.user import User
+from leettools.eds.rag.search.filter import Filter
 from leettools.eds.rag.search.searcher import AbstractSearcher
 
 
@@ -140,14 +141,14 @@ class SearcherHybrid(AbstractSearcher):
         Fuse two lists of VectorSearchResult using normalized weighted sum.
 
         Args:
-        search_result_list1 (list of VectorSearchResult): First list of search results.
-        search_result_list2 (list of VectorSearchResult): Second list of search results.
-        weight1 (float): Weight for the first list.
-        weight2 (float): Weight for the second list.
-        default_score (float): Default score to use if one segment is only in on of lists.
+        - search_result_list1 (list of VectorSearchResult): First list of search results.
+        - search_result_list2 (list of VectorSearchResult): Second list of search results.
+        - weight1 (float): Weight for the first list.
+        - weight2 (float): Weight for the second list.
+        - default_score (float): Default score to use if one segment is only in on of lists.
 
         Returns:
-        list of tuples: Fused list of VectorSearchResult.
+        - list of tuples: Fused list of VectorSearchResult.
         """
         # Create dictionaries from the lists
         dense_dict = {result.segment_uuid: result.search_score for result in dense_list}
@@ -237,19 +238,22 @@ class SearcherHybrid(AbstractSearcher):
         top_k: int,
         search_params: Dict[str, Any],
         query_meta: ChatQueryMetadata,
-        filter_expr: str = None,
+        filter: Filter = None,
     ) -> List[SearchResultSegment]:
         """
         Search for segments in the knowledge base.
 
         Args:
-        org: The organization.
-        kb: The knowledge base.
-        query: The query.
-        top_k: The number of results to return.
-        search_params: The search parameters for dense vector.
+        - org: The organization.
+        - kb: The knowledge base.
+        - user: The User
+        - query: The query.
+        - rewritten_query: The rewritten query.
+        - top_k: The number of results to return.
+        - search_params: The search parameters for dense vector.
+        - filter: The filter used to filter the search results.
         """
-        logger().info(f"The filter expression is: {filter_expr} for query {query}")
+        logger().info(f"The filter is: {filter} for query {query}")
 
         try:
             results_from_dense_vector: List[VectorSearchResult] = (
@@ -260,7 +264,7 @@ class SearcherHybrid(AbstractSearcher):
                     query=rewritten_query,  # use rewritten query for dense search
                     top_k=top_k,
                     search_params=search_params,
-                    filter_expr=filter_expr,
+                    filter=filter,
                 )
             )
             for result in results_from_dense_vector:
@@ -296,7 +300,7 @@ class SearcherHybrid(AbstractSearcher):
                     user=user,
                     query=keyword_query,
                     top_k=top_k,
-                    filter_expr=filter_expr,
+                    filter=filter,
                 )
             )
             for result in results_from_sparse_vector:

@@ -11,8 +11,8 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import SearchResultSegment
 from leettools.core.schemas.user import User
-
-from ..searcher import AbstractSearcher
+from leettools.eds.rag.search.filter import Filter
+from leettools.eds.rag.search.searcher import AbstractSearcher
 
 
 class SearcherSimple(AbstractSearcher):
@@ -31,26 +31,26 @@ class SearcherSimple(AbstractSearcher):
         top_k: int,
         search_params: Dict[str, Any],
         query_meta: ChatQueryMetadata,
-        filter_expr: str = None,
+        filter: Filter = None,
     ) -> List[SearchResultSegment]:
         """
         Using vector search to get related segments in the vector DB.
 
         Args:
-            org: The organization.
-            kb: The knowledge base.
-            user: The user.
-            query: The original query.
-            rewritten_query: The rewritten query.
-            top_k: The number of top results to retrieve.
-            search_params: Additional search parameters.
-            query_meta: The query metadata.
-            filter_expr: The filter expression. Defaults to None.
+        - org: The organization.
+        - kb: The knowledge base.
+        - user: The user.
+        - query: The original query.
+        - rewritten_query: The rewritten query.
+        - top_k: The number of top results to retrieve.
+        - search_params: Additional search parameters.
+        - query_meta: The query metadata.
+        - filter: The filter for the query Defaults to None.
 
         Returns:
-            List[SearchResultSegment]: The list of search result segments.
+        - List[SearchResultSegment]: The list of search result segments.
         """
-        logger().info(f"The filter expression is: {filter_expr} for query {query}")
+        logger().debug(f"The filter is: {filter} for query {query}")
         results: List[VectorSearchResult] = self.dense_vectorstore.search_in_kb(
             org=org,
             kb=kb,
@@ -58,7 +58,7 @@ class SearcherSimple(AbstractSearcher):
             query=rewritten_query,
             top_k=top_k,
             search_params=search_params,
-            filter_expr=filter_expr,
+            filter=filter,
         )
         logger().info(f"results_from_dense_vector: {len(results)}")
         rtn_list = []

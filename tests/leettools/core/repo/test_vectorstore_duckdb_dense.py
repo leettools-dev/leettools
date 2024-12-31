@@ -17,6 +17,7 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import Segment
 from leettools.core.schemas.user import User
+from leettools.eds.rag.search.filter import BaseCondition, Filter
 from leettools.eds.str_embedder.dense_embedder import AbstractDenseEmbedder
 from leettools.eds.str_embedder.schemas.schema_dense_embedder import DenseEmbeddings
 
@@ -244,10 +245,13 @@ def test_search_in_kb(
         assert len(results) > 0
         assert results[0].segment_uuid == segment.segment_uuid
 
-        filter_expr = f"{Segment.FIELD_DOCUMENT_UUID} = '{segment.document_uuid}'"
-        results = vector_store.search_in_kb(
-            org, kb, user, query, top_k, filter_expr=filter_expr
+        # filter = f"{Segment.FIELD_DOCUMENT_UUID} = '{segment.document_uuid}'"
+        filter = BaseCondition(
+            field=Segment.FIELD_DOCUMENT_UUID,
+            operator="==",
+            value=f"{segment.document_uuid}",
         )
+        results = vector_store.search_in_kb(org, kb, user, query, top_k, filter=filter)
         assert len(results) > 0
         assert results[0].segment_uuid == segment.segment_uuid
 

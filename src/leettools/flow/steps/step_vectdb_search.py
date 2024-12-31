@@ -1,14 +1,17 @@
 from typing import ClassVar, List, Type
 
+from leettools.common import exceptions
 from leettools.common.utils import config_utils
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
+from leettools.core.schemas.docsink import DocSink
 from leettools.core.schemas.docsource import DocSource
-from leettools.core.schemas.segment import SearchResultSegment
+from leettools.core.schemas.segment import SearchResultSegment, Segment
 from leettools.core.strategy.schemas.strategy_conf import (
     SEARCH_OPTION_METRIC,
     SEARCH_OPTION_TOP_K,
 )
 from leettools.core.strategy.schemas.strategy_section_name import StrategySectionName
+from leettools.eds.rag.search.filter import BaseCondition, Filter
 from leettools.eds.rag.search.searcher import create_searcher_for_kb
 from leettools.eds.rag.search.searcher_type import SearcherType
 from leettools.flow import flow_option_items
@@ -16,6 +19,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
+from leettools.web import search_utils
 
 
 class StepVectorSearch(AbstractStep):
@@ -127,27 +131,33 @@ class StepVectorSearch(AbstractStep):
             else:
                 display_logger.info("Found data in the test KB. Using real logic.")
 
-        filter_expr = None
-
-        if False:
-            # TODO next: we need a separate flow option for time range
-            days_limit = config_utils.get_int_option_value(
-                options=flow_options,
-                option_name=flow_option.FLOW_OPTION_DAYS_LIMIT,
-                default_value=None,
-                display_logger=display_logger,
-            )
-            if days_limit is not None and days_limit != 0:
-                end_ts = time_utils.cur_timestamp_in_ms()
-                start_ts = end_ts - days_limit * 24 * 60 * 60 * 1000
-                filter_expr = (
-                    f"({TIMESTAMP_TAG_ATTR} >= {end_ts}) "
-                    f"and ({TIMESTAMP_TAG_ATTR} <= {start_ts})"
-                )
-
-        display_logger.debug(
-            f"The query flow options are: {query_options.flow_options}"
+        # TODO next: use the query time range to filter the search results
+        days_limit, max_results = search_utils.get_common_search_paras(
+            flow_options=flow_options,
+            settings=context.settings,
+            display_logger=display_logger,
         )
+
+        if days_limit != 0:
+            start_ts, end_ts = config_utils.days_limit_to_timestamps(days_limit)
+            filter = Filter(
+                relation="AND",
+                conditions=[
+                    BaseCondition(
+                        field=Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
+                        operator=">=",
+                        value=start_ts,
+                    ),
+                    BaseCondition(
+                        field=Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
+                        operator="<=",
+                        value=end_ts,
+                    ),
+                ],
+            )
+        else:
+            filter = None
+
         docsource_uuid = config_utils.get_str_option_value(
             options=flow_options,
             option_name=DocSource.FIELD_DOCSOURCE_UUID,
@@ -155,14 +165,49 @@ class StepVectorSearch(AbstractStep):
             display_logger=display_logger,
         )
         if docsource_uuid is not None:
-            if filter_expr:
-                filter_expr += (
-                    f' and ({DocSource.FIELD_DOCSOURCE_UUID} == "{docsource_uuid}")'
+            docsink_store = context.get_repo_manager().get_docsink_store()
+            docsource_store = context.get_repo_manager().get_docsource_store()
+            try:
+                docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
+                if docsource is None:
+                    display_logger.debug(
+                        f"DocSource not found for docsource_uuid: {docsource_uuid}"
+                    )
+                    return []
+            except Exception as e:
+                display_logger.debug(
+                    f"DocSource not found for docsource_uuid: {docsource_uuid}: {e}"
+                )
+                return []
+            docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)
+            if len(docsinks) == 0:
+                display_logger.warning(
+                    f"No docsinks found for docsource {docsource_uuid}."
                 )
             else:
-                filter_expr = f'{DocSource.FIELD_DOCSOURCE_UUID} == "{docsource_uuid}"'
+                # TODO: this is a temporary solution to filter the search results by docsources
+                # it may fail if the number of docsinks is too large
+                docsink_uuids = [docsink.docsink_uuid for docsink in docsinks]
+                if filter is not None:
+                    filter = Filter(
+                        relation="AND",
+                        conditions=[
+                            filter,
+                            BaseCondition(
+                                field=DocSink.FIELD_DOCSINK_UUID,
+                                operator="in",
+                                value=docsink_uuids,
+                            ),
+                        ],
+                    )
+                else:
+                    filter = BaseCondition(
+                        field=DocSink.FIELD_DOCSINK_UUID,
+                        operator="in",
+                        value=docsink_uuids,
+                    )
 
-        display_logger.debug(f"Using filter expression for vectdb: {filter_expr}")
+        display_logger.debug(f"Using filter expression for vectdb: {filter}")
 
         top_ranked_result_segments = searcher.execute_kb_search(
             org=org,
@@ -173,7 +218,7 @@ class StepVectorSearch(AbstractStep):
             top_k=top_k,
             search_params=search_params,
             query_meta=query_metadata,
-            filter_expr=filter_expr,
+            filter=filter,
         )
         display_logger.info(
             f"Found related segments by vectdb_search {len(top_ranked_result_segments)}:"
