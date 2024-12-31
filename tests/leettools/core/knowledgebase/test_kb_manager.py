@@ -20,6 +20,8 @@ def test_kb_manager():
 
         try:
             _test_function(context, org, kb)
+            _test_adhoc_kb(context, org, kb)
+            _test_kb_name(context, org, kb)
         finally:
             temp_setup.clear_tmp_org_kb_user(org, kb)
 
@@ -111,3 +113,57 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
 
     docsources = ds_store.get_docsources_for_kb(org, kb_1)
     assert len(docsources) == 0
+
+
+def _test_adhoc_kb(context: Context, org: Org, kb: KnowledgeBase):
+
+    kb_manager = context.get_kb_manager()
+    adhoc_kb = kb_manager.add_kb(
+        org,
+        KBCreate(
+            name="adhoc_kb", description="This is an adhoc KB", auto_schedule=False
+        ),
+    )
+    assert adhoc_kb is not None
+
+    adhoc_kb_retrieved = kb_manager.get_kb_by_id(org, adhoc_kb.kb_id)
+    assert adhoc_kb_retrieved is not None
+    assert adhoc_kb_retrieved.name == "adhoc_kb"
+    assert adhoc_kb_retrieved.description == "This is an adhoc KB"
+    assert adhoc_kb_retrieved.auto_schedule is False
+
+    all_kbs = kb_manager.get_all_kbs_for_org(org, list_adhoc=True)
+    # we have another KB created in the previous test function
+    assert len(all_kbs) == 3
+
+    all_kbs = kb_manager.get_all_kbs_for_org(org)
+    assert len(all_kbs) == 2
+
+    rtn_value = kb_manager.delete_kb_by_name(org, "adhoc_kb")
+    assert rtn_value is True
+
+    # since we do soft delete, we should still be able to retrieve the adhoc KB by id
+    adhoc_kb_retrieved = kb_manager.get_kb_by_id(org, adhoc_kb.kb_id)
+    assert adhoc_kb_retrieved is not None
+    assert adhoc_kb_retrieved.is_deleted is True
+
+    adhoc_kb_retrieved = kb_manager.get_kb_by_name(org, adhoc_kb.name)
+    assert adhoc_kb_retrieved is None
+
+
+def _test_kb_name(context: Context, org: Org, kb: KnowledgeBase):
+
+    kb_manager = context.get_kb_manager()
+    lower_case_name = "case_kb"
+    lower_case_kb = kb_manager.add_kb(
+        org,
+        KBCreate(name=lower_case_name, description="This is an adhoc KB"),
+    )
+    upper_case_name = "CASE_KB"
+    upper_case_kb = kb_manager.add_kb(
+        org,
+        KBCreate(name=upper_case_name, description="This is an adhoc KB"),
+    )
+    assert lower_case_kb.kb_id != upper_case_kb.kb_id
+    assert lower_case_kb.name != upper_case_kb.name
+    assert lower_case_kb.description == upper_case_kb.description

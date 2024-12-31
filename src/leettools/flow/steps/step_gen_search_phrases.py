@@ -6,7 +6,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_util, prompt_util
+from leettools.flow.utils import flow_utils, prompt_util
 
 
 class StepGenSearchPhrases(AbstractStep):
@@ -51,7 +51,7 @@ def _step_get_search_phrases_for_query(
     display_logger = exec_info.display_logger
     display_logger.info("[Status]Generating web search phrases.")
 
-    search_lang = flow_util.get_search_lang(
+    search_lang = flow_utils.get_search_lang(
         exec_info=exec_info, query_metadata=query_metadata
     )
     logger().info(f"search_lang: {search_lang}")

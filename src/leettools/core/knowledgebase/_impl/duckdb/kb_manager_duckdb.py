@@ -236,7 +236,7 @@ class KBManagerDuckDB(AbstractKBManager):
         table_name = self._get_table_name(org)
         select_sql = f"WHERE {KnowledgeBase.FIELD_IS_DELETED} = FALSE"
         if not list_adhoc:
-            select_sql += f" AND {KnowledgeBase.FIELD_NAME} NOT LIKE 'adhoc_'"
+            select_sql += f" AND {KnowledgeBase.FIELD_NAME} NOT LIKE 'adhoc_%'"
         rtn_dicts = self.duckdb_client.fetch_all_from_table(
             table_name=table_name,
             where_clause=select_sql,

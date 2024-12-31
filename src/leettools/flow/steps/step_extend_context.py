@@ -89,7 +89,7 @@ def _run_extend_context(
     )
 
     from leettools.common.utils.tokenizer import Tokenizer
-    from leettools.flow.utils.flow_util import context_size_map
+    from leettools.flow.utils.flow_utils import context_size_map
 
     if override_model_name is None:
         if inference_section is not None:

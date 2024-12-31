@@ -8,7 +8,7 @@ from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.schemas.article import ArticleSection, ArticleSectionPlan
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_util, prompt_util
+from leettools.flow.utils import flow_utils, prompt_util
 
 
 class StepGenIntro(AbstractStep):
@@ -60,7 +60,7 @@ def _step_gen_intro_section(
 
     query = exec_info.target_chat_query_item.query_content
 
-    output_lang = flow_util.get_output_lang(
+    output_lang = flow_utils.get_output_lang(
         exec_info=exec_info, query_metadata=query_metadata
     )
     if output_lang == "Chinese":
@@ -82,7 +82,7 @@ def _step_gen_intro_section(
         display_logger=display_logger,
     )
 
-    content = flow_util.limit_content(content, section_model, display_logger)
+    content = flow_utils.limit_content(content, section_model, display_logger)
 
     user_prompt_template = f"""
 {{{{ context_presentation }}}}, please generate an introduction section for a research report

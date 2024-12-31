@@ -20,7 +20,7 @@ from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
 from leettools.flow.schemas.article import ArticleSection, ArticleSectionPlan
-from leettools.flow.utils import flow_util
+from leettools.flow.utils import flow_utils
 
 
 def _section_plan_for_news(query: str, search_phrases: str) -> ArticleSectionPlan:
@@ -175,7 +175,7 @@ Here is the context: {{ context }}
         )
 
         document_summaries, all_docs, all_keywords = (
-            flow_util.get_doc_summaries_for_docsource(
+            flow_utils.get_doc_summaries_for_docsource(
                 docsource=docsource,
                 exec_info=exec_info,
             )
@@ -194,7 +194,7 @@ Here is the context: {{ context }}
         )
         sections.append(section)
 
-        return flow_util.create_chat_result_with_sections(
+        return flow_utils.create_chat_result_with_sections(
             exec_info=exec_info,
             query=query,
             article_type=self.ARTICLE_TYPE,

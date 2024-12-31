@@ -5,15 +5,15 @@ import click
 
 from leettools.chat import chat_utils
 from leettools.chat.history_manager import get_history_manager
-from leettools.cli import cli_util
-from leettools.cli.cli_util import DELIM_LINE, load_params_from_file, parse_name_value
+from leettools.cli import cli_utils
+from leettools.cli.cli_utils import DELIM_LINE, load_params_from_file, parse_name_value
 from leettools.cli.options_common import common_options
 from leettools.common.logging import logger
 from leettools.context_manager import ContextManager
 from leettools.core.knowledgebase.kb_manager import get_kb_name_from_query
 from leettools.flow.flow_manager import FlowManager
 from leettools.flow.flow_type import FlowType
-from leettools.flow.utils import flow_util
+from leettools.flow.utils import flow_utils
 
 
 def _run_flow_cli(
@@ -69,7 +69,7 @@ def _run_flow_cli(
         chat_query_item=exec_info.target_chat_query_item,
     )
 
-    result_article = flow_util.chat_query_result_to_article(query, chat_query_result)
+    result_article = flow_utils.chat_query_result_to_article(query, chat_query_result)
 
     return result_article
 
@@ -188,7 +188,7 @@ def flow(
         def _print_flow_info():
             click.echo(f"{flow_type}: {flow.short_description()}")
             click.echo(flow.full_description())
-            click.echo(cli_util.DELIM_LINE)
+            click.echo(cli_utils.DELIM_LINE)
             click.echo(f"Use -p name=value to specify options for {flow_type}:\n")
 
             # sort the options by name
@@ -216,7 +216,7 @@ def flow(
                 for word in words:
                     if (
                         len(cur_line) + len(word) + 3
-                        > cli_util.LINE_WIDTH - common_width
+                        > cli_utils.LINE_WIDTH - common_width
                     ):
                         desc.append(cur_line)
                         cur_line = word

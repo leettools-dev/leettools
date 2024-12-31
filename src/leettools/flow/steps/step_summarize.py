@@ -16,7 +16,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_util, prompt_util
+from leettools.flow.utils import flow_utils, prompt_util
 
 
 class StepSummarize(AbstractStep):
@@ -203,7 +203,7 @@ Here is the content:
         if subject is None or subject == "":
             subject = exec_info.kb.name
 
-        content = flow_util.limit_content(content, summary_model, display_logger)
+        content = flow_utils.limit_content(content, summary_model, display_logger)
 
         api_caller = exec_info.get_inference_caller()
 

@@ -16,7 +16,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_util, prompt_util
+from leettools.flow.utils import flow_utils, prompt_util
 
 
 class StepExtractInfo(AbstractStep):
@@ -106,9 +106,9 @@ Below is the provided content:
             display_logger=display_logger,
         )
 
-        content = flow_util.limit_content(content, summary_model, display_logger)
+        content = flow_utils.limit_content(content, summary_model, display_logger)
 
-        output_lang = flow_util.get_output_lang(
+        output_lang = flow_utils.get_output_lang(
             exec_info=exec_info, query_metadata=query_metadata
         )
 

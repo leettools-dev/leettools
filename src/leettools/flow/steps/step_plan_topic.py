@@ -15,7 +15,7 @@ from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.schemas.article import TopicList
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_util, prompt_util
+from leettools.flow.utils import flow_utils, prompt_util
 
 
 class StepPlanTopic(AbstractStep):
@@ -185,14 +185,14 @@ def _step_plan_topic_for_style(
         f"Using {planning_model} to generate the topic for research."
     )
 
-    search_lang = flow_util.get_search_lang(
+    search_lang = flow_utils.get_search_lang(
         exec_info=exec_info, query_metadata=query_metadata
     )
-    output_lang = flow_util.get_output_lang(
+    output_lang = flow_utils.get_output_lang(
         exec_info=exec_info, query_metadata=query_metadata
     )
 
-    content = flow_util.limit_content(
+    content = flow_utils.limit_content(
         content=content, model_name=planning_model, display_logger=display_logger
     )
 

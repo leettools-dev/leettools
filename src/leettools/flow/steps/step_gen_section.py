@@ -11,7 +11,7 @@ from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.schemas.article import ArticleSection, ArticleSectionPlan
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_util, prompt_util
+from leettools.flow.utils import flow_utils, prompt_util
 
 
 class StepGenSection(AbstractStep):
@@ -72,7 +72,7 @@ options set in the query such as style, words, language, etc.
 
         api_caller = exec_info.get_inference_caller()
 
-        output_lang = flow_util.get_output_lang(
+        output_lang = flow_utils.get_output_lang(
             exec_info=exec_info, query_metadata=query_metadata
         )
 

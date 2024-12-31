@@ -11,7 +11,7 @@ from leettools.core.schemas.chat_query_result import ChatAnswerItemCreate
 from leettools.core.schemas.user import User
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.schemas.article import ArticleSection, ArticleSectionPlan
-from leettools.flow.utils import flow_util
+from leettools.flow.utils import flow_utils
 
 
 @click.command(help="Generate the section again with new prompts/title.")

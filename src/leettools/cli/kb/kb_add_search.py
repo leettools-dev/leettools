@@ -1,10 +1,9 @@
 import click
 
-from leettools.cli.cli_util import setup_org_kb_user
+from leettools.cli.cli_utils import setup_org_kb_user
 from leettools.cli.options_common import common_options
 from leettools.core.consts import flow_option
-from leettools.core.consts.retriever_type import RetrieverType
-from leettools.flow.exec_info import ExecInfo
+from leettools.core.consts.retriever_type import RetrieverType, supported_retriever
 
 
 @click.command(help="Add a web search result docsource to the kb.")
@@ -14,7 +13,7 @@ from leettools.flow.exec_info import ExecInfo
     "--retriever",
     "retriever",
     required=False,
-    type=click.Choice([r for r in RetrieverType]),
+    type=click.Choice(supported_retriever()),
     default=RetrieverType.GOOGLE,
     help="The search engine to use, the default is google",
 )

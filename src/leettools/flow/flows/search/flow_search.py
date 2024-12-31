@@ -22,7 +22,7 @@ from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
-from leettools.flow.utils import flow_util
+from leettools.flow.utils import flow_utils
 
 
 class FlowSearch(AbstractFlow):
@@ -125,7 +125,7 @@ Return top segements that match the query with links to the original documents.
 
         if top_ranked_result_segments == [] or top_ranked_result_segments is None:
             display_logger.debug(f"No segment found for query: {query}")
-            return flow_util.create_chat_result_for_empty_search(
+            return flow_utils.create_chat_result_for_empty_search(
                 exec_info=exec_info, query_metadata=None
             )
 

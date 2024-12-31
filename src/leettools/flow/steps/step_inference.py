@@ -11,7 +11,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.step import AbstractStep
-from leettools.flow.utils import flow_util, prompt_util
+from leettools.flow.utils import flow_utils, prompt_util
 
 
 class StepInference(AbstractStep):
@@ -65,7 +65,7 @@ class StepInference(AbstractStep):
             context, user, inference_section, display_logger
         )
 
-        output_lang = flow_util.get_output_lang(
+        output_lang = flow_utils.get_output_lang(
             exec_info=exec_info, query_metadata=query_metadata
         )
 
