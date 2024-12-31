@@ -275,13 +275,16 @@ class EventLogger:
         return self._file_handler
 
     def remove_file_handler(self) -> None:
-        if self._file_handler is not None:
-            self._logger.removeHandler(self._file_handler)
-            self._file_handler = None
-        else:
-            raise RuntimeError(
-                "Trying to remove file handler while none is attached to the logger."
-            )
+        try:
+            if self._file_handler is not None:
+                self._logger.removeHandler(self._file_handler)
+                self._file_handler = None
+            else:
+                self._logger.warning(
+                    "Trying to remove file handler while none is attached to the logger."
+                )
+        except Exception as e:
+            self._logger.warning(f"Failed to remove file handler: {e}")
 
     def _log(self, level, message: str) -> None:
         getattr(self._logger, level)(message)

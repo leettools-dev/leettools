@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
@@ -106,11 +106,18 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         )
 
     def _get_docsinks_in_kb(
-        self, org: Org, kb: KnowledgeBase, where_clause: str
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        column_list: List[str] = None,
+        value_list: List[Any] = None,
+        where_clause: str = None,
     ) -> List[DocSink]:
         table_name = self._get_table_name(org, kb)
         docsink_dicts = self.duckdb_client.fetch_all_from_table(
             table_name,
+            column_list=column_list,
+            value_list=value_list,
             where_clause=where_clause,
         )
         docsinks = []
@@ -162,10 +169,12 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         # check if the original_doc_uri already has docsinks in this KB
         ori_doc_uri = docsink_dict[DocSink.FIELD_ORIGINAL_DOC_URI]
         existing_docsinks = self._get_docsinks_in_kb(
-            org,
-            kb,
-            (
-                f"WHERE {DocSink.FIELD_ORIGINAL_DOC_URI} = '{ori_doc_uri}' "
+            org=org,
+            kb=kb,
+            column_list=None,
+            value_list=[ori_doc_uri],
+            where_clause=(
+                f"WHERE {DocSink.FIELD_ORIGINAL_DOC_URI} = ? "
                 f"AND {DocSink.FIELD_IS_DELETED} = False"
             ),
         )

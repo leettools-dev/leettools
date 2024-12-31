@@ -10,7 +10,6 @@ from leettools.common.logging.event_logger import EventLogger
 from leettools.common.logging.log_location import LogLocator
 from leettools.context_manager import Context
 from leettools.core.consts.docsink_status import DocSinkStatus
-from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.consts.document_status import DocumentStatus
 from leettools.core.consts.return_code import ReturnCode
 from leettools.core.schemas.docsink import DocSink, DocSinkCreate
@@ -27,13 +26,13 @@ from leettools.eds.scheduler.scheduler_manager import run_scheduler
 from leettools.flow.exec_info import ExecInfo
 
 
-def process_docsource_auto(
+def process_docsources_auto(
     org: Org,
     kb: KnowledgeBase,
-    docsource: DocSource,
+    docsources: List[DocSource],
     context: Context,
     display_logger: EventLogger,
-) -> DocSource:
+) -> List[DocSource]:
     """
     Process the docsource that is auto-scheduled. This function will check if the scheduler
     is running, if not, it will start the scheduler to process the docsource. If the scheduler
@@ -42,12 +41,12 @@ def process_docsource_auto(
     Args:
     - org: The organization
     - kb: The knowledge base
-    - docsource: The docsource to process
+    - docsources: The list of docsources to process
     - context: The context
     - display_logger: The display logger
 
     Returns:
-    - The updated docsource
+    - The updated docsources
     """
     if kb.auto_schedule == False:
         raise exceptions.UnexpectedCaseException(
@@ -60,30 +59,30 @@ def process_docsource_auto(
         display_logger.info("Scheduled the new DocSource to be processed ...")
         started = False
     else:
-        display_logger.info("Start the scheduler to process the new DocSource ...")
-        # TODO next: let the run_scheduler function to take a specific docsource
-        # to process.
-        started = run_scheduler(context=context)
+        display_logger.info("Start the scheduler to process the new DocSources ...")
+        started = run_scheduler(context=context, org=org, kb=kb, docsources=docsources)
 
-    # TODO next: we should let the caller to check the docsource status
+    # TODO next: the scheduler should provide an async function to check the status
     # TODO next: the timeout is hard-coded here
     if started == False:
         # another process is running the scheduler
-        finished = docsource_store.wait_for_docsource(
-            org, kb, docsource, timeout_in_secs=300
-        )
-        if finished == False:
-            display_logger.warning(
-                "The document source has not finished processing yet."
+        for docsource in docsources:
+            finished = docsource_store.wait_for_docsource(
+                org, kb, docsource, timeout_in_secs=300
             )
-        else:
-            display_logger.info("The document source has finished processing.")
-            docsource.docsource_status = DocSourceStatus.COMPLETED
-            docsource_store.update_docsource(org, kb, docsource)
+            if finished == False:
+                display_logger.warning(
+                    f"The docsource has not finished processing yet: {docsource.uri}."
+                )
     else:
         # the scheduler has been started and finished processing
         pass
-    return docsource_store.get_docsource(org, kb, docsource.docsource_uuid)
+    updated_docsources: List[DocSource] = []
+    for docsource in docsources:
+        updated_docsources.append(
+            docsource_store.get_docsource(org, kb, docsource.docsource_uuid)
+        )
+    return updated_docsources
 
 
 def process_docsource_manual(

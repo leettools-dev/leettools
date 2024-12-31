@@ -2,13 +2,16 @@ import threading
 import time
 import traceback
 from concurrent.futures import Future, ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta
 from queue import Queue
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import leettools.common.exceptions as LlmedsException
 from leettools.common.logging import get_logger
 from leettools.context_manager import Context
+from leettools.core.schemas.docsource import DocSource
+from leettools.core.schemas.knowledgebase import KnowledgeBase
+from leettools.core.schemas.organization import Org
 from leettools.eds.scheduler._impl.task_runner_eds import TaskRunnerEDS
 from leettools.eds.scheduler._impl.task_scanner_kb import TaskScannerKB
 from leettools.eds.scheduler.scheduler import AbstractScheduler
@@ -34,6 +37,10 @@ class SchedulerSimple(AbstractScheduler):
         self.jobstore = self.task_manager.get_jobstore()
 
         self.task_scanner = TaskScannerKB(context)
+        self.target_org = None
+        self.target_kb = None
+        self.target_docsources = None
+
         self.task_runner = TaskRunnerEDS(context, self.logger)
 
         self.lock = threading.Lock()
@@ -145,7 +152,11 @@ class SchedulerSimple(AbstractScheduler):
         ), f"Scheduler status is {self.status} while trying to reload tasks."
         with self.lock:
             self.logger.noop("Inside the lock ...")
-            todo_tasks = self.task_scanner.scan_kb_for_tasks()
+            todo_tasks = self.task_scanner.scan_kb_for_tasks(
+                target_org=self.target_org,
+                target_kb=self.target_kb,
+                target_docsources=self.target_docsources,
+            )
 
             for task in todo_tasks:
                 # deleted tasks won't be retrieved
@@ -187,7 +198,11 @@ class SchedulerSimple(AbstractScheduler):
         with self.lock:
             self.logger.noop("Inside the lock ...")
             self.logger.debug("Scan the KB for new tasks ...")
-            todo_tasks = self.task_scanner.scan_kb_for_tasks()
+            todo_tasks = self.task_scanner.scan_kb_for_tasks(
+                target_org=self.target_org,
+                target_kb=self.target_kb,
+                target_docsources=self.target_docsources,
+            )
 
             self.logger.debug("Checking incomplete tasks ...")
             for task in todo_tasks:
@@ -273,7 +288,7 @@ class SchedulerSimple(AbstractScheduler):
             self.logger.noop("Outside the lock ...")
         else:
             delay_in_seconds = min(max_delay, base_delay * 2**job.retry_count)
-            diff: datetime.timedelta = datetime.now() - job.last_failed_at
+            diff: timedelta = datetime.now() - job.last_failed_at
             if diff.total_seconds() < delay_in_seconds:
                 # silently put the job back to the cooldown queue
                 self.cooldown_queue.put(job)
@@ -543,7 +558,7 @@ class SchedulerSimple(AbstractScheduler):
     def start(self) -> bool:
         self.logger.info("Starting the simple scheduler.")
         if self.status == SchedulerStatus.RUNNING:
-            self.logger.info("No-op: the scheduler is still running.")
+            self.logger.warning("No-op: the scheduler is still running.")
             return False
 
         self._init_load_tasks()
@@ -622,3 +637,12 @@ class SchedulerSimple(AbstractScheduler):
 
     def abort_task(self, task_uuid: str) -> None:
         raise NotImplementedError()
+
+    def set_target_org(self, org: Org) -> None:
+        self.target_org = org
+
+    def set_target_kb(self, kb: KnowledgeBase) -> None:
+        self.target_kb = kb
+
+    def set_target_docsources(self, docsources: List[DocSource]) -> None:
+        self.target_docsources = docsources

@@ -2,7 +2,7 @@ import os
 import threading
 import time
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import psutil
 
@@ -10,6 +10,9 @@ from leettools.common.exceptions import UnexpectedCaseException
 from leettools.common.logging import logger
 from leettools.common.singleton_meta import SingletonMeta
 from leettools.context_manager import Context
+from leettools.core.schemas.docsource import DocSource
+from leettools.core.schemas.knowledgebase import KnowledgeBase
+from leettools.core.schemas.organization import Org
 from leettools.eds.scheduler.scheduler import AbstractScheduler
 from leettools.settings import SystemSettings
 
@@ -161,11 +164,21 @@ def _print_scheduler_status(scheduler: AbstractScheduler) -> None:
     logger().info(f"Cooldown tasks: {len(scheduler.cooldown_tasks())}")
 
 
-def run_scheduler(context: Context) -> bool:
+def run_scheduler(
+    context: Context,
+    org: Optional[Org] = None,
+    kb: Optional[KnowledgeBase] = None,
+    docsources: Optional[List[DocSource]] = None,
+) -> bool:
     """
     This function runs a scheduler and waits for its to finish.
 
     If another scheduler is already running, this function will exit and return false.
+
+    Args:
+    - context: The context object
+    - kb: if specified, only process this knowledge base
+    - docsources: if specified, only process this docsrc
     """
 
     if context.is_svc == True:
@@ -185,6 +198,10 @@ def run_scheduler(context: Context) -> bool:
         return False
 
     scheduler = scheduler_manager.get_scheduler()
+    scheduler.set_target_org(org)
+    scheduler.set_target_kb(kb)
+    scheduler.set_target_docsources(docsources)
+
     logger().info("[run_scheduler]Starting the scheduler.")
     scheduler.start()
 

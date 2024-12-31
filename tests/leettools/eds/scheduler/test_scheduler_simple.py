@@ -36,8 +36,8 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
 
     logger().info("Adding a new docsource.")
 
-    filepath = Path.joinpath(tmp_path, "test.md")
-    with open(filepath, "w") as f:
+    filepath_01 = Path.joinpath(tmp_path, "test_01.md")
+    with open(filepath_01, "w") as f:
         f.write(
             "#Title with a head\n"
             "Paragraph 1 as 1\n"
@@ -46,15 +46,35 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
         )
 
     # create docsource
-    doc_source_create = DocSourceCreate(
+    doc_source_create_01 = DocSourceCreate(
         org_id=org.org_id,
         kb_id=kb.kb_id,
         source_type=DocSourceType.LOCAL,
-        uri=filepath.absolute().as_uri(),
+        uri=filepath_01.absolute().as_uri(),
     )
-    docsource_store.create_docsource(org, kb, doc_source_create)
+    docsource_01 = docsource_store.create_docsource(org, kb, doc_source_create_01)
 
     logger().info("Added a new docsource.")
     # now the scheduler should pick up the task and run it
     run_scheduler(context)
-    logger().info("Finished running the task.")
+    logger().info("Finished running the task for kb.")
+
+    filepath_02 = Path.joinpath(tmp_path, "test_01.md")
+    with open(filepath_02, "w") as f:
+        f.write(
+            "#Title with a head\n"
+            "Paragraph 1 as 1\n"
+            "Paragraph 2 as 1\n"
+            "Paragraph 3 as 3\n"
+        )
+
+    doc_source_create_02 = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
+        source_type=DocSourceType.LOCAL,
+        uri=filepath_02.absolute().as_uri(),
+    )
+    docsource_02 = docsource_store.create_docsource(org, kb, doc_source_create_02)
+    run_scheduler(context, org=org, kb=kb, docsources=[docsource_02])
+
+    logger().info("Finished running the task for docsource 02.")

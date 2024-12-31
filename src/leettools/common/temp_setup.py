@@ -194,10 +194,10 @@ class TempSetup:
         )
 
         if kb.auto_schedule:
-            docsource = pipeline_utils.process_docsource_auto(
+            pipeline_utils.process_docsources_auto(
                 org=org,
                 kb=kb,
-                docsource=docsource,
+                docsources=[docsource],
                 context=self.context,
                 display_logger=logger(),
             )

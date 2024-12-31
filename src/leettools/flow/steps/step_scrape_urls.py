@@ -85,10 +85,10 @@ and save them as a list of DocSinks in the DocSource.
 
         successful_documents: Dict[str, Document] = {}
         if kb.auto_schedule == True:
-            docsource = pipeline_utils.process_docsource_auto(
+            pipeline_utils.process_docsources_auto(
                 org=org,
                 kb=kb,
-                docsource=docsource,
+                docsources=[docsource],
                 context=context,
                 display_logger=display_logger,
             )

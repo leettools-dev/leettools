@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -75,7 +75,7 @@ class BeautifulSoupSimpleScraper(AbstractScrapper):
             )
             # if the latest file is less than 1 day old, skip the scraping
             now = datetime.now()
-            diff: datetime.timedelta = now - ts
+            diff: timedelta = now - ts
             # TODO: make the delta configurable
             if diff.days < 1:
                 self.display_logger.debug(

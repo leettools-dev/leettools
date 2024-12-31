@@ -115,7 +115,7 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     doc_hash_3, doc_size = file_hash_and_size(Path(raw_doc_uri))
     docsink_create = DocSinkCreate(
         docsource=docsource,
-        original_doc_uri="http://www.test3.com",
+        original_doc_uri="http://www.test3.com/with-'-and-$-and-@",
         raw_doc_uri=str(raw_doc_uri),
         raw_doc_hash=doc_hash_3,
         size=doc_size,

@@ -1,0 +1,5 @@
+https://en.wikipedia.org/wiki/OpenAI
+https://openai.com/news/
+https://openai.com/blog/
+https://finance.yahoo.com/news/openai-lays-plan-shift-profit-134722891.html
+https://cookbook.openai.com/examples/embedding_wikipedia_articles_for_search
