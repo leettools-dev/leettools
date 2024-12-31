@@ -6,7 +6,7 @@ from leettools.cli.options_common import common_options
 from leettools.common import exceptions
 
 
-@click.command(help="List all DocSource in a KB.")
+@click.command(help="List all DocSink in a KB.")
 @click.option(
     "-g",
     "--org",
@@ -61,7 +61,7 @@ def list(
     context = ContextManager().get_context()
     context.is_svc = False
     context.name = "cli_docsrc_list"
-    docsource_store = context.get_repo_manager().get_docsource_store()
+    docsink_store = context.get_repo_manager().get_docsink_store()
     org_manager = context.get_org_manager()
     kb_manager = context.get_kb_manager()
 
@@ -80,20 +80,17 @@ def list(
             [f"Knowledge base {kb_name} not found in Org {org.name}"]
         )
 
-    """
-    "123456789012345678901234"
-    "66bcf7f2c593676ade4d2a37"
-    """
-    uid_width = 26
+    uid_width = 35
 
-    docsources = docsource_store.get_docsources_for_kb(org, kb)
-    for docsource in docsources:
+    docsinks = docsink_store.get_docsinks_for_kb(org, kb)
+    for docsink in docsinks:
         if json_output:
-            click.echo(docsource.model_dump_json(indent=indent))
+            click.echo(docsink.model_dump_json(indent=indent))
         else:
             click.echo(
-                f"{docsource.docsource_uuid:<{uid_width}}"
-                f"{docsource.docsource_status:<15}"
-                f"{docsource.display_name:<40}"
-                f"{docsource.uri}"
+                f"{docsink.docsink_uuid:<{uid_width}} "
+                f"{docsink.docsink_status:<15} "
+                f"{docsink.original_doc_uri} "
+                f"{docsink.raw_doc_uri} "
+                f"{docsink.expired_at} "
             )
