@@ -8,13 +8,6 @@ from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.context_manager import Context
 from leettools.core.repo._impl.duckdb.vector_store_duckdb_schema import (
-    CONTENT_ATTR,
-    DOC_ID_ATTR,
-    DOCSINK_UUID_ATTR,
-    DOCSOURCE_UUID_ATTR,
-    LABEL_TAG_ATTR,
-    SEGMENT_UUID_ATTR,
-    TIMESTAMP_TAG_IN_MS_ATTR,
     VectorDuckDBSchema,
 )
 from leettools.core.repo.vector_store import (
@@ -74,9 +67,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         # get a list of segment_uuids
         segment_uuids = [segment.segment_uuid for segment in segments]
         # delete the existing embeddings for the segment_uuids
-        where_clause = (
-            f"WHERE {SEGMENT_UUID_ATTR} IN ({','.join(['?'] * len(segment_uuids))})"
-        )
+        where_clause = f"WHERE {Segment.FIELD_SEGMENT_UUID} IN ({','.join(['?'] * len(segment_uuids))})"
         value_list = segment_uuids
         self.duckdb_client.delete_from_table(
             table_name=table_name,
@@ -86,13 +77,14 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
 
         # insert the new embeddings for the segment_uuids
         column_list = [
-            CONTENT_ATTR,
-            TIMESTAMP_TAG_IN_MS_ATTR,
-            LABEL_TAG_ATTR,
-            DOC_ID_ATTR,
-            DOCSOURCE_UUID_ATTR,
-            DOCSINK_UUID_ATTR,
-            SEGMENT_UUID_ATTR,
+            Segment.FIELD_EMBEDDINGS,
+            Segment.FIELD_CONTENT,
+            Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
+            Segment.FIELD_LABEL_TAG,
+            Segment.FIELD_DOCUMENT_UUID,
+            Segment.FIELD_DOCSOURCE_UUID,
+            Segment.FIELD_DOCSINK_UUID,
+            Segment.FIELD_SEGMENT_UUID,
         ]
 
         # the value list should be a list of tuples, like (), ()
@@ -104,6 +96,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 segment.label_tag = ""
             item_list = [
                 segment.embeddings,
+                segment.content,
                 segment.created_timestamp_in_ms,
                 segment.label_tag,
                 segment.document_uuid,
@@ -134,10 +127,12 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         """Get the dynamic table name for the org and kb combination."""
         org_db_name = Org.get_org_db_name(org.org_id)
         collection_name = f"kb_{kb.kb_id}{DENSE_VECTOR_COLLECTION_SUFFIX}"
+        install_fts_sql = "INSTALL fts; LOAD fts;"
         return self.duckdb_client.create_table_if_not_exists(
-            org_db_name,
-            collection_name,
-            VectorDuckDBSchema.get_schema(dense_embedder_dimension),
+            schema_name=org_db_name,
+            table_name=collection_name,
+            columns=VectorDuckDBSchema.get_schema(dense_embedder_dimension),
+            create_sequence_sql=install_fts_sql,
         )
 
     def _normalize_vector(self, vector: List[float]) -> List[float]:
@@ -211,7 +206,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> bool:
         """Delete a segment vector from the store."""
         table_name = self._get_table_name(org, kb)
-        where_clause = f"WHERE {SEGMENT_UUID_ATTR} = ?"
+        where_clause = f"WHERE {Segment.FIELD_SEGMENT_UUID} = ?"
         value_list = [segment_uuid]
         self.duckdb_client.delete_from_table(
             table_name=table_name,
@@ -225,7 +220,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> bool:
         """Delete a list of segment vectors from the store by docsink uuid."""
         table_name = self._get_table_name(org, kb)
-        where_clause = f"WHERE {DOCSINK_UUID_ATTR} = ?"
+        where_clause = f"WHERE {Segment.FIELD_DOCSINK_UUID} = ?"
         value_list = [docsink_uuid]
         self.duckdb_client.delete_from_table(
             table_name=table_name,
@@ -239,7 +234,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> bool:
         """Delete a list of segment vectors from the store by docsource uuid."""
         table_name = self._get_table_name(org, kb)
-        where_clause = f"WHERE {DOCSOURCE_UUID_ATTR} = ?"
+        where_clause = f"WHERE {Segment.FIELD_DOCSOURCE_UUID} = ?"
         value_list = [docsource_uuid]
         self.duckdb_client.delete_from_table(
             table_name=table_name,
@@ -253,7 +248,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> bool:
         """Delete a list of segment vectors from the store by document id."""
         table_name = self._get_table_name(org, kb)
-        where_clause = f"WHERE {DOC_ID_ATTR} = ?"
+        where_clause = f"WHERE {Segment.FIELD_DOCUMENT_UUID} = ?"
         value_list = [document_uuid]
         self.duckdb_client.delete_from_table(
             table_name=table_name,
@@ -267,8 +262,8 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> List[float]:
         """Get a segment vector from the store."""
         table_name = self._get_table_name(org, kb, 0)
-        column_list = [CONTENT_ATTR]
-        where_clause = f"WHERE {SEGMENT_UUID_ATTR} = ?"
+        column_list = [Segment.FIELD_EMBEDDINGS]
+        where_clause = f"WHERE {Segment.FIELD_SEGMENT_UUID} = ?"
         value_list = [segment_uuid]
         results = self.duckdb_client.fetch_all_from_table(
             table_name=table_name,
@@ -277,7 +272,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             value_list=value_list,
         )
         if len(results) == 1:
-            return results[0][CONTENT_ATTR]
+            return results[0][Segment.FIELD_EMBEDDINGS]
         else:
             if len(results) > 1:
                 logger().error(
@@ -308,8 +303,8 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         query_vector: List[float] = self._normalize_vector(query_vector)
 
         column_list = [
-            SEGMENT_UUID_ATTR,
-            f"array_cosine_similarity({CONTENT_ATTR}, "
+            Segment.FIELD_SEGMENT_UUID,
+            f"array_cosine_similarity({Segment.FIELD_EMBEDDINGS}, "
             f"CAST(? AS FLOAT[{embedding_dimension}])) AS {SIMILARITY_METRIC_ATTR}",
         ]
 
@@ -322,13 +317,14 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             # and add them to the column_list
             # hack, may need to parse the filter string to get the columns
             all_columns = [
-                CONTENT_ATTR,
-                TIMESTAMP_TAG_IN_MS_ATTR,
-                LABEL_TAG_ATTR,
-                DOC_ID_ATTR,
-                DOCSOURCE_UUID_ATTR,
-                DOCSINK_UUID_ATTR,
-                SEGMENT_UUID_ATTR,
+                Segment.FIELD_EMBEDDINGS,
+                Segment.FIELD_CONTENT,
+                Segment.FIELD_CREATED_TIMESTAMP_IN_MS,
+                Segment.FIELD_LABEL_TAG,
+                Segment.FIELD_DOCUMENT_UUID,
+                Segment.FIELD_DOCSOURCE_UUID,
+                Segment.FIELD_DOCSINK_UUID,
+                Segment.FIELD_SEGMENT_UUID,
             ]
 
             for column in all_columns:
@@ -345,7 +341,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         )
         return [
             VectorSearchResult(
-                segment_uuid=result[SEGMENT_UUID_ATTR],
+                segment_uuid=result[Segment.FIELD_SEGMENT_UUID],
                 search_score=result[SIMILARITY_METRIC_ATTR],
                 vector_type=VectorType.DENSE,
             )
@@ -358,3 +354,59 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         """Update a segment vector in the store."""
         dense_embedder = create_dense_embedder_for_kb(org, kb, user, self.context)
         return self._upsert_embeddings_into_duckdb(org, kb, [segment], dense_embedder)
+
+    def full_text_search_in_kb(
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        user: User,
+        query: str,
+        top_k: int,
+        search_params: Dict[str, Any] = None,
+        filter_expr: str = None,
+    ) -> List[VectorSearchResult]:
+        """Search for segments in the store."""
+        # Implement your search logic here
+        dense_embedder = create_dense_embedder_for_kb(org, kb, user, self.context)
+        embedding_dimension = dense_embedder.get_dimension()
+        table_name = self._get_table_name(org, kb, embedding_dimension)
+
+        where_clause = ""
+        if filter_expr is not None:
+            # duckdb does not support double quotes in the where clause
+            filter_expr = filter_expr.replace('"', "'")
+            where_clause = f"WHERE {filter_expr} and score is not null"
+        else:
+            where_clause = "WHERE score is not null"
+
+        query_statement = f"""
+            SELECT *, fts_{table_name.replace('.', '_')}.match_bm25(
+                {Segment.FIELD_SEGMENT_UUID},
+                ?,
+                fields := '{Segment.FIELD_CONTENT}'
+            ) AS score
+            FROM {table_name}
+            {where_clause}
+            ORDER BY score DESC LIMIT ?;
+        """
+        value_list = [query, top_k]
+        results = self.duckdb_client.execute_and_fetch_all(query_statement, value_list)
+        return [
+            VectorSearchResult(
+                segment_uuid=result[Segment.FIELD_SEGMENT_UUID],
+                search_score=result["score"],
+                vector_type=VectorType.SPARSE,
+            )
+            for result in results
+        ]
+
+    def rebuild_full_text_index(self, org: Org, kb: KnowledgeBase, user: User) -> None:
+        dense_embedder = create_dense_embedder_for_kb(org, kb, user, self.context)
+        embedding_dimension = dense_embedder.get_dimension()
+        table_name = self._get_table_name(org, kb, embedding_dimension)
+        rebuild_fts_index_sql = f"""
+                PRAGMA create_fts_index({table_name}, {Segment.FIELD_SEGMENT_UUID}, {Segment.FIELD_CONTENT}, stemmer = 'porter',
+                    stopwords = 'english', ignore = '(\\.|[^a-z])+',
+                    strip_accents = 1, lower = 1, overwrite = 0)        
+                """
+        self.duckdb_client.execute_sql(rebuild_fts_index_sql)
