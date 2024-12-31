@@ -218,6 +218,11 @@ def run_adhoc_pipeline_for_docsinks(
     splitter = Splitter(context=context, org=org, kb=kb)
 
     def _split_helper(log_file_location: str, doc: Document) -> Document:
+        if doc.split_status == DocumentStatus.COMPLETED:
+            display_logger.info(
+                f"Adhoc query: document {doc.document_uuid} already split."
+            )
+            return doc
         rnt_code = splitter.split(doc=doc, log_file_location=log_file_location)
         if rnt_code == ReturnCode.SUCCESS:
             display_logger.debug(
@@ -249,6 +254,11 @@ def run_adhoc_pipeline_for_docsinks(
     segments: List[Segment] = []
 
     for doc in success_documents:
+        if doc.embed_status == DocumentStatus.COMPLETED:
+            display_logger.info(
+                f"Adhoc query: document {doc.document_uuid} already embedded."
+            )
+            continue
         segments_for_doc = segment_store.get_all_segments_for_document(
             org, kb, doc.document_uuid
         )

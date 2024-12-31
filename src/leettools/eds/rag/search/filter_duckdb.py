@@ -15,7 +15,13 @@ def _convert_condition_to_duckdb(
         field_list = [base_condition.field]
         value_list = [base_condition.value]
     else:
-        filter_str = f"{base_condition.field} {base_condition.operator} ?"
+        if base_condition.operator == "==":
+            operator = "="
+        elif base_condition.operator == "like":
+            operator = "LIKE"
+        else:
+            operator = base_condition.operator
+        filter_str = f"{base_condition.field} {operator} ?"
         field_list = [base_condition.field]
         value_list = [base_condition.value]
     return filter_str, field_list, value_list

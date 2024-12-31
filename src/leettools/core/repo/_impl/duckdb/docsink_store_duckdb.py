@@ -275,11 +275,11 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         table_name = self._get_table_name(org, kb)
 
         where_clause = (
-            f"WHERE {DocSink.FIELD_DOCSOURCE_UUIDS} = ? "
+            f"WHERE {DocSink.FIELD_DOCSOURCE_UUIDS} like ? "
             f"AND {DocSink.FIELD_IS_DELETED} = FALSE "
             f"AND {DocSink.FIELD_EXPIRED_AT} IS NULL"
         )
-        value_list = [docsource.docsource_uuid]
+        value_list = [f"%{docsource.docsource_uuid}%"]
         results = self.duckdb_client.fetch_all_from_table(
             table_name=table_name,
             where_clause=where_clause,

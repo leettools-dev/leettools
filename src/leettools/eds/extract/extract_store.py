@@ -9,7 +9,7 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.eds.rag.search.filter import BaseCondition, Filter
 
-EXTRACT_DB_SOURCE_FIELD = "source"
+EXTRACT_DB_SOURCE_FIELD = "eds_source_uri"
 EXTRACT_DB_TIMESTAMP_FIELD = "created_timestamp_in_ms"
 
 
@@ -124,7 +124,7 @@ def get_extended_model(
     """
     ExtendedModel = create_model(
         f"{target_model_name}_extended",
-        source=(str, ...),
+        eds_source_uri=(str, ...),
         created_timestamp_in_ms=(int, ...),
         __base__=model_class,
     )

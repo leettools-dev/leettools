@@ -27,8 +27,8 @@ def test_pydantic_to_duckdb_schema():
     target_schema = {
         "name": "VARCHAR PRIMARY KEY",
         "age": "INTEGER",
-        "height": "FLOAT",
-        "email": "STR",
+        "height": "DOUBLE",
+        "email": "VARCHAR",
         "active": "BOOLEAN",
         "metadata": "JSON",
         "aliases": "JSON",

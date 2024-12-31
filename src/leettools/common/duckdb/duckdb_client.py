@@ -26,6 +26,8 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             self._lock = Lock()
             self.table_locks = {}
 
+            logger().debug(f"Connecting to DuckDB at {self.db_path}")
+
             try:
                 self.conn = duckdb.connect(str(self.db_path))
             except Exception as e:
@@ -44,6 +46,24 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
     def batch_insert_into_table(
         self, table_name: str, column_list: List[str], values: List[List[Any]]
     ) -> None:
+        """
+        Insert multiple rows into a table.
+
+        Args:
+        - table_name: The table name.
+        - column_list: The list of column names.
+        - values: The list of values as dictionaries to insert.
+
+        Returns:
+        - None
+        """
+        if not values:
+            return
+
+        if not column_list:
+            raise exceptions.UnexpectedCaseException(
+                "column_list cannot be empty when inserting values"
+            )
         with self.conn.cursor() as cursor:
             # Create a string of placeholders for each row
             placeholders = ",".join(
@@ -55,6 +75,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 INSERT INTO {table_name} ({",".join(column_list)})
                 VALUES {placeholders}
             """
+            logger().debug(f"batch_insert_into_table SQL: {insert_sql}")
             with self._get_table_lock(table_name):
                 cursor.execute(insert_sql, flattened_values)
 
@@ -131,6 +152,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                     create_table_sql = self._get_create_table_sql(
                         new_schema_name, new_table_name, columns
                     )
+                    logger().debug(f"create_table_sql: {create_table_sql}")
                     cursor.execute(create_table_sql)
                 self.created_tables[table_key] = f"{new_schema_name}.{new_table_name}"
                 return self.created_tables[table_key]
@@ -142,6 +164,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             delete_sql = f"DELETE FROM {table_name}"
             if where_clause is not None:
                 delete_sql += f" {where_clause}"
+            logger().debug(f"delete_sql: {delete_sql}")
             with self._get_table_lock(table_name):
                 if value_list is not None:
                     cursor.execute(delete_sql, value_list)
