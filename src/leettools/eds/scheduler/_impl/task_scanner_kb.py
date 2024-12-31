@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Dict, List, Optional, Set
 
 from leettools.common import exceptions
 from leettools.common.logging import get_logger
@@ -413,10 +413,33 @@ class TaskScannerKB(AbstractTaskScanner):
                     )
         return new_tasks
 
-    def scan_kb_for_tasks(self) -> List[Task]:
+    def scan_kb_for_tasks(
+        self,
+        target_org: Optional[Org] = None,
+        target_kb: Optional[KnowledgeBase] = None,
+        target_docsources: Optional[List[DocSource]] = None,
+    ) -> List[Task]:
         start_time = time.perf_counter()
         cur_tasks: Dict[str, Dict[str, Dict[str, List[Task]]]] = {}
+
+        if target_docsources is not None:
+            target_docsource_uuids: Set[str] = set()
+            for ds in target_docsources:
+                target_docsource_uuids.add(ds.docsource_uuid)
+        else:
+            target_docsource_uuids = None
+
         for cur_task in self.taskstore.get_incomplete_tasks():
+            if target_org is not None and cur_task.org_id != target_org.org_id:
+                continue
+            if target_kb is not None and cur_task.kb_id != target_kb.kb_id:
+                continue
+            if (
+                target_docsource_uuids is not None
+                and cur_task.docsource_uuid not in target_docsource_uuids
+            ):
+                continue
+
             if cur_tasks.get(cur_task.org_id) is None:
                 cur_tasks[cur_task.org_id] = {}
             if cur_tasks[cur_task.org_id].get(cur_task.kb_id) is None:
@@ -447,17 +470,28 @@ class TaskScannerKB(AbstractTaskScanner):
         docsource_retry_range = timedelta(hours=self.docsource_retry_range_in_hours)
 
         for org in orgs:
+            if target_org is not None and org.org_id != target_org.org_id:
+                continue
+
             if self.last_scan_time.get(org.org_id) is None:
                 self.last_scan_time[org.org_id] = {}
             # adhoc KBs will not be in the scheduler since no retry will be performed
             kbs = self.kb_manager.get_all_kbs_for_org(org=org, list_adhoc=True)
             for kb in kbs:
+                if target_kb is not None and kb.kb_id != target_kb.kb_id:
+                    continue
+
                 if kb.auto_schedule is False:
                     continue
                 if self.last_scan_time[org.org_id].get(kb.kb_id) is None:
                     self.last_scan_time[org.org_id][kb.kb_id] = {}
                 docsources = self.docsource_store.get_docsources_for_kb(org, kb)
                 for docsource in docsources:
+                    if (
+                        target_docsource_uuids is not None
+                        and docsource.docsource_uuid not in target_docsource_uuids
+                    ):
+                        continue
                     schedule_config = docsource.schedule_config
                     dssig = _get_docsource_log_sig(docsource)
 

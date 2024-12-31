@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import file_utils
@@ -20,7 +20,7 @@ def check_existing_file(
         )
         # if the latest file is less than 1 day old, skip the scraping
         now = datetime.now()
-        diff: datetime.timedelta = now - ts
+        diff: timedelta = now - ts
         # TODO: make the delta configurable
         if diff.days < 1:
             display_logger.debug(

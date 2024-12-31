@@ -264,7 +264,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
     ) -> None:
         with self.conn.cursor() as cursor:
             set_clause = ",".join([f"{k} = ?" for k in column_list])
-            update_sql = f"UPDATE {table_name} SET {set_clause}"
+            update_sql = f"UPDATE {table_name} SET {set_clause} "
             if where_clause is not None:
                 update_sql += f"{where_clause}"
             logger().debug(f"update_sql: {update_sql}")

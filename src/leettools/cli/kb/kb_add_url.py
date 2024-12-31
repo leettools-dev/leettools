@@ -2,11 +2,9 @@ import click
 
 from leettools.cli.cli_util import setup_org_kb_user
 from leettools.cli.options_common import common_options
-from leettools.common.exceptions import UnexpectedOperationFailureException
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSourceCreate
-from leettools.eds.scheduler.scheduler_manager import run_scheduler
 from leettools.flow.utils import pipeline_utils
 
 
@@ -97,15 +95,15 @@ def add_url(
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
 
     if kb.auto_schedule:
-        docsource = pipeline_utils.process_docsource_auto(
+        pipeline_utils.process_docsources_auto(
             org=org,
             kb=kb,
-            docsource=docsource,
+            docsources=[docsource],
             context=context,
             display_logger=logger(),
         )
     else:
-        docsource = pipeline_utils.process_docsource_manual(
+        pipeline_utils.process_docsource_manual(
             org=org,
             kb=kb,
             docsource=docsource,

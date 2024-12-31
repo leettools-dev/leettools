@@ -10,7 +10,6 @@ from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.consts.retriever_type import RetrieverType
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate, IngestConfig
 from leettools.core.schemas.document import Document
-from leettools.eds.scheduler.scheduler_manager import run_scheduler
 from leettools.flow import flow_option_items
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
@@ -103,13 +102,15 @@ processed immediately. The function will return after the document source is pro
         )
 
         if exec_info.kb.auto_schedule:
-            return pipeline_utils.process_docsource_auto(
+            updated_docsources = pipeline_utils.process_docsources_auto(
                 org=org,
                 kb=kb,
-                docsource=docsource,
+                docsources=[docsource],
                 context=context,
                 display_logger=display_logger,
             )
+            assert len(updated_docsources) == 1
+            return updated_docsources[0]
 
         display_logger.info("[Status]Start the document process pipeline ...")
         try:

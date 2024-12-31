@@ -1,15 +1,13 @@
-import json
 from pathlib import Path
+from typing import List
 
 import click
 
 from leettools.cli.cli_util import setup_org_kb_user
 from leettools.cli.options_common import common_options
-from leettools.common.exceptions import UnexpectedOperationFailureException
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
-from leettools.core.schemas.docsource import DocSourceCreate
-from leettools.eds.scheduler.scheduler_manager import run_scheduler
+from leettools.core.schemas.docsource import DocSource, DocSourceCreate
 from leettools.flow.utils import pipeline_utils
 
 
@@ -98,7 +96,7 @@ def add_url_list(
     if chunk_size is not None:
         context.settings.DEFAULT_CHUNK_SIZE = int(chunk_size)
 
-    docsources = []
+    docsources: List[DocSource] = []
     # read the file_path line by line and create
     for line in file_path.open():
         line = line.strip()
@@ -115,33 +113,35 @@ def add_url_list(
         docsources.append(docsource)
 
     if kb.auto_schedule:
-        # TODO next: take more than one docsources
-        docsource = pipeline_utils.process_docsource_auto(
+        pipeline_utils.process_docsources_auto(
             org=org,
             kb=kb,
-            docsource=docsource,
+            docsources=docsources,
             context=context,
             display_logger=logger(),
         )
     else:
-        docsource = pipeline_utils.process_docsource_manual(
-            org=org,
-            kb=kb,
-            docsource=docsource,
-            context=context,
-            display_logger=logger(),
-        )
+        for docsource in docsources:
+            pipeline_utils.process_docsource_manual(
+                org=org,
+                kb=kb,
+                docsource=docsource,
+                context=context,
+                display_logger=logger(),
+            )
 
+    if not json_output:
+        click.echo("org\tkb\tdocsource_id\tdocsink_id\tdocument_uuid\tURI")
     for docsource in docsources:
         documents = document_store.get_documents_for_docsource(org, kb, docsource)
-        if json_output:
-            for document in documents:
-                click.echo(json.dumps(document, indent=indent))
-        else:
-            click.echo("org\tkb\tdocsource_id\tdocsink_id\tdocument_uuid\tURI")
-            for document in documents:
-                click.echo(
-                    f"{org.name}\t{kb.name}\t{docsource.docsource_uuid}"
-                    f"\t{document.docsink_uuid}\t{document.document_uuid}"
-                    f"\t{document.original_uri}"
-                )
+        if documents:
+            if json_output:
+                for document in documents:
+                    click.echo(document.model_dump_json(indent=indent))
+            else:
+                for document in documents:
+                    click.echo(
+                        f"{org.name}\t{kb.name}\t{docsource.docsource_uuid}\t"
+                        f"{document.docsink_uuid}\t{document.document_uuid}\t"
+                        f"{document.original_uri}"
+                    )

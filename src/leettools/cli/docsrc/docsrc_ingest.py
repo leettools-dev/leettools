@@ -7,7 +7,6 @@ from leettools.cli.options_common import common_options
 from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_status import DocSourceStatus
-from leettools.eds.scheduler.scheduler_manager import run_scheduler
 from leettools.flow.utils import pipeline_utils
 
 
@@ -96,10 +95,10 @@ def ingest(
     docsource_store.update_docsource(org, kb, docsource)
 
     if kb.auto_schedule:
-        pipeline_utils.process_docsource_auto(
+        pipeline_utils.process_docsources_auto(
             org=org,
             kb=kb,
-            docsource=docsource,
+            docsources=[docsource],
             context=context,
             display_logger=display_logger,
         )
