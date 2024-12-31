@@ -6,7 +6,9 @@ import click
 
 from leettools.cli.options_common import common_options
 from leettools.common import exceptions
+from leettools.common.logging import logger
 from leettools.core.consts.docsource_status import DocSourceStatus
+from leettools.eds.scheduler.scheduler_manager import run_scheduler
 
 
 @click.command(help="Manually ingest a doc source.")
@@ -42,12 +44,30 @@ from leettools.core.consts.docsource_status import DocSourceStatus
     required=False,
     help="The user to use, default the admin user.",
 )
+@click.option(
+    "-j",
+    "--json",
+    "json_output",
+    is_flag=True,
+    required=False,
+    help="Output the full record results in JSON format.",
+)
+@click.option(
+    "--indent",
+    "indent",
+    default=None,
+    type=int,
+    required=False,
+    help="The number of spaces to indent the JSON output.",
+)
 @common_options
 def ingest(
     docsource_uuid: str,
     kb_name: str,
     org_name: Optional[str] = None,
     username: Optional[str] = None,
+    json_output: bool = False,
+    indent: int = None,
     **kwargs,
 ) -> None:
     from leettools.context_manager import ContextManager
@@ -60,6 +80,7 @@ def ingest(
     document_store = context.get_repo_manager().get_document_store()
     org_manager = context.get_org_manager()
     kb_manager = context.get_kb_manager()
+    display_logger = logger()
 
     if org_name is None:
         org = org_manager.get_default_org()
@@ -88,19 +109,43 @@ def ingest(
             [f"Docsource {docsource_uuid} not found in Org {org.name}, KB {kb.name}"]
         )
 
-    if not docsource.is_finished():
-        raise exceptions.UnexpectedCaseException(
-            f"Docsource {docsource_uuid} is already in {docsource.docsource_status} status."
-        )
-
     docsource.docsource_status = DocSourceStatus.CREATED
     docsource.updated_at = datetime.now()
+    docsource_store.update_docsource(org, kb, docsource)
 
-    update_docsource = docsource_store.update_docsource(org, kb, docsource)
-    click.echo("Updated docsource. Waiting for the docsource to be ingested.")
+    display_logger.info("Updated docsource. Waiting for the docsource to be ingested.")
 
-    if docsource_store.wait_for_docsource(org, kb, update_docsource):
-        click.echo("Docsource has been ingested.")
+    if context.scheduler_is_running:
+        display_logger.info("Scheduled the new DocSource to be processed ...")
+        started = False
     else:
-        click.echo("Docsource ingestion failed.")
-        click.echo("Please check the docsource status and logs for more information.")
+        display_logger.info("Start the scheduler to process the new DocSource ...")
+        started = run_scheduler(context=context)
+
+    if started == False:
+        # another process is running the scheduler
+        finished = docsource_store.wait_for_docsource(
+            org, kb, docsource, timeout_in_secs=300
+        )
+        if finished == False:
+            display_logger.warning(
+                "The document source has not finished processing yet."
+            )
+        else:
+            display_logger.info("The document source has finished processing.")
+            docsource.docsource_status = DocSourceStatus.COMPLETED
+            docsource_store.update_docsource(org, kb, docsource)
+    else:
+        # the scheduler has been started and finished processing
+        display_logger.info("Docsource has been ingested.")
+
+    docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
+    if json_output:
+        click.echo(docsource.model_dump_json(indent=indent))
+    else:
+        click.echo(
+            f"{docsource.docsource_uuid:<{uid_width}}"
+            f"{docsource.docsource_status:<15}"
+            f"{docsource.display_name:<40}"
+            f"{docsource.uri}"
+        )

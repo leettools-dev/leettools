@@ -5,6 +5,7 @@ import click
 
 from leettools.cli.chunker import chunker_cli
 from leettools.cli.doc import doc_cli
+from leettools.cli.docsink import docsink_cli
 from leettools.cli.docsrc import docsrc_cli
 from leettools.cli.flow import flow_cli
 from leettools.cli.kb import kb_cli
@@ -57,6 +58,7 @@ def list():
 
 
 run.add_command(doc_cli.doc)
+run.add_command(docsink_cli.docsink)
 run.add_command(docsrc_cli.docsrc)
 run.add_command(query_cli.query)
 run.add_command(kb_cli.kb)

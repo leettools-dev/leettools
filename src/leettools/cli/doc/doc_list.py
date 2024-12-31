@@ -47,11 +47,10 @@ def list(
     **kwargs,
 ) -> None:
     from leettools.context_manager import ContextManager
-    from leettools.flow.flows.extractor.flow_extractor import FlowExtractor
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = FlowExtractor.FLOW_TYPE
+    context.name = "cli_doc_list"
     docsource_store = context.get_repo_manager().get_docsource_store()
     docsink_store = context.get_repo_manager().get_docsink_store()
     document_store = context.get_repo_manager().get_document_store()
@@ -74,10 +73,10 @@ def list(
         )
 
     """
-    "123456789012345678901234"
-    "66bcf7f2c593676ade4d2a37"
+    "12345678901234567890123456789012345"
+    "9736c387-6b06-438f-80e0-2e4624a92d9"
     """
-    uid_width = 26
+    uid_width = 37
 
     def traverse_docsource():
         docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)
@@ -102,7 +101,7 @@ def list(
             )
 
     click.echo(
-        f"{'DocSource UUID':<{uid_width}}"
+        f"{'DocSink UUID':<{uid_width}}"
         f"{'Document UUID':<{uid_width}}"
         f"Original URI"
     )

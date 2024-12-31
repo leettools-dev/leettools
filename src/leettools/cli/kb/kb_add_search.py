@@ -91,7 +91,6 @@ def add_search(
 ) -> None:
     from leettools.context_manager import ContextManager
     from leettools.flow import steps
-    from leettools.web.web_searcher import WebSearcher
 
     context = ContextManager().get_context()
     context.is_svc = False
@@ -100,7 +99,6 @@ def add_search(
         context.scheduler_is_running = True
 
     repo_manager = context.get_repo_manager()
-    docsource_store = repo_manager.get_docsource_store()
     document_store = repo_manager.get_document_store()
 
     org, kb, user = setup_org_kb_user(context, org_name, kb_name, username)
@@ -132,11 +130,9 @@ def add_search(
         display_logger=None,
     )
 
-    web_searcher = WebSearcher(context)
-    docsource = steps.step_search_to_docsource(
+    docsource = steps.StepSearchToDocsource.run_step(
         exec_info=exec_info,
-        query=query,
-        web_searcher=web_searcher,
+        search_keywords=query,
     )
 
     documents = document_store.get_documents_for_docsource(org, kb, docsource)

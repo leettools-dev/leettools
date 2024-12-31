@@ -161,7 +161,7 @@ class TaskScannerKB(AbstractTaskScanner):
         new_docsink_tasks = []
         docsinks = self.docsink_store.get_docsinks_for_docsource(org, kb, docsource)
         for docsink in docsinks:
-            new_tasks = self._add_tasks_for_docsink(org, kb, docsink)
+            new_tasks = self._add_tasks_for_docsink(org, kb, docsource, docsink)
             if new_tasks:
                 new_docsink_tasks += new_tasks
                 docsink.docsink_status = DocSinkStatus.PROCESSING
@@ -180,7 +180,9 @@ class TaskScannerKB(AbstractTaskScanner):
         new_split_tasks = []
         documents = self.document_store.get_documents_for_docsource(org, kb, docsource)
         for doc in documents:
-            new_tasks = self._add_tasks_for_document(org, kb, doc, ProgramType.SPLIT)
+            new_tasks = self._add_tasks_for_document(
+                org, kb, docsource, doc, ProgramType.SPLIT
+            )
             if new_tasks:
                 new_split_tasks += new_tasks
             if doc.split_status != DocumentStatus.COMPLETED:
@@ -196,7 +198,7 @@ class TaskScannerKB(AbstractTaskScanner):
             # we only add the embed task if the split task is completed
             if doc.split_status == DocumentStatus.COMPLETED:
                 new_tasks = self._add_tasks_for_document(
-                    org, kb, doc, ProgramType.EMBED
+                    org, kb, docsource, doc, ProgramType.EMBED
                 )
                 if new_tasks:
                     new_embed_tasks += new_tasks
@@ -266,7 +268,7 @@ class TaskScannerKB(AbstractTaskScanner):
         return new_tasks
 
     def _add_tasks_for_docsink(
-        self, org: Org, kb: KnowledgeBase, docsink: DocSink
+        self, org: Org, kb: KnowledgeBase, docsource: DocSource, docsink: DocSink
     ) -> List[Task]:
         new_tasks = []
         program_dict: Dict[ProgramType, ProgramSpec] = {}
@@ -290,7 +292,7 @@ class TaskScannerKB(AbstractTaskScanner):
                 task_create = TaskCreate(
                     org_id=org.org_id,
                     kb_id=kb.kb_id,
-                    docsource_uuid=docsink.docsource_uuid,
+                    docsource_uuid=docsource.docsource_uuid,
                     docsink_uuid=docsink.docsink_uuid,
                     program_spec=program_spec,
                 )
@@ -308,10 +310,17 @@ class TaskScannerKB(AbstractTaskScanner):
         return new_tasks
 
     def _add_tasks_for_document(
-        self, org: Org, kb: KnowledgeBase, doc: Document, task_type: ProgramType
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        docsource: DocSource,
+        doc: Document,
+        task_type: ProgramType,
     ) -> List[Task]:
         try:
-            new_tasks = self._helper_add_tasks_for_document(org, kb, doc, task_type)
+            new_tasks = self._helper_add_tasks_for_document(
+                org, kb, docsource, doc, task_type
+            )
         except exceptions.UnrecoverableOperationException as e:
             self.logger.error(f"Unrecoverable operation failure for {doc.doc_uri}: {e}")
             if task_type == ProgramType.SPLIT:
@@ -323,13 +332,18 @@ class TaskScannerKB(AbstractTaskScanner):
         except Exception as e:
             self.logger.error(
                 f"Error adding tasks for document {doc.doc_uri} "
-                f"for docsource {doc.docsource_uuid}: {e}"
+                f"for docsource {docsource.docsource_uuid}: {e}"
             )
             new_tasks = []
         return new_tasks
 
     def _helper_add_tasks_for_document(
-        self, org: Org, kb: KnowledgeBase, doc: Document, task_type: ProgramType
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        docsource: DocSource,
+        doc: Document,
+        task_type: ProgramType,
     ) -> List[Task]:
         new_tasks = []
 
@@ -372,7 +386,7 @@ class TaskScannerKB(AbstractTaskScanner):
                 task_create = TaskCreate(
                     org_id=org.org_id,
                     kb_id=kb.kb_id,
-                    docsource_uuid=doc.docsource_uuid,
+                    docsource_uuid=docsource.docsource_uuid,
                     docsink_uuid=doc.docsink_uuid,
                     document_uuid=doc.document_uuid,
                     program_spec=program_spec,
