@@ -147,7 +147,7 @@ Here is the content:
                 else:
                     all_links[link] = 1
 
-        display_logger.info(document_summary)
+        display_logger.debug(f"The returned document summary is {document_summary}")
         updated_document = document_store.update_document(org, kb, document)
         return updated_document
 

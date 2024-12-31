@@ -1,3 +1,4 @@
+import traceback
 from typing import Dict, List, Optional, Type
 
 from leettools.core.schemas.docsource import DocSource
@@ -78,8 +79,10 @@ links, content, authors, etc. and save them to the database.
                     successful_documents[document.original_uri] = update_document
             except Exception as e:
                 display_logger.warning(
-                    f"Failed to summarize document {document.document_uuid}: {e}. Ignored."
+                    f"Ignore document failed to summarize {document.document_uuid}: {e}."
                 )
+                trace = traceback.format_exc()
+                display_logger.warning(f"Detailed error: {trace}")
                 continue
 
         display_logger.info(
