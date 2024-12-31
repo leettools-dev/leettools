@@ -26,9 +26,6 @@ class SegmentBase(BaseModel):
         ..., description="The UUID of the document the segment belongs to"
     )
     doc_uri: str = Field(..., description="The URI of the document")
-    docsource_uuid: str = Field(
-        ..., description="The UUID of the document source the document belongs to"
-    )
     docsink_uuid: str = Field(
         ..., description="The UUID of the document sink the document belongs to"
     )
@@ -116,7 +113,6 @@ class SegmentInDB(SegmentInDBBase):
             content=segment_create.content,
             document_uuid=segment_create.document_uuid,
             doc_uri=segment_create.doc_uri,
-            docsource_uuid=segment_create.docsource_uuid,
             docsink_uuid=segment_create.docsink_uuid,
             kb_id=segment_create.kb_id,
             position_in_doc=segment_create.position_in_doc,
@@ -141,7 +137,6 @@ class SegmentInDB(SegmentInDBBase):
             content=segment_update.content,
             document_uuid=segment_update.document_uuid,
             doc_uri=segment_update.doc_uri,
-            docsource_uuid=segment_update.docsource_uuid,
             docsink_uuid=segment_update.docsink_uuid,
             kb_id=segment_update.kb_id,
             position_in_doc=segment_update.position_in_doc,
@@ -169,7 +164,6 @@ class Segment(SegmentInDBBase):
             content=segment_in_db.content,
             document_uuid=segment_in_db.document_uuid,
             doc_uri=segment_in_db.doc_uri,
-            docsource_uuid=segment_in_db.docsource_uuid,
             docsink_uuid=segment_in_db.docsink_uuid,
             kb_id=segment_in_db.kb_id,
             position_in_doc=segment_in_db.position_in_doc,
@@ -204,7 +198,6 @@ class SearchResultSegment(Segment):
             content=segment.content,
             document_uuid=segment.document_uuid,
             doc_uri=segment.doc_uri,
-            docsource_uuid=segment.docsource_uuid,
             docsink_uuid=segment.docsink_uuid,
             kb_id=segment.kb_id,
             position_in_doc=segment.position_in_doc,
@@ -239,7 +232,6 @@ class BaseSegmentSchema(ABC):
             Segment.FIELD_SEGMENT_UUID: "VARCHAR PRIMARY KEY",
             Segment.FIELD_DOCUMENT_UUID: "VARCHAR NOT NULL",
             Segment.FIELD_DOC_URI: "VARCHAR NOT NULL",
-            Segment.FIELD_DOCSOURCE_UUID: "VARCHAR NOT NULL",
             Segment.FIELD_DOCSINK_UUID: "VARCHAR NOT NULL",
             Segment.FIELD_KB_ID: "VARCHAR NOT NULL",
             Segment.FIELD_CONTENT: "TEXT NOT NULL",

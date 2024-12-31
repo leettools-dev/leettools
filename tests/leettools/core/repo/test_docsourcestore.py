@@ -35,23 +35,26 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
 
     repo_manager = context.get_repo_manager()
     dsstore = repo_manager.get_docsource_store()
+    org_id = org.org_id
     kb_id = kb.kb_id
 
     # Test create_docsource
     # uri is a HttpUrl in pydantic
     docsource_create = DocSourceCreate(
+        org_id=org_id,
+        kb_id=kb_id,
         source_type=DocSourceType.URL,
         uri="http://www.test1.com/",
-        kb_id=kb_id,
     )
     docsource1 = dsstore.create_docsource(org, kb, docsource_create)
     assert docsource1.docsource_uuid is not None
     logger().info(f"Created docsource with UUID: {docsource1.docsource_uuid}")
 
     docsource_create2 = DocSourceCreate(
+        org_id=org_id,
+        kb_id=kb_id,
         source_type=DocSourceType.NOTION,
         uri="http://www.test2.com",
-        kb_id=kb_id,
         ingest_config=IngestConfig(
             flow_options={}, extra_parameters={"access_token": "test"}
         ),
@@ -66,6 +69,7 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
         docsource_uuid=docsource1.docsource_uuid,
         source_type=docsource1.source_type,
         uri="http://www.example.com",
+        org_id=org_id,
         kb_id=kb_id,
         docsource_status=DocSourceStatus.COMPLETED,
     )
@@ -107,6 +111,7 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     }
 
     docsource_create = DocSourceCreate(
+        org_id=org_id,
         kb_id=kb_id,
         source_type=DocSourceType.SEARCH,
         uri=(

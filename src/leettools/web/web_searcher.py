@@ -45,8 +45,7 @@ def _get_docsink_create_from_saved_files(
         file_path = result.file_path
         doc_hash, doc_size = file_utils.file_hash_and_size(Path(file_path))
         docsink_create = DocSinkCreate(
-            kb_id=kb.kb_id,
-            docsource_uuid=docsource.docsource_uuid,
+            docsource=docsource,
             original_doc_uri=original_url,
             raw_doc_uri=file_path,
             raw_doc_hash=doc_hash,

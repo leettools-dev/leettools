@@ -42,11 +42,11 @@ def _test_connector_simple(context: Context, org: Org, kb: KnowledgeBase):
     docsource_store = context.get_repo_manager().get_docsource_store()
     docsink_store = context.get_repo_manager().get_docsink_store()
 
-    kb_id = kb.kb_id
     url = "https://www.example.com/"
     docsource_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
         source_type=DocSourceType.WEB,
-        kb_id=kb_id,
         uri=url,
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
@@ -88,8 +88,9 @@ def _test_file_copy(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
         f.write("<html><body><h1>Test</h1></body></html>")
 
     docsource_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
         uri=str(tmp_path),
-        kb_id=kb_id,
         source_type=DocSourceType.FILE,
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
@@ -129,8 +130,9 @@ def _test_local_file(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     with open(filepath, "w") as f:
         f.write("html body h1 Test h1 body html")
     docsource_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
         uri=str(tmp_path),
-        kb_id=kb_id,
         source_type=DocSourceType.LOCAL,
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)

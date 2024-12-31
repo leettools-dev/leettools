@@ -61,7 +61,6 @@ class ConverterLocal(AbstractConverter):
             settings.DOCUMENT_LOCAL_DIR,
             org.org_id,
             kb.kb_id,
-            docsink.docsource_uuid,
             docsink.docsink_uuid,
         )
         self.settings = settings
@@ -84,12 +83,9 @@ class ConverterLocal(AbstractConverter):
         file_path = Path(self.docsink.raw_doc_uri)
         if is_media_file(file_path.suffix):
             document_create = DocumentCreate(
-                docsink_uuid=self.docsink.docsink_uuid,
-                docsource_uuid=self.docsink.docsource_uuid,
-                kb_id=self.docsink.kb_id,
-                doc_uri=self.docsink.raw_doc_uri,
+                docsink=self.docsink,
                 content="media data content placeholder",
-                original_uri=self.docsink.original_doc_uri,
+                doc_uri=self.docsink.raw_doc_uri,
             )
         else:
             md_file_path = self._get_target_file_path()
@@ -104,12 +100,9 @@ class ConverterLocal(AbstractConverter):
                 md_content = md_file.read()
 
             document_create = DocumentCreate(
-                docsink_uuid=self.docsink.docsink_uuid,
-                docsource_uuid=self.docsink.docsource_uuid,
-                kb_id=self.docsink.kb_id,
-                doc_uri=md_file_path,
+                docsink=self.docsink,
                 content=md_content,
-                original_uri=self.docsink.original_doc_uri,
+                doc_uri=md_file_path,
             )
         document = self.docstore.create_document(
             org=self.org, kb=self.kb, document_create=document_create

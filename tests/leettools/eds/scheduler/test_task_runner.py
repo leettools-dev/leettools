@@ -45,9 +45,10 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase, user: User):
 
     # create docsource
     doc_source_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
         source_type=DocSourceType.URL,
         uri=original_test_uri,
-        kb_id=kb_id,
     )
     docsource_uuid = "123456"
     docsource_in_db = DocSourceInDB.from_docsource_create(doc_source_create)

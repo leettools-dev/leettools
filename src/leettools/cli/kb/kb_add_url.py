@@ -87,6 +87,7 @@ def add_url(
         context.settings.DEFAULT_CHUNK_SIZE = int(chunk_size)
 
     docsource_create = DocSourceCreate(
+        org_id=org.org_id,
         kb_id=kb.kb_id,
         source_type=DocSourceType.URL,
         display_name=url,

@@ -149,6 +149,7 @@ class TempSetup:
             org,
             kb,
             DocSourceCreate(
+                org_id=org.org_id,
                 kb_id=kb.kb_id,
                 source_type=DocSourceType.LOCAL,
                 uri="dummyuri",

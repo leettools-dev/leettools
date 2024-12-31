@@ -19,6 +19,7 @@ def test_segement_embedder_simple():
     org, kb, user = temp_setup.create_tmp_org_kb_user()
 
     ds = DocSource(
+        org_id=org.org_id,
         kb_id=kb.kb_id,
         uri="doc_source_uri_001",
         docsource_uuid="doc_source_uuid_001",
@@ -50,7 +51,6 @@ def _test_function(
     segment_create = SegmentCreate(
         document_uuid=document_uuid,
         doc_uri=doc_uri,
-        docsource_uuid=docsource_id,
         docsink_uuid=docsink_id,
         kb_id=kb_id,
         content="test content",

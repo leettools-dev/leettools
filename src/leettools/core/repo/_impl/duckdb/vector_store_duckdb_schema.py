@@ -9,7 +9,6 @@ class VectorDuckDBSchema:
     def get_schema(cls, dense_embedder_dimension: int) -> Dict[str, str]:
         return {
             Segment.FIELD_DOCUMENT_UUID: "VARCHAR",
-            Segment.FIELD_DOCSOURCE_UUID: "VARCHAR",
             Segment.FIELD_DOCSINK_UUID: "VARCHAR",
             Segment.FIELD_SEGMENT_UUID: "VARCHAR",
             Segment.FIELD_CREATED_TIMESTAMP_IN_MS: "BIGINT",

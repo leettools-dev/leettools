@@ -4,6 +4,7 @@ from leettools.common.logging import logger
 from leettools.common.temp_setup import TempSetup
 from leettools.common.utils.file_utils import file_hash_and_size
 from leettools.context_manager import Context
+from leettools.core.consts.docsink_status import DocSinkStatus
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsink import DocSinkCreate, DocSinkUpdate
 from leettools.core.schemas.docsource import DocSourceCreate
@@ -24,10 +25,19 @@ def test_docsinkstore(tmp_path):
 
         org, kb, user = temp_setup.create_tmp_org_kb_user()
 
+        logger().info(
+            f"Testing with doc_store: {context.settings.DOC_STORE_TYPE} "
+            f"and vector_store: {context.settings.VECTOR_STORE_TYPE}"
+        )
+
         try:
             _test_function(tmp_path, context, org, kb)
         finally:
             temp_setup.clear_tmp_org_kb_user(org, kb)
+            logger().info(
+                f"Finished testing doc_store: {context.settings.DOC_STORE_TYPE} "
+                f"and vector_store: {context.settings.VECTOR_STORE_TYPE}"
+            )
 
 
 def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
@@ -38,10 +48,11 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     docsink_store = repo_manager.get_docsink_store()
     kb_id = kb.kb_id
 
-    # Test create_docsource
+    # Create a DocSource for test
     docsource_create = DocSourceCreate(
-        source_type=DocSourceType.URL,
+        org_id=org.org_id,
         kb_id=kb_id,
+        source_type=DocSourceType.URL,
         uri="http://www.test1.com",
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
@@ -55,8 +66,7 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     raw_doc_uri.write_text("test")
     doc_hash_1, doc_size = file_hash_and_size(Path(raw_doc_uri))
     docsink_create = DocSinkCreate(
-        docsource_uuid=docsource_uuid,
-        kb_id=kb_id,
+        docsource=docsource,
         original_doc_uri="http://www.test1.com",
         raw_doc_uri=str(raw_doc_uri),
         raw_doc_hash=doc_hash_1,
@@ -65,15 +75,20 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     docsink1 = docsink_store.create_docsink(org, kb, docsink_create)
     assert docsink1 is not None
     assert docsink1.docsink_uuid is not None
+    assert docsink1.docsource_uuids == [docsource_uuid]
+    assert docsink1.docsink_status == DocSinkStatus.CREATED
+    assert docsink1.is_deleted is False
+    assert docsink1.expired_at is None
     logger().info(f"Created docsink with UUID: {docsink1.docsink_uuid}")
 
+    # Create another DocSink with the same hash
+    # Since the URI is different, it should create a new DocSink
     raw_doc_uri = Path(tmp_path / "data" / "www-test2-com" / "index.html")
     raw_doc_uri.parent.mkdir(parents=True, exist_ok=True)
     raw_doc_uri.write_text("test")
     doc_hash_2, doc_size = file_hash_and_size(Path(raw_doc_uri))
     docsink_create = DocSinkCreate(
-        docsource_uuid=docsource_uuid,
-        kb_id=kb_id,
+        docsource=docsource,
         original_doc_uri="http://www.test2.com",
         raw_doc_uri=str(raw_doc_uri),
         raw_doc_hash=doc_hash_2,
@@ -82,18 +97,24 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     assert doc_hash_1 == doc_hash_2
     docsink2 = docsink_store.create_docsink(org, kb, docsink_create)
     assert docsink2.docsink_uuid is not None
-    assert docsink2.docsink_uuid == docsink1.docsink_uuid
-    assert docsink2.extra_original_doc_uri is not None
-    assert len(docsink2.extra_original_doc_uri) == 1
-    assert "http://www.test2.com" in docsink2.extra_original_doc_uri
+    assert docsink2.docsink_uuid != docsink1.docsink_uuid
+    assert docsink2.docsource_uuids == docsink1.docsource_uuids
 
+    # docsink1 should be still the same
+    docsink1_retrieved = docsink_store.get_docsink_by_id(org, kb, docsink1.docsink_uuid)
+    assert docsink1_retrieved is not None
+    assert docsink1_retrieved.docsink_uuid == docsink1.docsink_uuid
+    assert docsink1_retrieved.docsink_status == DocSinkStatus.CREATED
+    assert docsink1_retrieved.is_deleted is False
+    assert docsink1_retrieved.expired_at is None
+
+    # create another DocSink with different hash and URI
     raw_doc_uri = Path(tmp_path / "data" / "www-test3-com" / "index.html")
     raw_doc_uri.parent.mkdir(parents=True, exist_ok=True)
     raw_doc_uri.write_text("test3")
     doc_hash_3, doc_size = file_hash_and_size(Path(raw_doc_uri))
     docsink_create = DocSinkCreate(
-        docsource_uuid=docsource_uuid,
-        kb_id=kb_id,
+        docsource=docsource,
         original_doc_uri="http://www.test3.com",
         raw_doc_uri=str(raw_doc_uri),
         raw_doc_hash=doc_hash_3,
@@ -104,10 +125,15 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     assert docsink3.docsink_uuid is not None
     assert docsink3.docsink_uuid != docsink1.docsink_uuid
 
+    # We should have three DocSinks for the DocSource now
+    docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)
+    assert len(docsinks) == 3
+
     # Test update_docsink
     docsink_update = DocSinkUpdate(
         docsink_uuid=docsink1.docsink_uuid,
-        docsource_uuid=docsource_uuid,
+        docsource_uuids=[docsource_uuid],
+        org_id=org.org_id,
         kb_id=kb_id,
         original_doc_uri="http://www.example.com/",
         raw_doc_uri=str(raw_doc_uri),
@@ -124,11 +150,11 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
 
     # Test get_docsink_for_kb
     docsinks = docsink_store.get_docsinks_for_kb(org, kb)
-    assert len(docsinks) == 2
+    assert len(docsinks) == 3
 
     # Test get_docsinks_for_docsource
     docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)
-    assert len(docsinks) == 2
+    assert len(docsinks) == 3
 
     # Test delete_docsink
     result = docsink_store.delete_docsink(org, kb, docsink1)
@@ -140,11 +166,11 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
 
     # Test get_docsink_for_kb
     docsinks = docsink_store.get_docsinks_for_kb(org, kb)
-    assert len(docsinks) == 1
+    assert len(docsinks) == 2
 
     # Test get_docsinks_for_docsource
     docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)
-    assert len(docsinks) == 1
+    assert len(docsinks) == 2
 
     docsink_store.delete_docsink(org, kb, docsink4)
     docsource_store.delete_docsource(org, kb, docsource)

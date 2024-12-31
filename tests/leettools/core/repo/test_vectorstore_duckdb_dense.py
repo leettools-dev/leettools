@@ -5,9 +5,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from leettools.common.logging import EventLogger
+from leettools.context_manager import Context
+from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.repo._impl.duckdb.vector_store_dense_duckdb import (
     VectorStoreDuckDBDense,
 )
+from leettools.core.schemas.docsink import DocSinkCreate
+from leettools.core.schemas.docsource import DocSourceCreate
+from leettools.core.schemas.document import DocumentCreate
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import Segment
@@ -31,7 +36,7 @@ def test_db_path():
 
 
 @pytest.fixture
-def context(test_db_path):
+def context(test_db_path: str) -> Context:
     """Create a mock context for testing."""
     from leettools.context_manager import ContextManager
 
@@ -42,13 +47,13 @@ def context(test_db_path):
 
 
 @pytest.fixture(autouse=True)
-def setup_logging():
+def setup_logging() -> None:
     """Set up logging for tests."""
     EventLogger.set_global_default_level("DEBUG")
 
 
 @pytest.fixture
-def vector_store(context):
+def vector_store(context: Context) -> VectorStoreDuckDBDense:
     """Create an instance of VectorStoreDuckDBDense."""
     return VectorStoreDuckDBDense(context)
 
@@ -60,43 +65,69 @@ def org():
 
 
 @pytest.fixture()
-def test_kb_identifier() -> str:
+def test_kb_id() -> str:
     return f"test_kbid_{str(uuid.uuid4())}"
 
 
 @pytest.fixture
-def kb(test_kb_identifier: str):
+def kb(test_kb_id: str) -> KnowledgeBase:
     """Create a test knowledge base."""
-    return KnowledgeBase(name="test_kb", kb_id=test_kb_identifier)
+    return KnowledgeBase(name="test_kb", kb_id=test_kb_id)
 
 
 @pytest.fixture
-def user():
+def user() -> User:
     """Create a test user."""
     return User(user_uuid="test_user_uuid", username="test_username")
 
 
 @pytest.fixture
-def segment(test_kb_identifier: str):
+def test_segment_uuid() -> str:
+    return f"test_segment_uuid_{str(uuid.uuid4())}"
+
+
+@pytest.fixture
+def test_docsink_uuid() -> str:
+    return f"test_docsink_uuid_{str(uuid.uuid4())}"
+
+
+@pytest.fixture
+def test_document_uuid() -> str:
+    return f"test_document_uuid_{str(uuid.uuid4())}"
+
+
+@pytest.fixture
+def segment(
+    test_kb_id: str,
+    test_segment_uuid: str,
+    test_docsink_uuid: str,
+    test_document_uuid: str,
+) -> Segment:
     """Create a test segment."""
     return Segment(
-        segment_uuid="test_segment_uuid",
-        document_uuid="test_doc_id",
+        segment_uuid=test_segment_uuid,
+        docsink_uuid=test_docsink_uuid,
+        document_uuid=test_document_uuid,
         content="This is a test segment.",
         doc_uri="test_doc_uri",
-        kb_id=test_kb_identifier,
+        kb_id=test_kb_id,
         position_in_doc="1",
-        docsource_uuid="test_docsource_uuid",
-        docsink_uuid="test_docsink_uuid",
     )
 
 
 @pytest.fixture
 def local_embedder():
     """Create a mock local embedder."""
+    pass
 
 
-def test_save_segments(vector_store, org, kb, user, segment):
+def test_save_segments(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test saving a list of segments."""
 
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
@@ -118,7 +149,13 @@ def test_save_segments(vector_store, org, kb, user, segment):
             assert round(result[i], 6) == round(expected[i], 6)
 
 
-def test_update_segment_vector(vector_store, org, kb, user, segment):
+def test_update_segment_vector(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test updating a segment vector."""
     # Mock the embedder returned by get_dense_embedder_for_kb
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
@@ -152,7 +189,13 @@ def test_update_segment_vector(vector_store, org, kb, user, segment):
             assert round(result[i], 6) == round(expected[i], 6)
 
 
-def test_delete_segment_vector(vector_store, org, kb, user, segment):
+def test_delete_segment_vector(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test deleting a segment vector."""
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
     mock_embedder.embed.return_value = DenseEmbeddings(
@@ -173,7 +216,13 @@ def test_delete_segment_vector(vector_store, org, kb, user, segment):
         assert result == []
 
 
-def test_search_in_kb(vector_store, org, kb, user, segment):
+def test_search_in_kb(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test searching for segments in the knowledge base."""
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
     mock_embedder.embed.return_value = DenseEmbeddings(
@@ -195,7 +244,7 @@ def test_search_in_kb(vector_store, org, kb, user, segment):
         assert len(results) > 0
         assert results[0].segment_uuid == segment.segment_uuid
 
-        filter_expr = f"{Segment.FIELD_DOCSOURCE_UUID}='{segment.docsource_uuid}'"
+        filter_expr = f"{Segment.FIELD_DOCUMENT_UUID} = '{segment.document_uuid}'"
         results = vector_store.search_in_kb(
             org, kb, user, query, top_k, filter_expr=filter_expr
         )
@@ -209,7 +258,13 @@ def test_search_in_kb(vector_store, org, kb, user, segment):
         assert results[0].segment_uuid == segment.segment_uuid
 
 
-def test_get_segment_vector_not_found(vector_store, org, kb, user, segment):
+def test_get_segment_vector_not_found(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
     mock_embedder.embed.return_value = DenseEmbeddings(
         dense_embeddings=[[0.1, 0.2, 0.3]]
@@ -226,7 +281,13 @@ def test_get_segment_vector_not_found(vector_store, org, kb, user, segment):
         assert result == []
 
 
-def test_delete_segment_vector_not_found(vector_store, org, kb, user, segment):
+def test_delete_segment_vector_not_found(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test deleting a segment vector that does not exist."""
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
     mock_embedder.embed.return_value = DenseEmbeddings(
@@ -244,7 +305,13 @@ def test_delete_segment_vector_not_found(vector_store, org, kb, user, segment):
         assert result is True  # Should return True even if it doesn't exist
 
 
-def test_delete_segment_vectors_by_docsink_uuid(vector_store, org, kb, user, segment):
+def test_delete_segment_vectors_by_docsink_uuid(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test deleting segment vectors by docsink UUID."""
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
     mock_embedder.embed.return_value = DenseEmbeddings(
@@ -266,7 +333,14 @@ def test_delete_segment_vectors_by_docsink_uuid(vector_store, org, kb, user, seg
     assert vector_store.get_segment_vector(org, kb, segment.segment_uuid) == []
 
 
-def test_delete_segment_vectors_by_docsource_uuid(vector_store, org, kb, user, segment):
+def test_delete_segment_vectors_by_docsource_uuid(
+    context: Context,
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test deleting segment vectors by docsource UUID."""
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
     mock_embedder.embed.return_value = DenseEmbeddings(
@@ -277,11 +351,44 @@ def test_delete_segment_vectors_by_docsource_uuid(vector_store, org, kb, user, s
         "leettools.core.repo._impl.duckdb.vector_store_dense_duckdb.create_dense_embedder_for_kb",
         return_value=mock_embedder,
     ):
+        repo_manager = context.get_repo_manager()
+        original_uri = "http://example.com"
+        docsource_create = DocSourceCreate(
+            org_id=org.org_id,
+            kb_id=kb.kb_id,
+            source_type=DocSourceType.URL,
+            uri=original_uri,
+        )
+        docsource = repo_manager.get_docsource_store().create_docsource(
+            org, kb, docsource_create
+        )
+
+        docsink_create = DocSinkCreate(
+            docsource=docsource,
+            original_doc_uri=original_uri,
+            raw_doc_uri=segment.doc_uri,
+        )
+        docsink = repo_manager.get_docsink_store().create_docsink(
+            org, kb, docsink_create
+        )
+
+        document_create = DocumentCreate(
+            content=segment.content,
+            doc_uri=segment.doc_uri,
+            docsink=docsink,
+        )
+        document = repo_manager.get_document_store().create_document(
+            org, kb, document_create
+        )
+
+        segment.document_uuid = document.document_uuid
+        segment.docsink_uuid = docsink.docsink_uuid
+
         vector_store.save_segments(org, kb, user, [segment])
 
         # Call the delete method
         result = vector_store.delete_segment_vectors_by_docsource_uuid(
-            org, kb, segment.docsource_uuid
+            org, kb, docsource.docsource_uuid
         )
 
         # Verify that the segment vector was deleted
@@ -289,7 +396,13 @@ def test_delete_segment_vectors_by_docsource_uuid(vector_store, org, kb, user, s
         assert vector_store.get_segment_vector(org, kb, segment.segment_uuid) == []
 
 
-def test_delete_segment_vectors_by_document_id(vector_store, org, kb, user, segment):
+def test_delete_segment_vectors_by_document_id(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test deleting segment vectors by document ID."""
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
     mock_embedder.embed.return_value = DenseEmbeddings(
@@ -312,7 +425,13 @@ def test_delete_segment_vectors_by_document_id(vector_store, org, kb, user, segm
         assert vector_store.get_segment_vector(org, kb, segment.segment_uuid) == []
 
 
-def test_get_segment_vector(vector_store, org, kb, user, segment):
+def test_get_segment_vector(
+    vector_store: VectorStoreDuckDBDense,
+    org: Org,
+    kb: KnowledgeBase,
+    user: User,
+    segment: Segment,
+):
     """Test getting a segment vector."""
     mock_embedder = MagicMock(spec=AbstractDenseEmbedder)
     mock_embedder.embed.return_value = DenseEmbeddings(
@@ -323,10 +442,12 @@ def test_get_segment_vector(vector_store, org, kb, user, segment):
         "leettools.core.repo._impl.duckdb.vector_store_dense_duckdb.create_dense_embedder_for_kb",
         return_value=mock_embedder,
     ):
-        vector_store.save_segments(org, kb, user, [segment])
+        inserted = vector_store.save_segments(org, kb, user, [segment])
+        print(inserted)
 
         # Call the get method
         result = vector_store.get_segment_vector(org, kb, segment.segment_uuid)
+        print(result)
 
         # Verify that the correct segment vector is returned
         expected = vector_store._normalize_vector([0.1, 0.2, 0.3])

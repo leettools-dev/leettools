@@ -93,9 +93,10 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     assert kb_1.updated_at > kb_1.created_at
 
     docsource_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb_1.kb_id,
         source_type=DocSourceType.URL,
         uri="https://www.example.com",
-        kb_id=kb_1.kb_id,
     )
     docsource1 = ds_store.create_docsource(org, kb_1, docsource_create)
     assert docsource1.docsource_uuid is not None

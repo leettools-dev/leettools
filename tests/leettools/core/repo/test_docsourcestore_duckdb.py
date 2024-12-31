@@ -19,6 +19,7 @@ from leettools.core.schemas.docsource import (
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.schedule_config import ScheduleConfig
+from leettools.settings import SystemSettings
 
 
 @pytest.fixture(autouse=True)
@@ -54,7 +55,7 @@ def cleanup(settings):
 
 
 @pytest.fixture
-def store(settings):
+def store(settings: SystemSettings):
     """Create test DocsourceStoreDuckDB instance."""
     return DocsourceStoreDuckDB(settings, is_test=True)
 
@@ -66,21 +67,33 @@ def org():
 
 
 @pytest.fixture
-def test_kb_identifier() -> str:
+def test_org_id() -> str:
+    return f"test_org_id_{str(uuid.uuid4())}"
+
+
+@pytest.fixture
+def test_kb_id() -> str:
     return f"test_kbid_{str(uuid.uuid4())}"
 
 
 @pytest.fixture
-def kb(test_kb_identifier: str):
-    """Create test knowledge base."""
-    return KnowledgeBase(name="test_kb", kb_id=test_kb_identifier)
+def org(test_org_id: str):
+    """Create test organization."""
+    return Org(org_id=test_org_id, name="test_org", description="Test Org")
 
 
 @pytest.fixture
-def docsource_create(test_kb_identifier: str):
+def kb(test_kb_id: str):
+    """Create test knowledge base."""
+    return KnowledgeBase(name="test_kb", kb_id=test_kb_id)
+
+
+@pytest.fixture
+def docsource_create(test_org_id: str, test_kb_id: str):
     """Create test DocSourceCreate instance."""
     return DocSourceCreate(
-        kb_id=test_kb_identifier,
+        org_id=test_org_id,
+        kb_id=test_kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
         display_name="Test Doc",
@@ -90,7 +103,12 @@ def docsource_create(test_kb_identifier: str):
     )
 
 
-def test_create_docsource(store, org, kb, docsource_create):
+def test_create_docsource(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+):
     """Test creating a new docsource."""
     docsource = store.create_docsource(org, kb, docsource_create)
 
@@ -102,7 +120,12 @@ def test_create_docsource(store, org, kb, docsource_create):
     assert docsource.tags == ["test"]
 
 
-def test_get_docsource(store, org, kb, docsource_create):
+def test_get_docsource(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+) -> None:
     """Test retrieving a docsource."""
     created = store.create_docsource(org, kb, docsource_create)
     retrieved = store.get_docsource(org, kb, created.docsource_uuid)
@@ -116,7 +139,12 @@ def test_get_docsource(store, org, kb, docsource_create):
     assert retrieved is None
 
 
-def test_delete_docsource(store, org, kb, docsource_create):
+def test_delete_docsource(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+) -> None:
     """Test deleting a docsource."""
     created = store.create_docsource(org, kb, docsource_create)
     result = store.delete_docsource(org, kb, created)
@@ -127,12 +155,18 @@ def test_delete_docsource(store, org, kb, docsource_create):
     assert retrieved.docsource_status == DocSourceStatus.ABORTED
 
 
-def test_update_docsource(store, org, kb, docsource_create):
+def test_update_docsource(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+) -> None:
     """Test updating a docsource."""
     created = store.create_docsource(org, kb, docsource_create)
 
     update_data = DocSourceUpdate(
         docsource_uuid=created.docsource_uuid,
+        org_id=org.org_id,
         kb_id=created.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
@@ -147,12 +181,18 @@ def test_update_docsource(store, org, kb, docsource_create):
     assert updated.display_name == "Updated Name"
 
 
-def test_get_docsources_for_kb(store, org, kb, docsource_create):
+def test_get_docsources_for_kb(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+):
     """Test retrieving all docsources for a knowledge base."""
     # Create multiple docsources
     first = store.create_docsource(org, kb, docsource_create)
 
     second_create = DocSourceCreate(
+        org_id=org.org_id,
         kb_id=kb.kb_id,
         source_type=DocSourceType.URL,
         uri="test_uri_2",
@@ -165,11 +205,17 @@ def test_get_docsources_for_kb(store, org, kb, docsource_create):
     assert all(ds.kb_id == kb.kb_id for ds in results)
 
 
-def test_wait_for_docsource_immediate_completion(store, org, kb, docsource_create):
+def test_wait_for_docsource_immediate_completion(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+) -> None:
     """Test waiting for docsource that's already completed."""
     created = store.create_docsource(org, kb, docsource_create)
     update = DocSourceUpdate(
         docsource_uuid=created.docsource_uuid,
+        org_id=org.org_id,
         kb_id=created.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
@@ -181,12 +227,18 @@ def test_wait_for_docsource_immediate_completion(store, org, kb, docsource_creat
     assert result is True
 
 
-def test_wait_for_docsource_failure(store, org, kb, docsource_create):
+def test_wait_for_docsource_failure(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+):
     """Test waiting for docsource that fails processing."""
     created = store.create_docsource(org, kb, docsource_create)
 
     update = DocSourceUpdate(
         docsource_uuid=created.docsource_uuid,
+        org_id=org.org_id,
         kb_id=created.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
@@ -198,7 +250,12 @@ def test_wait_for_docsource_failure(store, org, kb, docsource_create):
     assert result is True
 
 
-def test_wait_for_docsource_no_timeout(store, org, kb, docsource_create):
+def test_wait_for_docsource_no_timeout(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+) -> None:
     """Test waiting for docsource with no timeout."""
     created = store.create_docsource(org, kb, docsource_create)
 
@@ -208,9 +265,10 @@ def test_wait_for_docsource_no_timeout(store, org, kb, docsource_create):
         time.sleep(0.5)
         update = DocSourceUpdate(
             docsource_uuid=created.docsource_uuid,
-            kb_id=created.kb_id,
-            source_type=DocSourceType.FILE,
-            uri="test_uri",
+            org_id=org.org_id,
+            kb_id=kb.kb_id,
+            source_type=created.source_type,
+            uri=created.uri,
             docsource_status=DocSourceStatus.COMPLETED,
         )
         store.update_docsource(org, kb, update)
@@ -225,10 +283,15 @@ def test_wait_for_docsource_no_timeout(store, org, kb, docsource_create):
     update_thread.join()
 
 
-def test_wait_for_nonexistent_docsource(store, org, kb):
+def test_wait_for_nonexistent_docsource(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+):
     """Test waiting for a non-existent docsource."""
     non_existent = DocSource(
         docsource_uuid=str(uuid.uuid4()),
+        org_id=org.org_id,
         kb_id=kb.kb_id,
         source_type=DocSourceType.FILE,
         uri="test_uri",
@@ -239,16 +302,22 @@ def test_wait_for_nonexistent_docsource(store, org, kb):
     assert "not found in the DB" in str(exc_info.value)
 
 
-def test_wait_for_docsource_processing_to_completed(store, org, kb, docsource_create):
+def test_wait_for_docsource_processing_to_completed(
+    store: DocsourceStoreDuckDB,
+    org: Org,
+    kb: KnowledgeBase,
+    docsource_create: DocSourceCreate,
+):
     """Test waiting for docsource that transitions from PROCESSING to COMPLETED."""
     created = store.create_docsource(org, kb, docsource_create)
 
     # Update status to PROCESSING
     processing_update = DocSourceUpdate(
         docsource_uuid=created.docsource_uuid,
-        kb_id=created.kb_id,
-        source_type=DocSourceType.FILE,
-        uri="test_uri",
+        org_id=org.org_id,
+        kb_id=kb.kb_id,
+        source_type=created.source_type,
+        uri=created.uri,
         docsource_status=DocSourceStatus.PROCESSING,
     )
     store.update_docsource(org, kb, processing_update)
@@ -259,9 +328,10 @@ def test_wait_for_docsource_processing_to_completed(store, org, kb, docsource_cr
         time.sleep(0.5)
         completed_update = DocSourceUpdate(
             docsource_uuid=created.docsource_uuid,
+            org_id=org.org_id,
             kb_id=created.kb_id,
-            source_type=DocSourceType.FILE,
-            uri="test_uri",
+            source_type=created.source_type,
+            uri=created.uri,
             docsource_status=DocSourceStatus.COMPLETED,
         )
         store.update_docsource(org, kb, completed_update)
@@ -277,9 +347,10 @@ def test_wait_for_docsource_processing_to_completed(store, org, kb, docsource_cr
 
     processing_update = DocSourceUpdate(
         docsource_uuid=created.docsource_uuid,
+        org_id=org.org_id,
         kb_id=created.kb_id,
-        source_type=DocSourceType.FILE,
-        uri="test_uri",
+        source_type=created.source_type,
+        uri=created.uri,
         docsource_status=DocSourceStatus.PROCESSING,
     )
     store.update_docsource(org, kb, processing_update)

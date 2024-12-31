@@ -36,12 +36,14 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     docsink_store = repo_manager.get_docsink_store()
     doc_store = repo_manager.get_document_store()
 
+    org_id = org.org_id
     kb_id = kb.kb_id
 
     # Test create_docsource
     docsource_create = DocSourceCreate(
-        source_type=DocSourceType.URL,
+        org_id=org_id,
         kb_id=kb_id,
+        source_type=DocSourceType.URL,
         uri="http://www.test1.com",
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
@@ -50,8 +52,7 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     logger().info(f"Created docsource with UUID: {docsource_uuid}")
 
     docsink_create = DocSinkCreate(
-        docsource_uuid=docsource_uuid,
-        kb_id=kb_id,
+        docsource=docsource,
         original_doc_uri="http://www.test1.com",
         raw_doc_uri="/tmp/test1.html",
     )
@@ -61,12 +62,9 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     logger().info(f"Created docsink with UUID: {docsink_uuid}")
 
     document_create = DocumentCreate(
+        docsink=docsink,
         content="test content",
-        docsink_uuid=docsink_uuid,
-        docsource_uuid=docsource_uuid,
-        kb_id=kb_id,
         doc_uri="uri1",
-        original_uri=docsink.original_doc_uri,
     )
     document = doc_store.create_document(org, kb, document_create)
 
@@ -92,7 +90,8 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
         doc_uri="uri2",
         content="updated content",
         docsink_uuid=docsink_uuid,
-        docsource_uuid=docsource_uuid,
+        docsource_uuids=[docsource_uuid],
+        org_id=org_id,
         kb_id=kb_id,
     )
     document3 = doc_store.update_document(org, kb, document_update)

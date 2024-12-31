@@ -38,9 +38,7 @@ def document_iterator(
     kb = exec_info.kb
 
     def _get_doc_for_docsink(docsource: DocSource) -> Generator[Document, None, None]:
-        for docsink in docsink_store.get_docsinks_for_docsource(
-            org, kb, docsource, check_extra=True
-        ):
+        for docsink in docsink_store.get_docsinks_for_docsource(org, kb, docsource):
             if docsink_filter is not None:
                 if not docsink_filter(exec_info, docsink):
                     continue

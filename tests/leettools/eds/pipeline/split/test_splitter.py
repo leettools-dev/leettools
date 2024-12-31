@@ -1,6 +1,9 @@
 from leettools.common.temp_setup import TempSetup
 from leettools.context_manager import Context, ContextManager
+from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.consts.return_code import ReturnCode
+from leettools.core.schemas.docsink import DocSinkCreate
+from leettools.core.schemas.docsource import DocSourceCreate
 from leettools.core.schemas.document import DocumentCreate
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
@@ -8,16 +11,21 @@ from leettools.eds.pipeline.split.splitter import Splitter
 
 
 def test_splitter():
-    """Test the traverse_hierarchy method."""
-    context = ContextManager().get_context()  # type: Context
+    from leettools.settings import preset_store_types_for_tests
 
-    temp_setup = TempSetup()
-    org, kb, user = temp_setup.create_tmp_org_kb_user()
+    for store_types in preset_store_types_for_tests():
 
-    try:
-        _test_function(context, org, kb)
-    finally:
-        temp_setup.clear_tmp_org_kb_user(org, kb)
+        temp_setup = TempSetup()
+        context = temp_setup.context
+        context.settings.DOC_STORE_TYPE = store_types["doc_store"]
+        context.settings.VECTOR_STORE_TYPE = store_types["vector_store"]
+
+        org, kb, user = temp_setup.create_tmp_org_kb_user()
+
+        try:
+            _test_function(context, org, kb)
+        finally:
+            temp_setup.clear_tmp_org_kb_user(org, kb)
 
 
 def _test_function(context: Context, org: Org, kb: KnowledgeBase):
@@ -26,8 +34,6 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
 
     repo_manager = context.get_repo_manager()
     docstore = repo_manager.get_document_store()
-    segstore = repo_manager.get_segment_store()
-    graphstore = repo_manager.get_docgraph_store()
 
     md_content = """
         # section 1
@@ -47,18 +53,31 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
         Based on our estimation, it is the best time to invest in the stock market.
     """
 
-    docsink_uuid = "12345"
-    docsource_uuid = "12345"
+    docsource_store = repo_manager.get_docsource_store()
+    docsource_create = DocSourceCreate(
+        org_id=org.org_id,
+        kb_id=kb_id,
+        source_type=DocSourceType.URL,
+        uri="http://www.test1.com",
+    )
+    docsource = docsource_store.create_docsource(org, kb, docsource_create)
+
+    docsink_store = repo_manager.get_docsink_store()
+    docsink_create = DocSinkCreate(
+        docsource=docsource,
+        original_doc_uri="http://www.test1.com",
+        raw_doc_uri="/tmp/test1.html",
+    )
+    docsink = docsink_store.create_docsink(org, kb, docsink_create)
     doc_uri = "uri1"
 
     document_create = DocumentCreate(
+        docsink=docsink,
         content=md_content,
-        docsink_uuid=docsink_uuid,
-        docsource_uuid=docsource_uuid,
-        kb_id=kb_id,
         doc_uri=doc_uri,
     )
     document = docstore.create_document(org, kb, document_create)
+
     splitter = Splitter(
         context=context,
         org=org,
