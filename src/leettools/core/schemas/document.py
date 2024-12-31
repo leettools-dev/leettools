@@ -126,6 +126,44 @@ class Document(DocumentInDB):
         assign_properties(document_in_store, document)
         return document
 
+    def summary(self) -> DocumentSummary:
+        # return any field in the manual summary if it is set
+        if self.manual_summary is None:
+            return self.auto_summary
+
+        return DocumentSummary(
+            summary=(
+                self.manual_summary.summary
+                if self.manual_summary
+                else self.auto_summary.summary
+            ),
+            keywords=(
+                self.manual_summary.keywords
+                if self.manual_summary
+                else self.auto_summary.keywords
+            ),
+            links=(
+                self.manual_summary.links
+                if self.manual_summary
+                else self.auto_summary.links
+            ),
+            authors=(
+                self.manual_summary.authors
+                if self.manual_summary
+                else self.auto_summary.authors
+            ),
+            content_date=(
+                self.manual_summary.content_date
+                if self.manual_summary
+                else self.auto_summary.content_date
+            ),
+            relevance_score=(
+                self.manual_summary.relevance_score
+                if self.manual_summary
+                else self.auto_summary.relevance_score
+            ),
+        )
+
 
 @dataclass
 class BaseDocumentSchema(ABC):

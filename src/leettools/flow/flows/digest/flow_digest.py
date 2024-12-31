@@ -150,7 +150,7 @@ When interested in a topic, you can generate a digest article:
             for url, doc in summarized_docs.items():
                 visted_links.add(url)
                 if doc:
-                    if doc.relevance_score >= threshold:
+                    if doc.summary().relevance_score >= threshold:
                         final_docs[url] = doc
 
             if recursive_scrape:
@@ -195,12 +195,12 @@ When interested in a topic, you can generate a digest article:
                             continue
 
                         summarized_docs[url] = newdoc
-                        if newdoc.relevance_score >= threshold:
+                        if newdoc.summary().relevance_score >= threshold:
                             final_docs[url] = newdoc
                         else:
                             display_logger.debug(
                                 f"[Digest]Document is not relevant: "
-                                f"[{newdoc.relevance_score}] {url}"
+                                f"[{newdoc.summary().relevance_score}] {url}"
                             )
                     display_logger.debug(
                         f"[Digest]Iteration {iteration}, "
@@ -210,13 +210,15 @@ When interested in a topic, you can generate a digest article:
 
             document_summaries = ""
             for document in sorted(
-                final_docs.values(), key=lambda x: x.relevance_score, reverse=True
+                final_docs.values(),
+                key=lambda x: x.summary().relevance_score,
+                reverse=True,
             ):
                 display_logger.debug(
                     f"[Digest] Adding document summary: {document.original_uri}, "
-                    f"relevance: {document.relevance_score}"
+                    f"relevance: {document.summary().relevance_score}"
                 )
-                document_summaries += document.summary + "\n"
+                document_summaries += document.summary().summary + "\n"
 
         # now we have the document summaries from either local or web search
         if document_summaries == "" or document_summaries is None:
