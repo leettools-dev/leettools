@@ -93,7 +93,30 @@ When interested in a topic, you can generate a digest article:
             display_logger=display_logger,
         )
 
+        search_language = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_SEARCH_LANGUAGE,
+            default_value=None,
+            display_logger=display_logger,
+        )
+
+        if search_language:
+
+            original_query = chat_query_item.query_content
+            try:
+                from langdetect import detect
+
+                original_lan = detect(original_query)
+                if original_lan != search_language:
+                    need_translate = True
+            except Exception as e:
+                display_logger.error(
+                    f"Failed to detect language for query: {original_query}, {e}"
+                )
+                need_translate = False
+
         # the agent flow starts here
+
         if retriever_type == RetrieverType.LOCAL:
             search_results = steps.StepLocalKBSearch.run_step(exec_info=exec_info)
             document_summaries = ""

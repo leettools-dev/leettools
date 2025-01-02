@@ -7,6 +7,7 @@ from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import config_utils, lang_utils, url_utils
+from leettools.common.utils.lang_utils import normalize_lang_name
 from leettools.common.utils.obj_utils import TypeVar_BaseModel
 from leettools.core.consts import flow_option
 from leettools.core.consts.article_type import ArticleType
@@ -56,27 +57,6 @@ context_size_map: Dict[str, int] = {
 URL_SEPARATOR = ", "
 
 
-def _normalize_lang(lang: str) -> str:
-    lang = lang.lower()
-    if lang == "en" or lang == "en-us" or lang == "english":
-        lang = "English"
-    elif lang == "zh" or lang == "zh-cn" or lang == "cn" or lang == "chinese":
-        lang = "Chinese"
-    elif lang == "es" or lang == "es-es" or lang == "spanish":
-        lang = "Spanish"
-    elif lang == "fr" or lang == "fr-fr" or lang == "french":
-        lang = "French"
-    elif lang == "de" or lang == "de-de" or lang == "german":
-        lang = "German"
-    elif lang == "it" or lang == "it-it" or lang == "italian":
-        lang = "Italian"
-    elif lang == "ja" or lang == "ja-jp" or lang == "japanese":
-        lang = "Japanese"
-    else:
-        logger().warning(f"Unsupported language: {lang}. Use its original form.")
-    return lang
-
-
 def get_output_lang(
     exec_info: ExecInfo, query_metadata: Optional[ChatQueryMetadata] = None
 ) -> Optional[str]:
@@ -106,21 +86,20 @@ def get_output_lang(
         display_logger=display_logger,
     )
     if lang is not None:
-        return _normalize_lang(lang)
+        return normalize_lang_name(lang)
 
     if query_metadata is not None:
         if query_metadata.language is not None:
-            return _normalize_lang(query_metadata.language)
+            return normalize_lang_name(query_metadata.language)
 
     if exec_info.output_lang is not None:
-        return _normalize_lang(exec_info.output_lang)
+        return normalize_lang_name(exec_info.output_lang)
 
     query = exec_info.target_chat_query_item.query_content
     if query is not None and query != "":
-        if lang_utils.is_chinese(query):
-            return _normalize_lang("Chinese")
-        if lang_utils.is_english(query):
-            return _normalize_lang("English")
+        language = lang_utils.get_language(query)
+        if language is not None:
+            return normalize_lang_name(language)
     return None
 
 
@@ -156,16 +135,16 @@ def get_search_lang(
         logger().info(
             f"Using language specified in flow_options.{flow_option.FLOW_OPTION_SEARCH_LANGUAGE}: {lang}"
         )
-        return _normalize_lang(lang)
+        return normalize_lang_name(lang)
 
     if query_metadata is not None:
         if query_metadata.language is not None:
             logger().info(f"Using language specified in query_metadata: {lang}")
-            return _normalize_lang(query_metadata.language)
+            return normalize_lang_name(query_metadata.language)
 
     if exec_info.output_lang is not None:
         logger().info(f"Using search language specified in exec_info: {lang}")
-        return _normalize_lang(exec_info.output_lang)
+        return normalize_lang_name(exec_info.output_lang)
 
     logger().info(f"No language specified for search.")
     return None

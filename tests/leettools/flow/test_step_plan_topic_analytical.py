@@ -1,5 +1,5 @@
 from leettools.common.temp_setup import TempSetup
-from leettools.common.utils.lang_utils import is_chinese, is_english
+from leettools.common.utils.lang_utils import get_language
 from leettools.context_manager import Context
 from leettools.core.consts.flow_option import (
     FLOW_OPTION_NUM_OF_SECTIONS,
@@ -74,5 +74,5 @@ Designing a website involves several steps, including planning, designing, devel
 
     assert len(topic_list.topics) == 2
     for topic in topic_list.topics:
-        assert is_chinese(topic.title)
-        assert is_english(topic.prompt)
+        assert get_language(topic.title) == "zh-cn"
+        assert get_language(topic.prompt) == "en"
