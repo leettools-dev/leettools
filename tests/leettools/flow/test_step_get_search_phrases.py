@@ -1,6 +1,6 @@
 from leettools.common.logging import logger
 from leettools.common.temp_setup import TempSetup
-from leettools.common.utils.lang_utils import is_chinese, is_english
+from leettools.common.utils.lang_utils import get_language
 from leettools.context_manager import Context
 from leettools.core.consts.flow_option import (
     FLOW_OPTION_OUTPUT_LANGUAGE,
@@ -55,7 +55,7 @@ def _test_flow_step(context: Context, org: Org, kb: KnowledgeBase, user: User):
     logger().info(f"query_phrases: {query_phrases}")
 
     assert len(query_phrases) > 0
-    assert is_english(query_phrases)
+    assert get_language(query_phrases) == "en"
     assert query_phrases.startswith('"') == False
     assert query_phrases.endswith('"') == False
 
@@ -84,6 +84,6 @@ def _test_flow_step(context: Context, org: Org, kb: KnowledgeBase, user: User):
     logger().info(f"query_phrases: {query_phrases}")
 
     assert len(query_phrases) > 0
-    assert is_chinese(query_phrases)
+    assert get_language(query_phrases) == "zh-cn"
     assert query_phrases.startswith('"') == False
     assert query_phrases.endswith('"') == False

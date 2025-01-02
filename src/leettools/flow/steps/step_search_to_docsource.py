@@ -34,7 +34,7 @@ class StepSearchToDocsource(AbstractStep):
 
 For knowledge base that has auto_schedule set to True, if a scheduler is running, the 
 document source will be scheduled for processing, otherwise, the scheduler will bestarted
-to process the document source. The actual web seacher will be started by the scheduler
+to process the document source. The actual web searcher will be started by the scheduler
 using the config in the exec_info. This function will wait for the document source to 
 finish processing or timeout (currently hardcoded at 10 minutes).
 
@@ -63,7 +63,7 @@ processed immediately. The function will return after the document source is pro
 
         If a scheduler is running, the document source will be scheduled for processing.
         Otherwise, the scheduler will be started to process the document source. The actual
-        web seacher will be started by the scheduler using the config in the exec_info.
+        web searcher will be started by the scheduler using the config in the exec_info.
 
         This function will wait for the document source to finish processing or timeout (
         currently hardcoded at 10 minutes).
@@ -116,7 +116,9 @@ processed immediately. The function will return after the document source is pro
         try:
             # if the kb.auto_schedule is False, we should run the process manually
             success_documents = _run_web_search_pipeline(
-                exec_info=exec_info, docsource=docsource
+                exec_info=exec_info,
+                docsource=docsource,
+                search_keywords=search_keywords,
             )
             display_logger.info(
                 f"Successfully processed {len(success_documents)} documents."
@@ -130,7 +132,7 @@ processed immediately. The function will return after the document source is pro
 
 
 def _run_web_search_pipeline(
-    exec_info: ExecInfo, docsource: DocSource
+    exec_info: ExecInfo, docsource: DocSource, search_keywords: str
 ) -> List[Document]:
 
     # this is basically the logic from the scheduler
@@ -138,7 +140,8 @@ def _run_web_search_pipeline(
     display_logger = exec_info.display_logger
     org = exec_info.org
     kb = exec_info.kb
-    query = exec_info.target_chat_query_item.query_content
+    if not search_keywords:
+        search_keywords = exec_info.target_chat_query_item.query_content
     user = exec_info.user
     flow_options = exec_info.target_chat_query_item.chat_query_options.flow_options
     docsource_store = context.get_repo_manager().get_docsource_store()
@@ -150,14 +153,14 @@ def _run_web_search_pipeline(
         org=org,
         kb=kb,
         user=user,
-        query=query,
+        search_keywords=search_keywords,
         docsource=docsource,
         flow_options=flow_options,
         display_logger=display_logger,
     )
 
     if docsink_create_list is None or len(docsink_create_list) == 0:
-        display_logger.warning(f"No results found for the query {query}.")
+        display_logger.warning(f"No results found for the query {search_keywords}.")
         docsource.docsource_status = DocSourceStatus.COMPLETED
         docsource_store.update_docsource(org, kb, docsource)
         return []

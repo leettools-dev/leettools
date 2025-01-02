@@ -54,7 +54,7 @@ class BaiduSearch(AbstractRetriever):
 
     def retrieve_search_result(
         self,
-        query: str,
+        search_keywords: str,
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[SearchResult]:
@@ -64,7 +64,7 @@ class BaiduSearch(AbstractRetriever):
         if flow_options is None:
             flow_options = {}
 
-        return self._retrieve(query, flow_options, display_logger)
+        return self._retrieve(search_keywords, flow_options, display_logger)
 
     def _retrieve(
         self,

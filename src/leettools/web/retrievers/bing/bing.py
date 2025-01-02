@@ -27,7 +27,7 @@ class BingSearch(AbstractRetriever):
 
     def retrieve_search_result(
         self,
-        query: str,
+        search_keywords: str,
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[SearchResult]:
@@ -49,7 +49,7 @@ class BingSearch(AbstractRetriever):
         # Construct the query parameters
         actual_max_results = int(max_results / 0.6)
         params = {
-            "q": query,
+            "q": search_keywords,
             "count": actual_max_results,
             "mkt": "zh-CN",
             "freshness": (

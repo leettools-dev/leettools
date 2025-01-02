@@ -100,7 +100,7 @@ class ImageSearcher:
         flow_options[flow_option.FLOW_OPTION_IMAGE_SEARCH] = "True"
 
         search_results = retriever.retrieve_search_result(
-            query=query,
+            search_keywords=query,
             flow_options=flow_options,
             display_logger=display_logger,
         )

@@ -135,7 +135,7 @@ local storage.
         org: Org,
         kb: KnowledgeBase,
         user: User,
-        query: str,
+        search_keywords: str,
         docsource: DocSource,
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
@@ -150,7 +150,7 @@ local storage.
         - org (Org): The organization object.
         - kb (KnowledgeBase): The KnowledgeBase object.
         - user (User): The user object.
-        - query (str): The query string.
+        - search_keywords (str): The search keywords string.
         - docsource (DocSource): The document source.
         - flow_options (Optional[Dict[str, Any]]): The flow options.
         - display_logger (Optional[EventLogger]): The display logger.
@@ -179,13 +179,13 @@ local storage.
         )
 
         search_results = retriever.retrieve_search_result(
-            query=query,
+            search_keywords=search_keywords,
             flow_options=flow_options,
             display_logger=display_logger,
         )
 
         if len(search_results) == 0:
-            display_logger.info(f"No search results found for query {query}.")
+            display_logger.info(f"No search results found for query {search_keywords}.")
             return []
 
         new_search_urls = self._get_new_urls(
@@ -193,7 +193,7 @@ local storage.
         )
 
         docsink_create_list = self.scrape_urls_to_docsinks(
-            query=query,
+            query=search_keywords,
             org=org,
             kb=kb,
             docsource=docsource,

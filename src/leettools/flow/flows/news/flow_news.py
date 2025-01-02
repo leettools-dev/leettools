@@ -162,7 +162,10 @@ Here is the context: {{ context }}
         # flow starts here
         search_phrases = steps.StepGenSearchPhrases.run_step(exec_info=exec_info)
 
-        docsource = steps.StepSearchToDocsource.run_step(exec_info=exec_info)
+        docsource = steps.StepSearchToDocsource.run_step(
+            exec_info=exec_info,
+            search_keywords=search_phrases,
+        )
 
         display_logger.info(f"DocSource has been added to knowledge base: {kb.name}")
 

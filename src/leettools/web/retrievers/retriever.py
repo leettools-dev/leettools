@@ -31,7 +31,7 @@ class AbstractRetriever(ABC):
     @abstractmethod
     def retrieve_search_result(
         self,
-        query: str,
+        search_keywords: str,
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[SearchResult]:
@@ -40,12 +40,12 @@ class AbstractRetriever(ABC):
         days limit.
 
         Args:
-        -   query: The query to search for
-        -   flow_options: The flow options to use for the search
-        -   display_logger: The logger to use for logging
+        - search_keywords: The keywords to search for
+        - flow_options: The flow options to use for the search
+        - display_logger: The logger to use for logging
 
         Returns:
-        -   List[SearchResult]: The search results
+        - List[SearchResult]: The search results
         """
         pass
 

@@ -35,7 +35,7 @@ class SearxSearch(AbstractRetriever):
 
     def retrieve_search_result(
         self,
-        query: str,
+        search_keywords: str,
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[SearchResult]:
@@ -45,7 +45,7 @@ class SearxSearch(AbstractRetriever):
         if flow_options is None:
             flow_options = {}
 
-        display_logger.info(f"Searching with query {query}...")
+        display_logger.info(f"Searching with query {search_keywords}...")
 
         _, max_results = search_utils.get_common_search_paras(
             flow_options=flow_options,
@@ -57,7 +57,7 @@ class SearxSearch(AbstractRetriever):
         # Right now searx search does not work
 
         results = _search_searx_advanced(
-            query,
+            search_keywords,
             searx_url=self.api_key,
             categories=None,
             time_range=None,

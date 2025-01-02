@@ -32,7 +32,7 @@ class LocalSearch(AbstractRetriever):
 
     def retrieve_search_result(
         self,
-        query: str,
+        search_keywords: str,
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[SearchResult]:
@@ -46,7 +46,7 @@ class LocalSearch(AbstractRetriever):
 
         from leettools.common.utils import config_utils
 
-        display_logger.info(f"Searching with query: {query}...")
+        display_logger.info(f"Searching with query: {search_keywords}...")
 
         days_limit, max_results = search_utils.get_common_search_paras(
             flow_options=flow_options,
@@ -152,8 +152,8 @@ class LocalSearch(AbstractRetriever):
             org=org,
             kb=kb,
             user=user,
-            query=query,
-            rewritten_query=query,
+            query=search_keywords,
+            rewritten_query=search_keywords,
             top_k=max_results * 2,
             search_params=search_params,
             query_meta=None,

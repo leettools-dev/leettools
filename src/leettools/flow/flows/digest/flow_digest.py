@@ -50,6 +50,7 @@ When interested in a topic, you can generate a digest article:
     @classmethod
     def depends_on(cls) -> List[Type["FlowComponent"]]:
         return [
+            steps.StepGenSearchPhrases,
             steps.StepSearchToDocsource,
             steps.StepScrpaeUrlsToDocSource,
             steps.StepLocalKBSearch,
@@ -60,6 +61,7 @@ When interested in a topic, you can generate a digest article:
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
         return AbstractFlow.get_flow_option_items() + [
             flow_option_items.FOI_RETRIEVER(explicit=True),
+            flow_option_items.FOI_SEARCH_REWRITE(),
             flow_option_items.FOI_SEARCH_RECURSIVE_SCRAPE(),
             flow_option_items.FOI_SEARCH_RECURSIVE_SCRAPE_MAX_COUNT(),
             flow_option_items.FOI_SEARCH_RECURSIVE_SCRAPE_ITERATION(),
@@ -93,9 +95,30 @@ When interested in a topic, you can generate a digest article:
             display_logger=display_logger,
         )
 
+        search_language = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_SEARCH_LANGUAGE,
+            default_value=None,
+            display_logger=display_logger,
+        )
+
+        search_rewrite = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_SEARCH_REWRITE,
+            default_value=None,
+            display_logger=display_logger,
+        )
+
         # the agent flow starts here
+        if search_language or search_rewrite:
+            search_keywords = steps.StepGenSearchPhrases.run_step(exec_info=exec_info)
+        else:
+            search_keywords = chat_query_item.query_content
+
         if retriever_type == RetrieverType.LOCAL:
-            search_results = steps.StepLocalKBSearch.run_step(exec_info=exec_info)
+            search_results = steps.StepLocalKBSearch.run_step(
+                exec_info=exec_info, query=search_keywords
+            )
             document_summaries = ""
             for search_result in search_results:
                 document_summaries += search_result.snippet
@@ -134,7 +157,9 @@ When interested in a topic, you can generate a digest article:
             iteration = 1
 
             # this is the initial search step
-            docsource = steps.StepSearchToDocsource.run_step(exec_info=exec_info)
+            docsource = steps.StepSearchToDocsource.run_step(
+                exec_info=exec_info, search_keywords=search_keywords
+            )
 
             document_store = exec_info.context.get_repo_manager().get_document_store()
             for doc in document_store.get_documents_for_docsource(org, kb, docsource):
