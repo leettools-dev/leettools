@@ -115,8 +115,8 @@ def get_search_lang(
     * the lang field set in the exec_info by previous calls
 
     Args:
-        exec_info: Execution information.
-        query_metadata: Query metadata.
+    - exec_info: Execution information.
+    - query_metadata: Query metadata.
 
     Returns:
         The search language, None if not specified.

@@ -292,7 +292,7 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
 
             else:
                 search_results = retriever.retrieve_search_result(
-                    query=chat_query_item.query_content,
+                    search_keywords=chat_query_item.query_content,
                     flow_options=flow_options,
                     display_logger=display_logger,
                 )

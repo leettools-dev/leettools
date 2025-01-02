@@ -52,7 +52,7 @@ class StepLocalKBSearch(AbstractStep):
             user=exec_info.user,
         )
         search_results = retriever.retrieve_search_result(
-            query=query,
+            search_keywords=query,
             flow_options=exec_info.flow_options,
             display_logger=exec_info.display_logger,
         )

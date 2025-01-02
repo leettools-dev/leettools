@@ -590,7 +590,7 @@ class ConnectorSimple(AbstractConnector):
             org=self.org,
             kb=self.kb,
             user=user,
-            query=query,
+            search_keywords=query,
             docsource=self.docsource,
             flow_options=flow_options,
             display_logger=chat_logger,

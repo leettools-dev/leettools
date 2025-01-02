@@ -50,6 +50,7 @@ When interested in a topic, you can generate a digest article:
     @classmethod
     def depends_on(cls) -> List[Type["FlowComponent"]]:
         return [
+            steps.StepGenSearchPhrases,
             steps.StepSearchToDocsource,
             steps.StepScrpaeUrlsToDocSource,
             steps.StepLocalKBSearch,
@@ -100,25 +101,16 @@ When interested in a topic, you can generate a digest article:
             display_logger=display_logger,
         )
 
-        if search_language:
-
-            original_query = chat_query_item.query_content
-            try:
-                from langdetect import detect
-
-                original_lan = detect(original_query)
-                if original_lan != search_language:
-                    need_translate = True
-            except Exception as e:
-                display_logger.error(
-                    f"Failed to detect language for query: {original_query}, {e}"
-                )
-                need_translate = False
-
         # the agent flow starts here
+        if search_language:
+            search_keywords = steps.StepGenSearchPhrases.run_step(exec_info=exec_info)
+        else:
+            search_keywords = chat_query_item.query_content
 
         if retriever_type == RetrieverType.LOCAL:
-            search_results = steps.StepLocalKBSearch.run_step(exec_info=exec_info)
+            search_results = steps.StepLocalKBSearch.run_step(
+                exec_info=exec_info, query=search_keywords
+            )
             document_summaries = ""
             for search_result in search_results:
                 document_summaries += search_result.snippet
@@ -157,7 +149,9 @@ When interested in a topic, you can generate a digest article:
             iteration = 1
 
             # this is the initial search step
-            docsource = steps.StepSearchToDocsource.run_step(exec_info=exec_info)
+            docsource = steps.StepSearchToDocsource.run_step(
+                exec_info=exec_info, search_keywords=search_keywords
+            )
 
             document_store = exec_info.context.get_repo_manager().get_document_store()
             for doc in document_store.get_documents_for_docsource(org, kb, docsource):

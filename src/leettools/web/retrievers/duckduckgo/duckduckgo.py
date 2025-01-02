@@ -29,7 +29,7 @@ class Duckduckgo(AbstractRetriever):
 
     def retrieve_search_result(
         self,
-        query: str,
+        search_keywords: str,
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[SearchResult]:
@@ -39,7 +39,7 @@ class Duckduckgo(AbstractRetriever):
         if flow_options is None:
             flow_options = {}
 
-        display_logger.info(f"Searching with query {query}...")
+        display_logger.info(f"Searching with query {search_keywords}...")
 
         days_limit, max_results = search_utils.get_common_search_paras(
             flow_options=flow_options,
@@ -47,7 +47,9 @@ class Duckduckgo(AbstractRetriever):
             display_logger=display_logger,
         )
 
-        ddgs_gen = self.ddg.text(query, region="wt-wt", max_results=max_results)
+        ddgs_gen = self.ddg.text(
+            search_keywords, region="wt-wt", max_results=max_results
+        )
 
         """
         result = {

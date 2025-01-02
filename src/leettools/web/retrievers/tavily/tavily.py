@@ -58,7 +58,7 @@ class TavilySearch(AbstractRetriever):
 
     def retrieve_search_result(
         self,
-        query: str,
+        search_keywords: str,
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[SearchResult]:
@@ -85,7 +85,7 @@ class TavilySearch(AbstractRetriever):
 
         # Search the query
         results = self.client.search(
-            query,
+            search_keywords,
             search_depth="basic",
             max_results=max_results,
             topic=topic,

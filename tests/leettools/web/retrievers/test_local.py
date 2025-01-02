@@ -99,7 +99,7 @@ def _test_flow_step(
     assert len(segments) > 0
 
     search_results = local_search.retrieve_search_result(
-        query=query,
+        search_keywords=query,
         flow_options=flow_options,
     )
     assert search_results is not None
@@ -107,7 +107,7 @@ def _test_flow_step(
 
     flow_options[flow_option.FLOW_OPTION_DOC_SOURCE_UUID] = docsource.docsource_uuid
     search_results = local_search.retrieve_search_result(
-        query=query,
+        search_keywords=query,
         flow_options=flow_options,
     )
     assert search_results is not None
@@ -115,7 +115,7 @@ def _test_flow_step(
 
     flow_options[flow_option.FLOW_OPTION_DOC_SOURCE_UUID] = "random-str"
     search_results = local_search.retrieve_search_result(
-        query=query,
+        search_keywords=query,
         flow_options=flow_options,
     )
     assert search_results is not None
