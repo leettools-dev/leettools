@@ -30,6 +30,7 @@ from leettools.core.consts.flow_option import (
     FLOW_OPTION_SEARCH_ITERATION,
     FLOW_OPTION_SEARCH_LANGUAGE,
     FLOW_OPTION_SEARCH_MAX_RESULTS,
+    FLOW_OPTION_SEARCH_REWRITE,
     FLOW_OPTION_STRICT_CONTEXT,
     FLOW_OPTION_SUMMARIZING_MODEL,
     FLOW_OPTION_TARGET_SITE,
@@ -217,6 +218,20 @@ def _search_max_results(
         ),
         default_value="10",
         value_type="int",
+        explicit=explicit,
+        required=required,
+    )
+
+
+def _search_rewrite(
+    explicit: Optional[bool] = False, required: Optional[bool] = False
+) -> FlowOptionItem:
+    return FlowOptionItem(
+        name=FLOW_OPTION_SEARCH_REWRITE,
+        display_name="Rewrite Search Keywords",
+        description=("Ask the LLM to generate search keywords from the search query."),
+        default_value=None,
+        value_type="bool",
         explicit=explicit,
         required=required,
     )
@@ -725,6 +740,7 @@ FOI_RETRIEVER = _retriever
 FOI_CONTENT_INSTRUCTION = _content_instruction
 FOI_DAYS_LIMIT = _days_limit
 FOI_SEARCH_MAX_RESULTS = _search_max_results
+FOI_SEARCH_REWRITE = _search_rewrite
 FOI_SEARCH_LANGUAGE = _search_language
 FOI_OUTPUT_LANGUAGE = _output_language
 FOI_IMAGE_SEARCH = _image_search

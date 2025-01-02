@@ -61,6 +61,7 @@ When interested in a topic, you can generate a digest article:
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
         return AbstractFlow.get_flow_option_items() + [
             flow_option_items.FOI_RETRIEVER(explicit=True),
+            flow_option_items.FOI_SEARCH_REWRITE(),
             flow_option_items.FOI_SEARCH_RECURSIVE_SCRAPE(),
             flow_option_items.FOI_SEARCH_RECURSIVE_SCRAPE_MAX_COUNT(),
             flow_option_items.FOI_SEARCH_RECURSIVE_SCRAPE_ITERATION(),
@@ -101,8 +102,15 @@ When interested in a topic, you can generate a digest article:
             display_logger=display_logger,
         )
 
+        search_rewrite = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_SEARCH_REWRITE,
+            default_value=None,
+            display_logger=display_logger,
+        )
+
         # the agent flow starts here
-        if search_language:
+        if search_language or search_rewrite:
             search_keywords = steps.StepGenSearchPhrases.run_step(exec_info=exec_info)
         else:
             search_keywords = chat_query_item.query_content
