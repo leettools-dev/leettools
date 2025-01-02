@@ -1,4 +1,3 @@
-import re
 from typing import Optional
 
 from leettools.common.logging import logger
@@ -52,5 +51,5 @@ def normalize_lang_name(lang: str) -> str:
     elif lang == "ja" or lang == "ja-jp" or lang == "japanese":
         lang = "Japanese"
     else:
-        logger().warning(f"Unsupported language: {lang}. Use its original form.")
+        logger().debug(f"Unsupported language: {lang}. Use its original form.")
     return lang
