@@ -1,143 +1,118 @@
-from typing import ClassVar, Dict, List, Optional, Type
+from datetime import datetime, timedelta
+from typing import Any, ClassVar, Dict, List, Optional, Type
 
+from pydantic import BaseModel, ConfigDict, create_model
+
+from leettools.common import exceptions
 from leettools.common.logging.event_logger import EventLogger
-from leettools.common.utils import template_eval
+from leettools.common.utils.template_eval import render_template
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
-from leettools.core.schemas.chat_query_result import ChatQueryResultCreate, SourceItem
+from leettools.core.schemas.chat_query_result import ChatQueryResultCreate
+from leettools.core.schemas.document import Document
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
-from leettools.core.strategy.schemas.prompt import (
-    PromptBase,
-    PromptCategory,
-    PromptType,
+from leettools.eds.api_caller.api_caller_base import APICallerBase
+from leettools.eds.extract.extract_store import (
+    EXTRACT_DB_METADATA_FIELD,
+    EXTRACT_DB_TIMESTAMP_FIELD,
 )
-from leettools.flow import flow_option_items, iterators, steps, subflows
+from leettools.flow import flow_option_items, iterators
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
-from leettools.flow.schemas.article import ArticleSection, ArticleSectionPlan
+from leettools.flow.schemas.instruction_vars import InstructionVars
 from leettools.flow.utils import flow_utils
+from leettools.web import search_utils
 
 
-def _section_plan_for_news(query: str, search_phrases: str) -> ArticleSectionPlan:
+# Need to set the model_config for each model class
+# Otherwise OpenAI API call will fail with error message:
+# code: 400 - {'error': {'message': "Invalid schema for response_format 'xxx':
+# In context=(), 'additionalProperties' is required to be supplied and to be false",
+# 'type': 'invalid_request_error', 'param': 'response_format', 'code': None}}
+class NewsItem(BaseModel):
+    title: str
+    description: str
+    categories: List[str]
+    keywords: List[str]
+    date: str
 
-    user_prompt_template = FlowNews.used_prompt_templates()[
-        FlowNews.COMPONENT_NAME
-    ].prompt_template
+    model_config = ConfigDict(extra="forbid")
 
-    # other variables are instantiated in the gen-section step
-    # using variables defined in the flow_options.
-    user_prompt_template = template_eval.render_template(
-        template_str=user_prompt_template,
-        variables={"query": query},
-        allow_partial=True,
-    )
 
-    section_plan = ArticleSectionPlan(
-        title=query,
-        search_query=search_phrases + " " + query,
-        system_prompt_template="""
-    You are an expert news writer, you can write a brief news report about the topic 
-    using the provided context and the specified style shown in the example.
-    """,
-        user_prompt_template=user_prompt_template,
-    )
-    return section_plan
+class CombinedNewsItems(BaseModel):
+    title: str
+    description: str
+    date: str
+    categories: List[str]
+    keywords: List[str]
+    source_urls: List[str]
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class FlowNews(AbstractFlow):
     """
-    This flow will query the KB or the web for the topic and generate a paragraph
-    of news about the topic using the context and specified length and style.
+    This flow will find the news items from updated data in the KB and summarize them.
     """
 
     FLOW_TYPE: ClassVar[str] = FlowType.NEWS.value
-    ARTICLE_TYPE: ClassVar[str] = ArticleType.NEWS.value
+    ARTICLE_TYPE: ClassVar[str] = ArticleType.RESEARCH.value
     COMPONENT_NAME: ClassVar[str] = FlowType.NEWS.value
 
     @classmethod
     def short_description(cls) -> str:
-        return "Generating a news article from the search results."
+        return "Generating a list of news items from the KB."
 
     @classmethod
     def full_description(cls) -> str:
         return """
-Specify the topic of the news post,
-- Specify the number of days to search for news (right now only Google search is 
-  supported for this option);
-- A search agent crawls the web with the keywords in the topic and save the top 
-  documents to the knowledge base;
-- A summary agent summarizes the saved documents;
-- A writing agent uses the summaries to generat the news item;
-- You can specify the output language, the number of words, and article style.
+This flow generates a list of news items from the updated items in the KB: 
+1. check the KB for recently updated documents and find news items in them.
+2. combine all the similar items into one.
+3. remove items that have been reported before.
+4. rank the items by the number of sources.
+5. generate a list of news items with references.
+"""
+
+    FLOW_OPTION_OPINIONS_INSTRUCTION: ClassVar[str] = "news_instruction"
+
+    default_news_instructions: ClassVar[
+        str
+    ] = """
+Please find the news items in the context about {{ query }} nd return
+- The title of the news item
+- The detailed description of the news
+- The categories of the news
+- The keywords of the news
+- The date of the news item
 """
 
     @classmethod
-    def depends_on(cls) -> List[Type["FlowComponent"]]:
+    def get_instruction_vars(cls) -> List[InstructionVars]:
         return [
-            steps.StepGenSearchPhrases,
-            steps.StepSearchToDocsource,
-            iterators.Summarize,
-            subflows.SubflowGenSection,
+            InstructionVars(
+                var_name="news_instructions",
+                var_type="str",
+                required=False,
+                var_description="The prompt for the news extraction.",
+                default_value=None,
+            )
         ]
 
     @classmethod
-    def used_prompt_templates(cls) -> Dict[str, PromptBase]:
-        # the difficult part of using a generic template evaluation step is that
-        # the variables are instantiated at varies steps in the flow
-        news_prompt_template = """
-{{ context_presentation }}, please write the news report {{ lang_instruction }}
-following the instructions below.
-
-{{ reference_instruction }}
-{{ style_instruction }}
-{{ word_count_instruction }}
-{{ ouput_example }}
-                    
-Here is the query: {{ query }}
-Here is the context: {{ context }}
-"""
-        return {
-            cls.COMPONENT_NAME: PromptBase(
-                prompt_category=PromptCategory.SUMMARIZATION,
-                prompt_type=PromptType.USER,
-                prompt_template=news_prompt_template,
-                prompt_variables={
-                    "context_presentation": "The context presentation.",
-                    "lang_instruction": "The instruction for the language.",
-                    "reference_instruction": "The instruction for the reference.",
-                    "style_instruction": "The instruction for the style.",
-                    "word_count_instruction": "The instruction for the word count.",
-                    "ouput_example": "The output example.",
-                    "query": "The query.",
-                    "context": "The context.",
-                },
-            )
-        }
+    def depends_on(cls) -> List[Type["FlowComponent"]]:
+        return [iterators.ExtractKB]
 
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
-        days_limit = flow_option_items.FOI_DAYS_LIMIT(explicit=True)
-        days_limit.default_value = "3"
-        days_limit.example_value = "3"
-
-        word_count = flow_option_items.FOI_WORD_COUNT(explicit=True)
-        word_count.default_value = "280"
-        word_count.example_value = "280"
-
-        reference_style = flow_option_items.FOI_REFERENCE_STYLE()
-        reference_style.default_value = "news"
-        reference_style.example_value = "news"
-        reference_style.description = "Do not show reference in the text."
-
-        return AbstractFlow.get_flow_option_items() + [
-            days_limit,
-            word_count,
-            reference_style,
+        return AbstractFlow.direct_flow_option_items() + [
+            flow_option_items.FOI_DAYS_LIMIT(),
+            flow_option_items.FOI_OUTPUT_LANGUAGE(),
         ]
 
     def execute_query(
@@ -148,6 +123,8 @@ Here is the context: {{ context }}
         chat_query_item: ChatQueryItem,
         display_logger: Optional[EventLogger] = None,
     ) -> ChatQueryResultCreate:
+
+        # common setup
         exec_info = ExecInfo(
             context=self.context,
             org=org,
@@ -157,50 +134,129 @@ Here is the context: {{ context }}
             display_logger=display_logger,
         )
 
+        display_logger = exec_info.display_logger
         query = exec_info.query
+        flow_options = exec_info.flow_options
 
-        # flow starts here
-        search_phrases = steps.StepGenSearchPhrases.run_step(exec_info=exec_info)
-
-        docsource = steps.StepSearchToDocsource.run_step(
-            exec_info=exec_info,
-            search_keywords=search_phrases,
+        days_limit, max_results = search_utils.get_common_search_paras(
+            flow_options=flow_options,
+            settings=self.context.settings,
+            display_logger=display_logger,
         )
 
-        display_logger.info(f"DocSource has been added to knowledge base: {kb.name}")
-
-        # TODO: right now the document summarization is actually no longger used
-        # in the news generation. The gen-section step will query the KB using
-        # the rewritten query and generate the news article.
-        iterators.Summarize.run(
-            exec_info=exec_info,
-            docsource=docsource,
+        # the flow starts here
+        extract_instructions = render_template(
+            self.default_news_instructions,
+            {"query": query},
         )
 
-        document_summaries, all_docs, all_keywords = (
-            flow_utils.get_doc_summaries_for_docsource(
-                docsource=docsource,
-                exec_info=exec_info,
+        if days_limit != 0:
+            updated_time_threshold = datetime.now() - timedelta(days=days_limit)
+            display_logger.info(
+                f"Setting the updated_time_threshold to {updated_time_threshold}."
             )
+        else:
+            updated_time_threshold = None
+
+        def document_filter(_: ExecInfo, document: Document) -> bool:
+            if (
+                updated_time_threshold is not None
+                and document.updated_at < updated_time_threshold
+            ):
+                display_logger.debug(
+                    f"Document {document.original_uri} has updated_time "
+                    f"{document.updated_at} before {updated_time_threshold}. Skipped."
+                )
+                return False
+            return True
+
+        # the key is the document.original_uri and the value is the list of extracted objects
+        new_objs_dict, existing_objs_dict = iterators.ExtractKB.run(
+            exec_info=exec_info,
+            extraction_instructions=extract_instructions,
+            target_model_name="NewsItem",
+            model_class=NewsItem,
+            document_filter=document_filter,
         )
 
-        sections: List[ArticleSection] = []
-        accumulated_source_items: Dict[str, SourceItem] = {}
-        section_plan = _section_plan_for_news(
-            query=query, search_phrases=search_phrases
-        )
-        section = subflows.SubflowGenSection.run_subflow(
-            exec_info=exec_info,
-            section_plan=section_plan,
-            accumulated_source_items=accumulated_source_items,
-            previous_sections=sections,
-        )
-        sections.append(section)
+        # combine the new and existing objects
+        all_objs_dict = {**new_objs_dict, **existing_objs_dict}
+        target_list = flow_utils.flatten_results(all_objs_dict)
 
-        return flow_utils.create_chat_result_with_sections(
+        # generate the markdown tables with the news
+        news_results = flow_utils.to_markdown_table(
+            instances=target_list,
+            skip_fields=[EXTRACT_DB_METADATA_FIELD, EXTRACT_DB_TIMESTAMP_FIELD],
+            output_fields=None,
+            url_compact_fields=[],
+        )
+
+        display_logger.debug(f"news_results: {news_results}")
+
+        # dedupe the news items
+        item_type = "news item"
+        system_prompt_template = "You are an expert of deduplicate items."
+        user_prompt_template = f"""
+Given the following {item_type}s in a table where the columns are
+- The title of the {item_type}
+- The detailed description
+- The categories
+- The keywords
+- The publishing date
+- The URL of the source
+
+{{{{ results }}}}
+
+Please combine {item_type}s with similar title and descriptions into one {item_type},
+limit the length of the combined title to 30 words, description to 200 words, and
+combine their keywords and categories. List for the combined {item_type}, and return 
+the combine {item_type}s as the schema provided.
+"""
+
+        target_model_name = "CombinedNewsItems"
+        model_class = CombinedNewsItems
+
+        new_class_name = f"{target_model_name}_list"
+        response_pydantic_model = create_model(
+            new_class_name,
+            items=(List[model_class], ...),
+        )
+
+        api_caller = exec_info.get_inference_caller()
+
+        response_str, completion = api_caller.run_inference_call(
+            system_prompt=system_prompt_template,
+            user_prompt=render_template(
+                user_prompt_template, {"results": news_results}
+            ),
+            need_json=True,
+            call_target="dedup_and_combine",
+            response_pydantic_model=response_pydantic_model,
+        )
+
+        display_logger.debug(f"response_str: {response_str}")
+        message = completion.choices[0].message
+        if message.refusal:
+            raise exceptions.LLMInferenceResultException(
+                f"Refused to extract information from the document: {message.refusal}."
+            )
+
+        extract_result = message.parsed
+        deduped_news_items: List[CombinedNewsItems] = extract_result.items
+
+        deduped_news_results = flow_utils.to_markdown_table(
+            instances=deduped_news_items,
+            skip_fields=[EXTRACT_DB_METADATA_FIELD, EXTRACT_DB_TIMESTAMP_FIELD],
+            output_fields=None,
+            url_compact_fields=[],
+        )
+
+        display_logger.debug(f"deduped_news_results: {deduped_news_results}")
+
+        return flow_utils.create_chat_result_with_table_msg(
+            msg=deduped_news_results,
+            header=list(CombinedNewsItems.model_fields.keys()),
+            rows=[item.model_dump() for item in deduped_news_items],
             exec_info=exec_info,
-            query=query,
-            article_type=self.ARTICLE_TYPE,
-            sections=sections,
-            accumulated_source_items=accumulated_source_items,
+            query_metadata=None,
         )

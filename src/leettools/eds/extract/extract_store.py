@@ -9,6 +9,7 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.eds.rag.search.filter import BaseCondition, Filter
 
+EXTRACT_DB_METADATA_FIELD = "eds_metadata"
 EXTRACT_DB_SOURCE_FIELD = "eds_source_uri"
 EXTRACT_DB_TIMESTAMP_FIELD = "created_timestamp_in_ms"
 
@@ -41,8 +42,9 @@ class AbstractExtractStore(ABC):
         Save a list of target records to the extract store. The schema has to match
         the type specified in the target_model_class in the constructor. A new field
         'created_timestamp_in_ms' will be added to the record and extra metadata can
-        be added to the record through the metadata parameter. Right now the 'source'
-        field is added to the record.
+        be added to the record through the metadata parameter. Right now the 'eds_source_uri'
+        field is added to the record to connect the record to the source if provided
+        in the metadata.
 
         Args:
         - records: The list of records in the orginal schema to save.
@@ -59,7 +61,7 @@ class AbstractExtractStore(ABC):
     ) -> List[TypeVar_BaseModel]:
         """
         Get the records from the extract store. The schema of the records will be the
-        extended schema with the 'source' and 'created_timestamp_in_ms' fields.
+        extended schema with the 'eds_metadata' and 'created_timestamp_in_ms' fields.
 
         Args:
         - filter: The filter to apply to the records. None means no filter.
@@ -88,7 +90,7 @@ class AbstractExtractStore(ABC):
     def get_actual_model(self) -> Type[TypeVar_BaseModel]:
         """
         Get the actual model class that the extract store is using. Usually added
-        with the 'source' and 'created_timestamp_in_ms' fields.
+        with the 'eds_metadata' and 'created_timestamp_in_ms' fields.
         """
         pass
 
@@ -124,7 +126,8 @@ def get_extended_model(
     """
     ExtendedModel = create_model(
         f"{target_model_name}_extended",
-        eds_source_uri=(str, ...),
+        eds_metadata=(Dict[str, Any], {}),
+        eds_source_uri=(Optional[str], None),
         created_timestamp_in_ms=(int, ...),
         __base__=model_class,
     )

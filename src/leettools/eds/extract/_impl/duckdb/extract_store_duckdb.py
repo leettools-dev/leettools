@@ -13,6 +13,7 @@ from leettools.context_manager import Context
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.eds.extract.extract_store import (
+    EXTRACT_DB_METADATA_FIELD,
     EXTRACT_DB_SOURCE_FIELD,
     EXTRACT_DB_TIMESTAMP_FIELD,
     AbstractExtractStore,
@@ -74,7 +75,6 @@ class ExtractStoreDuckdb(AbstractExtractStore):
         self, records: List[TypeVar_BaseModel], metadata: Dict[str, Any]
     ) -> List[TypeVar_BaseModel]:
         created_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
-        source = metadata.get(EXTRACT_DB_SOURCE_FIELD, "")
 
         new_obj_dicts: List[Dict[str, Any]] = []
         new_objs: List[self.extended_model_class] = []
@@ -82,8 +82,10 @@ class ExtractStoreDuckdb(AbstractExtractStore):
         for record in records:
             try:
                 obj_dict = record.model_dump()
-                obj_dict[EXTRACT_DB_SOURCE_FIELD] = source
+                source = metadata.pop(EXTRACT_DB_SOURCE_FIELD, None)
+                obj_dict[EXTRACT_DB_METADATA_FIELD] = metadata
                 obj_dict[EXTRACT_DB_TIMESTAMP_FIELD] = created_timestamp_in_ms
+                obj_dict[EXTRACT_DB_SOURCE_FIELD] = source
 
                 new_obj = self.extended_model_class.model_validate(obj_dict)
                 new_objs.append(new_obj)

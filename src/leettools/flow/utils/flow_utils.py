@@ -809,14 +809,12 @@ def flatten_results(
     Args:
 
     - objs_dict:
-        The key is the concatenated key fields of the target model.
-        The value is the list of objects extracted from the document.
+      The key is the concatenated key fields of the target model.
+      The value is the list of objects extracted from the document.
 
     Returns:
-        One object per key str that has all the fields with the best possible
-        value in that field.
-
-    TODO: right now we just return all the objects in the list.
+    - One object per key str that has all the fields with the best possible
+      value in that field.
     """
     target_list = []
     for key_str in sorted(objs_dict.keys()):

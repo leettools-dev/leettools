@@ -103,10 +103,10 @@ def extract_items_from_docsource(
     # the key is the document.original_uri and the value is the list of extracted objects
     new_objs_dict, existing_objs_dict = iterators.ExtractKB.run(
         exec_info=exec_info,
-        docsource=docsource,
         extraction_instructions=instructions,
         target_model_name=target_model_name,
         model_class=model_class,
+        docsource=docsource,
     )
 
     # combine the new and existing objects

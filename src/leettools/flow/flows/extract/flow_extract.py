@@ -16,6 +16,7 @@ from leettools.core.consts.article_type import ArticleType
 from leettools.core.consts.retriever_type import RetrieverType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.chat_query_result import ChatQueryResultCreate
+from leettools.core.schemas.docsource import DocSource
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
@@ -279,14 +280,24 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                 else:
                     updated_time_threshold = None
 
+                def docsource_filter(_: ExecInfo, docsource: DocSource) -> bool:
+                    if (
+                        updated_time_threshold is not None
+                        and docsource.updated_at < updated_time_threshold
+                    ):
+                        display_logger.info(
+                            f"Docsource {docsource.display_name} has updated_time "
+                            f"{docsource.updated_at} before {updated_time_threshold}. Skipped."
+                        )
+                        return False
+                    return True
+
                 new_objs_dict, existing_objs_list = iterators.ExtractKB.run(
                     exec_info=exec_info,
-                    docsource=None,
                     extraction_instructions=instructions,
                     target_model_name=target_model_name,
                     model_class=target_model,
-                    query_metadata=None,
-                    updated_time_threshold=updated_time_threshold,
+                    docsource_filter=docsource_filter,
                     save_to_backend=save_to_backend,
                 )
 
@@ -312,10 +323,10 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
             # the key is the document.original_uri and the value is the list of extracted objects
             new_objs_dict, existing_objs_list = iterators.ExtractKB.run(
                 exec_info=exec_info,
-                docsource=docsource,
                 extraction_instructions=instructions,
                 target_model_name=target_model_name,
                 model_class=target_model,
+                docsource=docsource,
                 save_to_backend=save_to_backend,
             )
 
