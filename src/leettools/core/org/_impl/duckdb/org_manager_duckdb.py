@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.exceptions import EntityNotFoundException
+from leettools.common.utils import time_utils
 from leettools.core.org._impl.duckdb.org_duckdb_schema import OrgDuckDBSchema
 from leettools.core.org.org_manager import AbstractOrgManager
 from leettools.core.schemas.organization import Org, OrgCreate, OrgInDB, OrgUpdate
@@ -118,7 +119,7 @@ class OrgManagerDuckDB(AbstractOrgManager):
 
         org_id = org_update_dict.pop(Org.FIELD_ORG_ID)
         column_list = list(org_update_dict.keys()) + [Org.FIELD_UPDATED_AT]
-        value_list = list(org_update_dict.values()) + [datetime.now()]
+        value_list = list(org_update_dict.values()) + [time_utils.current_datetime()]
         where_clause = f"WHERE {Org.FIELD_ORG_ID} = ?"
         value_list = value_list + [org_id]
         self.duckdb_client.update_table(

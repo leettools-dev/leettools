@@ -4,7 +4,7 @@ from .kb_add_local_dir import add_local_dir
 from .kb_add_search import add_search
 from .kb_add_url import add_url
 from .kb_add_url_list import add_url_list
-from .kb_crud import create
+from .kb_create import create
 from .kb_list import list
 from .kb_list_db import list_db
 

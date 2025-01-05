@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from leettools.common import exceptions
 from leettools.common.logging import EventLogger, logger
-from leettools.common.utils import obj_utils
+from leettools.common.utils import obj_utils, time_utils
 from leettools.core.schemas.chat_query_options import ChatQueryOptions
 from leettools.core.strategy.schemas.strategy import Strategy, StrategyBase
 from leettools.core.strategy.schemas.strategy_status import StrategyStatus
@@ -15,6 +15,9 @@ from leettools.core.strategy.strategy_store import AbstractStrategyStore
 """
 See [README](./README.md) about the usage of different pydantic models.
 """
+
+DUMMY_QUERY_ID = "dummy_query_id"
+DUMMY_QUERY_CONTENT = "dummy_query_content"
 
 
 class ChatQueryItemCreate(BaseModel):
@@ -57,7 +60,7 @@ class ChatQueryItem(ChatQueryItemCreate):
 
     @classmethod
     def from_query_create(cls, query_create: ChatQueryItemCreate) -> "ChatQueryItem":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         chat_query_item = cls(
             chat_id=query_create.chat_id,
             query_id=str(uuid.uuid4()),

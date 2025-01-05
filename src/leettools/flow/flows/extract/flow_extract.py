@@ -7,7 +7,7 @@ from pydantic import ConfigDict
 
 from leettools.common import exceptions
 from leettools.common.logging import EventLogger
-from leettools.common.utils import config_utils
+from leettools.common.utils import config_utils, time_utils
 from leettools.common.utils.dynamic_exec_util import execute_pydantic_snippet
 from leettools.common.utils.obj_utils import TypeVar_BaseModel
 from leettools.common.utils.template_eval import render_template
@@ -273,7 +273,9 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                 )
 
                 if days_limit != 0:
-                    updated_time_threshold = datetime.now() - timedelta(days=days_limit)
+                    updated_time_threshold = time_utils.current_datetime() - timedelta(
+                        days=days_limit
+                    )
                     display_logger.info(
                         f"Setting the updated_time_threshold to {updated_time_threshold}."
                     )

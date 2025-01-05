@@ -3,7 +3,7 @@ from typing import ClassVar, List, Optional, Type
 
 from leettools.common import exceptions
 from leettools.common.logging import logger
-from leettools.common.utils import config_utils
+from leettools.common.utils import config_utils, time_utils
 from leettools.core.consts import flow_option
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.consts.docsource_type import DocSourceType
@@ -210,7 +210,7 @@ def _create_docsrc_for_search(
     display_logger.info(f"[Status]Searching the web with {retriever_type} ...")
 
     # use yyyy-mm-dd-hh-mm-ss to the URI to distinguish different searches
-    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    timestamp = time_utils.current_datetime().strftime("%Y-%m-%d-%H-%M-%S")
 
     docsource_create = DocSourceCreate(
         org_id=org.org_id,

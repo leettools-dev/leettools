@@ -37,6 +37,13 @@ class ExtractMetadataManagerDuckDB(AbstractExtractMetadataManager):
                     ]
                 )
             )
+        if ExtractMetadata.FIELD_KEY_FIELDS in extract_metadata_dict:
+            key_fields_str = extract_metadata_dict[ExtractMetadata.FIELD_KEY_FIELDS]
+            key_fields_str = key_fields_str[1:-1]
+            extract_metadata_dict[ExtractMetadata.FIELD_KEY_FIELDS] = (
+                key_fields_str.split(",")
+            )
+
         if ExtractMetadata.FIELD_VERIFY_FIELDS in extract_metadata_dict:
             verify_fields_str = extract_metadata_dict[
                 ExtractMetadata.FIELD_VERIFY_FIELDS
@@ -51,6 +58,13 @@ class ExtractMetadataManagerDuckDB(AbstractExtractMetadataManager):
         self, extract_metadata: ExtractMetadata
     ) -> Dict[str, Any]:
         extract_metadata_dict = extract_metadata.model_dump()
+        if ExtractMetadata.FIELD_KEY_FIELDS in extract_metadata_dict:
+            extract_metadata_dict[ExtractMetadata.FIELD_KEY_FIELDS] = (
+                "["
+                + ",".join(extract_metadata_dict[ExtractMetadata.FIELD_KEY_FIELDS])
+                + "]"
+            )
+
         if ExtractMetadata.FIELD_VERIFY_FIELDS in extract_metadata_dict:
             extract_metadata_dict[ExtractMetadata.FIELD_VERIFY_FIELDS] = (
                 "["

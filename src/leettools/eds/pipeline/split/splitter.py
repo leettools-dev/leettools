@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 from urllib.parse import unquote
 
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.common.utils.tokenizer import Tokenizer
 from leettools.context_manager import Context
 from leettools.core.consts.return_code import ReturnCode
@@ -222,7 +223,7 @@ class Splitter:
         chunks = chunker.chunk(doc.content)
 
         doc_postion_map: Dict[str, int] = {}
-        epoch_time_ms = int(datetime.now().timestamp() * 1000)
+        epoch_time_ms = time_utils.cur_timestamp_in_ms()
 
         """
         Get the document content for contextual retrieval.

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 import leettools.common.utils.url_utils
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import get_logger, logger
-from leettools.common.utils import file_utils
+from leettools.common.utils import file_utils, time_utils
 from leettools.context_manager import Context, ContextManager
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.document import Document
@@ -117,7 +117,7 @@ class KBMetadataManagerDuckDB(AbstractKBMetadataManager):
         kb_metadata = KBMetadata(
             kb_id=kb.kb_id,
             kb_name=kb.name,
-            created_at=datetime.now(),
+            created_at=time_utils.current_datetime(),
             number_of_docsources={src_type: 0 for src_type in DocSourceType},
             number_of_docsinks={src_type: 0 for src_type in DocSourceType},
             number_of_documents={src_type: 0 for src_type in DocSourceType},

@@ -3,9 +3,11 @@ from typing import Optional
 
 import click
 
+from leettools.cli.cli_utils import setup_org_kb_user
 from leettools.cli.options_common import common_options
 from leettools.common import exceptions
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.flow.utils import pipeline_utils
 
@@ -59,30 +61,12 @@ def ingest(
     context.is_svc = False
     context.name = "cli_docsource_ingest"
     docsource_store = context.get_repo_manager().get_docsource_store()
-    org_manager = context.get_org_manager()
-    kb_manager = context.get_kb_manager()
+
     display_logger = logger()
 
-    if org_name is None:
-        org = org_manager.get_default_org()
-    else:
-        org = org_manager.get_org_by_name(org_name)
-        if org is None:
-            raise exceptions.ParametersValidationException(
-                [f"Organization {org_name} not found"]
-            )
+    org, kb, user = setup_org_kb_user(context, org_name, kb_name, username)
 
-    kb = kb_manager.get_kb_by_name(org, kb_name)
-    if kb is None:
-        raise exceptions.ParametersValidationException(
-            [f"Knowledge base {kb_name} not found in Org {org.name}"]
-        )
-
-    """
-    "123456789012345678901234"
-    "66bcf7f2c593676ade4d2a37"
-    """
-    uid_width = 26
+    uid_width = 35
 
     docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
     if docsource is None:
@@ -91,7 +75,7 @@ def ingest(
         )
 
     docsource.docsource_status = DocSourceStatus.CREATED
-    docsource.updated_at = datetime.now()
+    docsource.updated_at = time_utils.current_datetime()
     docsource_store.update_docsource(org, kb, docsource)
 
     if kb.auto_schedule:
@@ -106,6 +90,7 @@ def ingest(
         pipeline_utils.process_docsource_manual(
             org=org,
             kb=kb,
+            user=user,
             docsource=docsource,
             context=context,
             display_logger=display_logger,

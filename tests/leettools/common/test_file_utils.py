@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import leettools.common.utils.url_utils
-from leettools.common.utils import file_utils
+from leettools.common.utils import file_utils, time_utils
 
 
 def test_parse_uri_for_search_params():
@@ -79,7 +79,7 @@ def test_get_domain_from_url():
 
 
 def test_filename_timestamp_to_datetime():
-    now = datetime.now()
+    now = time_utils.current_datetime()
 
     filename_timestamp = file_utils.filename_timestamp(now)
 
@@ -93,7 +93,7 @@ def test_get_files_with_timestamp(tmp_path):
     prefix = "test"
     suffix = "txt"
 
-    ts_O1 = datetime.now()
+    ts_O1 = time_utils.current_datetime()
     timestamp_01 = file_utils.filename_timestamp(now=ts_O1)
     file_path_01 = f"{tmp_path}/{prefix}.{timestamp_01}.{suffix}"
     with open(file_path_01, "w") as file:
@@ -106,7 +106,7 @@ def test_get_files_with_timestamp(tmp_path):
     assert file_name == f"{prefix}.{timestamp_01}.{suffix}"
     assert ts_O1 == ts_01_read
 
-    ts_O2 = datetime.now()
+    ts_O2 = time_utils.current_datetime()
     timestamp_02 = file_utils.filename_timestamp(now=ts_O2)
     file_path_02 = f"{tmp_path}/{prefix}.{timestamp_02}.{suffix}"
     with open(file_path_02, "w") as file:

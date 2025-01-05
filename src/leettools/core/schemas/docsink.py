@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.consts.docsink_status import DocSinkStatus
 from leettools.core.schemas.docsource import DocSource
@@ -57,7 +58,7 @@ class DocSinkInDB(DocSinkInDBBase):
 
     @classmethod
     def from_docsink_create(cls, docsink_create: DocSinkCreate) -> "DocSinkInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         docsource = docsink_create.docsource
         docsink_in_store = cls(
             docsink_uuid="",
@@ -85,7 +86,7 @@ class DocSinkInDB(DocSinkInDBBase):
             original_doc_uri=docsink_update.original_doc_uri,
             is_deleted=docsink_update.is_deleted,
             docsink_status=docsink_update.docsink_status,
-            updated_at=datetime.now(),
+            updated_at=time_utils.current_datetime(),
         )
         assign_properties(docsink_update, docsink_in_store)
         return docsink_in_store

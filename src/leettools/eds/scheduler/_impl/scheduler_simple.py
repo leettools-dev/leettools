@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Union
 
 import leettools.common.exceptions as LlmedsException
 from leettools.common.logging import get_logger
+from leettools.common.utils import time_utils
 from leettools.context_manager import Context
 from leettools.core.schemas.docsource import DocSource
 from leettools.core.schemas.knowledgebase import KnowledgeBase
@@ -288,7 +289,7 @@ class SchedulerSimple(AbstractScheduler):
             self.logger.noop("Outside the lock ...")
         else:
             delay_in_seconds = min(max_delay, base_delay * 2**job.retry_count)
-            diff: timedelta = datetime.now() - job.last_failed_at
+            diff: timedelta = time_utils.current_datetime() - job.last_failed_at
             if diff.total_seconds() < delay_in_seconds:
                 # silently put the job back to the cooldown queue
                 self.cooldown_queue.put(job)
@@ -422,7 +423,7 @@ class SchedulerSimple(AbstractScheduler):
             self.logger.debug(
                 f"Adding failed job {job.job_uuid} to the cooldown queue."
             )
-            job.last_failed_at = datetime.now()
+            job.last_failed_at = time_utils.current_datetime()
             if job.retry_count is None:
                 job.retry_count = 1
             else:

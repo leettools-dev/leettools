@@ -6,6 +6,7 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.program import ProgramSpec
@@ -66,7 +67,7 @@ class JobInDB(JobInDBBase):
 
     @classmethod
     def from_job_create(JobInDB, job_create: JobCreate) -> "JobInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         job_in_db = JobInDB(
             task_uuid=job_create.task_uuid,
             program_spec=job_create.program_spec,
@@ -85,7 +86,7 @@ class JobInDB(JobInDBBase):
             program_spec=job_update.program_spec,
             job_uuid=job_update.job_uuid,
             job_status=job_update.job_status,
-            updated_at=datetime.now(),
+            updated_at=time_utils.current_datetime(),
             progress=job_update.progress,
         )
         assign_properties(job_update, job_in_db)
@@ -106,7 +107,9 @@ class JobInDB(JobInDBBase):
         # make sure the file exists for log streaming
         # append mode will create the file if it does not exist
         with open(self.log_location, "a+") as f:
-            f.write(f"Job log for {job_uuid} created at {datetime.now()}\n")
+            f.write(
+                f"Job log for {job_uuid} created at {time_utils.current_datetime()}\n"
+            )
 
 
 # Properties to return to client

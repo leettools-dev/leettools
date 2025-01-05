@@ -44,6 +44,8 @@ def list(
     org_name: Optional[str] = None,
     username: Optional[str] = None,
     docsource_uuid: Optional[str] = None,
+    json_output: Optional[bool] = False,
+    indent: Optional[int] = 2,
     **kwargs,
 ) -> None:
     from leettools.context_manager import ContextManager
@@ -94,17 +96,21 @@ def list(
             if doc_original_uri is None:
                 doc_original_uri = document.doc_uri
 
-            click.echo(
-                f"{document.docsink_uuid:<{uid_width}}"
-                f"{document.document_uuid:<{uid_width}}"
-                f"{doc_original_uri}"
-            )
+            if json_output:
+                click.echo(document.model_dump_json(indent=indent))
+            else:
+                click.echo(
+                    f"{document.docsink_uuid:<{uid_width}}"
+                    f"{document.document_uuid:<{uid_width}}"
+                    f"{doc_original_uri}"
+                )
 
-    click.echo(
-        f"{'DocSink UUID':<{uid_width}}"
-        f"{'Document UUID':<{uid_width}}"
-        f"Original URI"
-    )
+    if not json_output:
+        click.echo(
+            f"{'DocSink UUID':<{uid_width}}"
+            f"{'Document UUID':<{uid_width}}"
+            f"Original URI"
+        )
     if docsource_uuid is not None:
         docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
         traverse_docsource()

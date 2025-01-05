@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.consts.document_status import DocumentStatus
 from leettools.core.schemas.docsink import DocSink
@@ -83,7 +84,7 @@ class DocumentInDB(DocumentInDBBase):
     def from_document_create(
         DocumentInDB, document_create: DocumentCreate
     ) -> "DocumentInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         docsink = document_create.docsink
         document_in_store = DocumentInDB(
             # caller needs to update uuid later document is

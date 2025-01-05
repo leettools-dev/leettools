@@ -11,6 +11,7 @@ from leettools.common.exceptions import (
     UnexpectedOperationFailureException,
 )
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.common.utils.template_eval import find_template_variables
 from leettools.core.schemas.user import User
 from leettools.core.strategy._impl.duckdb.strategy_store_ducksb_schema import (
@@ -91,7 +92,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         """
         table_name = self._get_table_name()
         column_list = [Strategy.FIELD_STRATEGY_STATUS, Strategy.FIELD_UPDATED_AT]
-        value_list = [StrategyStatus.ARCHIVED.value, datetime.now()]
+        value_list = [StrategyStatus.ARCHIVED.value, time_utils.current_datetime()]
         where_clause = f"WHERE {Strategy.FIELD_STRATEGY_ID} = '{strategy.strategy_id}'"
         self.duckdb_client.update_table(
             table_name=table_name,
@@ -267,7 +268,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         strategy_dict[Strategy.FIELD_STRATEGY_ID] = str(uuid.uuid4())
         strategy_dict[Strategy.FIELD_STRATEGY_STATUS] = StrategyStatus.ACTIVE.value
         strategy_dict[Strategy.FIELD_STRATEGY_HASH] = strategy_hash
-        current_time = datetime.now()
+        current_time = time_utils.current_datetime()
         strategy_dict[Strategy.FIELD_STRATEGY_VERSION] = current_time.strftime(
             "%Y%m%d-%H%M%S"
         )
@@ -473,7 +474,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
     ) -> Strategy:
         table_name = self._get_table_name()
         column_list = [Strategy.FIELD_STRATEGY_STATUS, Strategy.FIELD_UPDATED_AT]
-        value_list = [status.value, datetime.now()]
+        value_list = [status.value, time_utils.current_datetime()]
         where_clause = f"WHERE {Strategy.FIELD_STRATEGY_ID} = '{strategy_id}'"
         self.duckdb_client.update_table(
             table_name=table_name,

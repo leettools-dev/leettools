@@ -41,11 +41,11 @@ class AbstractExtractMetadataManager(ABC):
         Retrieve the extracted database information for a given org and KB.
 
         Args:
-        -   org (Org): The organization object.
-        -   kb (KnowledgeBase): The knowledge base object.
+        - org (Org): The organization object.
+        - kb (KnowledgeBase): The knowledge base object.
 
         Returns:
-        -   Dict[str, List[ExtractionInfo]]: A dictionary containing the extracted
+        - Dict[str, List[ExtractionInfo]]: A dictionary containing the extracted
             database information, where the keys are the names of the tables and
             the values are lists of ExtractionInfo objects since we may have multiple
             extractions for a single table.

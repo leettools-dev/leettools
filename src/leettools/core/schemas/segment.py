@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 
 """
@@ -103,7 +104,7 @@ class SegmentInDB(SegmentInDBBase):
     def from_segment_create(
         SegmentInDB, segment_create: SegmentCreate
     ) -> "SegmentInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         if segment_create.created_timestamp_in_ms is None:
             segment_create.created_timestamp_in_ms = int(ct.timestamp() * 1000)
         segment_in_db = SegmentInDB(
@@ -145,7 +146,7 @@ class SegmentInDB(SegmentInDBBase):
             start_offset=segment_update.start_offset,
             end_offset=segment_update.end_offset,
             embeddings=segment_update.embeddings,
-            updated_at=datetime.now(),
+            updated_at=time_utils.current_datetime(),
         )
         assign_properties(segment_in_db, segment_update)
         return segment_in_db

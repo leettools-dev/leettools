@@ -8,16 +8,23 @@ from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.logging.log_location import LogLocator
+from leettools.common.utils import time_utils
 from leettools.context_manager import Context
 from leettools.core.consts.docsink_status import DocSinkStatus
 from leettools.core.consts.document_status import DocumentStatus
 from leettools.core.consts.return_code import ReturnCode
+from leettools.core.schemas.chat_query_item import (
+    DUMMY_QUERY_CONTENT,
+    DUMMY_QUERY_ID,
+    ChatQueryItem,
+)
 from leettools.core.schemas.docsink import DocSink, DocSinkCreate
 from leettools.core.schemas.docsource import DocSource
 from leettools.core.schemas.document import Document
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import Segment
+from leettools.core.schemas.user import User
 from leettools.eds.pipeline.convert.converter import create_converter
 from leettools.eds.pipeline.embed.segment_embedder import create_segment_embedder_for_kb
 from leettools.eds.pipeline.ingest.connector import create_connector
@@ -88,6 +95,7 @@ def process_docsources_auto(
 def process_docsource_manual(
     org: Org,
     kb: KnowledgeBase,
+    user: User,
     docsource: DocSource,
     context: Context,
     display_logger: EventLogger,
@@ -105,8 +113,20 @@ def process_docsource_manual(
     )
     connector.ingest()
     docsink_create_list = connector.get_ingested_docsink_list()
+    exec_info: ExecInfo = ExecInfo(
+        context=context,
+        org=org,
+        kb=kb,
+        user=user,
+        display_logger=logger(),
+        target_chat_query_item=ChatQueryItem(
+            query_content=DUMMY_QUERY_CONTENT,
+            query_id=DUMMY_QUERY_ID,
+            created_at=time_utils.current_datetime(),
+        ),
+    )
     run_adhoc_pipeline_for_docsinks(
-        exec_info=None, docsink_create_list=docsink_create_list
+        exec_info=exec_info, docsink_create_list=docsink_create_list
     )
     return docsource_store.get_docsource(org, kb, docsource.docsource_uuid)
 
@@ -148,7 +168,9 @@ def run_adhoc_pipeline_for_docsinks(
         log_location = f"{log_dir}/web_search_job.log"
         display_logger.info(f"Web search job log location: {log_location}")
         with open(log_location, "a+") as f:
-            f.write(f"Job log for web search {query} created at {datetime.now()}\n")
+            f.write(
+                f"Job log for web search {query} created at {time_utils.current_datetime()}\n"
+            )
 
     display_logger.info("Adhoc query: converting documents to markdown ...")
 

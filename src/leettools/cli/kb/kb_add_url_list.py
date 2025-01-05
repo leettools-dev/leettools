@@ -125,6 +125,7 @@ def add_url_list(
             pipeline_utils.process_docsource_manual(
                 org=org,
                 kb=kb,
+                user=user,
                 docsource=docsource,
                 context=context,
                 display_logger=logger(),

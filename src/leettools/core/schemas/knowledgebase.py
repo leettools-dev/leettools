@@ -7,6 +7,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from leettools.common import exceptions
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.config.performance_configurable import PerfBaseModel
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
@@ -111,7 +112,7 @@ class KBInDB(KBInDBBase):
 
     @classmethod
     def from_kb_create(KBInDB, kb_create: KBCreate) -> "KBInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         if kb_create.user_uuid is not None:
             if kb_create.owner_id is None:
                 kb_create.owner_id = kb_create.user_uuid

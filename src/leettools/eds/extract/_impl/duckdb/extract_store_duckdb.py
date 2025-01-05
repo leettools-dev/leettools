@@ -67,7 +67,7 @@ class ExtractStoreDuckdb(AbstractExtractStore):
                 key_fields=[],  # TODO: add key fields
                 verify_fields=[],
                 item_count=0,
-                created_at=datetime.now(),
+                created_at=time_utils.current_datetime(),
             ),
         )
 

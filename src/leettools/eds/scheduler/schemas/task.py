@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.eds.scheduler.schemas.program import ProgramSpec
 
@@ -70,7 +71,7 @@ class TaskUpdate(TaskInDBBase):
 class TaskInDB(TaskInDBBase):
     @classmethod
     def from_task_create(TaskInDB, task_create: TaskCreate) -> "TaskInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         task_in_db = TaskInDB(
             org_id=task_create.org_id,
             kb_id=task_create.kb_id,
@@ -95,7 +96,7 @@ class TaskInDB(TaskInDBBase):
             program_spec=copy.deepcopy(task_update.program_spec),
             task_uuid=task_update.task_uuid,
             job_status=task_update.task_status,
-            updated_at=datetime.now(),
+            updated_at=time_utils.current_datetime(),
         )
         assign_properties(task_update, task_in_db)
         return task_in_db

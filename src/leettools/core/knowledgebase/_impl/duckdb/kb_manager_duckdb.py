@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.knowledgebase._impl.duckdb.kb_duckdb_schema import KBDuckDBSchema
 from leettools.core.knowledgebase.kb_manager import AbstractKBManager
@@ -201,8 +202,8 @@ class KBManagerDuckDB(AbstractKBManager):
 
         table_name = self._get_table_name(org)
         kb_delete = kb_in_db.model_copy()
-        kb_delete.name = kb_name + "_deleted_" + str(datetime.now())
-        kb_delete.updated_at = datetime.now()
+        kb_delete.name = kb_name + "_deleted_" + str(time_utils.current_datetime())
+        kb_delete.updated_at = time_utils.current_datetime()
         kb_delete.is_deleted = True
 
         kb_dict = self._kb_to_dict(kb_delete)
@@ -325,7 +326,7 @@ class KBManagerDuckDB(AbstractKBManager):
             if k != KnowledgeBase.FIELD_KB_ID and k != KBUpdate.FIELD_NEW_NAME
         ]
         column_list = column_list + [KnowledgeBase.FIELD_UPDATED_AT]
-        value_list = value_list + [datetime.now()]
+        value_list = value_list + [time_utils.current_datetime()]
 
         where_clause = f"WHERE {KnowledgeBase.FIELD_KB_ID} = ?"
         value_list = value_list + [kb_in_db.kb_id]
@@ -348,7 +349,7 @@ class KBManagerDuckDB(AbstractKBManager):
 
         table_name = self._get_table_name(org)
         column_list = [KnowledgeBase.FIELD_UPDATED_AT]
-        value_list = [datetime.now()]
+        value_list = [time_utils.current_datetime()]
         where_clause = f"WHERE {KnowledgeBase.FIELD_KB_ID} = ?"
         value_list = value_list + [kb_in_db.kb_id]
         self.duckdb_client.update_table(

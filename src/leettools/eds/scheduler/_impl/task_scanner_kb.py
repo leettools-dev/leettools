@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Set
 
 from leettools.common import exceptions
 from leettools.common.logging import get_logger
+from leettools.common.utils import time_utils
 from leettools.context_manager import Context
 from leettools.core.consts.docsink_status import DocSinkStatus
 from leettools.core.consts.docsource_status import DocSourceStatus
@@ -466,7 +467,7 @@ class TaskScannerKB(AbstractTaskScanner):
 
         new_tasks = []
         orgs = self.org_manager.list_orgs()
-        current_time = datetime.now()
+        current_time = time_utils.current_datetime()
         docsource_retry_range = timedelta(hours=self.docsource_retry_range_in_hours)
 
         for org in orgs:
@@ -571,7 +572,7 @@ class TaskScannerKB(AbstractTaskScanner):
                         # so last_scan_time is not used currently.
                         self.last_scan_time[org.org_id][kb.kb_id][
                             docsource.docsource_uuid
-                        ] = datetime.now()
+                        ] = time_utils.current_datetime()
                     except Exception as e:
                         self.logger.error(
                             f"Error processing docsource for tasks {docsource.uri}: {e}"
