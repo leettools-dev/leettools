@@ -36,13 +36,13 @@ class TokenConverterBasic(AbstractTokenConverter):
                 },
             },
             "openai": {
-                "gpt-4o-mini": {
+                "default": {
                     "input": 15,
                     "output": 60,
                     "batch_input": 7.5,
                     "batch_output": 30,
                 },
-                "gpt-4o-mini-2024-07-18": {
+                "gpt-4o-mini": {
                     "input": 15,
                     "output": 60,
                     "batch_input": 7.5,
@@ -127,6 +127,14 @@ class TokenConverterBasic(AbstractTokenConverter):
                     "batch_output": 28,
                 },
             },
+            "leettools": {
+                "default": {
+                    "input": 15,
+                    "output": 60,
+                    "batch_input": 7.5,
+                    "batch_output": 30,
+                }
+            },
         }
         return token_map
 
@@ -152,9 +160,15 @@ class TokenConverterBasic(AbstractTokenConverter):
 
         token_price = self.token_map[provider][model][token_type]
         if token_price is None:
-            raise exceptions.UnexpectedCaseException(
-                unexpecected_case=f"Token price is not available for {provider} {model} {token_type}"
-            )
+            logger().warning(f"Token price is None for {provider} {model} {token_type}")
+            if "default" in self.token_map[provider]:
+                token_price = self.token_map[provider]["default"][token_type]
+            else:
+                raise exceptions.UnexpectedCaseException(
+                    f"Token price is None for {provider} {model} {token_type}"
+                    " and there is no default model for the provider."
+                )
+
         price_per_token = token_price / MILLION
         total_cost = price_per_token * token_count
         internal_token_count = total_cost / self.internal_token_price
