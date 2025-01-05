@@ -24,8 +24,10 @@ def get_language(text: str) -> Optional[str]:
         lan = detect(text)
         return lan
     except Exception as e:
-        logger().error(f"Error detecting language for text {text}: {e}")
-        return None
+        logger().error(
+            f"Error detecting language for text {text}: {e}. Using English as default."
+        )
+        return "en"
 
 
 def normalize_lang_name(lang: str) -> str:
@@ -51,5 +53,44 @@ def normalize_lang_name(lang: str) -> str:
     elif lang == "ja" or lang == "ja-jp" or lang == "japanese":
         lang = "Japanese"
     else:
-        logger().debug(f"Unsupported language: {lang}. Use its original form.")
+        logger().debug(f"Unsupported language: {lang}. Use english as default.")
+        lang = "English"
     return lang
+
+
+def token_per_char_ratio(content: str) -> float:
+    """
+    Get the token per character ratio for the given language.
+
+    Args:
+    - lang: The language code.
+
+    Returns:
+    - The token to character ratio.
+    """
+    lang = get_language(content)
+    lang = normalize_lang_name(lang)
+
+    if not lang:
+        logger().warning(
+            f"Specified lang is empty or null. Return the same value [{lang}]."
+        )
+        return 0.40
+
+    # data from chatgpt
+    if lang == "English":
+        return 0.30
+    elif lang == "Chinese":
+        return 1.0
+    elif lang == "Spanish":
+        return 0.35
+    elif lang == "French":
+        return 0.35
+    elif lang == "German":
+        return 0.40
+    elif lang == "Italian":
+        return 0.35
+    elif lang == "Japanese":
+        return 1.2
+    else:
+        return 0.50

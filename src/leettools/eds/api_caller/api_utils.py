@@ -9,7 +9,9 @@ from pydantic import BaseModel
 from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
-from leettools.common.utils import file_utils, time_utils, url_utils
+from leettools.common.utils import file_utils, json_utils, time_utils, url_utils
+from leettools.common.utils.content_utils import normalize_newlines, truncate_str
+from leettools.common.utils.dynamic_model import gen_pydantic_example
 from leettools.context_manager import Context
 from leettools.core.schemas.api_provider_config import (
     APIEndpointInfo,
@@ -23,7 +25,6 @@ from leettools.eds.usage.schemas.usage_api_call import (
     API_CALL_ENDPOINT_COMPLETION,
     UsageAPICallCreate,
 )
-from leettools.settings import SystemSettings
 
 
 def run_inference_call_direct(
@@ -47,18 +48,18 @@ def run_inference_call_direct(
     values, handle the return values, and log the usage in the usage store.
 
     Args:
-    -  context: The context object
-    -  user: The user object
-    -  api_client: The OpenAI-compatible client
-    -  api_provider_name: The name of the API provider
-    -  model_name: The name of the model
-    -  model_options: The options for the model, like temperature, max_tokens, etc.
-    -  system_prompt: The system prompt
-    -  user_prompt: The user prompt
-    -  need_json: Whether the response needs to be converted to JSON
-    -  call_target: The target of the call
-    -  response_pydantic_model: The response Pydantic model
-    -  display_logger: The display logger
+    - context: The context object
+    - user: The user object
+    - api_client: The OpenAI-compatible client
+    - api_provider_name: The name of the API provider
+    - model_name: The name of the model
+    - model_options: The options for the model, like temperature, max_tokens, etc.
+    - system_prompt: The system prompt
+    - user_prompt: The user prompt
+    - need_json: Whether the response needs to be converted to JSON
+    - call_target: The target of the call
+    - response_pydantic_model: The response Pydantic model
+    - display_logger: The display logger
     """
 
     if display_logger is None:
@@ -103,17 +104,42 @@ def run_inference_call_direct(
     use_parsed = False
     if need_json:
         if response_pydantic_model is not None:
-            format_dict = {"type": "json_schema"}
-            use_parsed = True
+            # check if model supports parsed response
+            if _support_pydantic_response(model_name):
+                format_dict = {"type": "json_schema"}
+                use_parsed = True
+            else:
+                display_logger.info(
+                    f"Target model {model_name} does not support parsed response."
+                    f"Using JSON response."
+                )
+                format_dict = {"type": "json_object"}
+
+                extra_instruction = (
+                    "\nPlease provide a valid JSON formatted response with length limite "
+                    "by the model's max_output parameter. The response output should not "
+                    "be trucated and should be strictly in the following format:\n"
+                    f"{gen_pydantic_example(response_pydantic_model, show_type=True)}\n"
+                )
+
+                user_prompt = extra_instruction + user_prompt
+
+                use_parsed = False
         else:
             format_dict = {"type": "json_object"}
     else:
         format_dict = {"type": "text"}
 
+    info_len = 5000
+    system_prompt_info = truncate_str(normalize_newlines(system_prompt), info_len)
+    user_prompt_info = truncate_str(normalize_newlines(user_prompt), info_len)
+
     display_logger.debug(
-        f"Final system prompt(first 500 chars): {system_prompt[:8000]}"
+        f"Final system prompt(first {info_len} chars): {system_prompt_info}"
     )
-    display_logger.debug(f"Final user prompt (first 500 chars): {user_prompt[:8000]}")
+    display_logger.debug(
+        f"Final user prompt (first {info_len} chars): {user_prompt_info}"
+    )
 
     start_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
     completion = None
@@ -201,6 +227,22 @@ def run_inference_call_direct(
             pattern = r"\n?```json\n?|\n?```\n?"
             response_str = re.sub(pattern, "", response_str)
             display_logger.debug(f"Clean up: {response_str}")
+
+            # we are using a model that does not support parsed response
+            # we need to convert the response to Pydantic model
+            if response_pydantic_model is not None:
+                try:
+                    response_str = json_utils.ensure_json_item_list(response_str)
+                    response_obj = response_pydantic_model.model_validate_json(
+                        response_str
+                    )
+                    response_str = response_obj.model_dump_json()
+                except Exception as e:
+                    display_logger.error(
+                        f"Error in parsing response to Pydantic model: {e}"
+                    )
+                    display_logger.error(f"Response: {response_str}")
+                    response_str = completion.choices[0].message.content
     return response_str, completion
 
 
@@ -433,3 +475,13 @@ def get_rerank_client_for_user(
             "and default base_url"
         )
     return cohere_client
+
+
+def _support_pydantic_response(final_llm_model_name: str) -> bool:
+    if final_llm_model_name.startswith("gpt-"):
+        return True
+
+    if final_llm_model_name.startswith("gemini-"):
+        return True
+
+    return False

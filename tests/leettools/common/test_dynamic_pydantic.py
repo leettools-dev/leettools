@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -80,3 +80,56 @@ def test_dynamic_model_for_pydantic():
     assert old_obj.investors == ["Investor A", "Investor B"]
     assert old_obj.round_date == "2022-01-01"
     assert old_obj.main_product_or_service == "Product A"
+
+
+def test_gen_example():
+
+    # Example usage:
+    class Address(BaseModel):
+        street: str
+        city: str
+        zip_code: int
+
+    class XYZ(BaseModel):
+        X: int
+        Y: str
+        Z: List[str]
+        details: Optional[Address]
+        metadata: Dict[str, float]
+        is_active: bool
+
+    example_json = dynamic_model.gen_pydantic_example(XYZ, show_type=False)
+    assert example_json != None
+    assert type(example_json["X"]) == int
+    assert type(example_json["Y"]) == str
+    assert type(example_json["Z"]) == list
+    assert type(example_json["details"]) == dict
+    assert type(example_json["metadata"]) == dict
+    assert type(example_json["is_active"]) == bool
+    assert example_json["X"] == 42
+    assert example_json["Y"] == "example"
+    assert example_json["Z"] == ["example"]
+    assert example_json["details"] == {
+        "street": "example",
+        "city": "example",
+        "zip_code": 42,
+    }
+    assert example_json["metadata"] == {"key": 3.14}
+    assert example_json["is_active"] == True
+
+    example_json = dynamic_model.gen_pydantic_example(XYZ, show_type=True)
+    assert example_json != None
+    assert type(example_json["X"]) == str
+    assert type(example_json["Y"]) == str
+    assert type(example_json["Z"]) == list
+    assert type(example_json["details"]) == dict
+    assert type(example_json["metadata"]) == dict
+    assert type(example_json["is_active"]) == str
+    assert example_json["X"] == "int"
+    assert example_json["Y"] == "str"
+    assert example_json["Z"] == ["str"]
+    assert example_json["details"] == {
+        "street": "str",
+        "city": "str",
+        "zip_code": "int",
+    }

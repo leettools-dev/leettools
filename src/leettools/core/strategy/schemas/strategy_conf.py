@@ -74,7 +74,7 @@ class StrategyConfBase(BaseModel):
     )
 
     target_model_name: str = Field(
-        "gpt-4o-mini",
+        None,
         description="The target model name for inference, default set in env",
     )
 

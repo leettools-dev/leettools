@@ -192,6 +192,10 @@ def _step_plan_topic_for_style(
         exec_info=exec_info, query_metadata=query_metadata
     )
 
+    api_caller = exec_info.get_inference_caller()
+    if planning_model is None:
+        planning_model = api_caller.model_name
+
     content = flow_utils.limit_content(
         content=content, model_name=planning_model, display_logger=display_logger
     )
@@ -221,7 +225,6 @@ def _step_plan_topic_for_style(
 
     user_prompt = template_eval.render_template(user_prompt_template, template_vars)
 
-    api_caller = exec_info.get_inference_caller()
     response_str, _ = api_caller.run_inference_call(
         system_prompt=system_prompt,
         user_prompt=user_prompt,

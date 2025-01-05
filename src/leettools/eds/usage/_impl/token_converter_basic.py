@@ -36,31 +36,95 @@ class TokenConverterBasic(AbstractTokenConverter):
                 },
             },
             "openai": {
-                "default": {
-                    "input": 15,
-                    "output": 60,
-                    "batch_input": 7.5,
-                    "batch_output": 30,
-                },
                 "gpt-4o-mini": {
                     "input": 15,
                     "output": 60,
                     "batch_input": 7.5,
                     "batch_output": 30,
+                },
+                "gpt-4o-mini-2024-07-18": {
+                    "input": 15,
+                    "output": 60,
+                    "batch_input": 7.5,
+                    "batch_output": 30,
+                },
+                "gpt-4o": {
+                    "input": 500,
+                    "output": 1500,
+                    "batch_input": 250,
+                    "batch_output": 750,
+                },
+                "gpt-4o-2024-05-13": {
+                    "input": 500,
+                    "output": 1500,
+                    "batch_input": 250,
+                    "batch_output": 750,
+                },
+                "gpt-3.5-turbo": {
+                    "input": 50,
+                    "output": 150,
+                    "batch_input": 25,
+                    "batch_output": 75,
+                },
+                "text-embedding-3-small": {
+                    "input": 2,
+                    "output": None,
+                    "batch_input": 1,
+                    "batch_output": None,
+                },
+                "text-embedding-3-large": {
+                    "input": 13,
+                    "output": None,
+                    "batch_input": 7,
+                    "batch_output": None,
                 },
             },
-            "leettools": {
-                "default": {
-                    "input": 15,
-                    "output": 60,
-                    "batch_input": 7.5,
-                    "batch_output": 30,
+            "claude": {
+                "claude-3-5-sonnet": {
+                    "input": 300,
+                    "output": 1500,
+                    "batch_input": None,
+                    "batch_output": None,
                 },
-                "gpt-4o-mini": {
-                    "input": 15,
-                    "output": 60,
-                    "batch_input": 7.5,
-                    "batch_output": 30,
+                "claude-3-5-opus": {
+                    "input": 1500,
+                    "output": 7500,
+                    "batch_input": None,
+                    "batch_output": None,
+                },
+                "claude-3-5-haiku": {
+                    "input": 25,
+                    "output": 125,
+                    "batch_input": None,
+                    "batch_output": None,
+                },
+            },
+            "aliyuncs": {
+                "qwen-plus": {
+                    "input": 50,
+                    "output": 150,
+                    "batch_input": None,
+                    "batch_output": None,
+                },
+                "text-embedding-v1": {
+                    "input": 13,
+                    "output": None,
+                    "batch_input": 1,
+                    "batch_output": None,
+                },
+                "text-embedding-v2": {
+                    "input": 13,
+                    "output": None,
+                    "batch_input": 7,
+                    "batch_output": None,
+                },
+            },
+            "deepseek": {
+                "deepseek-v3": {
+                    "input": 14,
+                    "output": 28,
+                    "batch_input": 14,
+                    "batch_output": 28,
                 },
             },
         }
@@ -77,14 +141,14 @@ class TokenConverterBasic(AbstractTokenConverter):
         self, provider: str, model: str, token_type: str, token_count: int
     ) -> int:
         if provider not in self.token_map:
-            logger().warning(f"Provider {provider} not one of {self.token_map.keys()}")
+            logger().warning(f"Provider not one of {self.token_map.keys()}: {provider}")
             provider = "openai"
 
         if model not in self.token_map[provider]:
-            model = "default"
+            model = list(self.token_map[provider].keys())[0]
 
         if token_type not in self.token_map[provider][model]:
-            token_type = "input"
+            token_type = list(self.token_map[provider][model].keys())[0]
 
         token_price = self.token_map[provider][model][token_type]
         if token_price is None:
