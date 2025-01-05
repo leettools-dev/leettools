@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, create_model
 
 from leettools.common import exceptions
 from leettools.common.logging.event_logger import EventLogger
-from leettools.common.utils import config_utils, lang_utils, time_utils
+from leettools.common.utils import config_utils, json_utils, lang_utils, time_utils
 from leettools.common.utils.template_eval import render_template
 from leettools.core.consts import flow_option
 from leettools.core.consts.article_type import ArticleType
@@ -343,8 +343,15 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
                 f"Refused to extract information from the document: {message.refusal}."
             )
 
-        extract_result = message.parsed
-        deduped_news_items: List[CombinedNewsItems] = extract_result.items
+        if hasattr(message, "parsed"):
+            extract_result = message.parsed
+            deduped_news_items: List[CombinedNewsItems] = extract_result.items
+        else:
+            response_str = json_utils.ensure_json_item_list(response_str)
+            reponse_items_obj = response_pydantic_model.model_validate_json(
+                response_str
+            )
+            deduped_news_items = reponse_items_obj.items
 
         deduped_news_results = flow_utils.to_markdown_table(
             instances=deduped_news_items,

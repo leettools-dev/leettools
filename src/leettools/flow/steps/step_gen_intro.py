@@ -82,6 +82,10 @@ def _step_gen_intro_section(
         display_logger=display_logger,
     )
 
+    api_caller = exec_info.get_inference_caller()
+    if section_model is None:
+        section_model = api_caller.model_name
+
     content = flow_utils.limit_content(content, section_model, display_logger)
 
     user_prompt_template = f"""
@@ -113,7 +117,6 @@ section for the conttent.
         ),
     )
 
-    api_caller = exec_info.get_inference_caller()
     response_str, _ = api_caller.run_inference_call(
         system_prompt=system_prompt_template,
         user_prompt=user_prompt,

@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from leettools.common import exceptions
+from leettools.common.logging import logger
 from leettools.context_manager import Context
 from leettools.settings import SystemSettings
 
@@ -23,10 +24,18 @@ class Tokenizer:
             # from dashscope import get_tokenizer
             # tokenizer = get_tokenizer(model_name)
             return len(text)
+        elif model_name.startswith("deepseek"):
+            from transformers import AutoTokenizer
+
+            tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/DeepSeek-V3")
+            tokens = tokenizer.tokenize(text)
+            return len(tokens)
+            # return len(text)
         else:
-            raise exceptions.UnexpectedCaseException(
-                f"Unsupported model name: {model_name}"
+            logger().warning(
+                f"Unknown model name: {model_name}, using text length as token count."
             )
+            return len(text)
 
     def split_text(self, text: str, num_parts: int) -> List[str]:
         words = text.split()  # Split the text into words

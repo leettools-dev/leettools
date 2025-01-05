@@ -203,9 +203,11 @@ Here is the content:
         if subject is None or subject == "":
             subject = exec_info.kb.name
 
-        content = flow_utils.limit_content(content, summary_model, display_logger)
-
         api_caller = exec_info.get_inference_caller()
+        if summary_model is None:
+            summary_model = api_caller.model_name
+
+        content = flow_utils.limit_content(content, summary_model, display_logger)
 
         prompt_base = StepSummarize.used_prompt_templates()["summarize"]
         summarize_prompt_template = prompt_base.prompt_template

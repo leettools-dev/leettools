@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, create_model
 
 from leettools.common import exceptions
 from leettools.common.logging.event_logger import EventLogger
-from leettools.common.utils import config_utils, url_utils
+from leettools.common.utils import config_utils, json_utils, url_utils
 from leettools.common.utils.dynamic_exec_util import execute_pydantic_snippet
 from leettools.common.utils.template_eval import render_template
 from leettools.core.consts.article_type import ArticleType
@@ -147,14 +147,23 @@ def dedupe_items(
 
     display_logger.debug(f"response_str: {response_str}")
     message = completion.choices[0].message
-    if message.refusal:
-        raise exceptions.LLMInferenceResultException(
-            f"Refused to extract information from the document: {message.refusal}."
-        )
 
-    extract_result = message.parsed
-    deduped_items = extract_result.items
-    return deduped_items
+    message = completion.choices[0].message
+    if hasattr(message, "refusal"):
+        if message.refusal:
+            raise exceptions.LLMInferenceResultException(
+                f"Refused to extract information from the document: {message.refusal}."
+            )
+
+    if hasattr(message, "parsed"):
+        display_logger.debug(f"Returning list of objects using message.parsed.")
+        extract_result = message.parsed
+        return extract_result.items
+    else:
+        display_logger.debug(f"Returning list of objects using model_validate_json.")
+        response_str = json_utils.ensure_json_item_list(response_str)
+        items = response_pydantic_model.model_validate_json(response_str)
+        return items.items
 
 
 class FlowOpinions(AbstractFlow):

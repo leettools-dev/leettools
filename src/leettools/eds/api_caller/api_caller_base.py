@@ -317,16 +317,17 @@ class APICallerBase:
         Run the inference call for the RAG section.
 
         Args:
-        -   system_prompt: The system prompt.
-        -   user_prompt: The user prompt.
-        -   need_json: Whether the response should be in JSON format.
-        -   call_target: The target of the call, used in tracking.
-        -   override_model_name: The model name to use.
-        -   override_max_token: The max token to use.
-        -   json_schema: The JSON schema to use if need_json is True.
+        - system_prompt: The system prompt.
+        - user_prompt: The user prompt.
+        - need_json: Whether the response should be in JSON format.
+        - call_target: The target of the call, used in tracking.
+        - override_model_name: The model name to use.
+        - override_max_token: The max token to use.
+        - response_pydantic_model: The response pydantic model if using an openai
+            compatible API that supports pydantic output.
 
         Returns:
-        -   The response string and the completion object.
+        - The response as a string and the completion object.
         """
         display_logger = self.display_logger
         if self.api_client is None:

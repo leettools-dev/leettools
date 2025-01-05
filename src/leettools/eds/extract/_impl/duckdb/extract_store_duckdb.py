@@ -92,6 +92,7 @@ class ExtractStoreDuckdb(AbstractExtractStore):
                 new_obj_dicts.append(obj_dict)
             except Exception as e:
                 logger().warning(f"Error in adding source and timestamp: {e}")
+                logger().debug(e.with_traceback())
         if new_obj_dicts:
             value_list = []
             for obj_dict in new_obj_dicts:

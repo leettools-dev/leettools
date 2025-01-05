@@ -214,11 +214,6 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
         if instructions is None or len(instructions) == 0:
             err_msgs.append("No extraction instructions found in the Python code.")
 
-        key_fields = var_dict.get("key_fields", [])
-
-        if len(key_fields) == 0:
-            display_logger.info("No key fields specified in the Python code.")
-
         if len(err_msgs) > 0:
             raise exceptions.ParametersValidationException(err_msgs)
 

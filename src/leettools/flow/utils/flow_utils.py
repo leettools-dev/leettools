@@ -47,11 +47,12 @@ context_size_map: Dict[str, int] = {
     "gpt-4o-2024-05-13": 128000,
     "gpt-4o-mini": 128000,
     "gpt-4o-mini-2024-07-18": 128000,
-    "deepseek-chat": 32000,
+    "deepseek-chat": 65536,
     "llama3-8b-8192": 8192,
     "llama3-70b-8192": 8192,
     "mixtral-8x7b-32768": 32768,
     "gemma-7b-it": 8192,
+    "deepseek-v3": 65536,
 }
 
 URL_SEPARATOR = ", "
@@ -611,15 +612,24 @@ def create_chat_result_with_json_data(
 def limit_content(content: str, model_name: str, display_logger: EventLogger) -> str:
     # TODO: the way we need to pass the display_logger around is not ideal
     # TODO: use proper language or tokenzier to get the token count
-    content_limit = context_size_map.get(model_name, 8192)
-    if content_limit > 4000:
-        content_limit = content_limit - 5000
-    if len(content) > content_limit:
+    context_limit = context_size_map.get(model_name, 65536)
+
+    token_per_char = lang_utils.token_per_char_ratio(content)
+    token_count = int(len(content) * token_per_char)
+
+    if context_limit > 4000:
+        actual_limit = context_limit - 1000
+    else:
+        actual_limit = context_limit
+
+    if token_count > actual_limit:
+        actual_content_len = int(actual_limit / token_per_char)
         display_logger.info(
-            f"Content too long ({len(content)}) for the introduction, "
-            f"only using first {content_limit} characters."
+            f"Estimated token count too long {token_count} > {actual_limit} "
+            f"for {len(content)} chars, [{model_name}:{context_limit}]. "
+            f"Only using first {actual_content_len} characters."
         )
-        content = content[:content_limit]
+        content = content[:actual_content_len]
     return content
 
 

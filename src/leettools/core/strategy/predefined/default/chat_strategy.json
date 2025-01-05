@@ -1,13 +1,4 @@
 {
     "strategy_name": "default",
-    "strategy_description": "Default QA strategy for the gpt-4o-mini and hybrid search, intention/rewrite/rerank",
-    "target_model_name": "gpt-4o-mini",
-    "enable_neighboring_context": false,
-    "intention": "default",
-    "intention_options": {"model_name": "gpt-4o-mini"},
-    "rewrite": "keywords",
-    "rewrite_options": {"model_name": "gpt-4o-mini"},
-    "rerank": "dummy",
-    "rerank_options": {},
-    "search": "simple"
+    "strategy_description": "Default strategy using system default settings"
 }

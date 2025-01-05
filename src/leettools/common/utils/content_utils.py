@@ -33,3 +33,38 @@ def get_image_url(content: str) -> Optional[str]:
         return match.group(1)  # Return the first captured group (the image link)
     else:
         return None  # Return None if no image link is found
+
+
+def normalize_newlines(text: str) -> str:
+    """
+    Normalize newlines in the given text.
+    """
+    return re.sub(r"\s*\n\s*", "\n", text).strip()
+
+
+def truncate_str(s: str, x: int) -> str:
+    """
+    Truncate the string to a maximum length of x characters.
+
+    If the string is longer than x characters, the middle part is replaced with "[... omitted ...]".
+
+    Args:
+    - s (str): The string to truncate.
+    - x (int): The maximum length of the truncated string.
+
+    Returns:
+    - str: The truncated string.
+    """
+    stuff = "[... omitted ...]"
+
+    if len(s) <= x:
+        return s  # Return original string if within limit
+
+    # Calculate split lengths
+    prefix_len = int(0.8 * x)  # First 80% of the string
+    suffix_len = x - (prefix_len + len(stuff))  # Remaining after inserting marker
+
+    if suffix_len <= 0:
+        suffix_len = 0  # Ensure non-negative suffix length
+
+    return s[:prefix_len] + stuff + s[-suffix_len:]

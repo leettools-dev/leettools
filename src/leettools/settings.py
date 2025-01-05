@@ -236,13 +236,13 @@ class SystemSettings(BaseModel):
         "gpt-4o-mini", description="The default OpenAI model to use"
     )
     DEFAULT_SUMMARIZING_MODEL: str = Field(
-        "gpt-4o-mini", description="The default summarizing model to use"
+        None, description="The default summarizing model to use"
     )
     DEFAULT_PLANNING_MODEL: str = Field(
-        "gpt-4o-mini", description="The default planning model to use"
+        None, description="The default planning model to use"
     )
     DEFAULT_WRITING_MODEL: str = Field(
-        "gpt-4o-mini", description="The default writing model to use"
+        None, description="The default writing model to use"
     )
     DEFAULT_EMBEDDING_OPENAI_MODEL: str = Field(
         "text-embedding-3-small",

@@ -3,7 +3,7 @@ from typing import ClassVar, Dict, List, Optional, Type
 from pydantic import create_model
 
 from leettools.common import exceptions
-from leettools.common.utils import config_utils, template_eval
+from leettools.common.utils import config_utils, json_utils, template_eval
 from leettools.common.utils.obj_utils import TypeVar_BaseModel
 from leettools.core.consts import flow_option
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
@@ -106,6 +106,10 @@ Below is the provided content:
             display_logger=display_logger,
         )
 
+        api_caller = exec_info.get_inference_caller()
+        if summary_model is None:
+            summary_model = api_caller.model_name
+
         content = flow_utils.limit_content(content, summary_model, display_logger)
 
         output_lang = flow_utils.get_output_lang(
@@ -113,7 +117,7 @@ Below is the provided content:
         )
 
         system_prompt = (
-            "You are an expert of extract structual information from the document."
+            "You are an expert of extract structured information from the document."
         )
 
         prompt_base = StepExtractInfo.used_prompt_templates()[
@@ -132,7 +136,6 @@ Below is the provided content:
                 raise exceptions.MissingParametersException(missing_parameter=var)
 
         user_prompt = template_eval.render_template(user_prompt_template, template_vars)
-        display_logger.debug(user_prompt)
 
         if multiple_items:
             new_class_name = f"{model_class_name}_list"
@@ -147,7 +150,6 @@ Below is the provided content:
         display_logger.info(f"response_pydantic_model: {response_pydantic_model}")
         display_logger.debug(f"schema: {response_pydantic_model.model_json_schema()}")
 
-        api_caller = exec_info.get_inference_caller()
         response_str, completion = api_caller.run_inference_call(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
@@ -161,14 +163,26 @@ Below is the provided content:
 
         # extract_result = json.loads(response_str)
         message = completion.choices[0].message
-        if message.refusal:
-            raise exceptions.LLMInferenceResultException(
-                f"Refused to extract information from the document: {message.refusal}."
-            )
+        if hasattr(message, "refusal"):
+            if message.refusal:
+                raise exceptions.LLMInferenceResultException(
+                    f"Refused to extract information from the document: {message.refusal}."
+                )
 
-        extract_result = message.parsed
-
-        if multiple_items:
-            return extract_result.items
+        if hasattr(message, "parsed"):
+            display_logger.debug(f"Returning list of objects using message.parsed.")
+            extract_result = message.parsed
+            if multiple_items:
+                return extract_result.items
+            else:
+                return [extract_result]
         else:
-            return [extract_result]
+            display_logger.debug(
+                f"Returning list of objects using model_validate_json."
+            )
+            response_str = json_utils.ensure_json_item_list(response_str)
+            items = response_pydantic_model.model_validate_json(response_str)
+            if multiple_items:
+                return items.items
+            else:
+                return [items]
