@@ -17,7 +17,7 @@ def test_token_convert_basic():
 
     # Test case 1: Valid input
     provider = "openai"
-    model = "gpt-4o-mini"
+    model = "gpt-4o"
     token_type = "input"
     token_count = 1000000
     expected_result = round(

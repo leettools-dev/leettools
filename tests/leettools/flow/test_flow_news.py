@@ -1,4 +1,4 @@
-from leettools.flow.flows.news.flow_news import _section_plan_for_news
+from leettools.flow.flows.post.flow_post import _section_plan_for_posts
 from leettools.flow.schemas.article import ArticleSectionPlan
 
 
@@ -6,7 +6,7 @@ def test_create_plan_for_news():
 
     query = "test query"
     search_phrases = "test search phrase"
-    section_plan: ArticleSectionPlan = _section_plan_for_news(
+    section_plan: ArticleSectionPlan = _section_plan_for_posts(
         query=query, search_phrases=search_phrases
     )
 
