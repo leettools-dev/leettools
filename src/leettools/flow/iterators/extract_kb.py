@@ -1,11 +1,12 @@
 import traceback
-from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Callable, Dict, List, Optional, Tuple, Type
 
 from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import TypeVar_BaseModel
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
+from leettools.core.schemas.docsink import DocSink
 from leettools.core.schemas.docsource import DocSource
+from leettools.core.schemas.document import Document
 from leettools.eds.extract.extract_store import (
     EXTRACT_DB_SOURCE_FIELD,
     EXTRACT_DB_TIMESTAMP_FIELD,
@@ -54,9 +55,11 @@ newly extracted data will be saved to the backend storage.
         target_model_name: str,
         model_class: Type[TypeVar_BaseModel],
         docsource: Optional[DocSource] = None,
+        docsource_filter: Optional[Callable[[ExecInfo, DocSource], bool]] = None,
+        docsink_filter: Optional[Callable[[ExecInfo, DocSink], bool]] = None,
+        document_filter: Optional[Callable[[ExecInfo, Document], bool]] = None,
         query_metadata: Optional[ChatQueryMetadata] = None,
         multiple_items: Optional[bool] = True,
-        updated_time_threshold: Optional[datetime] = None,
         save_to_backend: Optional[bool] = True,
     ) -> Tuple[Dict[str, List[TypeVar_BaseModel]], Dict[str, List[TypeVar_BaseModel]]]:
         """
@@ -64,15 +67,21 @@ newly extracted data will be saved to the backend storage.
         If the information has been extracted before, the existing data will be returned
         as well.
 
+        It is possible to just use the docsource_filter to filter out the target docsource.
+        We allow to specify the docsource directly to avoid the need to get all docsources
+        from the KB and then filter them.
+
         Args:
         - exec_info: The execution information.
         - extraction_instructions: The extraction instructions.
         - target_model_name: The target model name that will should be extracted.
         - model_class: The model class to use.
-        - docsource: The docsource to extract from, if none, extract from the KB.
-        - query_metadata: The query metadata.
+        - docsource: The docsource to extract from, if none, using the filter on all docsources in the KB.
+        - docsource_filter: The docsource filter, ignored if docsource is specified.
+        - docsink_filter: The docsink filter.
+        - document_filter: The document filter.
+        - query_metadata: The query metadata, usually created by the intention extraction.
         - multiple_items: Whether we should extract multiple items.
-        - updated_time_threshold: The threshold for the updated time.
         - save_to_backend: Whether to save the extracted data to the backend.
 
         Returns:
@@ -104,20 +113,12 @@ newly extracted data will be saved to the backend storage.
         new_objs: Dict[str, List[TypeVar_BaseModel]] = {}
         existing_objs: Dict[str, List[TypeVar_BaseModel]] = {}
 
-        def docsource_filter(_: ExecInfo, docsource: DocSource) -> bool:
-            if (
-                updated_time_threshold is not None
-                and docsource.updated_at < updated_time_threshold
-            ):
-                display_logger.info(
-                    f"Docsource {docsource.display_name} has updated_time "
-                    f"{docsource.updated_at} before {updated_time_threshold}. Skipped."
-                )
-                return False
-            return True
-
         for document in document_iterator(
-            exec_info=exec_info, docsource=docsource, docsource_filter=docsource_filter
+            exec_info=exec_info,
+            docsource=docsource,
+            docsource_filter=docsource_filter,
+            docsink_filter=docsink_filter,
+            document_filter=document_filter,
         ):
             try:
                 doc_original_uri = document.original_uri
@@ -158,6 +159,7 @@ newly extracted data will be saved to the backend storage.
                         metadata={EXTRACT_DB_SOURCE_FIELD: doc_original_uri},
                     )
                 else:
+                    # manually add the fields needed
                     extended_obj_list = []
                     created_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
                     for record in extracted_obj_list:

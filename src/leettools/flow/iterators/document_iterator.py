@@ -36,6 +36,7 @@ def document_iterator(
     document_store = context.get_repo_manager().get_document_store()
     org = exec_info.org
     kb = exec_info.kb
+    display_logger = exec_info.display_logger
 
     def _get_doc_for_docsink(docsource: DocSource) -> Generator[Document, None, None]:
         for docsink in docsink_store.get_docsinks_for_docsource(org, kb, docsource):
@@ -51,6 +52,10 @@ def document_iterator(
                 yield document
 
     if docsource is not None:
+        if docsource_filter is not None:
+            display_logger.warning(
+                "Specified both docsource and docsource_filter, ignoring filter."
+            )
         yield from _get_doc_for_docsink(docsource)
         return
 

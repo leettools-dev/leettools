@@ -11,6 +11,7 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
 from leettools.eds.extract.extract_store import (
+    EXTRACT_DB_METADATA_FIELD,
     EXTRACT_DB_SOURCE_FIELD,
     EXTRACT_DB_TIMESTAMP_FIELD,
     create_extract_store,
@@ -67,6 +68,7 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase, user
     assert "aliases" in fields
     assert "created_at" in fields
     assert "created_timestamp_in_ms" in fields
+    assert EXTRACT_DB_METADATA_FIELD in fields
     assert EXTRACT_DB_SOURCE_FIELD in fields
     assert EXTRACT_DB_TIMESTAMP_FIELD in fields
 
@@ -97,10 +99,14 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase, user
     )
 
     records = extract_store.save_records(
-        [record_01, record_02], {EXTRACT_DB_SOURCE_FIELD: "test_source"}
+        [record_01, record_02],
+        {EXTRACT_DB_SOURCE_FIELD: "test_source", "meta_key": "meta_value"},
     )
     assert len(records) == 2
     assert type(records[0]) == extended_model
+    assert records[0].eds_metadata == {"meta_key": "meta_value"}
+    assert records[0].eds_source_uri == "test_source"
+    assert records[0].created_timestamp_in_ms is not None
 
     records = extract_store.get_records()
     assert len(records) == 2
