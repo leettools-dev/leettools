@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List, Optional
@@ -70,7 +71,10 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 ["(" + ",".join(["?"] * len(column_list)) + ")"] * len(values)
             )
             # Flatten the list of values for the executemany function
-            flattened_values = [item for sublist in values for item in sublist]
+            flattened_values: List[Any] = []
+            for sublist in values:
+                for item in sublist:
+                    flattened_values.append(item)
             insert_sql = f"""
                 INSERT INTO {table_name} ({",".join(column_list)})
                 VALUES {placeholders}
@@ -197,7 +201,8 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             else:
                 results = cursor.execute(sql).fetchall()
             column_names = [desc[0] for desc in cursor.description]
-            return [dict(zip(column_names, row)) for row in results]
+            value = [dict(zip(column_names, row)) for row in results]
+            return value
 
     def fetch_all_from_table(
         self,
@@ -227,7 +232,8 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                     results = cursor.execute(select_sql).fetchall()
 
             column_names = [desc[0] for desc in cursor.description]
-            return [dict(zip(column_names, row)) for row in results]
+            value = [dict(zip(column_names, row)) for row in results]
+            return value
 
     def fetch_one_from_table(
         self,
@@ -257,7 +263,8 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                     result = cursor.execute(select_sql).fetchone()
 
             column_names = [desc[0] for desc in cursor.description]
-            return dict(zip(column_names, result)) if result else None
+            value = dict(zip(column_names, result)) if result else None
+            return value
 
     def fetch_sequence_current_value(self, sequence_name: str) -> int:
         with self.conn.cursor() as cursor:

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import click
 
 from leettools.cli.cli_utils import setup_org_kb_user
@@ -66,6 +68,8 @@ def add_url(
     username: str,
     chunk_size: str,
     scheduler_check: bool,
+    json_output: Optional[bool] = False,
+    indent: Optional[int] = 2,
     **kwargs,
 ) -> None:
     from leettools.context_manager import Context, ContextManager
@@ -106,6 +110,7 @@ def add_url(
         pipeline_utils.process_docsource_manual(
             org=org,
             kb=kb,
+            user=user,
             docsource=docsource,
             context=context,
             display_logger=logger(),
@@ -121,10 +126,13 @@ def add_url(
         return
 
     document = documents[0]
-    click.echo(
-        f"org:\t{org.name}\n"
-        f"kb:\t{kb.name}\n"
-        f"docource_id:\t{docsource.docsource_uuid}\n"
-        f"docsink_id:\t{document.docsink_uuid}\n"
-        f"document_uuid:\t{document.document_uuid}"
-    )
+    if json_output:
+        click.echo(document.model_dump_json(indent=indent))
+    else:
+        click.echo(
+            f"org:\t{org.name}\n"
+            f"kb:\t{kb.name}\n"
+            f"docource_id:\t{docsource.docsource_uuid}\n"
+            f"docsink_id:\t{document.docsink_uuid}\n"
+            f"document_uuid:\t{document.document_uuid}"
+        )

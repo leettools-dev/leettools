@@ -7,6 +7,7 @@ from typing import List, Optional
 from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.repo._impl.duckdb.docsource_store_duckdb_schema import (
     DocSourceDuckDBSchema,
@@ -138,7 +139,7 @@ class DocsourceStoreDuckDB(AbstractDocsourceStore):
             DocSource.FIELD_DOCSOURCE_STATUS,
             DocSource.FIELD_UPDATED_AT,
         ]
-        value_list = [True, DocSourceStatus.ABORTED, datetime.now()]
+        value_list = [True, DocSourceStatus.ABORTED, time_utils.current_datetime()]
         where_clause = (
             f"WHERE {DocSource.FIELD_DOCSOURCE_UUID} = '{docsource.docsource_uuid}'"
         )

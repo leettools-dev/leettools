@@ -2,6 +2,7 @@ from typing import List
 
 from leettools.chat.history_manager import get_history_manager
 from leettools.chat.schemas.chat_history import ChatHistory, CHCreate, CHUpdate
+from leettools.common.logging import logger
 from leettools.common.temp_setup import TempSetup
 from leettools.context_manager import Context
 from leettools.core.consts.article_type import ArticleType
@@ -36,6 +37,7 @@ def test_chat_manager():
             _test_function(context, org, kb)
         finally:
             temp_setup.clear_tmp_org_kb_user(org, kb)
+            logger().info(f"Finished test for store_types: {store_types}")
 
 
 def _test_function(context: Context, org: Org, kb: KnowledgeBase):

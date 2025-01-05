@@ -7,6 +7,7 @@ from typing import List, Optional
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.exceptions import EntityNotFoundException
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.core.strategy._impl.duckdb.prompt_store_ducksb_schema import (
     PromptDuckDBSchema,
 )
@@ -81,7 +82,7 @@ class PromptStoreDuckDB(AbstractPromptStore):
             )
             return self._dict_to_prompt(result)
 
-        current_time = datetime.now()
+        current_time = time_utils.current_datetime()
         prompt_dict = self._prompt_to_dict(prompt_create)
         prompt_id = str(uuid.uuid4())
         prompt_dict[Prompt.FIELD_PROMPT_ID] = prompt_id
@@ -120,7 +121,7 @@ class PromptStoreDuckDB(AbstractPromptStore):
         """Set the status of a prompt in the store."""
         table_name = self._get_table_name()
         column_list = [Prompt.FIELD_PROMPT_STATUS, Prompt.FIELD_UPDATED_AT]
-        value_list = [status, datetime.now()]
+        value_list = [status, time_utils.current_datetime()]
         where_clause = f"WHERE {Prompt.FIELD_PROMPT_ID} = ?"
         value_list = value_list + [prompt_id]
         self.duckdb_client.update_table(

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import click
 
 from leettools.cli.cli_utils import setup_org_kb_user
@@ -86,6 +88,8 @@ def add_search(
     username: str,
     chunk_size: str,
     scheduler_check: bool,
+    json_output: Optional[bool] = False,
+    indent: Optional[int] = 2,
     **kwargs,
 ) -> None:
     from leettools.context_manager import ContextManager
@@ -135,14 +139,15 @@ def add_search(
     )
 
     documents = document_store.get_documents_for_docsource(org, kb, docsource)
-    click.echo("org\tkb\tdocsink_id\tdocument_uuid\tURI")
-    for document in documents:
-        click.echo(
-            f"{org.name}\t{kb.name}"
-            f"\t{document.docsink_uuid}\t{document.document_uuid}"
-            f"\t{document.original_uri}"
-        )
 
-
-if __name__ == "__main__":
-    add_search()
+    if json_output:
+        for document in documents:
+            click.echo(document.model_dump_json(indent=indent))
+    else:
+        click.echo("org\tkb\tdocsink_id\tdocument_uuid\tURI")
+        for document in documents:
+            click.echo(
+                f"{org.name}\t{kb.name}"
+                f"\t{document.docsink_uuid}\t{document.document_uuid}"
+                f"\t{document.original_uri}"
+            )

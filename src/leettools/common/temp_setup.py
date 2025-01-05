@@ -6,6 +6,7 @@ from typing import Optional, Tuple
 
 from leettools.chat.history_manager import _HMInstances
 from leettools.common.logging import logger
+from leettools.common.utils import file_utils, time_utils
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate
@@ -226,7 +227,7 @@ class TempSetup:
                 target_chat_query_item=ChatQueryItem(
                     query_content="dummy query",
                     query_id="dummy query id",
-                    created_at=datetime.now(),
+                    created_at=time_utils.current_datetime(),
                 ),
             )
             pipeline_utils.run_adhoc_pipeline_for_docsinks(

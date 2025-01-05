@@ -5,6 +5,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.consts.org_status import OrgStatus
 
@@ -45,7 +46,7 @@ class OrgInDB(OrgInDBBase):
 
     @classmethod
     def from_org_create(OrgInDB, org_create: OrgCreate) -> "OrgInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         org = OrgInDB(
             name=org_create.name,
             description=org_create.description,

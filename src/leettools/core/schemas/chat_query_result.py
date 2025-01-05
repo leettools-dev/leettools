@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from leettools.common.utils import obj_utils
+from leettools.common.utils import obj_utils, time_utils
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.consts.display_type import DisplayType
 from leettools.flow.schemas.article import ArticleSectionPlan
@@ -85,7 +85,7 @@ class ChatAnswerItem(ChatAnswerItemCreate):
     def from_answer_create(
         ChatAnswerItem, answer_create: ChatAnswerItemCreate
     ) -> "ChatAnswerItem":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         answer = ChatAnswerItem(
             chat_id=answer_create.chat_id,
             query_id=answer_create.query_id,

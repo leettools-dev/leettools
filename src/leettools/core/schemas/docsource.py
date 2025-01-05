@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.consts.docsource_type import DocSourceType
@@ -115,7 +116,7 @@ class DocSourceInDB(DocSourceInDBBase):
     def from_docsource_create(
         DocSourceInDB, docsource_create: DocSourceCreate
     ) -> "DocSourceInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
 
         docsource_in_store = DocSourceInDB(
             # caller needs to update uuid later document is
@@ -148,7 +149,7 @@ class DocSourceInDB(DocSourceInDBBase):
             kb_id=docsource_update.kb_id,
             is_deleted=docsource_update.is_deleted,
             docsource_status=docsource_update.docsource_status,
-            updated_at=datetime.now(),
+            updated_at=time_utils.current_datetime(),
         )
         assign_properties(docsource_update, docsource_in_store)
         return docsource_in_store

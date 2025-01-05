@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.exceptions import EntityExistsException, EntityNotFoundException
+from leettools.common.utils import time_utils
 from leettools.core.strategy._impl.duckdb.intention_store_ducksb_schema import (
     IntentionDuckDBSchema,
 )
@@ -85,7 +86,7 @@ class IntentionStoreDuckDB(AbstractIntentionStore):
         intention_dict = self._intention_to_dict(intention_create)
         if intention_create.display_name is None:
             intention_dict[Intention.FIELD_DISPLAY_NAME] = intention_create.intention
-        intention_dict[Intention.FIELD_CREATED_AT] = datetime.now()
+        intention_dict[Intention.FIELD_CREATED_AT] = time_utils.current_datetime()
         intention_dict[Intention.FIELD_UPDATED_AT] = intention_dict[
             Intention.FIELD_CREATED_AT
         ]
@@ -109,7 +110,7 @@ class IntentionStoreDuckDB(AbstractIntentionStore):
             )
 
         intention_dict = self._intention_to_dict(intention_update)
-        intention_dict[Intention.FIELD_UPDATED_AT] = datetime.now()
+        intention_dict[Intention.FIELD_UPDATED_AT] = time_utils.current_datetime()
         table_name = self._get_table_name()
         column_list = list(intention_dict.keys())
         value_list = list(intention_dict.values())

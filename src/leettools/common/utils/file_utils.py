@@ -11,6 +11,7 @@ from urllib.request import url2pathname
 
 from leettools.common import exceptions
 from leettools.common.exceptions import UnexpectedCaseException, UnexpectedIOException
+from leettools.common.utils import time_utils
 
 # Define a dictionary for other replacements
 replacements = {
@@ -193,7 +194,7 @@ def readable_timestamp() -> str:
     Returns:
         Formatted datetime string ('YYYY-MM-DD HH:MM:SS')
     """
-    now = datetime.now()
+    now = time_utils.current_datetime()
     timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
     return timestamp
 
@@ -209,7 +210,7 @@ def filename_timestamp(now: Optional[datetime] = None) -> str:
     -   Formatted datetime string ("%Y-%m-%d-%H-%M-%S-%f")
     """
     if now is None:
-        now = datetime.now()
+        now = time_utils.current_datetime()
     # generate a timestamp up to milliseconds that can be used in a filename
     timestamp = now.strftime("%Y-%m-%d-%H-%M-%S-%f")
     return timestamp

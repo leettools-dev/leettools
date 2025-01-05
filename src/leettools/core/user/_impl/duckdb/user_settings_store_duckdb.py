@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
+from leettools.common.utils import time_utils
 from leettools.core.schemas.api_provider_config import (
     APIEndpointInfo,
     APIProviderConfig,
@@ -105,7 +106,7 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
         user_settings_dict = self._user_settings_to_dict(user_settings_create)
         user_settings_dict[UserSettings.FIELD_USER_SETTINGS_ID] = str(uuid.uuid4())
 
-        current_time = datetime.now()
+        current_time = time_utils.current_datetime()
         user_settings_dict[UserSettings.FIELD_CREATED_AT] = current_time
         user_settings_dict[UserSettings.FIELD_UPDATED_AT] = current_time
 
@@ -120,7 +121,7 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
         table_name = self._get_user_settings_table_for_user(user_settings.user_uuid)
 
         user_settings_copy = user_settings.model_copy()
-        user_settings_copy.updated_at = datetime.now()
+        user_settings_copy.updated_at = time_utils.current_datetime()
         user_settings_dict = self._user_settings_to_dict(user_settings_copy)
         user_settings_id = user_settings_dict.pop(UserSettings.FIELD_USER_SETTINGS_ID)
         column_list = list(user_settings_dict.keys())

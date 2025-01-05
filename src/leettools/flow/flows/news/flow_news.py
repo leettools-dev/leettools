@@ -1,11 +1,13 @@
-from datetime import datetime, timedelta
-from typing import Any, ClassVar, Dict, List, Optional, Type
+from datetime import timedelta
+from typing import ClassVar, List, Optional, Type
 
 from pydantic import BaseModel, ConfigDict, create_model
 
 from leettools.common import exceptions
 from leettools.common.logging.event_logger import EventLogger
+from leettools.common.utils import config_utils, lang_utils, time_utils
 from leettools.common.utils.template_eval import render_template
+from leettools.core.consts import flow_option
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.chat_query_result import ChatQueryResultCreate
@@ -13,11 +15,13 @@ from leettools.core.schemas.document import Document
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
-from leettools.eds.api_caller.api_caller_base import APICallerBase
 from leettools.eds.extract.extract_store import (
     EXTRACT_DB_METADATA_FIELD,
+    EXTRACT_DB_SOURCE_FIELD,
     EXTRACT_DB_TIMESTAMP_FIELD,
+    create_extract_store,
 )
+from leettools.eds.rag.search.filter import BaseCondition
 from leettools.flow import flow_option_items, iterators
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
@@ -26,7 +30,6 @@ from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
 from leettools.flow.schemas.instruction_vars import InstructionVars
 from leettools.flow.utils import flow_utils
-from leettools.web import search_utils
 
 
 # Need to set the model_config for each model class
@@ -86,7 +89,7 @@ This flow generates a list of news items from the updated items in the KB:
     ] = """
 Please find the news items in the context about {{ query }} nd return
 - The title of the news item
-- The detailed description of the news
+- The detailed description of the news in the style of {{ article_style }}, up to {{ word_count }} words
 - The categories of the news
 - The keywords of the news
 - The date of the news item
@@ -113,6 +116,8 @@ Please find the news items in the context about {{ query }} nd return
         return AbstractFlow.direct_flow_option_items() + [
             flow_option_items.FOI_DAYS_LIMIT(),
             flow_option_items.FOI_OUTPUT_LANGUAGE(),
+            flow_option_items.FOI_WORD_COUNT(),
+            flow_option_items.FOI_ARTICLE_STYLE(),
         ]
 
     def execute_query(
@@ -138,34 +143,71 @@ Please find the news items in the context about {{ query }} nd return
         query = exec_info.query
         flow_options = exec_info.flow_options
 
-        days_limit, max_results = search_utils.get_common_search_paras(
-            flow_options=flow_options,
-            settings=self.context.settings,
+        days_limit = config_utils.get_int_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_DAYS_LIMIT,
+            default_value=0,
             display_logger=display_logger,
         )
 
-        # the flow starts here
-        extract_instructions = render_template(
-            self.default_news_instructions,
-            {"query": query},
-        )
+        if days_limit < 0:
+            display_logger.warning(
+                f"Days limit is set to {days_limit}, which is negative."
+                f"Setting it to default value 0."
+            )
+            days_limit = 0
 
         if days_limit != 0:
-            updated_time_threshold = datetime.now() - timedelta(days=days_limit)
+            updated_time_threshold = time_utils.current_datetime() - timedelta(
+                days=days_limit
+            )
             display_logger.info(
                 f"Setting the updated_time_threshold to {updated_time_threshold}."
             )
         else:
             updated_time_threshold = None
 
+        output_language = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_OUTPUT_LANGUAGE,
+            default_value=None,
+            display_logger=display_logger,
+        )
+        if output_language is not None:
+            output_language = lang_utils.normalize_lang_name(output_language)
+            language_instruction = f"Please generate the output in {output_language}."
+        else:
+            language_instruction = ""
+
+        word_count = config_utils.get_int_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_WORD_COUNT,
+            default_value=200,
+            display_logger=display_logger,
+        )
+
+        article_style = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_ARTICLE_STYLE,
+            default_value="news",
+            display_logger=display_logger,
+        )
+
+        # the flow starts here
+        extract_instructions = render_template(
+            self.default_news_instructions,
+            {"query": query, "word_count": word_count, "article_style": article_style},
+        )
+
         def document_filter(_: ExecInfo, document: Document) -> bool:
+            document_update = document.updated_at
             if (
                 updated_time_threshold is not None
-                and document.updated_at < updated_time_threshold
+                and document_update < updated_time_threshold
             ):
                 display_logger.debug(
                     f"Document {document.original_uri} has updated_time "
-                    f"{document.updated_at} before {updated_time_threshold}. Skipped."
+                    f"{document_update} before {updated_time_threshold}. Skipped."
                 )
                 return False
             return True
@@ -191,13 +233,55 @@ Please find the news items in the context about {{ query }} nd return
             url_compact_fields=[],
         )
 
-        display_logger.debug(f"news_results: {news_results}")
+        display_logger.info(f"news_results: {news_results}")
+
+        # find the existing combined news items
+        target_model_name = "CombinedNewsItems"
+        model_class = CombinedNewsItems
+        combined_news_store = create_extract_store(
+            context=self.context,
+            org=org,
+            kb=kb,
+            target_model_name=target_model_name,
+            target_model_class=model_class,
+        )
+
+        if updated_time_threshold is not None:
+            filter = BaseCondition(
+                field=EXTRACT_DB_TIMESTAMP_FIELD,
+                operator="<",
+                value=updated_time_threshold.timestamp() * 1000,
+            )
+        else:
+            filter = None
+        records = combined_news_store.get_records(filter)
+        if records:
+            display_logger.info(f"Found {len(records)} existing combined news items. ")
+            # TODO: limit the number of records to include in the message
+            old_news = flow_utils.to_markdown_table(
+                instances=records,
+                skip_fields=[
+                    EXTRACT_DB_METADATA_FIELD,
+                    EXTRACT_DB_SOURCE_FIELD,
+                    EXTRACT_DB_TIMESTAMP_FIELD,
+                ],
+                output_fields=["title"],
+                url_compact_fields=[],
+            )
+
+            old_news_instruction = (
+                f"Please remove news items about the following or similar topics:\n"
+                f"{old_news}\n"
+            )
+        else:
+            display_logger.info("No existing combined news items found.")
+            old_news_instruction = ""
 
         # dedupe the news items
         item_type = "news item"
-        system_prompt_template = "You are an expert of deduplicate items."
+        system_prompt_template = "You are an expert of combine and dedupe news items."
         user_prompt_template = f"""
-Given the following {item_type}s in a table where the columns are
+Given a list of {item_type}s in a table where the columns are
 - The title of the {item_type}
 - The detailed description
 - The categories
@@ -205,16 +289,24 @@ Given the following {item_type}s in a table where the columns are
 - The publishing date
 - The URL of the source
 
+Please combine {item_type}s about the same news topic according to their title and 
+descriptions into one {item_type}, limit the length of the combined title to 30 words,
+description to {{{{ word_count }}}} words, and combine their keywords and categories. 
+List for the combined {item_type}, and return the combine {item_type}s as the schema 
+provided.
+
+{{{{ language_instruction}}}}
+
+{{{{ old_news_instruction }}}}
+
+Here are the news items to combine, dedupe, remove, and rank by the number of sources:
+
 {{{{ results }}}}
-
-Please combine {item_type}s with similar title and descriptions into one {item_type},
-limit the length of the combined title to 30 words, description to 200 words, and
-combine their keywords and categories. List for the combined {item_type}, and return 
-the combine {item_type}s as the schema provided.
 """
-
-        target_model_name = "CombinedNewsItems"
-        model_class = CombinedNewsItems
+        # we added the old_news_instruction to the user prompt
+        # but OpenAI API does not follow the instruction very well
+        # the news item with the same title is not removed
+        #
 
         new_class_name = f"{target_model_name}_list"
         response_pydantic_model = create_model(
@@ -224,11 +316,21 @@ the combine {item_type}s as the schema provided.
 
         api_caller = exec_info.get_inference_caller()
 
+        user_prompt = render_template(
+            user_prompt_template,
+            {
+                "results": news_results,
+                "word_count": word_count,
+                "language_instruction": language_instruction,
+                "old_news_instruction": old_news_instruction,
+            },
+        )
+
+        display_logger.info(f"user_prompt: {user_prompt}")
+
         response_str, completion = api_caller.run_inference_call(
             system_prompt=system_prompt_template,
-            user_prompt=render_template(
-                user_prompt_template, {"results": news_results}
-            ),
+            user_prompt=user_prompt,
             need_json=True,
             call_target="dedup_and_combine",
             response_pydantic_model=response_pydantic_model,
@@ -251,10 +353,25 @@ the combine {item_type}s as the schema provided.
             url_compact_fields=[],
         )
 
-        display_logger.debug(f"deduped_news_results: {deduped_news_results}")
+        display_logger.info(f"deduped_news_results: {deduped_news_results}")
+
+        # remove news with only one source since OpenAI is bad at judging the
+        # noteworthiness of the news
+
+        final_news_items = [
+            item for item in deduped_news_items if len(item.source_urls) > 1
+        ]
+        final_news_results = flow_utils.to_markdown_table(
+            instances=final_news_items,
+            skip_fields=[EXTRACT_DB_METADATA_FIELD, EXTRACT_DB_TIMESTAMP_FIELD],
+            output_fields=None,
+            url_compact_fields=[],
+        )
+
+        combined_news_store.save_records(final_news_items, metadata={})
 
         return flow_utils.create_chat_result_with_table_msg(
-            msg=deduped_news_results,
+            msg=final_news_results,
             header=list(CombinedNewsItems.model_fields.keys()),
             rows=[item.model_dump() for item in deduped_news_items],
             exec_info=exec_info,

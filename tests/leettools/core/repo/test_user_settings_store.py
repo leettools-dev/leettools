@@ -66,7 +66,7 @@ def _test_settings_store(context: Context, org: Org, kb: KnowledgeBase, user: Us
     assert new_user_settings is not None
     assert new_user_settings.user_uuid == user.user_uuid
     assert new_user_settings.settings["OPENAI_API_KEY"].value == "new_key"
-    # when storing to DB, the datetime.now() may lose the microsecond
+    # when storing to DB, the time_utils.current_datetime() may lose the microsecond
     # 2024-04-20 23:44:18.609678 -> 2024-04-20 23:44:18.609000
     # so need to be careful when comparing the datetime
     assert new_user_settings.updated_at > user_settings.updated_at

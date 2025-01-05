@@ -5,7 +5,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from leettools.common.utils import auth_utils
+from leettools.common.utils import auth_utils, time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.consts.accouting import INIT_BALANCE
 
@@ -50,7 +50,7 @@ class UserInDB(UserCreate):
 
     @classmethod
     def from_user_create(UserInDB, user_create: UserCreate) -> "UserInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         user_in_db = UserInDB(
             username=user_create.username,
             user_uuid="",

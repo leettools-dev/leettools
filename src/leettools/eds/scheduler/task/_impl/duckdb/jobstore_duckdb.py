@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.exceptions import EntityNotFoundException
+from leettools.common.utils import time_utils
 from leettools.eds.scheduler.schemas.job import Job, JobCreate, JobInDB, JobUpdate
 from leettools.eds.scheduler.schemas.job_status import JobStatus
 from leettools.eds.scheduler.schemas.program import ProgramSpec
@@ -87,7 +88,7 @@ class JobStoreDuckDB(AbstractJobStore):
             raise EntityNotFoundException(entity_name=job_uuid, entity_type="Job")
 
         existing_job.is_deleted = True
-        existing_job.updated_at = datetime.now()
+        existing_job.updated_at = time_utils.current_datetime()
 
         job_dict = self._job_to_dict(existing_job)
         job_uuid = job_dict.pop(Job.FIELD_JOB_UUID)
@@ -200,7 +201,7 @@ class JobStoreDuckDB(AbstractJobStore):
         where_clause = f"WHERE {Job.FIELD_JOB_UUID} = ?"
         value_list = [job_uuid]
         column_list = [Job.FIELD_JOB_STATUS, Job.FIELD_UPDATED_AT]
-        value_list = [job_status, datetime.now()] + value_list
+        value_list = [job_status, time_utils.current_datetime()] + value_list
         self.duckdb_client.update_table(
             table_name=self.table_name,
             column_list=column_list,

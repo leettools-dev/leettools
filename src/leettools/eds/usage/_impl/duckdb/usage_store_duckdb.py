@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
+from leettools.common.utils import time_utils
 from leettools.core.user.user_store import AbstractUserStore
 from leettools.eds.usage._impl.duckdb.usage_store_duckdb_schema import (
     UsageAPICallDuckDBSchema,
@@ -42,7 +43,7 @@ class UsageStoreDuckDB(AbstractUsageStore):
         table_name = self._get_table_name(USAGE_API_CALL)
 
         data_dict = api_usage_create.model_dump()
-        data_dict["created_at"] = datetime.now()
+        data_dict["created_at"] = time_utils.current_datetime()
 
         # convert the usage to LeetToken
         if (

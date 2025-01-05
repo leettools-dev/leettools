@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import ClassVar, List, Optional
 
+from leettools.common.utils import time_utils
 from leettools.core.config.performance_configurable import PerformanceConfigurable
 from leettools.core.schemas.knowledgebase import KBCreate, KBUpdate, KnowledgeBase
 from leettools.core.schemas.organization import Org
@@ -10,7 +11,7 @@ from leettools.settings import SystemSettings
 
 def get_kb_name_from_query(query: str) -> str:
     # create a timestamp in the format of "YYYYMMDD_HHMMSS"
-    now = datetime.now()
+    now = time_utils.current_datetime()
     timestamp = now.strftime("%Y%m%d_%H%M%S")
 
     # get the first two words of the query

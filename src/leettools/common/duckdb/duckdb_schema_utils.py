@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union, get_args, get_origin
 from pydantic import BaseModel, Field
 
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import TypeVar_BaseModel
 
 
@@ -116,7 +117,7 @@ def duckdb_data_to_pydantic_obj(
                 data[key] = bool(value)
             elif "datetime" in str(field_type).lower():
                 if type(value) is str:
-                    data[key] = datetime.fromisoformat(value)
+                    data[key] = time_utils.datetime_from_timestamp_in_ms()
                 elif type(value) is datetime:
                     data[key] = value
                 else:

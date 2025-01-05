@@ -5,6 +5,7 @@ from typing import Any, List, Optional
 from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.core.consts.docsink_status import DocSinkStatus
 from leettools.core.repo._impl.duckdb.docsink_store_duckdb_schema import (
     DocsinkDuckDBSchema,
@@ -210,7 +211,7 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
                 )
             else:
                 using_existing.docsource_uuids.append(docsource_uuid)
-            using_existing.updated_at = datetime.now()
+            using_existing.updated_at = time_utils.current_datetime()
             update_docsink = self.update_docsink(org, kb, using_existing)
             return update_docsink
 
@@ -220,7 +221,7 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
     def delete_docsink(self, org: Org, kb: KnowledgeBase, docsink: DocSink) -> bool:
         table_name = self._get_table_name(org, kb)
         column_list = [DocSink.FIELD_IS_DELETED, DocSink.FIELD_UPDATED_AT]
-        value_list = [True, datetime.now()]
+        value_list = [True, time_utils.current_datetime()]
         where_clause = f"WHERE {DocSink.FIELD_DOCSINK_UUID} = ?"
         value_list = value_list + [docsink.docsink_uuid]
         self.duckdb_client.update_table(

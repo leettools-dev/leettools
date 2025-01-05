@@ -5,6 +5,7 @@ from typing import List, Optional
 from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.context_manager import Context
 from leettools.core.schemas.user import User, UserCreate, UserInDB, UserUpdate
 from leettools.core.user._impl.duckdb.user_store_duckdb_schema import UserDuckDBSchema
@@ -173,7 +174,7 @@ class UserStoreDuckDB(AbstractUserStore):
     def update_user(self, user_update: UserUpdate) -> Optional[User]:
         user_uuid = user_update.user_uuid
         update_dict = user_update.model_dump()
-        update_dict[User.FIELD_UPDATED_AT] = datetime.now()
+        update_dict[User.FIELD_UPDATED_AT] = time_utils.current_datetime()
         user_uuid = update_dict.pop(User.FIELD_USER_UUID)
         column_list = list(update_dict.keys())
         where_clause = f"WHERE {User.FIELD_USER_UUID} = ?"

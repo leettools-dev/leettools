@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
@@ -89,7 +90,7 @@ class CHInDB(CHInDBBase):
 
     @classmethod
     def from_ch_create(CHInDB, ch_create: CHCreate) -> "CHInDB":
-        ct = datetime.now()
+        ct = time_utils.current_datetime()
         ch = CHInDB(
             name=ch_create.name,
             org_id=ch_create.org_id,

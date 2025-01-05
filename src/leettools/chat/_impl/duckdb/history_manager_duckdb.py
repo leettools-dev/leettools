@@ -1,7 +1,6 @@
 import json
 import traceback
 import uuid
-from datetime import datetime
 from functools import cmp_to_key
 from typing import Any, Dict, List, Optional
 
@@ -26,7 +25,7 @@ from leettools.common.exceptions import (
 from leettools.common.logging import logger, remove_logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.logging.logger_for_query import get_logger_for_chat
-from leettools.common.utils import content_utils
+from leettools.common.utils import content_utils, time_utils
 from leettools.context_manager import Context
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.schemas.chat_query_item import ChatQueryItem, ChatQueryItemCreate
@@ -95,7 +94,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             ch_in_db.answers.append(answer)
             chat_answer_item_list.append(answer)
 
-        timestamp_now = datetime.now()
+        timestamp_now = time_utils.current_datetime()
         ch_in_db.updated_at = timestamp_now
 
         for query_item in ch_in_db.queries:
@@ -436,7 +435,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
     def add_ch_entry(self, ch_create: CHCreate) -> ChatHistory:
         """Add a new chat history entry."""
         chat_id = str(uuid.uuid4())
-        current_time = datetime.now()
+        current_time = time_utils.current_datetime()
 
         chat_dict = ch_create.model_dump()
         chat_dict.update(
@@ -537,7 +536,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         for answer_item in ch_in_db.answers:
             if answer_item.query_id == query_id:
                 ch_in_db.answers.remove(answer_item)
-        ch_in_db.updated_at = datetime.now()
+        ch_in_db.updated_at = time_utils.current_datetime()
         query_dict = self._chat_history_to_dict(ch_in_db)
         column_list = [
             k
@@ -732,7 +731,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 # tmp solution since we do not want to delete the old answer
                 answer.answer_score = -2
                 answer.query_id = "-" + answer.query_id + "-"
-                answer.updated_at = datetime.now()
+                answer.updated_at = time_utils.current_datetime()
                 updated = True
                 break
 
@@ -881,7 +880,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             logger().info("No update needed for chat history")
             return self.get_ch_entry(ch_update.creator_id, ch_update.chat_id)
 
-        update_dict[ChatHistory.FIELD_UPDATED_AT] = datetime.now()
+        update_dict[ChatHistory.FIELD_UPDATED_AT] = time_utils.current_datetime()
 
         column_list = [k for k in update_dict.keys()]
         value_list = [v for v in update_dict.values()]
@@ -919,7 +918,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 # tmp solution since we do not want to delete the old answer
                 answer.answer_score = -2
                 answer.query_id = "-" + answer.query_id + "-"
-                answer.updated_at = datetime.now()
+                answer.updated_at = time_utils.current_datetime()
                 new_answer = ChatAnswerItem.from_answer_create(new_answer)
                 chat.answers.append(new_answer)
                 updated = True

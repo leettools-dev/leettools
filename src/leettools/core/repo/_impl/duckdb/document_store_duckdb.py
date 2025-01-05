@@ -1,10 +1,10 @@
 import json
 import uuid
-from datetime import datetime
 from typing import List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.repo._impl.duckdb.document_store_duckdb_schema import (
     DocumentDuckDBSchema,
@@ -207,7 +207,7 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
             return False
 
         # Update document status
-        update_time = datetime.now()
+        update_time = time_utils.current_datetime()
         column_list = [Document.FIELD_IS_DELETED, Document.FIELD_UPDATED_AT]
         where_clause = f"WHERE {Document.FIELD_DOCUMENT_UUID} = ?"
         value_list = [True, update_time, document.document_uuid]

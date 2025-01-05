@@ -83,7 +83,7 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase, user
         active=True,
         metadata={"key": "value"},
         aliases=["alias1", "alias2"],
-        created_at=datetime.now(),
+        created_at=time_utils.current_datetime(),
         created_timestamp_in_ms=time_utils.cur_timestamp_in_ms(),
     )
 
@@ -94,7 +94,7 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase, user
         active=False,
         metadata={"key": "value"},
         aliases=["alias1", "alias2"],
-        created_at=datetime.now(),
+        created_at=time_utils.current_datetime(),
         created_timestamp_in_ms=time_utils.cur_timestamp_in_ms(),
     )
 

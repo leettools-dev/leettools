@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.exceptions import EntityNotFoundException, UnexpectedCaseException
 from leettools.common.logging import logger
+from leettools.common.utils import time_utils
 from leettools.core.schemas.docsink import DocSink
 from leettools.core.schemas.docsource import DocSource
 from leettools.core.schemas.document import Document
@@ -85,7 +86,7 @@ class TaskStoreDuckDB(AbstractTaskStore):
             raise EntityNotFoundException(entity_name=task_uuid, entity_type="Task")
 
         task.is_deleted = True
-        task.updated_at = datetime.now()
+        task.updated_at = time_utils.current_datetime()
 
         task_dict = self._task_to_dict(task)
         task_uuid = task_dict.pop(Task.FIELD_TASK_UUID)
@@ -242,7 +243,7 @@ class TaskStoreDuckDB(AbstractTaskStore):
         - The updated task.
         """
         column_list = [Task.FIELD_TASK_STATUS, Task.FIELD_UPDATED_AT]
-        value_list = [job_status, datetime.now()] + [task_uuid]
+        value_list = [job_status, time_utils.current_datetime()] + [task_uuid]
         where_clause = f"WHERE {Task.FIELD_TASK_UUID}=?"
         self.duckdb_client.update_table(
             table_name=self.table_name,
