@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import click
 
-from leettools.common.exceptions import EntityNotFoundException, UnexpectedCaseException
+from leettools.common import exceptions
 from leettools.context_manager import Context
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.schemas.knowledgebase import KBCreate, KnowledgeBase
@@ -64,7 +64,9 @@ def setup_org_kb_user(
     else:
         user = user_store.get_user_by_name(username)
         if user is None:
-            raise EntityNotFoundException(entity_name=username, entity_type="User")
+            raise exceptions.EntityNotFoundException(
+                entity_name=username, entity_type="User"
+            )
 
     # we will report error if the org does not exist
     # usually we do not specify the org name
@@ -73,11 +75,13 @@ def setup_org_kb_user(
     else:
         org = org_manager.get_org_by_name(org_name)
     if org is None:
-        raise EntityNotFoundException(entity_name=org_name, entity_type="Organization")
+        raise exceptions.EntityNotFoundException(
+            entity_name=org_name, entity_type="Organization"
+        )
 
     if adhoc_kb:
         if kb_name is None:
-            raise UnexpectedCaseException(
+            raise exceptions.UnexpectedCaseException(
                 "Adhoc KB creation requires a kb_name to be specified."
             )
         # adhoc kb is created with auto_schedule=False
