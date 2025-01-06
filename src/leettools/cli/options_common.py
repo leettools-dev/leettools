@@ -3,6 +3,7 @@ from functools import wraps
 import click
 
 from leettools.common.logging.event_logger import EventLogger
+from leettools.context_manager import ContextManager
 
 
 def common_options(f):
@@ -33,6 +34,15 @@ def common_options(f):
         required=False,
         help="The number of spaces to indent the JSON output.",
     )
+    @click.option(
+        "-e",
+        "--env",
+        "env",
+        default=None,
+        required=False,
+        help="The environment file to use, absolute path or related to package root.",
+        callback=_read_from_env,
+    )
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
 
@@ -45,4 +55,11 @@ def _set_log_level(ctx, param, value: str) -> str:
         EventLogger.set_global_default_level(value.upper())
     else:
         EventLogger.set_global_default_level("WARNING")
+    return value
+
+
+def _read_from_env(ctx, param, value: str) -> str:
+    if value:
+        context = ContextManager().get_context()
+        context.reset(is_test=False, new_env_file=value)
     return value

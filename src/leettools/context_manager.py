@@ -188,9 +188,9 @@ class Context:
                 settings.COLLECTION_PROMPT = settings.COLLECTION_PROMPT + "_test"
             if not settings.DUCKDB_FILE.endswith("_test.db"):
                 settings.DUCKDB_FILE = settings.DUCKDB_FILE.replace(".db", "_test.db")
-        self.reset_with_new_settings(settings)
+        self._reset_with_new_settings(settings)
 
-    def reset_with_new_settings(self, settings: SystemSettings):
+    def _reset_with_new_settings(self, settings: SystemSettings):
         self.settings = settings
 
         # TODO: reset all the dependencies used

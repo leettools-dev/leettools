@@ -87,43 +87,55 @@ environment variables:
 
 ```bash
 ### to use other API providers such as DeepSeek, you can
-export EDS_DEFAULT_OPENAI_BASE_URL=https://api.deepseek.com/v1
-export EDS_OPENAI_API_KEY=<your deepseek api key>
-export EDS_DEFAULT_OPENAI_MODEL=deepseek-chat
+% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.deepseek.com/v1
+% export EDS_OPENAI_API_KEY=<your deepseek api key>
+% export EDS_DEFAULT_OPENAI_MODEL=deepseek-chat
 # use a local embedder since DeepSeek does not provide an embedding endpoint yet
 # if the API supports OpenAI-compatible embedding endpoint, no extra settings needed
 # this dense_embedder_local_mem uses all-MiniLM-L6-v2 model as a singleton embedder
-export EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
+% export EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
+
+# Or you can put the above settings in the .env.deepseek file
+% cat .env.deepseek
+LEET_HOME=/Users/myhome/leettools
+EDS_DEFAULT_OPENAI_BASE_URL=https://api.deepseek.com/v1
+EDS_OPENAI_API_KEY=sk-0d8-mykey
+EDS_DEFAULT_OPENAI_MODEL=deepseek-chat
+EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
+
+# Then run the command with the -e option to specify the .env file to use
+% leet flow -e .env.deepseek -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
+Here is an example output of the `answer` flow:
 
 ```markdown
 ** Sample Output **
-# What Is GraphRAG
-GraphRAG is an advanced approach to Retrieval-Augmented Generation (RAG) that integrates knowledge graphs with large language models (LLMs) to enhance the generation of responses based on retrieved information. Its primary purpose is to improve the accuracy and relevance of generated outputs by leveraging the structured relationships within knowledge graphs, which allows for a more comprehensive contextual understanding of the data being processed[[1](#reference-1)][[2](#reference-2)].
+# How Does Graphrag Work?
+GraphRAG operates by constructing a knowledge graph from a set of documents, which
+involves several key steps. Initially, it ingests textual data and utilizes a large
+language model (LLM) to extract entities (such as people, places, and concepts) and
+their relationships, mapping these as nodes and edges in a graph structure[1]. 
 
-One of the key enhancements GraphRAG brings to traditional RAG techniques is its ability to connect disparate pieces of information through their shared attributes, enabling the model to synthesize new insights. This is particularly beneficial for complex queries that require multi-hop reasoning or the integration of information from various sources[[3](#reference-3)][[4](#reference-4)]. By utilizing knowledge graphs, GraphRAG can better understand the relationships and dependencies between different pieces of information, leading to more coherent and contextually appropriate responses[[5](#reference-5)][[6](#reference-6)].
+The process begins with pre-processing and indexing, where the text is segmented into
+manageable units, and entities and relationships are identified. These entities are
+then organized into hierarchical "communities," which are clusters of related topics
+that allow for a more structured understanding of the data[2][3]. 
 
-The benefits of GraphRAG compared to traditional RAG techniques include:
+When a query is made, GraphRAG employs two types of searches: Global Search, which
+looks across the entire knowledge graph for broad connections, and Local Search, which
+focuses on specific subgraphs for detailed information[3]. This dual approach enables
+GraphRAG to provide comprehensive answers that consider both high-level themes and
+specific details, allowing it to handle complex queries effectively[3][4].
 
-1. **Enhanced Knowledge Representation**: GraphRAG captures complex relationships between entities and concepts, allowing for a richer understanding of the data[[7](#reference-7)][[8](#reference-8)].
-2. **Explainability**: The use of knowledge graphs makes the decision-making process of the AI more transparent, enabling users to trace errors and understand the reasoning behind outputs[[9](#reference-9)][[10](#reference-10)].
-3. **Improved Contextual Understanding**: By grounding responses in factual knowledge, GraphRAG reduces the risk of generating incorrect or misleading information, a common issue in traditional RAG systems[[11](#reference-11)][[12](#reference-12)].
-4. **Scalability and Efficiency**: GraphRAG can handle large datasets more efficiently, as it is built on fast knowledge graph stores, which can optimize performance and reduce costs associated with vector databases[[13](#reference-13)][[14](#reference-14)].
-
-Overall, GraphRAG represents a significant advancement in the field of AI, particularly in applications requiring high precision and the ability to reason over complex relationships within data[[15](#reference-15)][[16](#reference-16)].
+In summary, GraphRAG enhances traditional retrieval-augmented generation (RAG) by
+leveraging a structured knowledge graph, enabling it to provide nuanced responses that
+reflect the interconnected nature of the information it processes[1][2].
 ## References
-[1] [https://medium.com/@amrwrites/you-probably-dont-need-graphrag-0bc9cf671db1](https://medium.com/@amrwrites/you-probably-dont-need-graphrag-0bc9cf671db1)
-
+[1] [https://www.falkordb.com/blog/what-is-graphrag/](https://www.falkordb.com/blog/what-is-graphrag/)
 [2] [https://medium.com/@zilliz_learn/graphrag-explained-enhancing-rag-with-knowledge-graphs-3312065f99e1](https://medium.com/@zilliz_learn/graphrag-explained-enhancing-rag-with-knowledge-graphs-3312065f99e1)
-
-[3] [https://www.datastax.com/guides/graph-rag](https://www.datastax.com/guides/graph-rag)
-
-[4] [https://www.falkordb.com/blog/what-is-graphrag/](https://www.falkordb.com/blog/what-is-graphrag/)
-
-[5] [https://www.ontotext.com/knowledgehub/fundamentals/what-is-graph-rag/](https://www.ontotext.com/knowledgehub/fundamentals/what-is-graph-rag/)
-
-[6] [https://microsoft.github.io/graphrag/](https://microsoft.github.io/graphrag/)
+[3] [https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d](https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d)
+[4] [https://github.com/microsoft/graphrag/discussions/511](https://github.com/microsoft/graphrag/discussions/511)
 ```
 
 Right now LeetTools provides the following flows:
@@ -131,7 +143,7 @@ Right now LeetTools provides the following flows:
 * answer  : Answer the query directly with source references.
 * digest  : Generate a multi-section digest article from search results.
 * search  : Search for top segements that match the query.
-* news    : Generate a news-style article from the search results.
+* news    : Generate a list of news items from the current KB content.
 * extract : Extract information from the search results and output as csv.
 
 
