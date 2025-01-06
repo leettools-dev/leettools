@@ -76,4 +76,5 @@ def create(
     if json_output:
         click.echo(kb.model_dump_json(indent=indent))
     else:
-        click.echo(kb)
+        for field in kb.model_fields:
+            click.echo(f"{field}: {getattr(kb, field)}")
