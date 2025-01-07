@@ -8,7 +8,7 @@ version = "1.0.0"
 authors = [
   { name="LeetTools-dev", email="leettools@gmail.com" },
 ]
-description = "AI Search tools."
+description = "AI Search Workflow with Document Pipelines."
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [

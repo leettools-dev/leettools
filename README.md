@@ -1,41 +1,33 @@
 [![Follow on X](https://img.shields.io/twitter/follow/LeetTools?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=LeetTools)
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
-# LeetTools
+# AI Search Workflow with Document Pipelines
 
-## Open Source AI Search Tools
+LeetTools is an AI search workflow engine with document pipeline support. With an
+automated document pipeline that handles data ingestion, indexing, and storage, we can
+easily run search workflows that query, extract and generate content from the web or
+local knowledge bases. 
 
-LeetTools allows you to run highly customizable search workflows to query, extract, and 
-generate information from the web or local knowledge bases. Instead of using a web
-page to interact with the search engine, we can run complex search workflows or automated
-search tasks from the command line.
+With a DuckDB-backend and configurable LLM settings, LeetTools can run with minimal 
+resource requirements on the command line and can be easily integrated with other 
+applications need AI search and knowledge base support.
 
-For example, when we search for a topic, we can go through the top X pages of the search
-results instead of only the first one, filter out the unrelated ones, and then generate
-a digest article from the relevant search results with citation to the source. This 
-process works very similar to other AI search engines such as Perplexity and ChatGPT
-Search, but with LeetTools, you can customize the search workflow to fit your needs. 
-For example, you can easily
+Here is a demo of LeetTools in action to answer the question "How does GraphRAG work?":
 
-1. ask the question in language X, search in language Y, and summarize in language Z.
-2. only search in a specific domain, or exclude certain domains from the search.
-3. only search for recent documents from the last X days.
-4. control the output: style, number of words, and number of sections, etc.
-5. extract structured information instead of generating answers.
+![LeetTools Overview](https://gist.githubusercontent.com/pengfeng/30b66efa58692fa3bc94af89e0895df4/raw/7a274cd60fbe9a3aabad56e5fa1a9c7e7021ba21/leettools-answer-demo.svg)
 
-The relevant documents scraped during the search are stored in a local knowledge base
-and you can query it again for related questions. You can add your own documents to the
-knowledge base and use them in the search workflow. The system is designed to 
-be modular and extensible; all the components are implemented as plugins allowing to use
-different components and configurations.
+Currently LeetTools provide the following workflow:
 
-LeetTools provides an easy way to implement search-related function in daily workflows.
-For this version, all the data operations are backed by the in-memory database DuckDB to
-reduce the resource footprints. You can easily run it on the command line or a cron
-job to automate the search tasks. 
+* answer  : Answer the query directly with source references (similar to Perplexity).
+* digest  : Generate a multi-section digest article from search results (similar to Google Deep Research).
+* search  : Search for top segements that match the query.
+* news    : Generate a list of news items for the specified topic.
+* extract : Extract and store structured data for given schema.
+* opinions: Generate sentiment analysis and facts from the search results. 
 
-## Features
+## Main Components
 
+The main components of the backend include:
 * 🚀 Automated document pipeline to ingest, convert, chunk, embed, and index documents.
 * 🗂️ Knowledge base to manage and serve the indexed documents.
 * 🔍 Search and retrieval library to fetch documents from the web or local KB.
@@ -44,6 +36,12 @@ job to automate the search tasks.
 * 📝 Query history system to manage the history and the context of the queries.
 * 💻 Scheduler for automatic execution of the pipeline tasks.
 * 🧩 Accounting system to track the usage of the LLM APIs.
+
+The architecture of the document pipeline is shown below:
+
+![LeetTools Document Pipeline](https://gist.githubusercontent.com/pengfeng/4b2e36bda389e0a3c338b5c42b5d09c1/raw/6bc06db40dadf995212270d914b46281bf7edae9/leettools-eds-arch.svg)
+
+See the [Documentation](docs/documentation.md) for more details.
 
 ## Quick start
 
@@ -79,33 +77,8 @@ job to automate the search tasks.
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-### Using DeepSeek API
-
 We can also use any OpenAI-compatible LLM inference endpoint by setting the related 
-environment variable. For example, we can use the DeepSeek API by setting the following
-environment variables:
-
-```bash
-### to use other API providers such as DeepSeek, you can
-% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.deepseek.com/v1
-% export EDS_OPENAI_API_KEY=<your deepseek api key>
-% export EDS_DEFAULT_OPENAI_MODEL=deepseek-chat
-# use a local embedder since DeepSeek does not provide an embedding endpoint yet
-# if the API supports OpenAI-compatible embedding endpoint, no extra settings needed
-# this dense_embedder_local_mem uses all-MiniLM-L6-v2 model as a singleton embedder
-% export EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
-
-# Or you can put the above settings in the .env.deepseek file
-% cat .env.deepseek
-LEET_HOME=/Users/myhome/leettools
-EDS_DEFAULT_OPENAI_BASE_URL=https://api.deepseek.com/v1
-EDS_OPENAI_API_KEY=sk-0d8-mykey
-EDS_DEFAULT_OPENAI_MODEL=deepseek-chat
-EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
-
-# Then run the command with the -e option to specify the .env file to use
-% leet flow -e .env.deepseek -t answer -q "How does GraphRAG work?" -k graphrag -l info
-```
+environment variable. An example of using the DeepSeek API is described [here](docs/deepseek.md).
 
 Here is an example output of the `answer` flow:
 
@@ -137,18 +110,6 @@ reflect the interconnected nature of the information it processes[1][2].
 [3] [https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d](https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d)
 [4] [https://github.com/microsoft/graphrag/discussions/511](https://github.com/microsoft/graphrag/discussions/511)
 ```
-
-Right now LeetTools provides the following flows:
-
-* answer  : Answer the query directly with source references.
-* digest  : Generate a multi-section digest article from search results.
-* search  : Search for top segements that match the query.
-* news    : Generate a list of news items from the current KB content.
-* extract : Extract information from the search results and output as csv.
-
-
-See the [Documentation](docs/documentation.md) for more details.
-
 
 ## Libraries and APIs used
 
