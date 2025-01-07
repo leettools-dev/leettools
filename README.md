@@ -5,36 +5,8 @@
 
 ## Open Source AI Search Tools
 
-LeetTools allows you to run highly customizable search workflows to query, extract, and 
-generate information from the web or local knowledge bases. Instead of using a web
-page to interact with the search engine, we can run complex search workflows or automated
-search tasks from the command line.
-
-For example, when we search for a topic, we can go through the top X pages of the search
-results instead of only the first one, filter out the unrelated ones, and then generate
-a digest article from the relevant search results with citation to the source. This 
-process works very similar to other AI search engines such as Perplexity and ChatGPT
-Search, but with LeetTools, you can customize the search workflow to fit your needs. 
-For example, you can easily
-
-1. ask the question in language X, search in language Y, and summarize in language Z.
-2. only search in a specific domain, or exclude certain domains from the search.
-3. only search for recent documents from the last X days.
-4. control the output: style, number of words, and number of sections, etc.
-5. extract structured information instead of generating answers.
-
-The relevant documents scraped during the search are stored in a local knowledge base
-and you can query it again for related questions. You can add your own documents to the
-knowledge base and use them in the search workflow. The system is designed to 
-be modular and extensible; all the components are implemented as plugins allowing to use
-different components and configurations.
-
-LeetTools provides an easy way to implement search-related function in daily workflows.
-For this version, all the data operations are backed by the in-memory database DuckDB to
-reduce the resource footprints. You can easily run it on the command line or a cron
-job to automate the search tasks. 
-
-## Features
+LeetTools is a set of highly customizable search workflows that can query, extract, and
+generate information from the web or local knowledge bases. 
 
 * 🚀 Automated document pipeline to ingest, convert, chunk, embed, and index documents.
 * 🗂️ Knowledge base to manage and serve the indexed documents.
@@ -44,6 +16,16 @@ job to automate the search tasks.
 * 📝 Query history system to manage the history and the context of the queries.
 * 💻 Scheduler for automatic execution of the pipeline tasks.
 * 🧩 Accounting system to track the usage of the LLM APIs.
+
+Right now LeetTools provides the following flows:
+
+* answer  : Answer the query directly with source references.
+* digest  : Generate a multi-section digest article from search results.
+* search  : Search for top segements that match the query.
+* news    : Generate a list of news items from the current KB content.
+* extract : Extract information from the search results and output as csv.
+
+See the [Documentation](docs/documentation.md) for more details.
 
 ## Quick start
 
@@ -137,18 +119,6 @@ reflect the interconnected nature of the information it processes[1][2].
 [3] [https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d](https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d)
 [4] [https://github.com/microsoft/graphrag/discussions/511](https://github.com/microsoft/graphrag/discussions/511)
 ```
-
-Right now LeetTools provides the following flows:
-
-* answer  : Answer the query directly with source references.
-* digest  : Generate a multi-section digest article from search results.
-* search  : Search for top segements that match the query.
-* news    : Generate a list of news items from the current KB content.
-* extract : Extract information from the search results and output as csv.
-
-
-See the [Documentation](docs/documentation.md) for more details.
-
 
 ## Libraries and APIs used
 
