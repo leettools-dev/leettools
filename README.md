@@ -1,13 +1,21 @@
 [![Follow on X](https://img.shields.io/twitter/follow/LeetTools?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=LeetTools)
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
-# LeetTools
+# LeetTools - AI Search Workflow Engine with Document Pipeline
 
-## Open Source AI Search Tools
+LeetTools is an AI search workflow engine with document pipeline support. With an
+automated document pipeline that handles data ingestion, indexing, and storage, we can
+easily run search workflows that query, extract, generate, and save information from
+the web or local knowledge bases. Currently LeetTools provide the following workflow:
 
-LeetTools is a set of highly customizable search workflows that can query, extract, and
-generate information from the web or local knowledge bases. 
+* answer  : Answer the query directly with source references (similar to Perplexity).
+* digest  : Generate a multi-section digest article from search results (similar to Google Deep Research).
+* search  : Search for top segements that match the query.
+* news    : Generate a list of news items for the specified topic.
+* extract : Extract and store structured data for given schema.
+* opinions: Generate sentiment analysis and facts from the search results. 
 
+The main components of the backend include:
 * 🚀 Automated document pipeline to ingest, convert, chunk, embed, and index documents.
 * 🗂️ Knowledge base to manage and serve the indexed documents.
 * 🔍 Search and retrieval library to fetch documents from the web or local KB.
@@ -16,14 +24,6 @@ generate information from the web or local knowledge bases.
 * 📝 Query history system to manage the history and the context of the queries.
 * 💻 Scheduler for automatic execution of the pipeline tasks.
 * 🧩 Accounting system to track the usage of the LLM APIs.
-
-Right now LeetTools provides the following flows:
-
-* answer  : Answer the query directly with source references.
-* digest  : Generate a multi-section digest article from search results.
-* search  : Search for top segements that match the query.
-* news    : Generate a list of news items from the current KB content.
-* extract : Extract information from the search results and output as csv.
 
 See the [Documentation](docs/documentation.md) for more details.
 
