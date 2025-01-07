@@ -1,7 +1,7 @@
 [![Follow on X](https://img.shields.io/twitter/follow/LeetTools?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=LeetTools)
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
-# AI Search Workflow and Document Pipelines
+# AI Search Workflow with Document Pipelines
 
 LeetTools is an AI search workflow engine with document pipeline support. With an
 automated document pipeline that handles data ingestion, indexing, and storage, we can
@@ -12,7 +12,7 @@ With a DuckDB-backend and configurable LLM settings, LeetTools can run with mini
 resource requirements on the command line and can be easily integrated with other 
 applications need AI search and knowledge base support.
 
-Here is a demo of LeetTools in action:
+Here is a demo of LeetTools in action to answer the question "How does GraphRAG work?":
 
 ![LeetTools Overview](https://gist.githubusercontent.com/pengfeng/30b66efa58692fa3bc94af89e0895df4/raw/7a274cd60fbe9a3aabad56e5fa1a9c7e7021ba21/leettools-answer-demo.svg)
 

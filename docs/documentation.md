@@ -61,6 +61,8 @@ local models, LeetTools provides many benefits:
 
 ## Key Components
 
+![LeetTools Document Pipeline](https://gist.githubusercontent.com/pengfeng/4b2e36bda389e0a3c338b5c42b5d09c1/raw/6bc06db40dadf995212270d914b46281bf7edae9/leettools-eds-arch.svg)
+
 LeetTools provides the following key components:
 
 - A document pipeline to ingest, convert, chunk, embed, and index documents. User 
