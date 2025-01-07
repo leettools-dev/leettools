@@ -1,7 +1,7 @@
 [![Follow on X](https://img.shields.io/twitter/follow/LeetTools?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=LeetTools)
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
-# LeetTools - AI Search Workflow Engine with Document Pipeline
+# LeetTools - AI Search Workflow with Document Pipelines
 
 LeetTools is an AI search workflow engine with document pipeline support. With an
 automated document pipeline that handles data ingestion, indexing, and storage, we can
@@ -61,33 +61,8 @@ See the [Documentation](docs/documentation.md) for more details.
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-### Using DeepSeek API
-
 We can also use any OpenAI-compatible LLM inference endpoint by setting the related 
-environment variable. For example, we can use the DeepSeek API by setting the following
-environment variables:
-
-```bash
-### to use other API providers such as DeepSeek, you can
-% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.deepseek.com/v1
-% export EDS_OPENAI_API_KEY=<your deepseek api key>
-% export EDS_DEFAULT_OPENAI_MODEL=deepseek-chat
-# use a local embedder since DeepSeek does not provide an embedding endpoint yet
-# if the API supports OpenAI-compatible embedding endpoint, no extra settings needed
-# this dense_embedder_local_mem uses all-MiniLM-L6-v2 model as a singleton embedder
-% export EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
-
-# Or you can put the above settings in the .env.deepseek file
-% cat .env.deepseek
-LEET_HOME=/Users/myhome/leettools
-EDS_DEFAULT_OPENAI_BASE_URL=https://api.deepseek.com/v1
-EDS_OPENAI_API_KEY=sk-0d8-mykey
-EDS_DEFAULT_OPENAI_MODEL=deepseek-chat
-EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
-
-# Then run the command with the -e option to specify the .env file to use
-% leet flow -e .env.deepseek -t answer -q "How does GraphRAG work?" -k graphrag -l info
-```
+environment variable. An example of using the DeepSeek API is described [here](docs/deepseek.md).
 
 Here is an example output of the `answer` flow:
 
