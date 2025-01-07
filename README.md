@@ -1,12 +1,18 @@
 [![Follow on X](https://img.shields.io/twitter/follow/LeetTools?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=LeetTools)
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
-# LeetTools - AI Search Workflow with Document Pipelines
+# Build your knowledge base with AI search and document pipelines.
 
 LeetTools is an AI search workflow engine with document pipeline support. With an
 automated document pipeline that handles data ingestion, indexing, and storage, we can
-easily run search workflows that query, extract, generate, and save information from
-the web or local knowledge bases. Currently LeetTools provide the following workflow:
+easily run search workflows that query, extract and generate content from the web or
+local knowledge bases. 
+
+With a DuckDB-backend and configurable LLM settings, LeetTools can run with minimal 
+resource requirements and can be easily integrated with other applications need search
+and knowledge base support.
+
+Currently LeetTools provide the following workflow:
 
 * answer  : Answer the query directly with source references (similar to Perplexity).
 * digest  : Generate a multi-section digest article from search results (similar to Google Deep Research).
