@@ -12,6 +12,8 @@ With a DuckDB-backend and configurable LLM settings, LeetTools can run with mini
 resource requirements on the command line and can be easily integrated with other 
 applications need AI search and knowledge base support.
 
+[![LeetTools Overview](https://gist.githubusercontent.com/pengfeng/30b66efa58692fa3bc94af89e0895df4/raw/7a274cd60fbe9a3aabad56e5fa1a9c7e7021ba21/leettools-answer-demo.svg)]
+
 Currently LeetTools provide the following workflow:
 
 * answer  : Answer the query directly with source references (similar to Perplexity).
