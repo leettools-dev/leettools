@@ -12,7 +12,9 @@ With a DuckDB-backend and configurable LLM settings, LeetTools can run with mini
 resource requirements on the command line and can be easily integrated with other 
 applications need AI search and knowledge base support.
 
-[![LeetTools Overview](https://gist.githubusercontent.com/pengfeng/30b66efa58692fa3bc94af89e0895df4/raw/7a274cd60fbe9a3aabad56e5fa1a9c7e7021ba21/leettools-answer-demo.svg)]
+Here is a demo of LeetTools in action:
+
+![LeetTools Overview](https://gist.githubusercontent.com/pengfeng/30b66efa58692fa3bc94af89e0895df4/raw/7a274cd60fbe9a3aabad56e5fa1a9c7e7021ba21/leettools-answer-demo.svg)
 
 Currently LeetTools provide the following workflow:
 
@@ -23,6 +25,8 @@ Currently LeetTools provide the following workflow:
 * extract : Extract and store structured data for given schema.
 * opinions: Generate sentiment analysis and facts from the search results. 
 
+## Main Components
+
 The main components of the backend include:
 * 🚀 Automated document pipeline to ingest, convert, chunk, embed, and index documents.
 * 🗂️ Knowledge base to manage and serve the indexed documents.
@@ -32,6 +36,10 @@ The main components of the backend include:
 * 📝 Query history system to manage the history and the context of the queries.
 * 💻 Scheduler for automatic execution of the pipeline tasks.
 * 🧩 Accounting system to track the usage of the LLM APIs.
+
+The architecture of the document pipeline is shown below:
+
+![LeetTools Document Pipeline](https://gist.githubusercontent.com/pengfeng/4b2e36bda389e0a3c338b5c42b5d09c1/raw/6bc06db40dadf995212270d914b46281bf7edae9/leettools-eds-arch.svg)
 
 See the [Documentation](docs/documentation.md) for more details.
 
