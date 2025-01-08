@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="docs/assets/LTC-Logo-leettools-normal.png" alt="Logo" width="200"/>
+</p>
+
+
 [![Follow on X](https://img.shields.io/twitter/follow/LeetTools?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=LeetTools)
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
@@ -25,24 +30,6 @@ Currently LeetTools provide the following workflow:
 * extract : Extract and store structured data for given schema.
 * opinions: Generate sentiment analysis and facts from the search results. 
 
-## Main Components
-
-The main components of the backend include:
-* 🚀 Automated document pipeline to ingest, convert, chunk, embed, and index documents.
-* 🗂️ Knowledge base to manage and serve the indexed documents.
-* 🔍 Search and retrieval library to fetch documents from the web or local KB.
-* 🤖 Workflow engine to implement search-based AI workflows.
-* ⚙ Configuration system to support dynamic configurations used for every component.
-* 📝 Query history system to manage the history and the context of the queries.
-* 💻 Scheduler for automatic execution of the pipeline tasks.
-* 🧩 Accounting system to track the usage of the LLM APIs.
-
-The architecture of the document pipeline is shown below:
-
-![LeetTools Document Pipeline](https://gist.githubusercontent.com/pengfeng/4b2e36bda389e0a3c338b5c42b5d09c1/raw/6bc06db40dadf995212270d914b46281bf7edae9/leettools-eds-arch.svg)
-
-See the [Documentation](docs/documentation.md) for more details.
-
 ## Quick start
 
 ```bash
@@ -64,9 +51,9 @@ See the [Documentation](docs/documentation.md) for more details.
 # set the OPENAI_API_KEY or put it in the .env file
 # or any OpenAI-compatible LLM inference endpoint
 # export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
-% export EDS_OPENAI_API_KEY=your_openai_api_key
+% export EDS_OPENAI_API_KEY=<your_openai_api_key>
 # or
-% echo "EDS_OPENAI_API_KEY=your_openai_api_key" > `pwd`/.env
+% echo "EDS_OPENAI_API_KEY=<your_openai_api_key>" > `pwd`/.env
 
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
@@ -110,6 +97,25 @@ reflect the interconnected nature of the information it processes[1][2].
 [3] [https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d](https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d)
 [4] [https://github.com/microsoft/graphrag/discussions/511](https://github.com/microsoft/graphrag/discussions/511)
 ```
+
+
+## Main Components
+
+The main components of the backend include:
+* 🚀 Automated document pipeline to ingest, convert, chunk, embed, and index documents.
+* 🗂️ Knowledge base to manage and serve the indexed documents.
+* 🔍 Search and retrieval library to fetch documents from the web or local KB.
+* 🤖 Workflow engine to implement search-based AI workflows.
+* ⚙ Configuration system to support dynamic configurations used for every component.
+* 📝 Query history system to manage the history and the context of the queries.
+* 💻 Scheduler for automatic execution of the pipeline tasks.
+* 🧩 Accounting system to track the usage of the LLM APIs.
+
+The architecture of the document pipeline is shown below:
+
+![LeetTools Document Pipeline](https://gist.githubusercontent.com/pengfeng/4b2e36bda389e0a3c338b5c42b5d09c1/raw/6bc06db40dadf995212270d914b46281bf7edae9/leettools-eds-arch.svg)
+
+See the [Documentation](docs/documentation.md) for more details.
 
 ## Libraries and APIs used
 
