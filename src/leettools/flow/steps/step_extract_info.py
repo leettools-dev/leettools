@@ -96,7 +96,9 @@ Below is the provided content:
         - The list of extracted objects.
         """
         display_logger = exec_info.display_logger
-        display_logger.info("[Status]Extract information from the document.")
+        display_logger.info(
+            f"[Status]StepExtractInfo: extract {model_class_name} from content."
+        )
         flow_options = exec_info.flow_options
 
         summary_model = config_utils.get_str_option_value(
@@ -146,8 +148,8 @@ Below is the provided content:
         else:
             response_pydantic_model = model_class
 
-        display_logger.info(f"model_class: {model_class}")
-        display_logger.info(f"response_pydantic_model: {response_pydantic_model}")
+        display_logger.debug(f"model_class: {model_class}")
+        display_logger.debug(f"response_pydantic_model: {response_pydantic_model}")
         display_logger.debug(f"schema: {response_pydantic_model.model_json_schema()}")
 
         response_str, completion = api_caller.run_inference_call(

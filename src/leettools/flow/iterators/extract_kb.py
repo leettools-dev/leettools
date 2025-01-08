@@ -143,6 +143,9 @@ newly extracted data will be saved to the backend storage.
                             f"Extracting from document {document.document_uuid} ..."
                         )
 
+                display_logger.info(
+                    f"[Status]ExtractKB from document {document.original_uri} ..."
+                )
                 extracted_obj_list = steps.StepExtractInfo.run_step(
                     exec_info=exec_info,
                     content=document.content,

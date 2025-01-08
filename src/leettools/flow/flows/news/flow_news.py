@@ -1,5 +1,5 @@
-from datetime import timedelta
-from typing import ClassVar, List, Optional, Type
+from datetime import datetime, timedelta
+from typing import ClassVar, Dict, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseModel, ConfigDict, create_model
 
@@ -22,13 +22,14 @@ from leettools.eds.extract.extract_store import (
     create_extract_store,
 )
 from leettools.eds.rag.search.filter import BaseCondition
+from leettools.eds.str_embedder.dense_embedder import create_dense_embedder_for_kb
+from leettools.eds.str_embedder.utils.cluster import cluster_strings
 from leettools.flow import flow_option_items, iterators
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
-from leettools.flow.schemas.instruction_vars import InstructionVars
 from leettools.flow.utils import flow_utils
 
 
@@ -96,18 +97,6 @@ Please find the news items in the context about {{ query }} nd return
 """
 
     @classmethod
-    def get_instruction_vars(cls) -> List[InstructionVars]:
-        return [
-            InstructionVars(
-                var_name="news_instructions",
-                var_type="str",
-                required=False,
-                var_description="The prompt for the news extraction.",
-                default_value=None,
-            )
-        ]
-
-    @classmethod
     def depends_on(cls) -> List[Type["FlowComponent"]]:
         return [iterators.ExtractKB]
 
@@ -158,9 +147,9 @@ Please find the news items in the context about {{ query }} nd return
             days_limit = 0
 
         if days_limit != 0:
-            updated_time_threshold = time_utils.current_datetime() - timedelta(
-                days=days_limit
-            )
+            cur_date = time_utils.current_datetime().date()
+            cur_date_start = time_utils.parse_date(f"{cur_date}")
+            updated_time_threshold = cur_date_start - timedelta(days=days_limit)
             display_logger.info(
                 f"Setting the updated_time_threshold to {updated_time_threshold}."
             )
@@ -223,17 +212,16 @@ Please find the news items in the context about {{ query }} nd return
 
         # combine the new and existing objects
         all_objs_dict = {**new_objs_dict, **existing_objs_dict}
-        target_list = flow_utils.flatten_results(all_objs_dict)
 
         # generate the markdown tables with the news
+        target_list = flow_utils.flatten_results(all_objs_dict)
         news_results = flow_utils.to_markdown_table(
             instances=target_list,
             skip_fields=[EXTRACT_DB_METADATA_FIELD, EXTRACT_DB_TIMESTAMP_FIELD],
             output_fields=None,
             url_compact_fields=[],
         )
-
-        display_logger.info(f"news_results: {news_results}")
+        display_logger.debug(f"Extracted news_results: {news_results}")
 
         # find the existing combined news items
         target_model_name = "CombinedNewsItems"
@@ -278,80 +266,160 @@ Please find the news items in the context about {{ query }} nd return
             old_news_instruction = ""
 
         # dedupe the news items
-        item_type = "news item"
-        system_prompt_template = "You are an expert of combine and dedupe news items."
-        user_prompt_template = f"""
-Given a list of {item_type}s in a table where the columns are
-- The title of the {item_type}
-- The detailed description
-- The categories
-- The keywords
-- The publishing date
-- The URL of the source
-
-Please combine {item_type}s about the same news topic according to their title and 
-descriptions into one {item_type}, limit the length of the combined title to 30 words,
-description to {{{{ word_count }}}} words, and combine their keywords and categories. 
-List for the combined {item_type}, and return the combine {item_type}s as the schema 
-provided.
-
-{{{{ language_instruction}}}}
-
-{{{{ old_news_instruction }}}}
-
-Here are the news items to combine, dedupe, remove, and rank by the number of sources:
-
-{{{{ results }}}}
-"""
-        # we added the old_news_instruction to the user prompt
-        # but OpenAI API does not follow the instruction very well
-        # the news item with the same title is not removed
-        #
-
-        new_class_name = f"{target_model_name}_list"
-        response_pydantic_model = create_model(
-            new_class_name,
-            items=(List[model_class], ...),
-        )
-
-        api_caller = exec_info.get_inference_caller()
-
-        user_prompt = render_template(
-            user_prompt_template,
-            {
-                "results": news_results,
-                "word_count": word_count,
-                "language_instruction": language_instruction,
-                "old_news_instruction": old_news_instruction,
-            },
-        )
-
-        display_logger.info(f"user_prompt: {user_prompt}")
-
-        response_str, completion = api_caller.run_inference_call(
-            system_prompt=system_prompt_template,
-            user_prompt=user_prompt,
-            need_json=True,
-            call_target="dedup_and_combine",
-            response_pydantic_model=response_pydantic_model,
-        )
-
-        display_logger.debug(f"response_str: {response_str}")
-        message = completion.choices[0].message
-        if message.refusal:
-            raise exceptions.LLMInferenceResultException(
-                f"Refused to extract information from the document: {message.refusal}."
+        use_clustering_dedup = True
+        if use_clustering_dedup:
+            # cluster the news items
+            dense_embedder = create_dense_embedder_for_kb(
+                org=org,
+                kb=kb,
+                user=user,
+                context=self.context,
             )
 
-        if hasattr(message, "parsed"):
-            extract_result = message.parsed
-            deduped_news_items: List[CombinedNewsItems] = extract_result.items
+            # news_items: the key is the title + description of the news item
+            # the value is the url and the news item
+            news_items: Dict[str, Tuple[str, NewsItem]] = {}
+            for url, item_list in all_objs_dict.items():
+                for item in item_list:
+                    news_items[f"{item.title} {item.description}"] = (url, item)
+
+            # news_clusters: the key is the cluster id
+            # the value is the list of title + description of the news items in the cluster
+            news_clusters: Dict[int, List[str]] = cluster_strings(
+                strings=list(news_items.keys()),
+                embedder=dense_embedder,
+                eps=0.25,
+                min_samples=1,
+            )
+
+            clustered_news: List[CombinedNewsItems] = []
+            for cluster_id, cluster in news_clusters.items():
+                display_logger.debug(f"Cluster {cluster_id}: {cluster}")
+                if cluster_id == -1:
+                    display_logger.info(f"Ignore outlier cluster: {cluster}.")
+                    continue
+
+                if len(cluster) <= 1:
+                    display_logger.info(
+                        f"Ignore cluster {cluster_id} has only one item: {cluster}"
+                    )
+                    continue
+
+                display_logger.info(
+                    f"Cluster {cluster_id} has {len(cluster)} items: {cluster}"
+                )
+
+                source_urls: set[str] = set()
+                news_date: datetime = None
+                title: str = ""
+                description: str = ""
+                categories: Set[str] = set()
+                keywords: Set[str] = set()
+
+                for news_str in cluster:
+                    url, news_item = news_items[news_str]
+                    source_urls.add(url)
+                    if news_date is None:
+                        news_date = time_utils.parse_date(news_item.date)
+                    else:
+                        item_date = time_utils.parse_date(news_item.date)
+                        if item_date is not None:
+                            news_date = max(news_date, item_date)
+                    if len(title) < len(news_item.title):
+                        title = news_item.title
+                    if len(description) < len(news_item.description):
+                        description = news_item.description
+                    categories.update(news_item.categories)
+                    keywords.update(news_item.keywords)
+
+                # we will just use the title and description of the first item in the cluster
+                combined_news_item = CombinedNewsItems(
+                    title=title,
+                    description=description,
+                    date=str(news_date.date()),
+                    categories=list(categories),
+                    keywords=list(keywords),
+                    source_urls=list(source_urls),
+                )
+                clustered_news.append(combined_news_item)
+            deduped_news_items = clustered_news
         else:
-            response_str = json_utils.ensure_json_item_list(response_str)
-            reponse_items_obj = response_pydantic_model.model_validate_json(
-                response_str
+            item_type = "news item"
+            system_prompt_template = (
+                "You are an expert of combine and dedupe news items."
             )
-            deduped_news_items = reponse_items_obj.items
+            user_prompt_template = f"""
+    Given a list of {item_type}s in a table where the columns are
+    - The title of the {item_type}
+    - The detailed description
+    - The categories
+    - The keywords
+    - The publishing date
+    - The URL of the source
+
+    Please combine {item_type}s about the same news topic according to their title and 
+    descriptions into one {item_type}, limit the length of the combined title to 30 words,
+    description to {{{{ word_count }}}} words, and combine their keywords and categories. 
+    List for the combined {item_type}, and return the combine {item_type}s as the schema 
+    provided.
+
+    {{{{ language_instruction}}}}
+
+    {{{{ old_news_instruction }}}}
+
+    Here are the news items to combine, dedupe, remove, and rank by the number of sources:
+
+    {{{{ results }}}}
+    """
+            # we added the old_news_instruction to the user prompt
+            # but OpenAI API does not follow the instruction very well
+            # the news item with the same title is not removed
+            #
+
+            new_class_name = f"{target_model_name}_list"
+            response_pydantic_model = create_model(
+                new_class_name,
+                items=(List[model_class], ...),
+            )
+
+            api_caller = exec_info.get_inference_caller()
+
+            user_prompt = render_template(
+                user_prompt_template,
+                {
+                    "results": news_results,
+                    "word_count": word_count,
+                    "language_instruction": language_instruction,
+                    "old_news_instruction": old_news_instruction,
+                },
+            )
+
+            display_logger.info(f"user_prompt: {user_prompt}")
+
+            response_str, completion = api_caller.run_inference_call(
+                system_prompt=system_prompt_template,
+                user_prompt=user_prompt,
+                need_json=True,
+                call_target="dedup_and_combine",
+                response_pydantic_model=response_pydantic_model,
+            )
+
+            display_logger.debug(f"response_str: {response_str}")
+            message = completion.choices[0].message
+            if message.refusal:
+                raise exceptions.LLMInferenceResultException(
+                    f"Refused to extract information from the document: {message.refusal}."
+                )
+
+            if hasattr(message, "parsed"):
+                extract_result = message.parsed
+                deduped_news_items: List[CombinedNewsItems] = extract_result.items
+            else:
+                response_str = json_utils.ensure_json_item_list(response_str)
+                reponse_items_obj = response_pydantic_model.model_validate_json(
+                    response_str
+                )
+                deduped_news_items = reponse_items_obj.items
 
         deduped_news_results = flow_utils.to_markdown_table(
             instances=deduped_news_items,
@@ -360,23 +428,52 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
             url_compact_fields=[],
         )
 
-        display_logger.info(f"deduped_news_results: {deduped_news_results}")
+        display_logger.info(f"deduped_news_results:\n{deduped_news_results}")
 
-        # remove news with only one source since OpenAI is bad at judging the
-        # noteworthiness of the news
+        final_news_items = []
+        for item in deduped_news_items:
+            if item.source_urls is None or len(item.source_urls) == 0:
+                display_logger.warning(
+                    f"CombinedNewsItem has no source_urls: {item.model_dump()}"
+                )
+                continue
+            if len(item.source_urls) == 1:
+                display_logger.info(
+                    f"Ignoring news item with only one reference: {item.source_urls}"
+                )
+                continue
 
-        final_news_items = [
-            item for item in deduped_news_items if len(item.source_urls) > 1
-        ]
+            parse_item_date = time_utils.parse_date(item.date)
+            if parse_item_date is None:
+                display_logger.warning(f"CombinedNewsItem has no date: {item}")
+                final_news_items.append(item)
+                continue
+
+            if updated_time_threshold is not None:
+                if parse_item_date < updated_time_threshold:
+                    display_logger.info(
+                        f"Ignoring news item with date {parse_item_date} before {updated_time_threshold}: {item}"
+                    )
+                    continue
+                else:
+                    display_logger.debug(
+                        f"Adding item with date {parse_item_date} after {updated_time_threshold}: {item}"
+                    )
+            final_news_items.append(item)
+
+        display_logger.info(
+            f"Saving items with more than one references: {len(final_news_items)})"
+        )
+        combined_news_store.save_records(final_news_items, metadata={})
+
+        display_logger.info(f"Generating results for the final answer.")
+
         final_news_results = flow_utils.to_markdown_table(
             instances=final_news_items,
             skip_fields=[EXTRACT_DB_METADATA_FIELD, EXTRACT_DB_TIMESTAMP_FIELD],
             output_fields=None,
             url_compact_fields=[],
         )
-
-        combined_news_store.save_records(final_news_items, metadata={})
-
         return flow_utils.create_chat_result_with_table_msg(
             msg=final_news_results,
             header=list(CombinedNewsItems.model_fields.keys()),

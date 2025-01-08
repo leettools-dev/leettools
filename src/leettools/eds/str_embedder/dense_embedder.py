@@ -108,10 +108,10 @@ def create_dense_embedder_for_kb(
     Get the embedder for the knowledge base.
 
     Args:
-    -   org: The organization to get the embedder for.
-    -   kb: The knowledge base to get the embedder for.
-    -   user: The user to get the embedder for, may need the user credential to call the service.
-    -   context: The context to get the embedder for.
+    - org: The organization to get the embedder for.
+    - kb: The knowledge base to get the embedder for.
+    - user: The user to get the embedder for, may need the user credential to call the service.
+    - context: The context to get the embedder for.
 
     Returns:
     -   The embedder.
