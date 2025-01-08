@@ -105,13 +105,10 @@ class ConnectorSimple(AbstractConnector):
         Scrapes the given URL and returns the scrape result.
 
         Args:
-            url (str): The URL to be scraped.
+        - url (str): The URL to be scraped.
 
         Returns:
-            str: The scrape result. None if an error occurs during the scraping process.
-
-        Raises:
-            Exception: If an error occurs during the scraping process.
+        - str: The scrape result. None if an error occurs during the scraping process.
         """
         try:
             self.display_logger.info(f"Scraping urls... {url}")
@@ -135,8 +132,8 @@ class ConnectorSimple(AbstractConnector):
         Copies a file from the source to the destination.
 
         Args:
-            src: The source file.
-            dest: The destination file.
+        - src: The source file.
+        - dest: The destination file.
         """
         # create parent directories if they do not exist
         os.makedirs(os.path.dirname(dest), exist_ok=True)
@@ -330,8 +327,8 @@ class ConnectorSimple(AbstractConnector):
         Ingests a folder.
 
         Args:
-        dir_uri: The path to the folder.
-        is_local: Whether the folder is local.
+        - dir_uri: The path to the folder.
+        - is_local: Whether the folder is local.
         """
         if is_local:
             dir_path = uri_to_path(dir_uri)
