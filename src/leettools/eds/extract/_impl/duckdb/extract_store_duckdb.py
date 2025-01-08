@@ -109,8 +109,8 @@ class ExtractStoreDuckdb(AbstractExtractStore):
                 column_list=self.columns.keys(),
                 values=value_list,
             )
-            logger().info(
-                f"Inserted {len(new_obj_dicts)} records into {self.duckdb_table_name}"
+            logger().debug(
+                f"Inserted extracted records into {self.duckdb_table_name}: {len(new_obj_dicts)}"
             )
         return new_objs
 

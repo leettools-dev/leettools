@@ -12,7 +12,7 @@ class DenseEmbeddingRequest(BaseModel):
 
     sentences: List[str] = Field(
         ...,
-        title="input sentcences",
+        title="input sentences",
         description="The list of strings to embed.",
     )
 
