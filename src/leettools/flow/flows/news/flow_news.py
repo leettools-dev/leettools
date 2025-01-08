@@ -432,30 +432,34 @@ Please find the news items in the context about {{ query }} nd return
 
         final_news_items = []
         for item in deduped_news_items:
-            if len(item.source_urls) > 1:
-                final_news_items.append(item)
-            else:
-                display_logger.debug(
-                    f"Igoring item with only one reference: {item.source_urls}"
-                )
-            item_date = time_utils.parse_date(item.date)
-            if item_date is None:
+            if item.source_urls is None or len(item.source_urls) == 0:
                 display_logger.warning(
-                    "CombinedNewsItem has date failed to parse: {item}"
+                    f"CombinedNewsItem has no source_urls: {item.model_dump()}"
                 )
+                continue
+            if len(item.source_urls) == 1:
+                display_logger.info(
+                    f"Ignoring news item with only one reference: {item.source_urls}"
+                )
+                continue
+
+            parse_item_date = time_utils.parse_date(item.date)
+            if parse_item_date is None:
+                display_logger.warning(f"CombinedNewsItem has no date: {item}")
                 final_news_items.append(item)
-            elif updated_time_threshold is not None:
-                if item_date < updated_time_threshold:
-                    display_logger.debug(
-                        f"Ignoring item with date {item_date} before {updated_time_threshold}: {item.source_urls}"
+                continue
+
+            if updated_time_threshold is not None:
+                if parse_item_date < updated_time_threshold:
+                    display_logger.info(
+                        f"Ignoring news item with date {parse_item_date} before {updated_time_threshold}: {item}"
                     )
+                    continue
                 else:
                     display_logger.debug(
-                        f"Adding item with date {item_date} after {updated_time_threshold}: {item.source_urls}"
+                        f"Adding item with date {parse_item_date} after {updated_time_threshold}: {item}"
                     )
-                    final_news_items.append(item)
-            else:
-                final_news_items.append(item)
+            final_news_items.append(item)
 
         display_logger.info(
             f"Saving items with more than one references: {len(final_news_items)})"
