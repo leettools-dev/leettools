@@ -94,6 +94,7 @@ class ParserDocling(AbstractParser):
             if target_path:
                 with open(target_path, "w", encoding="utf8") as f:
                     f.write(content)
+            return content
         except Exception as exc:
             logger().error(f"Failed to parser {filepath}, error: {exc}")
             return ""

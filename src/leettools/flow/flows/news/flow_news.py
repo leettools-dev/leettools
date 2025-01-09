@@ -221,7 +221,7 @@ Please find the news items in the context about {{ query }} nd return
             output_fields=None,
             url_compact_fields=[],
         )
-        display_logger.debug(f"Extracted news_results: {news_results}")
+        display_logger.info(f"Extracted raw news item results: {news_results}")
 
         # find the existing combined news items
         target_model_name = "CombinedNewsItems"
