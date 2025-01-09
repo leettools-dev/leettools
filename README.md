@@ -8,10 +8,11 @@
 
 # AI Search Assistant with Local Knowledge Base
 
-LeetTools is an AI search assistant that can perform high customizable search workflow and
-save the search results and generated output to a local knowledge base. With an automated
-document pipeline that handles data ingestion, indexing, and storage, we can easily run
-search workflows that query, extract and generate content from the web or local knowledge bases. 
+LeetTools is an AI search assistant that can perform highly customizable search workflows
+and save the search results and generated outputs to local knowledge bases. With an
+automated document pipeline that handles data ingestion, indexing, and storage, we can
+easily run complext search workflows that query, extract and generate content from the
+web or local knowledge bases. 
 
 With a DuckDB-backend and configurable LLM settings, LeetTools can run with minimal 
 resource requirements on the command line and can be easily integrated with other 

@@ -36,10 +36,6 @@ def _run_flow_cli(
     context.name = flow_type
     history_manager = get_history_manager(context)
 
-    # TODO oss: need to be able to specify KB parameters on the command line as well
-    # basically the whole pipeline parameters (including strategies) in a single config file
-
-    # need to put this tmp logic as a function to be used by all CLI commands
     if kb_name is None or kb_name == "":
         kb_name = get_kb_name_from_query(query)
         kb_description = f"Created by CLI {flow_type} command for query {query}"

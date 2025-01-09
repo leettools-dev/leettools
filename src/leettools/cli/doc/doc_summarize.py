@@ -6,7 +6,6 @@ from leettools.cli.options_common import common_options
 from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.flow import iterators
-from leettools.flow.exec_info import ExecInfo
 
 
 @click.command(help="Summarize all documents in the KB that does not have a summary.")
@@ -88,4 +87,4 @@ def summarize_all(
     )
 
     for uri in all_links.keys():
-        print(f"{uri}: {all_links[uri]}")
+        click.echo(f"{uri}: {all_links[uri]}")

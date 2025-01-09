@@ -1,3 +1,5 @@
+from typing import Optional
+
 import click
 
 from leettools.cli.options_common import common_options
@@ -38,6 +40,8 @@ def list_segments_for_doc(
     org_name: str,
     kb_name: str,
     doc_uuid: str,
+    json_output: Optional[bool] = False,
+    indent: Optional[int] = None,
     **kwargs,
 ) -> None:
     from leettools.context_manager import Context, ContextManager
@@ -68,5 +72,8 @@ def list_segments_for_doc(
     segment_list = segment_store.get_all_segments_for_document(org, kb, doc_uuid)
 
     for segment in segment_list:
-        click.echo(segment.model_dump_json(indent=2))
-        click.echo("\n")
+        if json_output:
+            click.echo(segment.model_dump_json(indent=indent))
+        else:
+            click.echo(segment.model_dump_json(indent=2))
+            click.echo("\n")

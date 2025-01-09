@@ -1,3 +1,5 @@
+from typing import Optional
+
 import click
 
 from leettools.cli.options_common import common_options
@@ -26,6 +28,8 @@ from leettools.common.exceptions import ParametersValidationException
 def list_all_segements(
     org_name: str,
     kb_name: str,
+    json_output: Optional[bool] = False,
+    indent: Optional[int] = None,
     **kwargs,
 ) -> None:
 
@@ -52,10 +56,17 @@ def list_all_segements(
 
     documents = document_store.get_documents_for_kb(org, kb)
     for doc in documents:
-        click.echo(f"Document: {doc.document_uuid}\t{doc.doc_uri}\n")
-        segment_list = segment_store.get_all_segments_for_document(
-            org, kb, doc.document_uuid
-        )
-        for segment in segment_list:
-            click.echo(segment.model_dump_json(indent=2))
-            click.echo("\n")
+        if json_output:
+            segment_list = segment_store.get_all_segments_for_document(
+                org, kb, doc.document_uuid
+            )
+            for segment in segment_list:
+                click.echo(segment.model_dump_json(indent=indent))
+        else:
+            click.echo(f"Document: {doc.document_uuid}\t{doc.doc_uri}\n")
+            segment_list = segment_store.get_all_segments_for_document(
+                org, kb, doc.document_uuid
+            )
+            for segment in segment_list:
+                click.echo(segment.model_dump_json(indent=2))
+                click.echo("\n")
