@@ -1,3 +1,5 @@
+from typing import Optional
+
 import click
 
 from leettools.cli.options_common import common_options
@@ -38,6 +40,8 @@ def print(
     org_name: str,
     kb_name: str,
     doc_uuid: str,
+    json_output: Optional[bool] = False,
+    indent: Optional[int] = None,
     **kwargs,
 ) -> None:
     from leettools.context_manager import Context, ContextManager
@@ -65,5 +69,8 @@ def print(
     if doc is None:
         raise EntityNotFoundException(entity_name=doc_uuid, entity_type="Document")
 
-    click.echo(f"Document: {doc.original_uri}")
-    click.echo(doc.content)
+    if json_output:
+        click.echo(doc.model_dump_json(indent=indent))
+    else:
+        click.echo(f"Document: {doc.original_uri}")
+        click.echo(doc.content)
