@@ -83,17 +83,14 @@ To search for an answer related to "Quantum Computing", you can specify:
 
 - Article Style as "technical blog post"
 - Word Count as 500 words
-- Language as English
-- Excluded Sites like "example.com"
-- Target Site as "news.ycombinator.com"
+- Output language as English
 - Knowledge Base as "quantum_kb" (created on demand if not exists)
 
 Try this command in your terminal:
 
 ```bash
 leet flow -t answer -q "What is Quantum Computing?" -k quantum_kb -l info \
-   -p article_style="technical blog post" -p word_count=500 -p output_language="en" \
-   -p excluded_sites="example.com" -p target_site="news.ycombinator.com" 
+   -p article_style="technical blog post" -p word_count=500 -p output_language="en"
 ```
 
 ### Usage Info
