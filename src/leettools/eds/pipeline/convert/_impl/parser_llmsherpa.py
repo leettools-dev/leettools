@@ -2,7 +2,9 @@ import json
 import os
 import re
 import traceback
+from pathlib import Path
 from re import Match
+from typing import Optional
 
 import click
 import urllib3
@@ -119,7 +121,7 @@ class ParserLLMSherpa(AbstractParser):
 
         return line
 
-    def _traversal_doc(self, node: Block) -> str:
+    def _traversal_doc(self, node: Block, target_path: Optional[Path] = None) -> str:
         """
         Traverses the document and returns the markdown content.
 
@@ -167,9 +169,13 @@ class ParserLLMSherpa(AbstractParser):
         if node_type not in ["ListItem", "Paragraph", "Table"]:
             for child in node.children:
                 md_text += self._traversal_doc(child)
+
+        if target_path:
+            with open(target_path, "w", encoding="utf-8") as f:
+                f.write(md_text)
         return md_text
 
-    def pdf2md(self, pdf_filepath: str) -> str:
+    def pdf2md(self, pdf_filepath: str, target_path: Optional[Path] = None) -> str:
         """
         Parses the PDF file and returns the meaningful
         text content in Markdown format.
@@ -189,9 +195,13 @@ class ParserLLMSherpa(AbstractParser):
         md_text = self._traversal_doc(doc.root_node)
         header_test = md_text[:200]
         title = converter_utils.extract_title(self.settings, header_test)
-        return f"{title}\n\n{md_text}"
+        return_text = f"{title}\n\n{md_text}"
+        if target_path:
+            with open(target_path, "w", encoding="utf-8") as f:
+                f.write(return_text)
+        return return_text
 
-    def docx2md(self, docx_filepath: str) -> str:
+    def docx2md(self, docx_filepath: str, target_path: Optional[Path] = None) -> str:
         try:
             with open(docx_filepath, "rb") as f:
                 file_data = f.read()
@@ -201,13 +211,13 @@ class ParserLLMSherpa(AbstractParser):
                 )
                 response_json = json.loads(parser_response.data.decode("utf-8"))
                 blocks = response_json["return_dict"]["result"]["blocks"]
-                return self._traversal_doc(Document(blocks).root_node)
+                return self._traversal_doc(Document(blocks).root_node, target_path)
         except Exception as e:
             trace = traceback.format_exc()
             logger().error(f"Failed to parse file {docx_filepath}, error: {trace}")
             return ""
 
-    def pptx2md(self, pptx_path: str) -> str:
+    def pptx2md(self, pptx_path: str, target_path: Optional[Path] = None) -> str:
         try:
             with open(pptx_path, "rb") as f:
                 file_data = f.read()
@@ -217,13 +227,13 @@ class ParserLLMSherpa(AbstractParser):
                 )
                 response_json = json.loads(parser_response.data.decode("utf-8"))
                 blocks = response_json["return_dict"]["result"]["blocks"]
-                return self._traversal_doc(Document(blocks).root_node)
+                return self._traversal_doc(Document(blocks).root_node, target_path)
         except Exception as e:
             trace = traceback.format_exc()
             logger().error(f"Failed to parse file {pptx_path}, error: {trace}")
             return ""
 
-    def xlsx2md(self, xlsx_path: str) -> str:
+    def xlsx2md(self, xlsx_path: str, target_path: Optional[Path] = None) -> str:
         try:
             with open(xlsx_path, "rb") as f:
                 file_data = f.read()
@@ -233,35 +243,8 @@ class ParserLLMSherpa(AbstractParser):
                 )
                 response_json = json.loads(parser_response.data.decode("utf-8"))
                 blocks = response_json["return_dict"]["result"]["blocks"]
-                return self._traversal_doc(Document(blocks).root_node)
+                return self._traversal_doc(Document(blocks).root_node, target_path)
         except Exception as e:
             trace = traceback.format_exc()
             logger().error(f"Failed to parse file {xlsx_path}, error: {trace}")
             return ""
-
-
-@click.command()
-@click.option(
-    "-i",
-    "--input_file",
-    "input_file",
-    required=True,
-    help="The input file.",
-)
-@click.option(
-    "-o",
-    "--output_file",
-    "output_file",
-    required=True,
-    help="The output text file.",
-)
-def llmsherpa_pdf2md(input_file, output_file):
-    context = ContextManager().get_context()  # type: Context
-    parser = ParserLLMSherpa(context.settings)
-    md_content = parser.file2md(input_file)
-    with open(output_file, "w", encoding="utf8") as f:
-        f.write(md_content)
-
-
-if __name__ == "__main__":
-    llmsherpa_pdf2md()

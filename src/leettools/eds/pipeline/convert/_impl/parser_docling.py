@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
 from docling.datamodel.base_models import InputFormat
@@ -51,11 +52,14 @@ class ParserDocling(AbstractParser):
             },
         )
 
-    def _convert(self, filepath: str) -> str:
+    def _convert(self, filepath: str, target_path: Optional[Path] = None) -> str:
         try:
             # Use instance converter instead of module-level one
             result = self.doc_converter.convert(filepath)
-            output_dir = Path(filepath).parent
+            if target_path:
+                output_dir = Path(target_path).parent
+            else:
+                output_dir = Path(filepath).parent
             doc_filename = Path(filepath).stem
             doc_filename = doc_filename.split(".")[0]
 
@@ -86,60 +90,27 @@ class ParserDocling(AbstractParser):
                     with element_image_filename.open("wb") as fp:
                         element.image.pil_image.save(fp, "PNG")
 
-            return result.document.export_to_markdown()
+            content = result.document.export_to_markdown()
+            if target_path:
+                with open(target_path, "w", encoding="utf8") as f:
+                    f.write(content)
         except Exception as exc:
             logger().error(f"Failed to parser {filepath}, error: {exc}")
             return ""
 
-    def docx2md(self, docx_filepath: str) -> str:
-        """
-        Parses the DOCX and returns the content in markdown format.
-
-        Args:
-            docx_filepath: The path to the DOCX file.
-
-        Returns:
-            The content in markdown format.
-        """
+    def docx2md(self, docx_filepath: str, target_path: Optional[Path] = None) -> str:
         logger().debug(f"Converting DOCX to markdown: {docx_filepath}")
-        return self._convert(docx_filepath)
+        return self._convert(docx_filepath, target_path)
 
-    def pdf2md(self, pdf_filepath: str) -> str:
-        """
-        Parses the PDF and returns the content in markdown format.
-
-        Args:
-            pdf_filepath: The path to the PDF file.
-
-        Returns:
-            The content in markdown format.
-        """
+    def pdf2md(self, pdf_filepath: str, target_path: Optional[Path] = None) -> str:
         logger().debug(f"Converting PDF to markdown: {pdf_filepath}")
-        return self._convert(pdf_filepath)
+        return self._convert(pdf_filepath, target_path)
 
-    def pptx2md(self, pptx_filepath: str) -> str:
-        """
-        Parses the PPTX and returns the content in markdown format.
-
-        Args:
-            pptx_filepath: The path to the PPTX file.
-
-        Returns:
-            The content in markdown format.
-        """
+    def pptx2md(self, pptx_filepath: str, target_path: Optional[Path] = None) -> str:
         logger().debug(f"Converting PPTX to markdown: {pptx_filepath}")
-        return self._convert(pptx_filepath)
+        return self._convert(pptx_filepath, target_path)
 
-    def xlsx2md(self, xlsx_filepath: str) -> str:
-        """
-        Parses the XLSX and returns the content in markdown format.
-
-        Args:
-            xlsx_filepath: The path to the XLSX file.
-
-        Returns:
-            The content in markdown format.
-        """
+    def xlsx2md(self, xlsx_filepath: str, target_path: Optional[Path] = None) -> str:
         # not supported yet
         logger().error(
             f"XLSX to markdown conversion is not supported yet: {xlsx_filepath}"
