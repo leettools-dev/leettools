@@ -1,4 +1,6 @@
 import re
+from pathlib import Path
+from typing import Optional
 
 import click
 from unstructured.partition.docx import partition_docx
@@ -43,35 +45,21 @@ class ParserUnstructured(AbstractParser):
         )  # Count the dots to determine the heading level
         return "#" * level
 
-    def docx2md(self, docx_filepath: str) -> str:
-        """
-        Parses the DOCX and returns the content in markdown format.
+    def docx2md(self, docx_filepath: str, target_path: Optional[Path] = None) -> str:
 
-        Args:
-            docx_filepath: The path to the DOCX file.
-
-        Returns:
-            The content in markdown format.
-        """
         logger().debug(f"Converting DOCX to markdown: {docx_filepath}")
-        rtn_text = ""
         try:
             elements = partition_docx(filename=docx_filepath)
-            return "\n\n".join([str(el) for el in elements])
+            md_text = "\n\n".join([str(el) for el in elements])
+            if target_path:
+                with open(target_path, "w", encoding="utf8") as f:
+                    f.write(md_text)
         except Exception as exc:
             logger().error(f"Failed to parser {docx_filepath}, error: {exc}")
-            return rtn_text
+            return ""
 
-    def pdf2md(self, pdf_filepath: str) -> str:
-        """
-        Parses the PDF and returns the content in markdown format.
+    def pdf2md(self, pdf_filepath: str, target_path: Optional[Path] = None) -> str:
 
-        Args:
-            pdf_filepath: The path to the PDF file.
-
-        Returns:
-            The content in markdown format.
-        """
         rtn_text = ""
         elements = partition_pdf(
             filename=pdf_filepath, strategy="hi_res", check_extractable=False
@@ -97,71 +85,38 @@ class ParserUnstructured(AbstractParser):
                     rtn_text += el_text + "\n\n"
         header_text = rtn_text[:200]
         title = converter_utils.extract_title(self.settings, header_text)
-        return f"{title}\n\n{rtn_text}"
+        return_text = f"{title}\n\n{rtn_text}"
+        if target_path:
+            with open(target_path, "w", encoding="utf8") as f:
+                f.write(return_text)
+        return return_text
 
-    def pptx2md(self, pptx_filepath: str) -> str:
-        """
-        Parses the PPTX and returns the content in markdown format.
+    def pptx2md(self, pptx_filepath: str, target_path: Optional[Path] = None) -> str:
 
-        Args:
-            pptx_filepath: The path to the PPTX file.
-
-        Returns:
-            The content in markdown format.
-        """
         logger().debug(f"Converting PPTX to markdown: {pptx_filepath}")
-        rtn_text = ""
         try:
             elements = partition_pptx(filename=pptx_filepath)
-            return "\n\n".join([str(el) for el in elements])
+            return_text = "\n\n".join([str(el) for el in elements])
+            if target_path:
+                with open(target_path, "w", encoding="utf8") as f:
+                    f.write(return_text)
+            return return_text
         except Exception as exc:
             logger().error(f"Failed to parser {pptx_filepath}, error: {exc}")
-            return rtn_text
+            return ""
 
-    def xlsx2md(self, xlsx_filepath: str) -> str:
-        """
-        Parses the XLSX and returns the content in markdown format.
+    def xlsx2md(self, xlsx_filepath: str, target_path: Optional[Path] = None) -> str:
 
-        Args:
-            xlsx_filepath: The path to the XLSX file.
-
-        Returns:
-            The content in markdown format.
-        """
         logger().debug(f"Converting XLSX to markdown: {xlsx_filepath}")
         rtn_text = ""
         try:
             elements = partition_xlsx(filename=xlsx_filepath)
             for table in elements:
                 rtn_text += table.text + "\n\n"
+            if target_path:
+                with open(target_path, "w", encoding="utf8") as f:
+                    f.write(rtn_text)
             return rtn_text
         except Exception as exc:
             logger().error(f"Failed to parser {xlsx_filepath}, error: {exc}")
-            return rtn_text
-
-
-@click.command()
-@click.option(
-    "-i",
-    "--input_file",
-    "input_file",
-    required=True,
-    help="The input pdf file.",
-)
-@click.option(
-    "-o",
-    "--output_file",
-    "output_file",
-    required=True,
-    help="The output markdown file.",
-)
-def pdf_to_md(input_file: str, output_file: str) -> None:
-    context = ContextManager().get_context()  # type: Context
-    pdf_parser = ParserUnstructured(context.settings)
-    rtn_text = pdf_parser.pdf2md(input_file)
-    with open(output_file, "w", encoding="utf8") as f:
-        f.write(rtn_text)
-
-
-if __name__ == "__main__":
-    pdf_to_md()
+            return ""

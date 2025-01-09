@@ -134,6 +134,7 @@ class ConverterLocal(AbstractConverter):
 
         output_file_path = self._get_target_file_path()
         os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+        output_file_created = False
 
         if Path(file_path).exists() is False:
             logger().error(f"File {file_path} does not exist!")
@@ -154,7 +155,8 @@ class ConverterLocal(AbstractConverter):
             parser_module = self.settings.DEFAULT_PARSER
             logger().debug(f"Using parser: {parser_module}")
             parser = create_parser(self.settings, parser_module)
-            md_content = parser.file2md(str(file_path))
+            md_content = parser.file2md(str(file_path), output_file_path)
+            output_file_created = True
         elif file_path.suffix == MD_EXT:
             with open(file_path, "r", encoding="utf-8") as md_file:
                 md_content = md_file.read()
@@ -172,9 +174,16 @@ class ConverterLocal(AbstractConverter):
             logger().warning(f"Markdown content is empty for {file_path}!")
             return ReturnCode.FAILURE
 
-        logger().debug(f"Writing {output_file_path}...")
-        with open(output_file_path, "w", encoding="utf-8") as md_file:
-            md_file.write(md_content)
+        # some parser may already created the output file
+        if not output_file_created:
+            logger().debug(f"Writing {output_file_path}...")
+            with open(output_file_path, "w", encoding="utf-8") as md_file:
+                md_file.write(md_content)
+        else:
+            # check if the output file exists
+            if not Path(output_file_path).exists():
+                logger().warning(f"Output file does not exist: {output_file_path}!")
+                return ReturnCode.FAILURE
         return ReturnCode.SUCCESS
 
     def set_log_location(self, log_location: str) -> None:
