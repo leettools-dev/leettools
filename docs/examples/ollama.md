@@ -79,10 +79,15 @@ When compared to other deployment tools, such as Hugging Face's Transformers or 
 In summary, Ollama's combination of local deployment, user-friendly interface, and strong performance makes it a compelling choice for those looking to work with large language models. Its emphasis on open-source models and customization further enhances its appeal, positioning it as a valuable tool in the evolving landscape of AI development.
 ## References
 [1] [https://www.andreagrandi.it/posts/ollama-running-llm-locally/](https://www.andreagrandi.it/posts/ollama-running-llm-locally/)
+
 [2] [https://medium.com/@mauryaanoop3/ollama-a-deep-dive-into-running-large-language-models-locally-part-1-0a4b70b30982](https://medium.com/@mauryaanoop3/ollama-a-deep-dive-into-running-large-language-models-locally-part-1-0a4b70b30982)
+
 [3] [https://itsfoss.com/ollama/](https://itsfoss.com/ollama/)
+
 [4] [https://www.listedai.co/ai/ollama](https://www.listedai.co/ai/ollama)
+
 [5] [https://abvijaykumar.medium.com/ollama-brings-runtime-to-serve-llms-everywhere-8a23b6f6a1b4](https://abvijaykumar.medium.com/ollama-brings-runtime-to-serve-llms-everywhere-8a23b6f6a1b4)
+
 [6] [https://community.frame.work/t/ollama-framework-13-amd/53848](https://community.frame.work/t/ollama-framework-13-amd/53848)
 
 
