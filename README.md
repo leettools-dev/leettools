@@ -10,10 +10,8 @@
 - [Quick start](#quick-start)
 - [Use Different LLM Endpoints](#use-different-llm-endpoints)
 - [Main Components](#main-components)
-- [Acknowledgements](#acknowledgements)
-- [Get help and support](#get-help-and-support)
-- [Contributing](#contributing)
-- [License](#license)
+- [Community](#community)
+
 
 # AI Search Assistant with Local Knowledge Base
 
@@ -148,7 +146,10 @@ The architecture of the document pipeline is shown below:
 
 See the [Documentation](docs/documentation.md) for more details.
 
-# Acknowledgements
+
+# Community
+
+** Acknowledgements **
 
 Right now we are using the following open source libraries and tools (not limited to):
 
@@ -161,16 +162,16 @@ Right now we are using the following open source libraries and tools (not limite
 
 We plan to add more plugins for different components to support different workloads.
 
-# Get help and support
+** Get help and support **
 
 Please feel free to connect with us using the [discussion section](https://github.com/leettools-dev/leettools/discussions).
 
 
-# Contributing
+** Contributing **
 
 Please read [Contributing to LeetTools](CONTRIBUTING.md) for details.
 
-# License
+** License **
 
 LeetTools is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) 
 for the full license text.
