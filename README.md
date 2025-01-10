@@ -156,7 +156,7 @@ Right now we are using the following open source libraries and tools (not limite
 - [DuckDB](https://github.com/duckdb/duckdb)
 - [Docling](https://github.com/DS4SD/docling)
 - [Chonkie](https://github.com/bhavnicksm/chonkie)
-- [Ollama]https://github.com/ollama/ollama
+- [Ollama](https://github.com/ollama/ollama)
 - [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
 - [BS4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 
