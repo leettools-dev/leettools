@@ -7,13 +7,13 @@
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
 - [AI Search Assistant with Local Knowledge Base](#ai-search-assistant-with-local-knowledge-base)
-  - [Quick start](#quick-start)
-  - [Using Different LLM Endpoints](#using-different-llm-endpoints)
-  - [Main Components](#main-components)
-  - [Libraries and APIs used](#libraries-and-apis-used)
-  - [Get help and support](#get-help-and-support)
-  - [Contributing](#contributing)
-  - [License](#license)
+- [Quick start](#quick-start)
+- [Use Different LLM Endpoints](#use-different-llm-endpoints)
+- [Main Components](#main-components)
+- [Acknowledgements](#acknowledgements)
+- [Get help and support](#get-help-and-support)
+- [Contributing](#contributing)
+- [License](#license)
 
 # AI Search Assistant with Local Knowledge Base
 
@@ -40,7 +40,7 @@ Currently LeetTools provide the following workflow:
 * extract : Extract and store structured data for given schema. [📖](docs/flow-extract.md)
 * opinions: Generate sentiment analysis and facts from the search results.  [📖](docs/flow-opinions.md)
 
-## Quick start
+# Quick start
 
 ```bash
 % git clone https://github.com/leettools-dev/leettools.git
@@ -108,7 +108,7 @@ reflect the interconnected nature of the information it processes[1][2].
 [4] [https://github.com/microsoft/graphrag/discussions/511](https://github.com/microsoft/graphrag/discussions/511)
 ```
 
-## Using Different LLM Endpoints
+# Use Different LLM Endpoints
 
 We can run LeetTools with different env files to use different LLM endpoints and other
 related settings. For example, if you have a local Ollama serving instance, you can set
@@ -130,7 +130,7 @@ EOF
 % leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-## Main Components
+# Main Components
 
 The main components of the backend include:
 * 🚀 Automated document pipeline to ingest, convert, chunk, embed, and index documents.
@@ -148,30 +148,29 @@ The architecture of the document pipeline is shown below:
 
 See the [Documentation](docs/documentation.md) for more details.
 
-## Libraries and APIs used
+# Acknowledgements
 
-Right now the default settings are using the following libraries and APIs:
+Right now we are using the following open source libraries and tools (not limited to):
 
-- [Google Search API](https://developers.google.com/custom-search/v1/overview)
-- [OpenAI API](https://beta.openai.com/docs/api-reference/completions/create)
-- [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
-- [BS4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 - [DuckDB](https://github.com/duckdb/duckdb)
 - [Docling](https://github.com/DS4SD/docling)
 - [Chonkie](https://github.com/bhavnicksm/chonkie)
+- [Ollama]https://github.com/ollama/ollama
+- [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
+- [BS4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 
 We plan to add more plugins for different components to support different workloads.
 
-## Get help and support
+# Get help and support
 
 Please feel free to connect with us using the [discussion section](https://github.com/leettools-dev/leettools/discussions).
 
 
-## Contributing
+# Contributing
 
 Please read [Contributing to LeetTools](CONTRIBUTING.md) for details.
 
-## License
+# License
 
 LeetTools is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) 
 for the full license text.
