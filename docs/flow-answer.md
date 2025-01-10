@@ -1,6 +1,6 @@
 ## Feature: Answer
 
-The Answer workflow in LeetTools is designed to provide direct answers to user queries,
+The **Answer** workflow in LeetTools is designed to provide direct answers to user queries,
 enriched with source references. It searches through local knowledge bases (KBs) or the
 web, retrieving the most relevant information to answer the query effectively. With
 configurable options, users can tailor the answer generation process to their specific

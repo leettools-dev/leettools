@@ -6,6 +6,15 @@
 [![Follow on X](https://img.shields.io/twitter/follow/LeetTools?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=LeetTools)
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
+- [AI Search Assistant with Local Knowledge Base](#ai-search-assistant-with-local-knowledge-base)
+  - [Quick start](#quick-start)
+  - [Using Different LLM Endpoints](#using-different-llm-endpoints)
+  - [Main Components](#main-components)
+  - [Libraries and APIs used](#libraries-and-apis-used)
+  - [Get help and support](#get-help-and-support)
+  - [Contributing](#contributing)
+  - [License](#license)
+
 # AI Search Assistant with Local Knowledge Base
 
 LeetTools is an AI search assistant that can perform highly customizable search workflows
@@ -54,7 +63,7 @@ Currently LeetTools provide the following workflow:
 # export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
 % export EDS_OPENAI_API_KEY=<your_openai_api_key>
 # or
-% echo "EDS_OPENAI_API_KEY=<your_openai_api_key>" > `pwd`/.env
+% echo "EDS_OPENAI_API_KEY=<your_openai_api_key>" >> `pwd`/.env
 
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
@@ -65,7 +74,7 @@ Currently LeetTools provide the following workflow:
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-We can also use any OpenAI-compatible LLM inference endpoint by setting the related 
+We can use any OpenAI-compatible LLM inference endpoint by setting the related 
 environment variable. An example of using the DeepSeek API is described [here](docs/deepseek.md).
 
 Here is an example output of the `answer` flow:
@@ -99,6 +108,27 @@ reflect the interconnected nature of the information it processes[1][2].
 [4] [https://github.com/microsoft/graphrag/discussions/511](https://github.com/microsoft/graphrag/discussions/511)
 ```
 
+## Using Different LLM Endpoints
+
+We can run LeetTools with different env files to use different LLM endpoints and other
+related settings. For example, if you have a local Ollama serving instance, you can set
+to use it as follows:
+
+```bash
+% cat > .env.ollama <<EOF
+# need tot change LEET_HOME to the correct path
+LEET_HOME=/Users/myhome/leettools
+EDS_DEFAULT_OPENAI_BASE_URL=http://localhost:11434/v1
+EDS_OPENAI_API_KEY=dummy-key
+EDS_DEFAULT_OPENAI_MODEL=llama3.2
+# remove the following line if you have a separate embedder compatible with OpenAI API
+# the following line specifies to use a local embedder
+EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
+EOF
+
+# Then run the command with the -e option to specify the .env file to use
+% leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
+```
 
 ## Main Components
 
