@@ -21,15 +21,15 @@ automated document pipeline that handles data ingestion, indexing, and storage, 
 easily run complext search workflows that query, extract and generate content from the
 web or local knowledge bases. 
 
-With a DuckDB-backend and configurable LLM settings, LeetTools can run with minimal 
-resource requirements on the command line and can be easily integrated with other 
+LeetTools can run with minimal resource requirements on the command line with a 
+DuckDB-backend and configurable LLM settings. It can be easily integrated with other 
 applications need AI search and knowledge base support.
 
 Here is a demo of LeetTools in action to answer the question "How does GraphRAG work?":
 
 ![LeetTools Overview](https://gist.githubusercontent.com/pengfeng/30b66efa58692fa3bc94af89e0895df4/raw/7a274cd60fbe9a3aabad56e5fa1a9c7e7021ba21/leettools-answer-demo.svg)
 
-Currently LeetTools provide the following workflow:
+Currently LeetTools provides the following workflow:
 
 * answer  : Answer the query directly with source references (similar to Perplexity). [📖](docs/flow-answer.md)
 * digest  : Generate a multi-section digest article from search results (similar to Google Deep Research). [📖](docs/flow-digest.md)
@@ -149,7 +149,7 @@ See the [Documentation](docs/documentation.md) for more details.
 
 # Community
 
-** Acknowledgements **
+**Acknowledgements**
 
 Right now we are using the following open source libraries and tools (not limited to):
 
@@ -162,16 +162,16 @@ Right now we are using the following open source libraries and tools (not limite
 
 We plan to add more plugins for different components to support different workloads.
 
-** Get help and support **
+**Get help and support**
 
 Please feel free to connect with us using the [discussion section](https://github.com/leettools-dev/leettools/discussions).
 
 
-** Contributing **
+**Contributing**
 
 Please read [Contributing to LeetTools](CONTRIBUTING.md) for details.
 
-** License **
+**License**
 
 LeetTools is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) 
 for the full license text.
