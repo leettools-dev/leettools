@@ -35,6 +35,14 @@ class TokenConverterBasic(AbstractTokenConverter):
                     "batch_output": None,
                 },
             },
+            "localhost": {
+                "default": {
+                    "input": 0,
+                    "output": 0,
+                    "batch_input": 0,
+                    "batch_output": 0,
+                },
+            },
             "openai": {
                 "default": {
                     "input": 15,

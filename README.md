@@ -6,6 +6,13 @@
 [![Follow on X](https://img.shields.io/twitter/follow/LeetTools?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=LeetTools)
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
+- [AI Search Assistant with Local Knowledge Base](#ai-search-assistant-with-local-knowledge-base)
+- [Quick start](#quick-start)
+- [Use Different LLM Endpoints](#use-different-llm-endpoints)
+- [Main Components](#main-components)
+- [Community](#community)
+
+
 # AI Search Assistant with Local Knowledge Base
 
 LeetTools is an AI search assistant that can perform highly customizable search workflows
@@ -14,15 +21,15 @@ automated document pipeline that handles data ingestion, indexing, and storage, 
 easily run complext search workflows that query, extract and generate content from the
 web or local knowledge bases. 
 
-With a DuckDB-backend and configurable LLM settings, LeetTools can run with minimal 
-resource requirements on the command line and can be easily integrated with other 
+LeetTools can run with minimal resource requirements on the command line with a 
+DuckDB-backend and configurable LLM settings. It can be easily integrated with other 
 applications need AI search and knowledge base support.
 
 Here is a demo of LeetTools in action to answer the question "How does GraphRAG work?":
 
 ![LeetTools Overview](https://gist.githubusercontent.com/pengfeng/30b66efa58692fa3bc94af89e0895df4/raw/7a274cd60fbe9a3aabad56e5fa1a9c7e7021ba21/leettools-answer-demo.svg)
 
-Currently LeetTools provide the following workflow:
+Currently LeetTools provides the following workflow:
 
 * answer  : Answer the query directly with source references (similar to Perplexity). [📖](docs/flow-answer.md)
 * digest  : Generate a multi-section digest article from search results (similar to Google Deep Research). [📖](docs/flow-digest.md)
@@ -31,7 +38,7 @@ Currently LeetTools provide the following workflow:
 * extract : Extract and store structured data for given schema. [📖](docs/flow-extract.md)
 * opinions: Generate sentiment analysis and facts from the search results.  [📖](docs/flow-opinions.md)
 
-## Quick start
+# Quick start
 
 ```bash
 % git clone https://github.com/leettools-dev/leettools.git
@@ -54,7 +61,7 @@ Currently LeetTools provide the following workflow:
 # export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
 % export EDS_OPENAI_API_KEY=<your_openai_api_key>
 # or
-% echo "EDS_OPENAI_API_KEY=<your_openai_api_key>" > `pwd`/.env
+% echo "EDS_OPENAI_API_KEY=<your_openai_api_key>" >> `pwd`/.env
 
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
@@ -65,7 +72,7 @@ Currently LeetTools provide the following workflow:
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-We can also use any OpenAI-compatible LLM inference endpoint by setting the related 
+We can use any OpenAI-compatible LLM inference endpoint by setting the related 
 environment variable. An example of using the DeepSeek API is described [here](docs/deepseek.md).
 
 Here is an example output of the `answer` flow:
@@ -99,8 +106,29 @@ reflect the interconnected nature of the information it processes[1][2].
 [4] [https://github.com/microsoft/graphrag/discussions/511](https://github.com/microsoft/graphrag/discussions/511)
 ```
 
+# Use Different LLM Endpoints
 
-## Main Components
+We can run LeetTools with different env files to use different LLM endpoints and other
+related settings. For example, if you have a local Ollama serving instance, you can set
+to use it as follows:
+
+```bash
+% cat > .env.ollama <<EOF
+# need tot change LEET_HOME to the correct path
+LEET_HOME=/Users/myhome/leettools
+EDS_DEFAULT_OPENAI_BASE_URL=http://localhost:11434/v1
+EDS_OPENAI_API_KEY=dummy-key
+EDS_DEFAULT_OPENAI_MODEL=llama3.2
+# remove the following line if you have a separate embedder compatible with OpenAI API
+# the following line specifies to use a local embedder
+EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
+EOF
+
+# Then run the command with the -e option to specify the .env file to use
+% leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
+```
+
+# Main Components
 
 The main components of the backend include:
 * 🚀 Automated document pipeline to ingest, convert, chunk, embed, and index documents.
@@ -118,30 +146,32 @@ The architecture of the document pipeline is shown below:
 
 See the [Documentation](docs/documentation.md) for more details.
 
-## Libraries and APIs used
 
-Right now the default settings are using the following libraries and APIs:
+# Community
 
-- [Google Search API](https://developers.google.com/custom-search/v1/overview)
-- [OpenAI API](https://beta.openai.com/docs/api-reference/completions/create)
-- [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
-- [BS4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+**Acknowledgements**
+
+Right now we are using the following open source libraries and tools (not limited to):
+
 - [DuckDB](https://github.com/duckdb/duckdb)
 - [Docling](https://github.com/DS4SD/docling)
 - [Chonkie](https://github.com/bhavnicksm/chonkie)
+- [Ollama]https://github.com/ollama/ollama
+- [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
+- [BS4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 
 We plan to add more plugins for different components to support different workloads.
 
-## Get help and support
+**Get help and support**
 
 Please feel free to connect with us using the [discussion section](https://github.com/leettools-dev/leettools/discussions).
 
 
-## Contributing
+**Contributing**
 
 Please read [Contributing to LeetTools](CONTRIBUTING.md) for details.
 
-## License
+**License**
 
 LeetTools is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) 
 for the full license text.
