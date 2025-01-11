@@ -46,15 +46,18 @@ environment variable, see [below](#use-different-llm-endpoints) for more details
 **Run with pip**
 
 ```bash
-# Using conda or venv to create a new environment is recommended
 % conda create -y -n leettools python=3.11
 % conda activate leettools
 % pip install leettools
+
 # where we store all the data and logs
 % export LEET_HOME=${HOME}/leettools
 % mkdir -p ${LEET_HOME}
-# set the OPENAI_API_KEY, or check how to use different .env files to switch settings
+
+# set the api key if using the OpenAI API endpoints
+# see [below](#use-different-llm-endpoints) to use different .env files to switch settings
 % export EDS_OPENAI_API_KEY=<your_openai_api_key>
+
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
 # -t run this 'answer' flow, use --info option to see the function description
