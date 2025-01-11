@@ -54,7 +54,7 @@ Currently LeetTools provides the following workflow:
 % mkdir -p ${LEET_HOME}
 
 # add the script path to the path
-% export PATH=`pwd`/scripts:${PATH}
+% export PATH=`pwd`/src/leettools/scripts:${PATH}
 
 # set the OPENAI_API_KEY or put it in the .env file
 # or any OpenAI-compatible LLM inference endpoint

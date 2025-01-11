@@ -14,6 +14,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 pushd . 2>/dev/null >&2
 
 # pass all parameters to the python script
-cd "$DIR"/.. && python src/leettools/cli/cli.py "$@"
+cd "$DIR"/.. && python cli/cli.py "$@"
 
 popd 2>/dev/null >&2
