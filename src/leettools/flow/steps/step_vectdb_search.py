@@ -221,6 +221,6 @@ class StepVectorSearch(AbstractStep):
             filter=filter,
         )
         display_logger.info(
-            f"Found related segments by vectdb_search {len(top_ranked_result_segments)}:"
+            f"Found related segments by vectdb_search {len(top_ranked_result_segments)}."
         )
         return top_ranked_result_segments

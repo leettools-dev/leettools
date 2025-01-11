@@ -94,7 +94,7 @@ processed immediately. The function will return after the document source is pro
         if search_keywords is None:
             search_keywords = exec_info.target_chat_query_item.query_content
 
-        display_logger.info(f"Searching the web for query: {search_keywords}")
+        display_logger.debug(f"Searching the web for query: {search_keywords}")
 
         docsource = _create_docsrc_for_search(
             exec_info=exec_info,
@@ -121,7 +121,7 @@ processed immediately. The function will return after the document source is pro
                 search_keywords=search_keywords,
             )
             display_logger.info(
-                f"Successfully processed {len(success_documents)} documents."
+                f"Successfully ingested {len(success_documents)} documents from search."
             )
             return docsource
         except Exception as e:

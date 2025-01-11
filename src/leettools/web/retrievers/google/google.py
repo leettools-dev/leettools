@@ -78,7 +78,7 @@ class GoogleSearch(AbstractRetriever):
             FLOW_OPTION_TARGET_SITE,
         )
 
-        display_logger.info(f"Searching with query: {query}...")
+        display_logger.info(f"Google search with query: {query}...")
 
         days_limit, max_results = search_utils.get_common_search_paras(
             flow_options=flow_options,

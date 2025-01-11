@@ -1,7 +1,5 @@
 from typing import ClassVar, List, Type
 
-from openai.resources.chat.completions import ChatCompletion
-
 import leettools.flow.utils.citation_utils
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import config_utils
@@ -157,6 +155,8 @@ Search the web or local KB with the query and answer with source references:
             f"The token count is: {context_token_count}.\n"
             f"The number of new source items is: {len(source_items)}.\n"
         )
+
+        from openai.resources.chat.completions import ChatCompletion
 
         completion: ChatCompletion = steps.StepInference.run_step(
             exec_info=exec_info,

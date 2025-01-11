@@ -286,7 +286,9 @@ def run_adhoc_pipeline_for_docsinks(
         )
         segments.extend(segments_for_doc)
 
-    display_logger.info(f"Adhoc query: got all the chunks {len(segments)} ...")
+    display_logger.info(
+        f"Adhoc query: number of chunks to embed is {len(segments)} ..."
+    )
     job_logger = logger()
     log_handler = None
     if log_location:
