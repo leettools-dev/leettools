@@ -40,6 +40,32 @@ Currently LeetTools provides the following workflow:
 
 # Quick start
 
+We can use any OpenAI-compatible LLM inference endpoint by setting the related 
+environment variable, see [below](#use-different-llm-endpoints) for more details.
+
+**Run with pip**
+
+```bash
+# Using conda or venv to create a new environment is recommended
+% conda create -y -n leettools python=3.11
+% conda activate leettools
+% pip install leettools
+# where we store all the data and logs
+% export LEET_HOME=${HOME}/leettools
+% mkdir -p ${LEET_HOME}
+# set the OPENAI_API_KEY, or check how to use different .env files to switch settings
+% export EDS_OPENAI_API_KEY=<your_openai_api_key>
+# now you can run the command line commands
+# flow: the subcommand to run different flows, use --list to see all the available flows
+# -t run this 'answer' flow, use --info option to see the function description
+# -q the query
+# -k save the scraped web page to the knowledge base
+# -l log level, info shows the essential log messages
+% leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
+```
+
+**Run with source code**
+
 ```bash
 % git clone https://github.com/leettools-dev/leettools.git
 % cd leettools
@@ -72,13 +98,10 @@ Currently LeetTools provides the following workflow:
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-We can use any OpenAI-compatible LLM inference endpoint by setting the related 
-environment variable. An example of using the DeepSeek API is described [here](docs/deepseek.md).
-
+** Sample Output **
 Here is an example output of the `answer` flow:
 
 ```markdown
-** Sample Output **
 # How Does Graphrag Work?
 GraphRAG operates by constructing a knowledge graph from a set of documents, which
 involves several key steps. Initially, it ingests textual data and utilizes a large
@@ -127,6 +150,8 @@ EOF
 # Then run the command with the -e option to specify the .env file to use
 % leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
+
+An example of using the DeepSeek API is described [here](docs/deepseek.md).
 
 # Main Components
 
