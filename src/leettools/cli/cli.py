@@ -86,7 +86,7 @@ def _add_extension_cli(context: Context):
                     run.add_command(command)
 
 
-if __name__ == "__main__":
+def main():
     from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()
@@ -99,3 +99,7 @@ if __name__ == "__main__":
     finally:
         # Add any cleanup code here
         pass
+
+
+if __name__ == "__main__":
+    main()

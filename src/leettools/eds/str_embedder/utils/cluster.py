@@ -1,14 +1,5 @@
-import re
 from typing import Dict, List, Optional
 
-import numpy as np
-from sentence_transformers import SentenceTransformer
-from sklearn.cluster import DBSCAN
-
-from leettools.context_manager import ContextManager
-from leettools.eds.str_embedder._impl.dense_embedder_sentence_transformer import (
-    DenseEmbedderSentenceTransformer,
-)
 from leettools.eds.str_embedder.dense_embedder import AbstractDenseEmbedder
 from leettools.eds.str_embedder.schemas.schema_dense_embedder import (
     DenseEmbeddingRequest,
@@ -42,6 +33,9 @@ def cluster_strings(
         >>> cluster_strings(strings)
         {0: ['apple', 'apple fruit', 'apple pie'], 1: ['banana', 'banana split'], 2: ['orange', 'citrus orange']}
     """
+    import numpy as np
+    from sentence_transformers import SentenceTransformer
+    from sklearn.cluster import DBSCAN
 
     # Load pre-trained Sentence-Transformer model
     if embedder is None:

@@ -69,13 +69,12 @@ class Context:
         self.lock = threading.Lock()
 
         # the splade encoder library reports error the first time it loads the lib
-        # See leettools/issues/393
-        try:
-            from transformers import AutoModelForMaskedLM, AutoTokenizer
-        except ImportError as e:
-            print(f"transformers is not installed. {e}")
-        except Exception as e:
-            pass
+        # try:
+        #     from transformers import AutoModelForMaskedLM, AutoTokenizer
+        # except ImportError as e:
+        #     print(f"transformers is not installed. {e}")
+        # except Exception as e:
+        #     pass
 
     def get_config_manager(self) -> ConfigManager:
         return self._config_manager

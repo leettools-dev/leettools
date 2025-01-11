@@ -40,6 +40,36 @@ Currently LeetTools provides the following workflow:
 
 # Quick start
 
+We can use any OpenAI-compatible LLM endpoint, such as local Ollama service or public 
+provider such as Gemini or DeepSeek. We can switch the servce easily by [defining
+environment variables or switching .env files](#use-different-llm-endpoints). 
+
+**Run with pip**
+
+```bash
+% conda create -y -n leettools python=3.11
+% conda activate leettools
+% pip install leettools
+
+# where we store all the data and logs
+% export LEET_HOME=${HOME}/leettools
+% mkdir -p ${LEET_HOME}
+
+# set the endpoint and api key
+% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
+% export EDS_OPENAI_API_KEY=<your_openai_api_key>
+
+# now you can run the command line commands
+# flow: the subcommand to run different flows, use --list to see all the available flows
+# -t run this 'answer' flow, use --info option to see the function description
+# -q the query
+# -k save the scraped web page to the knowledge base
+# -l log level, info shows the essential log messages
+% leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
+```
+
+**Run with source code**
+
 ```bash
 % git clone https://github.com/leettools-dev/leettools.git
 % cd leettools
@@ -54,14 +84,11 @@ Currently LeetTools provides the following workflow:
 % mkdir -p ${LEET_HOME}
 
 # add the script path to the path
-% export PATH=`pwd`/scripts:${PATH}
+% export PATH=`pwd`/src/leettools/scripts:${PATH}
 
-# set the OPENAI_API_KEY or put it in the .env file
-# or any OpenAI-compatible LLM inference endpoint
-# export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
+# set the endpoint and api key
+% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
 % export EDS_OPENAI_API_KEY=<your_openai_api_key>
-# or
-% echo "EDS_OPENAI_API_KEY=<your_openai_api_key>" >> `pwd`/.env
 
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
@@ -72,13 +99,10 @@ Currently LeetTools provides the following workflow:
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-We can use any OpenAI-compatible LLM inference endpoint by setting the related 
-environment variable. An example of using the DeepSeek API is described [here](docs/deepseek.md).
-
+** Sample Output **
 Here is an example output of the `answer` flow:
 
 ```markdown
-** Sample Output **
 # How Does Graphrag Work?
 GraphRAG operates by constructing a knowledge graph from a set of documents, which
 involves several key steps. Initially, it ingests textual data and utilizes a large
@@ -127,6 +151,8 @@ EOF
 # Then run the command with the -e option to specify the .env file to use
 % leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
+
+An example of using the DeepSeek API is described [here](docs/deepseek.md).
 
 # Main Components
 

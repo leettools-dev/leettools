@@ -836,7 +836,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         )
 
         try:
-            query_logger.info("[Status]Query started.")
+            query_logger.info(f"[Status]Query started: {chat_query_item.query_content}")
             chat_query_result_create: ChatQueryResultCreate = (
                 self._execute_flow_for_query(
                     org=org,

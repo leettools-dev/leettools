@@ -60,7 +60,9 @@ class SearcherSimple(AbstractSearcher):
             search_params=search_params,
             filter=filter,
         )
-        logger().info(f"results_from_dense_vector: {len(results)}")
+        logger().debug(
+            f"Found segments through dense vector search in KB: {len(results)}"
+        )
         rtn_list = []
         for result in results:
             segment = self.segmentstore.get_segment_by_uuid(
