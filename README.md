@@ -40,8 +40,9 @@ Currently LeetTools provides the following workflow:
 
 # Quick start
 
-We can use any OpenAI-compatible LLM inference endpoint by setting the related 
-environment variable, see [below](#use-different-llm-endpoints) for more details.
+We can use any OpenAI-compatible LLM endpoint, such as local Ollama service or public 
+provider such as Gemini or DeepSeek. We can switch the servce easily by [defining
+environment variables or switching .env files](#use-different-llm-endpoints). 
 
 **Run with pip**
 
@@ -54,8 +55,8 @@ environment variable, see [below](#use-different-llm-endpoints) for more details
 % export LEET_HOME=${HOME}/leettools
 % mkdir -p ${LEET_HOME}
 
-# set the api key if using the OpenAI API endpoints
-# see [below](#use-different-llm-endpoints) to use different .env files to switch settings
+# set the endpoint and api key
+% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
 % export EDS_OPENAI_API_KEY=<your_openai_api_key>
 
 # now you can run the command line commands
@@ -85,12 +86,9 @@ environment variable, see [below](#use-different-llm-endpoints) for more details
 # add the script path to the path
 % export PATH=`pwd`/src/leettools/scripts:${PATH}
 
-# set the OPENAI_API_KEY or put it in the .env file
-# or any OpenAI-compatible LLM inference endpoint
-# export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
+# set the endpoint and api key
+% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
 % export EDS_OPENAI_API_KEY=<your_openai_api_key>
-# or
-% echo "EDS_OPENAI_API_KEY=<your_openai_api_key>" >> `pwd`/.env
 
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
