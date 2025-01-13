@@ -8,11 +8,10 @@ from leettools.cli.options_common import common_options
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSourceCreate
-from leettools.core.schemas.schedule_config import ScheduleConfig
 from leettools.flow.utils import pipeline_utils
 
 
-@click.command(help="Add a local dir or file to a kb.")
+@click.command(help="Add a local dir to a kb.")
 @click.option(
     "-p",
     "--path",
@@ -63,6 +62,7 @@ from leettools.flow.utils import pipeline_utils
     help="The chunk size for each segment.",
 )
 @click.option(
+    "-s",
     "--scheduler_check",
     "scheduler_check",
     default=True,
@@ -72,7 +72,7 @@ from leettools.flow.utils import pipeline_utils
     ),
 )
 @common_options
-def add_local(
+def add_local_dir(
     path_str: str,
     doc_source: str,
     org_name: str,

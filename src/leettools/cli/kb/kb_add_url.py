@@ -6,7 +6,9 @@ from leettools.cli.cli_utils import setup_org_kb_user
 from leettools.cli.options_common import common_options
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
+from leettools.core.consts.schedule_type import ScheduleType
 from leettools.core.schemas.docsource import DocSourceCreate
+from leettools.core.schemas.schedule_config import ScheduleConfig
 from leettools.flow.utils import pipeline_utils
 
 
@@ -84,37 +86,36 @@ def add_url(
     docsource_store = repo_manager.get_docsource_store()
     document_store = repo_manager.get_document_store()
 
-    org, kb, user = setup_org_kb_user(context, org_name, kb_name, username)
+    org, kb, user = setup_org_kb_user(
+        context=context,
+        org_name=org_name,
+        kb_name=kb_name,
+        username=username,
+        adhoc_kb=True,
+    )
 
     if chunk_size is not None:
         context.settings.DEFAULT_CHUNK_SIZE = int(chunk_size)
 
+    schedule_config: ScheduleConfig = ScheduleConfig(schedule_type=ScheduleType.MANUAL)
     docsource_create = DocSourceCreate(
         org_id=org.org_id,
         kb_id=kb.kb_id,
         source_type=DocSourceType.URL,
         display_name=url,
         uri=url,
+        schedule_config=schedule_config,
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
 
-    if kb.auto_schedule:
-        pipeline_utils.process_docsources_auto(
-            org=org,
-            kb=kb,
-            docsources=[docsource],
-            context=context,
-            display_logger=logger(),
-        )
-    else:
-        pipeline_utils.process_docsource_manual(
-            org=org,
-            kb=kb,
-            user=user,
-            docsource=docsource,
-            context=context,
-            display_logger=logger(),
-        )
+    pipeline_utils.process_docsource_manual(
+        org=org,
+        kb=kb,
+        user=user,
+        docsource=docsource,
+        context=context,
+        display_logger=logger(),
+    )
 
     documents = document_store.get_documents_for_docsource(org, kb, docsource)
     if len(documents) == 0:
@@ -130,9 +131,10 @@ def add_url(
         click.echo(document.model_dump_json(indent=indent))
     else:
         click.echo(
-            f"org:\t{org.name}\n"
-            f"kb:\t{kb.name}\n"
-            f"docource_id:\t{docsource.docsource_uuid}\n"
-            f"docsink_id:\t{document.docsink_uuid}\n"
-            f"document_uuid:\t{document.document_uuid}"
+            f"org:          \t{org.name}\n"
+            f"kb:           \t{kb.name}\n"
+            f"docource_id:  \t{docsource.docsource_uuid}\n"
+            f"docsink_id:   \t{document.docsink_uuid}\n"
+            f"document_uuid:\t{document.document_uuid}\n"
+            f"URI:          \t{document.original_uri}"
         )

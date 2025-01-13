@@ -7,7 +7,9 @@ from leettools.cli.cli_utils import setup_org_kb_user
 from leettools.cli.options_common import common_options
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
+from leettools.core.consts.schedule_type import ScheduleType
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate
+from leettools.core.schemas.schedule_config import ScheduleConfig
 from leettools.flow.utils import pipeline_utils
 
 
@@ -91,12 +93,19 @@ def add_url_list(
     docsource_store = repo_manager.get_docsource_store()
     document_store = repo_manager.get_document_store()
 
-    org, kb, user = setup_org_kb_user(context, org_name, kb_name, username)
+    org, kb, user = setup_org_kb_user(
+        context=context,
+        org_name=org_name,
+        kb_name=kb_name,
+        username=username,
+        adhoc_kb=True,
+    )
 
     if chunk_size is not None:
         context.settings.DEFAULT_CHUNK_SIZE = int(chunk_size)
 
     docsources: List[DocSource] = []
+    schedule_config: ScheduleConfig = ScheduleConfig(schedule_type=ScheduleType.MANUAL)
     # read the file_path line by line and create
     for line in file_path.open():
         line = line.strip()
@@ -108,28 +117,20 @@ def add_url_list(
             source_type=DocSourceType.URL,
             display_name=line,
             uri=line,
+            schedule_config=schedule_config,
         )
         docsource = docsource_store.create_docsource(org, kb, docsource_create)
         docsources.append(docsource)
 
-    if kb.auto_schedule:
-        pipeline_utils.process_docsources_auto(
+    for docsource in docsources:
+        pipeline_utils.process_docsource_manual(
             org=org,
             kb=kb,
-            docsources=docsources,
+            user=user,
+            docsource=docsource,
             context=context,
             display_logger=logger(),
         )
-    else:
-        for docsource in docsources:
-            pipeline_utils.process_docsource_manual(
-                org=org,
-                kb=kb,
-                user=user,
-                docsource=docsource,
-                context=context,
-                display_logger=logger(),
-            )
 
     if not json_output:
         click.echo("org\tkb\tdocsource_id\tdocsink_id\tdocument_uuid\tURI")

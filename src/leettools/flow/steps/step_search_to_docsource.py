@@ -8,8 +8,10 @@ from leettools.core.consts import flow_option
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.consts.retriever_type import RetrieverType
+from leettools.core.consts.schedule_type import ScheduleType
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate, IngestConfig
 from leettools.core.schemas.document import Document
+from leettools.core.schemas.schedule_config import ScheduleConfig
 from leettools.flow import flow_option_items
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
@@ -56,7 +58,9 @@ processed immediately. The function will return after the document source is pro
 
     @staticmethod
     def run_step(
-        exec_info: ExecInfo, search_keywords: Optional[str] = None
+        exec_info: ExecInfo,
+        search_keywords: Optional[str] = None,
+        schedule_config: Optional[ScheduleConfig] = None,
     ) -> DocSource:
         """
         Create a document source with web search.
@@ -72,6 +76,8 @@ processed immediately. The function will return after the document source is pro
         - exec_info: Execution information
         - search_keywords: The search keywords. If not provided, the original query
           from the chat_query_item will be used.
+        - schedule_config: The schedule config for the document source. If not provided,
+            the default schedule config will be used.
 
         Returns:
         -  The docsource created
@@ -94,14 +100,21 @@ processed immediately. The function will return after the document source is pro
         if search_keywords is None:
             search_keywords = exec_info.target_chat_query_item.query_content
 
+        if schedule_config is None:
+            schedule_config = ScheduleConfig(schedule_type=ScheduleType.MANUAL)
+
         display_logger.debug(f"Searching the web for query: {search_keywords}")
 
         docsource = _create_docsrc_for_search(
             exec_info=exec_info,
             search_keywords=search_keywords,
+            schedule_config=schedule_config,
         )
 
-        if exec_info.kb.auto_schedule:
+        if (
+            exec_info.kb.auto_schedule
+            and schedule_config.schedule_type == ScheduleType.RECURRING
+        ):
             updated_docsources = pipeline_utils.process_docsources_auto(
                 org=org,
                 kb=kb,
@@ -176,6 +189,7 @@ def _run_web_search_pipeline(
 def _create_docsrc_for_search(
     exec_info: ExecInfo,
     search_keywords: str,
+    schedule_config: ScheduleConfig,
 ) -> DocSource:
 
     context = exec_info.context
@@ -228,6 +242,7 @@ def _create_docsrc_for_search(
                 "query_id": chat_query_item.query_id,
             },
         ),
+        schedule_config=schedule_config,
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
     return docsource
