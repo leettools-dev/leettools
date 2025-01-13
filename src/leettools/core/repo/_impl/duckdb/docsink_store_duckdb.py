@@ -195,11 +195,11 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         for existing in existing_docsinks:
             if existing.raw_doc_hash == docsink_create.raw_doc_hash:
                 logger().info(
-                    f"Found existing DocSink {existing.docsink_uuid} with same hash"
+                    f"Found existing DocSink with same hash: {existing.docsink_uuid} "
                 )
                 if existing.expired_at is not None:
                     logger().debug(
-                        f"The existing DocSink {existing.docsink_uuid} has already expired"
+                        f"The existing DocSink has already expired: {existing.docsink_uuid} "
                     )
                 else:
                     using_existing = existing
@@ -207,9 +207,12 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
         if using_existing is not None:
             if docsource_uuid in using_existing.docsource_uuids:
                 logger().debug(
-                    f"DocSink {using_existing.docsink_uuid} already has docsource {docsource_uuid}"
+                    f"DocSink already has docsource {using_existing.docsink_uuid}: {docsource_uuid}"
                 )
             else:
+                logger().debug(
+                    f"Addin docsource id to docsink {using_existing.docsink_uuid}: {docsource_uuid}"
+                )
                 using_existing.docsource_uuids.append(docsource_uuid)
             using_existing.updated_at = time_utils.current_datetime()
             update_docsink = self.update_docsink(org, kb, using_existing)

@@ -259,14 +259,20 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         self, org: Org, kb: KnowledgeBase, docsource: DocSource
     ) -> List[Document]:
         """Get all non-deleted documents for a docsource."""
-        return self._get_documents_in_kb(
-            org,
-            kb,
-            (
-                f"{Document.FIELD_DOCSOURCE_UUIDS} like '%{docsource.docsource_uuid}%' "
-                f"AND {Document.FIELD_IS_DELETED} = False"
-            ),
-        )
+        from leettools.context_manager import ContextManager
+
+        context = ContextManager().get_context()
+
+        docsink_store = context.get_repo_manager().get_docsink_store()
+        docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)
+
+        # see the logic in create_docsink, when we reuse docsinks
+        # we only add docsource_uuid to the docsink not the document
+
+        documents: List[Document] = []
+        for docsink in docsinks:
+            documents += self.get_documents_for_docsink(org, kb, docsink)
+        return documents
 
     def get_documents_for_kb(self, org: Org, kb: KnowledgeBase) -> List[Document]:
         """Get all non-deleted documents for a knowledge base."""

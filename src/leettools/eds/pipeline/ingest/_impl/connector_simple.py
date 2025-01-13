@@ -12,7 +12,7 @@ from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.logging.logger_for_query import get_logger_for_chat
-from leettools.common.utils import file_utils
+from leettools.common.utils import file_utils, time_utils
 from leettools.common.utils.file_utils import file_hash_and_size, uri_to_path
 from leettools.common.utils.url_utils import normalize_url
 from leettools.context_manager import Context
@@ -652,17 +652,24 @@ class ConnectorSimple(AbstractConnector):
             return ReturnCode.FAILURE
 
         ingested_count = 0
+        reused_count = 0
+        cur_time = time_utils.current_datetime()
         for docsink_create in self.docsink_create_list:
             docsink = self.docsinkstore.create_docsink(
                 self.org, self.kb, docsink_create
             )
             if docsink is not None:
-                ingested_count += 1
+                if docsink.created_at < cur_time:
+                    reused_count += 1
+                else:
+                    ingested_count += 1
             else:
                 self.display_logger.info(
                     f"Failed to create new docsink: {docsink_create.raw_doc_uri}"
                 )
-        self.display_logger.info(f"Created {ingested_count} docsinks.")
+        self.display_logger.info(
+            f"Ingestion successful: new docsinks {ingested_count}, reused docsinks: {reused_count}."
+        )
         return ReturnCode.SUCCESS
 
     def get_ingested_docsink_list(self) -> Optional[List[DocSinkCreate]]:

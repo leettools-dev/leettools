@@ -6,6 +6,8 @@ from leettools.cli.cli_utils import setup_org_kb_user
 from leettools.cli.options_common import common_options
 from leettools.core.consts import flow_option
 from leettools.core.consts.retriever_type import RetrieverType, supported_retriever
+from leettools.core.consts.schedule_type import ScheduleType
+from leettools.core.schemas.schedule_config import ScheduleConfig
 
 
 @click.command(help="Add a web search result docsource to the kb.")
@@ -133,9 +135,11 @@ def add_search(
         display_logger=None,
     )
 
+    schedule_config: ScheduleConfig = ScheduleConfig(schedule_type=ScheduleType.MANUAL)
     docsource = steps.StepSearchToDocsource.run_step(
         exec_info=exec_info,
         search_keywords=query,
+        schedule_config=schedule_config,
     )
 
     documents = document_store.get_documents_for_docsource(org, kb, docsource)
