@@ -112,10 +112,11 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
+** Sample Output **
+
 Here is an example output of the `answer` flow:
 
 ```markdown
-** Sample Output **
 # How Does Graphrag Work?
 GraphRAG operates by constructing a knowledge graph from a set of documents, which
 involves several key steps. Initially, it ingests textual data and utilizes a large
