@@ -112,9 +112,6 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-We can use any OpenAI-compatible LLM inference endpoint by setting the related 
-environment variable. An example of using the DeepSeek API is described [here](docs/deepseek.md).
-
 Here is an example output of the `answer` flow:
 
 ```markdown
@@ -167,6 +164,8 @@ EOF
 # Then run the command with the -e option to specify the .env file to use
 % leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
+
+An example of using the DeepSeek API is described [here](docs/deepseek.md).
 
 # Main Components
 
