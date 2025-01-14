@@ -15,7 +15,7 @@ urllib3==2.2.3
 langdetect==1.0.9
 # dev
 beautifulsoup4==4.12.3
-openai==1.57.2
+openai==1.59.7
 scipy==1.14.1
 sentence_transformers==2.5.1
 tiktoken==0.7.0
