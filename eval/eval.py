@@ -197,7 +197,7 @@ def run_eval(dataset: List[Dict[str, Any]]) -> EvaluationResult:
 
     evaluation_dataset = EvaluationDataset.from_list(dataset)
 
-    from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+    from langchain_openai import ChatOpenAI
     from ragas import evaluate
     from ragas.llms import LangchainLLMWrapper
 
