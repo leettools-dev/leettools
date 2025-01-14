@@ -50,6 +50,36 @@ Currently LeetTools provides the following workflow:
 
 # Quick start
 
+We can use any OpenAI-compatible LLM endpoint, such as local Ollama service or public 
+provider such as Gemini or DeepSeek. We can switch the servce easily by [defining
+environment variables or switching .env files](#use-different-llm-endpoints). 
+
+**Run with pip**
+
+```bash
+% conda create -y -n leettools python=3.11
+% conda activate leettools
+% pip install leettools
+
+# where we store all the data and logs
+% export LEET_HOME=${HOME}/leettools
+% mkdir -p ${LEET_HOME}
+
+# set the endpoint and api key
+% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
+% export EDS_OPENAI_API_KEY=<your_openai_api_key>
+
+# now you can run the command line commands
+# flow: the subcommand to run different flows, use --list to see all the available flows
+# -t run this 'answer' flow, use --info option to see the function description
+# -q the query
+# -k save the scraped web page to the knowledge base
+# -l log level, info shows the essential log messages
+% leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
+```
+
+**Run with source code**
+
 ```bash
 % git clone https://github.com/leettools-dev/leettools.git
 % cd leettools
