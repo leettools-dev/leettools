@@ -41,12 +41,12 @@ Here is a demo of LeetTools in action to answer the question "How does GraphRAG 
 
 Currently LeetTools provides the following workflow:
 
-* answer  : Answer the query directly with source references (similar to Perplexity). [📖](docs/flow-answer.md)
-* digest  : Generate a multi-section digest article from search results (similar to Google Deep Research). [📖](docs/flow-digest.md)
-* search  : Search for top segements that match the query. [📖](docs/flow-search.md)
-* news    : Generate a list of news items for the specified topic. [📖](docs/flow-news.md)
-* extract : Extract and store structured data for given schema. [📖](docs/flow-extract.md)
-* opinions: Generate sentiment analysis and facts from the search results.  [📖](docs/flow-opinions.md)
+* answer  : Answer the query directly with source references (similar to Perplexity). [📖](https://leettools-dev.github.io/Flow/answer)
+* digest  : Generate a multi-section digest article from search results (similar to Google Deep Research). [📖](https://leettools-dev.github.io/Flow/digest)
+* search  : Search for top segements that match the query. [📖](https://leettools-dev.github.io/Flow/search)
+* news    : Generate a list of news items for the specified topic. [📖](https://leettools-dev.github.io/Flow/news)
+* extract : Extract and store structured data for given schema. [📖](https://leettools-dev.github.io/Flow/extract)
+* opinions: Generate sentiment analysis and facts from the search results.  [📖](https://leettools-dev.github.io/Flow/opinions)
 
 # Quick start
 
