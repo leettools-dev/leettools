@@ -9,6 +9,8 @@
 - [AI Search Assistant with Local Knowledge Base](#ai-search-assistant-with-local-knowledge-base)
 - [Quick start](#quick-start)
 - [Use Different LLM Endpoints](#use-different-llm-endpoints)
+- [Usage Examples](#usage-examples)
+  - [Generate news list from updates in KB](#generate-news-list-from-updates-in-kb)
 - [Main Components](#main-components)
 - [Community](#community)
 
@@ -167,6 +169,62 @@ EOF
 ```
 
 An example of using the DeepSeek API is described [here](docs/deepseek.md).
+
+# Usage Examples
+
+## Generate news list from updates in KB
+
+We can create a knowledge base with a list of URLs or a search query, and then generate
+a list of news items from the KB. Here is an example:
+
+```bash
+# create a KB with a google search
+# -d 1 means to search for news from the last day
+# -m 30 means to scrape the top 30 search results
+% leet kb add-search -k genai -q "LLM GenAI Startups" -d 1 -m 30
+# you can add single url to the KB
+% leet kb add-url -k genai -r "https://www.techcrunch.com"
+# you can also add a list of urls, example in [docs/sample_urls.txt](docs/sample_urls.txt)
+% leet kb add-url-list -k genai -f <file_with_list_of_urls>
+
+# generate a news list from the KB
+% leet flow -t news -q "LLM GenAI Startups" -k genai -l info -o llm_genai_news.md
+
+# Next time you want to refresh the KB and generate the news list
+# this command will re-ingest all the docsources specified above
+% leet kb ingest -k genai
+
+# run the news flow again with parameter you need
+% leet flow -t news --info
+====================================================================================================
+news: Generating a list of news items from the KB.
+
+This flow generates a list of news items from the updated items in the KB: 
+1. check the KB for recently updated documents and find news items in them.
+2. combine all the similar items into one.
+3. remove items that have been reported before.
+4. rank the items by the number of sources.
+5. generate a list of news items with references.
+
+====================================================================================================
+Use -p name=value to specify options for news:
+
+article_style       : The style of the output article such as analytical research reports, humorous
+                      news articles, or technical blog posts. [default: analytical research reports]
+                      [FLOW: news]
+days_limit          : Number of days to limit the search results. 0 or empty means no limit. In
+                      local KB, filters by the import time. [FLOW: news]
+news_include_old    : Include all news items in the result, even if it has been reported
+                      before.Default is False. [default: False] [FLOW: news]
+news_source_min     : Number of sources a news item has to have to be included in the result.Default
+                      is 2. Depends on the nature of the knowledge base. [default: 2] [FLOW: news]
+output_language     : Output the result in the language. [FLOW: news]
+word_count          : The number of words in the output section. Empty means automatics.
+                      [FLOW: news]
+
+```
+
+Note: scheduler support and UI view are coming soon.
 
 # Main Components
 

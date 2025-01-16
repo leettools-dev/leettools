@@ -125,7 +125,7 @@ Please find the news items in the context about {{ query }} and return
             required=False,
         )
 
-        foi_news_include_all = FlowOptionItem(
+        foi_news_include_old = FlowOptionItem(
             name=flow_option.FLOW_OPTION_NEWS_INCLUDE_OLD,
             display_name="Include previously reported news items",
             description=(
@@ -144,7 +144,7 @@ Please find the news items in the context about {{ query }} and return
             flow_option_items.FOI_WORD_COUNT(),
             flow_option_items.FOI_ARTICLE_STYLE(),
             foi_news_source_min,
-            foi_news_include_all,
+            foi_news_include_old,
         ]
 
     def _get_news_params(self, exec_info: ExecInfo) -> _NewsParams:
@@ -390,6 +390,10 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
                     description = news_item.description
                 categories.update(news_item.categories)
                 keywords.update(news_item.keywords)
+
+            if news_date is None:
+                display_logger.debug(f"Ignore cluster without news date: {cluster}")
+                continue
 
             # we will just use the title and description of the first item in the cluster
             combined_news_item = CombinedNewsItems(
