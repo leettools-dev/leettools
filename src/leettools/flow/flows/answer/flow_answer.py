@@ -93,7 +93,7 @@ Search the web or local KB with the query and answer with source references:
         retriever_type = config_utils.get_str_option_value(
             options=flow_options,
             option_name=flow_option.FLOW_OPTION_RETRIEVER_TYPE,
-            default_value=RetrieverType.GOOGLE,
+            default_value=exec_info.settings.WEB_RETRIEVER,
             display_logger=display_logger,
         )
 
