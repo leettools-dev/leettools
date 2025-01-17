@@ -86,7 +86,7 @@ class ImageSearcher:
         retrieve_type = config_utils.get_str_option_value(
             options=flow_options,
             option_name=flow_option.FLOW_OPTION_RETRIEVER_TYPE,
-            default_value=RetrieverType.GOOGLE.value,
+            default_value=self.context.settings.WEB_RETRIEVER,
             display_logger=display_logger,
         )
         retriever = create_retriever(
