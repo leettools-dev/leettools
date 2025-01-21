@@ -106,8 +106,8 @@ def _query_openai(settings: SystemSettings, prompt: str) -> str:
     from openai import OpenAI
 
     openai_client = OpenAI(
-        base_url=settings.DEFAULT_OPENAI_BASE_URL,
-        api_key=settings.OPENAI_API_KEY,
+        base_url=settings.DEFAULT_LLM_BASE_URL,
+        api_key=settings.LLM_API_KEY,
     )
     chat_completion = openai_client.chat.completions.create(
         temperature=0.0,
@@ -117,7 +117,7 @@ def _query_openai(settings: SystemSettings, prompt: str) -> str:
                 "content": prompt,
             }
         ],
-        model=settings.DEFAULT_OPENAI_MODEL,
+        model=settings.DEFAULT_INFERENCE_MODEL,
     )
     return chat_completion.choices[0].message.content
 

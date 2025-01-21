@@ -104,7 +104,7 @@ class APICallerBase:
                 api_provider_config=self.api_provider_config,
             )
             if self.model_name is None:
-                self.model_name = context.settings.DEFAULT_OPENAI_MODEL
+                self.model_name = context.settings.DEFAULT_INFERENCE_MODEL
                 self.display_logger.debug(
                     f"Using system default model {self.model_name} for {strategy_section.section_name}."
                 )

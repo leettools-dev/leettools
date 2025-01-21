@@ -82,7 +82,7 @@ class StepExtendContext(AbstractStep):
                     f"Using model {inference_model_name} specified in the strategy for inference."
                 )
             else:
-                inference_model_name = settings.DEFAULT_OPENAI_MODEL
+                inference_model_name = settings.DEFAULT_INFERENCE_MODEL
                 display_logger.debug(
                     f"Using the default model {inference_model_name} for inference."
                 )

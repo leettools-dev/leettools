@@ -214,7 +214,7 @@ def run_inference_call_direct(
 
     if completion is None:
         raise exceptions.UnexpectedOperationFailureException(
-            operation_desc=f"OpenAI completion for {call_target}",
+            operation_desc=f"LLM inference completion for {call_target}",
             error="Completion is None.",
         )
 
@@ -263,7 +263,7 @@ def get_openai_embedder_client_for_user(
 
     trace = traceback.format_stack()
     logger().info(
-        f"Creating OpenAI embedding client with base_url: {base_url} "
+        f"Creating embedding client with base_url: {base_url} "
         f"and api_key: {file_utils.redact_api_key(api_key)}"
     )
     # used to track where the call is coming from
@@ -283,16 +283,16 @@ def get_default_inference_api_provider_config(
     api_key = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="OPENAI_API_KEY",
-        first_key="OPENAI_API_KEY",
+        default_env="LLM_API_KEY",
+        first_key="LLM_API_KEY",
         second_key=None,
         allow_empty=False,
     )
     base_url = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="DEFAULT_OPENAI_BASE_URL",
-        first_key="OPENAI_BASE_URL",
+        default_env="DEFAULT_LLM_BASE_URL",
+        first_key="LLM_BASE_URL",
         second_key=None,
         allow_empty=False,
     )
@@ -306,7 +306,7 @@ def get_default_inference_api_provider_config(
         endpoints={
             APIFunction.INFERENCE: APIEndpointInfo(
                 path="chat/completions",
-                default_model=settings.DEFAULT_OPENAI_MODEL,
+                default_model=settings.DEFAULT_INFERENCE_MODEL,
                 supported_models=["gpt-3.5-turbo", "gpt-4.0", "gpt-4o", "gpt-4o-mini"],
             ),
         },
@@ -326,17 +326,17 @@ def get_default_embed_api_provider_config(
     api_key = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="EMBEDDING_OPENAI_API_KEY",
-        first_key="EMBEDDING_OPENAI_API_KEY",
-        second_key="OPENAI_API_KEY",
+        default_env="EMBEDDING_API_KEY",
+        first_key="EMBEDDING_API_KEY",
+        second_key="LLM_API_KEY",
         allow_empty=True,
     )
     if api_key is None:
         api_key = get_value_from_settings(
             context=context,
             user_settings=user_settings,
-            default_env="OPENAI_API_KEY",
-            first_key="OPENAI_API_KEY",
+            default_env="LLM_API_KEY",
+            first_key="LLM_API_KEY",
             second_key=None,
             allow_empty=False,
         )
@@ -344,9 +344,9 @@ def get_default_embed_api_provider_config(
     base_url = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="DEFAULT_EMBEDDING_OPENAI_BASE_URL",
-        first_key="EMBEDDING_OPENAI_BASE_URL",
-        second_key="OPENAI_BASE_URL",
+        default_env="DEFAULT_EMBEDDING_BASE_URL",
+        first_key="EMBEDDING_BASE_URL",
+        second_key="LLM_BASE_URL",
         allow_empty=True,
     )
 
@@ -354,8 +354,8 @@ def get_default_embed_api_provider_config(
         base_url = get_value_from_settings(
             context=context,
             user_settings=user_settings,
-            default_env="DEFAULT_OPENAI_BASE_URL",
-            first_key="OPENAI_BASE_URL",
+            default_env="DEFAULT_LLM_BASE_URL",
+            first_key="LLM_BASE_URL",
             second_key=None,
             allow_empty=False,
         )
@@ -369,8 +369,8 @@ def get_default_embed_api_provider_config(
         endpoints={
             APIFunction.EMBED: APIEndpointInfo(
                 path="embeddings",
-                default_model=settings.DEFAULT_EMBEDDING_OPENAI_MODEL,
-                supported_models=[settings.DEFAULT_EMBEDDING_OPENAI_MODEL],
+                default_model=settings.DEFAULT_EMBEDDING_MODEL,
+                supported_models=[settings.DEFAULT_EMBEDDING_MODEL],
             ),
         },
     )
@@ -389,24 +389,24 @@ def get_default_rerank_api_provider_config(
     api_key = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="COHERE_API_KEY",
-        first_key="COHERE_API_KEY",
+        default_env="RERANK_API_KEY",
+        first_key="RERANK_API_KEY",
         second_key=None,
         allow_empty=False,
     )
     base_url = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="COHERE_BASE_URL",
-        first_key="COHERE_BASE_URL",
+        default_env="RERANK_BASE_URL",
+        first_key="RERANK_BASE_URL",
         second_key=None,
         allow_empty=True,
     )
 
     if base_url is None:
         raise exceptions.ConfigValueException(
-            "COHERE_BASE_URL",
-            "COHERE_BASE_URL is not set. Please set COHERE_BASE_URL in the environment or user settings.",
+            "RERANK_BASE_URL",
+            "RERANK_BASE_URL is not set. Please set RERANK_BASE_URL in the environment or user settings.",
         )
 
     tld = url_utils.get_first_level_domain_from_url(base_url)
@@ -440,7 +440,7 @@ def get_openai_client_for_user(
 
     trace = traceback.format_stack()
     logger().debug(
-        f"Creating OpenAI client with base_url: {base_url} "
+        f"Creating OpenAI-compatible client with base_url: {base_url} "
         f"and api_key: {api_key[:5]}******{api_key[-5:]}"
     )
     logger().noop(f"Calling Trace: {trace}")

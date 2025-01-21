@@ -50,11 +50,11 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         we can aggregate them and save them to the database together.
 
         Args:
-        - client: OpenAI client
-        - chunk_batch: Tuple of URL and list of chunks scraped from the URL
+        - dense_embedder: Dense embedder to use
+        - segment_batch: List of segments to get embeddings for
 
         Returns:
-        - Tuple of chunk_bach and list of result embeddings
+        - List of segments with embeddings
         """
         texts = [segment.content for segment in segment_batch]
         embeddings = self._get_embedding(dense_embedder, texts)

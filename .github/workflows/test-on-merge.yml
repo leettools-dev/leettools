@@ -32,8 +32,8 @@ jobs:
         run: |
           export LEET_HOME=$(mktemp -d)
           echo "LEET_HOME=${LEET_HOME}" >> .env
-          echo "EDS_DEFAULT_OPENAI_BASE_URL=${{ secrets.OPENAI_BASE_URL }}" >> .env
-          echo "EDS_OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+          echo "EDS_DEFAULT_LLM_BASE_URL=${{ secrets.OPENAI_BASE_URL }}" >> .env
+          echo "EDS_LLM_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
 
 
       # Run pytest
