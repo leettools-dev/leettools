@@ -16,9 +16,9 @@ environment variables:
 
 # Or you can put the above settings in the .env.deepseek file
 % cat .env.deepseek
-LEET_HOME=/Users/myhome/leettools
+LEET_HOME=</Users/myhome/leettools>
 EDS_DEFAULT_LLM_BASE_URL=https://api.deepseek.com/v1
-EDS_LLM_API_KEY=sk-0d8-mykey
+EDS_LLM_API_KEY=<sk-0d8-mykey>
 EDS_DEFAULT_INFERENCE_MODEL=deepseek-chat
 EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
 
