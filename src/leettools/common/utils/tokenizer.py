@@ -12,7 +12,7 @@ class Tokenizer:
 
     def token_count(self, text: str, model_name: Optional[str] = None) -> int:
         if model_name is None:
-            model_name = self.settings.DEFAULT_OPENAI_MODEL
+            model_name = self.settings.DEFAULT_INFERENCE_MODEL
 
         if model_name.startswith("gpt"):
             import tiktoken

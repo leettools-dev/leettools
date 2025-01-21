@@ -42,10 +42,8 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
         params = kb.dense_embedder_params
         if params is None or DENSE_EMBED_PARAM_MODEL not in params:
             settings = context.settings
-            self.model_name = settings.DEFAULT_EMBEDDING_OPENAI_MODEL
-            self.OPENAI_EMBEDDING_MODEL_DIMENSION = (
-                settings.EMBEDDING_OPENAI_MODEL_DIMENSION
-            )
+            self.model_name = settings.DEFAULT_EMBEDDING_MODEL
+            self.EMBEDDING_MODEL_DIMENSION = settings.EMBEDDING_MODEL_DIMENSION
         else:
             self.model_name = params[DENSE_EMBED_PARAM_MODEL]
             if (
@@ -53,9 +51,9 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
                 or params[DENSE_EMBED_PARAM_MODEL] is None
             ):
                 raise ConfigValueException(
-                    DENSE_EMBED_PARAM_DIM, "OpenAI embedding model dim not specified."
+                    DENSE_EMBED_PARAM_DIM, "Embedding model dim not specified."
                 )
-            self.OPENAI_EMBEDDING_MODEL_DIMENSION = params[DENSE_EMBED_PARAM_DIM]
+            self.EMBEDDING_MODEL_DIMENSION = params[DENSE_EMBED_PARAM_DIM]
         self.openai: OpenAI = None
 
     def _get_openai_embedder_client(self) -> Tuple[APIProviderConfig, OpenAI]:
@@ -97,7 +95,7 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
             for i in range(len(response.data)):
                 rtn_list.append(response.data[i].embedding)
         except Exception as e:
-            logger().error(f"OpenAI embedding failed: {e}")
+            logger().error(f"Embedding operation failed: {e}")
             raise e
         finally:
             end_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
@@ -132,11 +130,11 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
         return DenseEmbeddings(dense_embeddings=rtn_list)
 
     def get_dimension(self) -> int:
-        return self.OPENAI_EMBEDDING_MODEL_DIMENSION
+        return self.EMBEDDING_MODEL_DIMENSION
 
     @classmethod
     def get_default_params(cls, settings: SystemSettings) -> Dict[str, Any]:
         params: Dict[str, Any] = {}
-        params[DENSE_EMBED_PARAM_MODEL] = settings.DEFAULT_EMBEDDING_OPENAI_MODEL
-        params[DENSE_EMBED_PARAM_DIM] = settings.EMBEDDING_OPENAI_MODEL_DIMENSION
+        params[DENSE_EMBED_PARAM_MODEL] = settings.DEFAULT_EMBEDDING_MODEL
+        params[DENSE_EMBED_PARAM_DIM] = settings.EMBEDDING_MODEL_DIMENSION
         return params

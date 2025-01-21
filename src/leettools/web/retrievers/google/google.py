@@ -41,7 +41,7 @@ class GoogleSearch(AbstractRetriever):
         super().__init__(context, org, kb, user)
         self.api_key = self._get_api_key()
         self.cx_key = self._get_cx_key(cx_name="GOOGLE_CX_KEY")
-        self.google_url_base = context.settings.GOOGLE_SEARCH_URL
+        self.google_url_base = context.settings.SEARCH_API_URL
 
     def retrieve_search_result(
         self,

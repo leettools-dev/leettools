@@ -113,10 +113,9 @@ class SystemSettings(BaseModel):
     WEB_RETRIEVER: str = Field(
         "google", description="The default web search retriever to use"
     )
-    # the URL from Google is https://www.google.com/customsearch/v1
-    GOOGLE_SEARCH_URL: str = Field(
+    SEARCH_API_URL: str = Field(
         "https://svc.leettools.com:8098/customsearch/v1",
-        description="The Google search URL",
+        description="The search API base URL",
     )
     FALLBACK_SCRAPER: str = Field(
         None,
@@ -202,18 +201,17 @@ class SystemSettings(BaseModel):
     # 2.4.   LLM API call settings
 
     # 2.4.1. Default API providers
-    DEFAULT_OPENAI_BASE_URL: str = Field(
-        "https://api.openai.com/v1", description="The default OpenAI base URL"
+    DEFAULT_LLM_BASE_URL: str = Field(
+        "https://api.openai.com/v1", description="The default base URL for LLM APIs"
     )
-    DEFAULT_EMBEDDING_OPENAI_BASE_URL: str = Field(
+    DEFAULT_EMBEDDING_BASE_URL: str = Field(
         None,
         description=(
-            "The default OpenAI embedding base URL, default to the same "
-            "as the OpenAI base URL",
+            "The default embedding base URL, default to the same as the LLM base URL",
         ),
     )
-    COHERE_BASE_URL: str = Field(
-        None, description="The default Cohere base URL for the API"
+    RERANK_BASE_URL: str = Field(
+        None, description="The default rerank base URL for the API"
     )
 
     # 2.4.2. Default Reference API parameters
@@ -232,8 +230,8 @@ class SystemSettings(BaseModel):
     )
 
     # 2.4.3. Default models
-    DEFAULT_OPENAI_MODEL: str = Field(
-        "gpt-4o-mini", description="The default OpenAI model to use"
+    DEFAULT_INFERENCE_MODEL: str = Field(
+        "gpt-4o-mini", description="The default inference model to use"
     )
     DEFAULT_SUMMARIZING_MODEL: str = Field(
         None, description="The default summarizing model to use"
@@ -244,12 +242,12 @@ class SystemSettings(BaseModel):
     DEFAULT_WRITING_MODEL: str = Field(
         None, description="The default writing model to use"
     )
-    DEFAULT_EMBEDDING_OPENAI_MODEL: str = Field(
+    DEFAULT_EMBEDDING_MODEL: str = Field(
         "text-embedding-3-small",
-        description="The default OpenAI embedding model to use",
+        description="The default embedding model to use",
     )
-    EMBEDDING_OPENAI_MODEL_DIMENSION: int = Field(
-        1536, description="The default OpenAI embedding model dimension"
+    EMBEDDING_MODEL_DIMENSION: int = Field(
+        1536, description="The default embedding model dimension"
     )
 
     ##########################################################################
@@ -286,25 +284,25 @@ class SystemSettings(BaseModel):
     )
 
     # 3.3.   API Keys
-    OPENAI_API_KEY: str = Field(
+    LLM_API_KEY: str = Field(
         None,
         description=(
-            "The default OpenAI API key for the LLM Reference API. It is "
+            "The default LLM API key for the LLM Reference API. It is "
             "possible to use a different compatible API provider and set their "
             "API key here."
         ),
     )
-    COHERE_API_KEY: str = Field(
-        None, description="The default Cohere API key for the rerank API"
+    RERANK_API_KEY: str = Field(
+        None, description="The default rerank API key for the rerank API"
     )
     BING_SEARCH_API_KEY: str = Field(
         None, description="The default Bing search API key"
     )
-    EMBEDDING_OPENAI_API_KEY: str = Field(
+    EMBEDDING_API_KEY: str = Field(
         None,
         description=(
-            "The default OpenAI API key for the embedding API. If not set, the "
-            "OpenAI API key will be used.",
+            "The default embedding API key for the embedding API. If not set, the "
+            "LLM API key will be used.",
         ),
     )
     OPENAI_UTILS_ENABLED: bool = Field(
@@ -560,52 +558,52 @@ class SystemSettings(BaseModel):
         Get the user settings that can be configured by the user.
         """
         return {
-            "OPENAI_API_KEY": UserSettingsItem(
+            "LLM_API_KEY": UserSettingsItem(
                 section="RAG",
-                name="OPENAI_API_KEY",
-                description="OpenAI API Key used in the inference process.",
+                name="LLM_API_KEY",
+                description="LLM API Key used in the inference process.",
                 default_value=None,
                 value_type="str",
             ),
-            "OPENAI_BASE_URL": UserSettingsItem(
+            "LLM_BASE_URL": UserSettingsItem(
                 section="RAG",
-                name="OPENAI_BASE_URL",
-                description="OpenAI Base URL used in the inference process.",
-                default_value=self.DEFAULT_OPENAI_BASE_URL,
+                name="LLM_BASE_URL",
+                description="LLM Base URL used in the inference process.",
+                default_value=self.DEFAULT_LLM_BASE_URL,
                 value_type="str",
             ),
-            "DEFAULT_OPENAI_MODEL": UserSettingsItem(
+            "DEFAULT_INFERENCE_MODEL": UserSettingsItem(
                 section="RAG",
-                name="DEFAULT_OPENAI_MODEL",
-                description="Default OpenAI Model used in the inference process.",
-                default_value=self.DEFAULT_OPENAI_MODEL,
+                name="DEFAULT_INFERENCE_MODEL",
+                description="Default inference Model used in the inference process.",
+                default_value=self.DEFAULT_INFERENCE_MODEL,
                 value_type="str",
             ),
-            "EMBEDDING_OPENAI_API_KEY": UserSettingsItem(
+            "EMBEDDING_API_KEY": UserSettingsItem(
                 section="RAG",
-                name="EMBEDDING_OPENAI_API_KEY",
-                description="OpenAI (compatable) API Key used in the embedder.",
-                default_value=self.EMBEDDING_OPENAI_API_KEY,
+                name="EMBEDDING_API_KEY",
+                description="API Key used for the embedder.",
+                default_value=self.EMBEDDING_API_KEY,
                 value_type="str",
             ),
-            "EMBEDDING_OPENAI_BASE_URL": UserSettingsItem(
+            "EMBEDDING_BASE_URL": UserSettingsItem(
                 section="RAG",
-                name="EMBEDDING_OPENAI_BASE_URL",
-                description="Base URL (OpenAI compatible) used in the embedder.",
-                default_value=self.DEFAULT_EMBEDDING_OPENAI_BASE_URL,
+                name="EMBEDDING_BASE_URL",
+                description="Base URL for the the embedder service.",
+                default_value=self.DEFAULT_EMBEDDING_BASE_URL,
                 value_type="str",
             ),
-            "COHERE_API_KEY": UserSettingsItem(
+            "RERANK_API_KEY": UserSettingsItem(
                 section="RAG",
-                name="COHERE_API_KEY",
-                description="Cohere API Key used in the reranking process.",
+                name="RERANK_API_KEY",
+                description="API Key used in the reranking process.",
                 default_value=None,
                 value_type="str",
             ),
-            "COHERE_BASE_URL": UserSettingsItem(
+            "RERANK_BASE_URL": UserSettingsItem(
                 section="RAG",
-                name="COHERE_BASE_URL",
-                description="Cohere base url used in the reranking process.",
+                name="RERANK_BASE_URL",
+                description="Base url used in the reranking process.",
                 default_value=None,
                 value_type="str",
             ),
@@ -653,10 +651,10 @@ class SystemSettings(BaseModel):
                 "Set the environment variable EDS_LOG_ROOT or LEET_HOME."
             )
 
-        if not self.OPENAI_API_KEY:
+        if not self.LLM_API_KEY:
             err_msgs.append(
-                "Required variable OPENAI_API_KEY is not set. "
-                "Set the environment variable EDS_OPENAI_API_KEY."
+                "Required variable LLM_API_KEY is not set. "
+                "Set the environment variable EDS_LLM_API_KEY."
             )
 
         if err_msgs:

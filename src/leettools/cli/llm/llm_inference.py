@@ -45,8 +45,16 @@ def inference_func(
     interact with OpenAI's completion model to generate the output.
 
     Args:
-        input_text: Text file to read.
-        model_name: Name of the model to use.
+    - query: The query to run.
+    - input_text: The text file to read as the context.
+    - user_prompt_file: User prompt template to use, the query and the context will be used as the variables.
+    - system_prompt: System prompt to use.
+    - need_json: Whether to output the result as JSON.
+    - username: The user to use, default the admin user.
+    - strategy_name: The strategy to use.
+
+    Returns:
+    - The response from the model.
     """
     context = ContextManager().get_context()  # type: Context
     display_logger = logger()

@@ -68,8 +68,8 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 % mkdir -p ${LEET_HOME}
 
 # set the endpoint and api key
-% export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
-% export EDS_OPENAI_API_KEY=<your_openai_api_key>
+% export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
+% export EDS_LLM_API_KEY=<your_openai_api_key>
 
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
@@ -98,12 +98,12 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 # add the script path to the path
 % export PATH=`pwd`/scripts:${PATH}
 
-# set the OPENAI_API_KEY or put it in the .env file
+# set the _API_KEY or put it in the .env file
 # or any OpenAI-compatible LLM inference endpoint
-# export EDS_DEFAULT_OPENAI_BASE_URL=https://api.openai.com/v1
-% export EDS_OPENAI_API_KEY=<your_openai_api_key>
+# export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
+% export EDS_LLM_API_KEY=<your_openai_api_key>
 # or
-% echo "EDS_OPENAI_API_KEY=<your_openai_api_key>" >> `pwd`/.env
+% echo "EDS_LLM_API_KEY=<your_openai_api_key>" >> `pwd`/.env
 
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
@@ -156,9 +156,9 @@ to use it as follows:
 % cat > .env.ollama <<EOF
 # need tot change LEET_HOME to the correct path
 LEET_HOME=/Users/myhome/leettools
-EDS_DEFAULT_OPENAI_BASE_URL=http://localhost:11434/v1
-EDS_OPENAI_API_KEY=dummy-key
-EDS_DEFAULT_OPENAI_MODEL=llama3.2
+EDS_DEFAULT_LLM_BASE_URL=http://localhost:11434/v1
+EDS_LLM_API_KEY=dummy-key
+EDS_DEFAULT_INFERENCE_MODEL=llama3.2
 # remove the following line if you have a separate embedder compatible with OpenAI API
 # the following line specifies to use a local embedder
 EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem

@@ -45,19 +45,19 @@ def _test_settings_store(context: Context, org: Org, kb: KnowledgeBase, user: Us
 
     default_settings = context.settings.get_user_configurable_settings()
     assert len(user_settings.settings) == len(default_settings)
-    assert user_settings.settings["OPENAI_API_KEY"].value == None
+    assert user_settings.settings["LLM_API_KEY"].value == None
 
     for key in user_settings.settings:
         assert user_settings.settings[key] == default_settings[key]
 
     # Update the settings
-    old_item = user_settings.settings["OPENAI_API_KEY"]
+    old_item = user_settings.settings["LLM_API_KEY"]
     new_item = old_item.model_copy()
     new_item.value = "new_key"
     settings_update = UserSettingsUpdate(
         username=user.username,
         user_uuid=user.user_uuid,
-        settings={"OPENAI_API_KEY": new_item},
+        settings={"LLM_API_KEY": new_item},
     )
 
     new_user_settings = user_settings_store.update_settings_for_user(
@@ -65,7 +65,7 @@ def _test_settings_store(context: Context, org: Org, kb: KnowledgeBase, user: Us
     )
     assert new_user_settings is not None
     assert new_user_settings.user_uuid == user.user_uuid
-    assert new_user_settings.settings["OPENAI_API_KEY"].value == "new_key"
+    assert new_user_settings.settings["LLM_API_KEY"].value == "new_key"
     # when storing to DB, the time_utils.current_datetime() may lose the microsecond
     # 2024-04-20 23:44:18.609678 -> 2024-04-20 23:44:18.609000
     # so need to be careful when comparing the datetime
@@ -77,7 +77,7 @@ def _test_settings_store(context: Context, org: Org, kb: KnowledgeBase, user: Us
     assert user_settings is not None
     assert user_settings.user_settings_id == new_user_settings.user_settings_id
     assert user_settings.user_uuid == user.user_uuid
-    assert user_settings.settings["OPENAI_API_KEY"].value == "new_key"
+    assert user_settings.settings["LLM_API_KEY"].value == "new_key"
     assert user_settings.updated_at == new_user_settings.updated_at
 
     # Add a new item to the settings
@@ -95,7 +95,7 @@ def _test_settings_store(context: Context, org: Org, kb: KnowledgeBase, user: Us
     user_settings = user_settings_store.get_settings_for_user(user)
     assert user_settings is not None
     assert user_settings.user_uuid == user.user_uuid
-    assert user_settings.settings["OPENAI_API_KEY"].value == "new_key"
+    assert user_settings.settings["LLM_API_KEY"].value == "new_key"
     assert user_settings.settings["NEW_SETTING"].value == "new_value"
 
 

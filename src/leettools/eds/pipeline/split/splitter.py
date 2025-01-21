@@ -147,7 +147,7 @@ class Splitter:
             api_provider_config=api_provider_config,
         )
         model_options = {}
-        model_name = self.settings.DEFAULT_OPENAI_MODEL
+        model_name = self.settings.DEFAULT_INFERENCE_MODEL
         try:
             (context_summary, _) = api_utils.run_inference_call_direct(
                 context=self.context,

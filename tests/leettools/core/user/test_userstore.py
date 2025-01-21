@@ -111,14 +111,14 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     # test update_settings_for_user
     user_settings_update = user_settings.model_copy()
     logger().info(f"User settings: {user_settings_update}")
-    user_settings_update.settings["OPENAI_API_KEY"].value = "test"
+    user_settings_update.settings["LLM_API_KEY"].value = "test"
 
     user_settings = user_settings_store.update_settings_for_user(
         users[0], user_settings_update
     )
     user_settings_1 = user_settings_store.get_settings_for_user(users[0])
     assert user_settings_1 is not None
-    assert user_settings_1.settings["OPENAI_API_KEY"].value == "test"
+    assert user_settings_1.settings["LLM_API_KEY"].value == "test"
 
     # test add_api_provider_config
     api_provider_config = APIProviderConfig(
