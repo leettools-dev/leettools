@@ -9,6 +9,8 @@
 - [AI Search Assistant with Local Knowledge Base](#ai-search-assistant-with-local-knowledge-base)
 - [Quick start](#quick-start)
 - [Use Different LLM Endpoints](#use-different-llm-endpoints)
+  - [Use local Ollama service for inference and embedding](#use-local-ollama-service-for-inference-and-embedding)
+  - [Using DeepSeek API](#using-deepseek-api)
 - [Usage Examples](#usage-examples)
   - [Generate news list from updates in KB](#generate-news-list-from-updates-in-kb)
 - [Main Components](#main-components)
@@ -148,27 +150,72 @@ reflect the interconnected nature of the information it processes[1][2].
 
 # Use Different LLM Endpoints
 
-We can run LeetTools with different env files to use different LLM endpoints and other
-related settings. For example, if you have a local Ollama serving instance, you can set
-to use it as follows:
+We can run LeetTools with different env files to use different LLM providers and other
+related settings.
+
+## Use local Ollama service for inference and embedding
 
 ```bash
+# you may need to pull the models first
+% ollama pull llama3.2
+% ollama pull nomic-embed-text
+% ollama serve
+
 % cat > .env.ollama <<EOF
 # need tot change LEET_HOME to the correct path
-LEET_HOME=/Users/myhome/leettools
+LEET_HOME=</Users/myhome/leettools>
 EDS_DEFAULT_LLM_BASE_URL=http://localhost:11434/v1
 EDS_LLM_API_KEY=dummy-key
 EDS_DEFAULT_INFERENCE_MODEL=llama3.2
-# remove the following line if you have a separate embedder compatible with OpenAI API
-# the following line specifies to use a local embedder
-EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
+EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_openai
+EDS_DEFAULT_EMBEDDING_MODEL=nomic-embed-text
+EDS_EMBEDDING_MODEL_DIMENSION=768
 EOF
 
 # Then run the command with the -e option to specify the .env file to use
 % leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-An example of using the DeepSeek API is described [here](docs/deepseek.md).
+## Using DeepSeek API
+
+For another example, since DeepSeek does not provide an embedding endpoint yet, we can
+use the "EDS_DEFAULT_DENSE_EMBEDDER" setting to specify a local embedder with a default
+all-MiniLM-L6-v2 model:
+
+```bash
+### to you can put the settings in the .env.deepseek file
+% cat > .env.deepseek <<EOF
+LEET_HOME=</Users/myhome/leettools>
+EDS_DEFAULT_LLM_BASE_URL=https://api.deepseek.com/v1
+EDS_LLM_API_KEY=<sk-0d8-mykey>
+EDS_DEFAULT_INFERENCE_MODEL=deepseek-chat
+EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_mem
+EOF
+
+# Then run the command with the -e option to specify the .env file to use
+% leet flow -e .env.deepseek -t answer -q "How does GraphRAG work?" -k graphrag -l info
+```
+
+If you want to use another API provider (OpenAI compatible) for embedding, say a local
+Ollama embedder, you can set the embedding endpoint URL and API key separately as follows:
+
+```bash
+% cat > .env.deepseek <<EOF
+LEET_HOME=</Users/myhome/leettools>
+EDS_DEFAULT_LLM_BASE_URL=https://api.deepseek.com/v1
+EDS_LLM_API_KEY=<sk-0d8-mykey>
+EDS_DEFAULT_INFERENCE_MODEL=deepseek-chat
+
+# this specifies to use an OpenAI compatible embedding endpoint
+EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_openai
+
+# the following specifies the embedding endpoint URL and model to use
+EDS_DEFAULT_EMBEDDING_BASE_URL=http://localhost:11434/v1
+EDS_EMBEDDING_API_KEY=dummy-key
+EDS_DEFAULT_EMBEDDING_MODEL=nomic-embed-text
+EDS_EMBEDDING_MODEL_DIMENSION=768
+EOF
+```
 
 # Usage Examples
 
