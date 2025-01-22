@@ -31,6 +31,12 @@ class Tokenizer:
             tokens = tokenizer.tokenize(text)
             return len(tokens)
             # return len(text)
+        elif model_name.startswith("llama"):
+            from transformers import AutoTokenizer
+
+            tokenizer = AutoTokenizer.from_pretrained("unsloth/Llama-3.2-3B")
+            tokens = tokenizer.tokenize(text)
+            return len(tokens)
         else:
             logger().warning(
                 f"Unknown model name: {model_name}, using text length as token count."

@@ -62,17 +62,28 @@ with pip as follows:
 % conda create -y -n leettools python=3.11
 % conda activate leettools
 % pip install leettools
-
-# the default value is the OpenAI API endpoint
-# % export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
 % export EDS_LLM_API_KEY=<your_api_key>
-
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
 The above `flow -t answer` command will run the `answer` flow with the query "How does
 GraphRAG work?" and save the scraped web page to the knowledge base `graphrag`. The
 `-l info` option will show the essential log messages.
+
+By default the data is saved under ${HOME}/leettools, you can set a different LeetHome 
+environment variable to change the location:
+
+```bash
+% export LEET_HOME=<your_leet_home>
+% mkdir -p ${LEET_HOME}
+```
+
+The default API endpoint is set to the OpenAI API endpoint, which you can modify by
+changing the `EDS_DEFAULT_LLM_BASE_URL` environment variable:
+
+```bash
+% export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
+```
 
 **Run with source code**
 
@@ -87,8 +98,6 @@ GraphRAG work?" and save the scraped web page to the knowledge base `graphrag`. 
 # add the script path to the path
 % export PATH=`pwd`/scripts:${PATH}
 
-# the default value is the OpenAI API endpoint
-# % export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
 % export EDS_LLM_API_KEY=<your_api_key>
 
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info

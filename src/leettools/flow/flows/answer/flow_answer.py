@@ -151,9 +151,9 @@ Search the web or local KB with the query and answer with source references:
         )
 
         display_logger.debug(
-            f"The context text length is: {len(extended_context)}.\n"
-            f"The token count is: {context_token_count}.\n"
-            f"The number of new source items is: {len(source_items)}.\n"
+            f"The context text length is: {len(extended_context)}. "
+            f"The token count is: {context_token_count}. "
+            f"The number of new source items is: {len(source_items)}. "
         )
 
         from openai.resources.chat.completions import ChatCompletion

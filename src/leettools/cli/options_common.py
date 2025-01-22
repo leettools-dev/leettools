@@ -2,7 +2,7 @@ from functools import wraps
 
 import click
 
-from leettools.common.logging.event_logger import EventLogger
+from leettools.common.logging.event_logger import EventLogger, logger
 from leettools.context_manager import ContextManager
 
 
@@ -60,6 +60,7 @@ def _set_log_level(ctx, param, value: str) -> str:
 
 def _read_from_env(ctx, param, value: str) -> str:
     if value:
+        logger().info(f"Resetting context with new environment file {value}.")
         context = ContextManager().get_context()
         context.reset(is_test=False, new_env_file=value)
     return value

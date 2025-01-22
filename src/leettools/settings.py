@@ -1,4 +1,5 @@
 import os
+import traceback
 from pathlib import Path
 from typing import ClassVar, Dict, List
 
@@ -512,7 +513,7 @@ class SystemSettings(BaseModel):
         load_dotenv(dotenv_path=env_file_path, override=override)
 
         leet_home = os.environ.get("LEET_HOME", None)
-        if leet_home is None:
+        if leet_home is None or leet_home == "":
             home_dir = Path.home()
             leet_home = str(home_dir / "leettools")
             logger().info(
