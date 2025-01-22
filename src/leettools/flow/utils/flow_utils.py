@@ -47,6 +47,7 @@ context_size_map: Dict[str, int] = {
     "gpt-4o-2024-05-13": 128000,
     "gpt-4o-mini": 128000,
     "gpt-4o-mini-2024-07-18": 128000,
+    "o1-mini": 128000,
     "deepseek-chat": 65536,
     "deepseek-reasoner": 65536,
     "llama3-8b-8192": 8192,

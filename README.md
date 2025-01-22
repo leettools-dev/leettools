@@ -7,10 +7,10 @@
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg?labelColor=%20%23155EEF&color=%20%23528bff)](https://github.com/leettools-dev/leettools)
 
 - [AI Search Assistant with Local Knowledge Base](#ai-search-assistant-with-local-knowledge-base)
-- [Quick start](#quick-start)
+- [Quick Start](#quick-start)
 - [Use Different LLM Endpoints](#use-different-llm-endpoints)
   - [Use local Ollama service for inference and embedding](#use-local-ollama-service-for-inference-and-embedding)
-  - [Using DeepSeek API](#using-deepseek-api)
+  - [Using DeepSeek API with a different embedding services](#using-deepseek-api-with-a-different-embedding-services)
 - [Usage Examples](#usage-examples)
   - [Build a local knowledge base using PDFs from the web](#build-a-local-knowledge-base-using-pdfs-from-the-web)
   - [Generate news list from updates in KB](#generate-news-list-from-updates-in-kb)
@@ -47,7 +47,7 @@ Currently LeetTools provides the following workflow:
 * extract : Extract and store structured data for given schema. [📖](https://leettools-dev.github.io/Flow/extract)
 * opinions: Generate sentiment analysis and facts from the search results.  [📖](https://leettools-dev.github.io/Flow/opinions)
 
-# Quick start
+# Quick Start
 
 We can use any OpenAI-compatible LLM endpoint, such as local Ollama service or public 
 provider such as Gemini or DeepSeek. We can switch the servce easily by [defining
@@ -64,8 +64,6 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 % export LEET_HOME=${HOME}/leettools
 % mkdir -p ${LEET_HOME}
 
-# set the endpoint and api key
-% export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
 % export EDS_LLM_API_KEY=<your_openai_api_key>
 
 # now you can run the command line commands
@@ -94,13 +92,7 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 
 # add the script path to the path
 % export PATH=`pwd`/scripts:${PATH}
-
-# set the _API_KEY or put it in the .env file
-# or any OpenAI-compatible LLM inference endpoint
-# export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
 % export EDS_LLM_API_KEY=<your_openai_api_key>
-# or
-% echo "EDS_LLM_API_KEY=<your_openai_api_key>" >> `pwd`/.env
 
 # now you can run the command line commands
 # flow: the subcommand to run different flows, use --list to see all the available flows
@@ -111,7 +103,7 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-** Sample Output **
+**Sample Output**
 
 Here is an example output of the `answer` flow:
 
@@ -171,7 +163,7 @@ EOF
 % leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-## Using DeepSeek API
+## Using DeepSeek API with a different embedding services
 
 For another example, since DeepSeek does not provide an embedding endpoint yet, we can
 use the "EDS_DEFAULT_DENSE_EMBEDDER" setting to specify a local embedder with a default
