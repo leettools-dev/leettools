@@ -110,10 +110,10 @@ class SubflowGenSection(AbstractSubflow):
         )
 
         display_logger.info(
-            f"The context text length is: {len(extended_context)}.\n"
-            f"The token count is: {context_token_count}.\n"
-            f"The number of new source items is: {len(section_source_items)}.\n"
-            f"The number of existing source items is: {len(accumulated_source_items)}.\n"
+            f"The context text length is: {len(extended_context)}. "
+            f"The token count is: {context_token_count}. "
+            f"The number of new source items is: {len(section_source_items)}. "
+            f"The number of existing source items is: {len(accumulated_source_items)}. "
         )
 
         article_section = steps.StepGenSection.run_step(

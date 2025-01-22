@@ -1,4 +1,5 @@
 import os
+import traceback
 from pathlib import Path
 from typing import ClassVar, Dict, List
 
@@ -512,14 +513,24 @@ class SystemSettings(BaseModel):
         load_dotenv(dotenv_path=env_file_path, override=override)
 
         leet_home = os.environ.get("LEET_HOME", None)
+        if leet_home is None or leet_home == "":
+            home_dir = Path.home()
+            leet_home = str(home_dir / "leettools")
+            logger().info(
+                f"The LEET_HOME env var is not set. Using {leet_home} as default. "
+            )
+
+        # create the leet_home directory if it does not exist
+        if not os.path.exists(leet_home):
+            logger().info(f"Creating the LEET_HOME directory: {leet_home}")
+            os.makedirs(leet_home)
+
         eds_data_root = os.environ.get(f"{ENV_VAR_PREFIX}DATA_ROOT", None)
         eds_log_root = os.environ.get(f"{ENV_VAR_PREFIX}LOG_ROOT", None)
-
-        if leet_home:
-            if not eds_data_root:
-                os.environ[f"{ENV_VAR_PREFIX}DATA_ROOT"] = f"{leet_home}/data"
-            if not eds_log_root:
-                os.environ[f"{ENV_VAR_PREFIX}LOG_ROOT"] = f"{leet_home}/logs"
+        if not eds_data_root:
+            os.environ[f"{ENV_VAR_PREFIX}DATA_ROOT"] = f"{leet_home}/data"
+        if not eds_log_root:
+            os.environ[f"{ENV_VAR_PREFIX}LOG_ROOT"] = f"{leet_home}/logs"
 
         for field_name in self.model_fields.keys():
             if field_name in self.__class_vars__:
@@ -652,10 +663,8 @@ class SystemSettings(BaseModel):
             )
 
         if not self.LLM_API_KEY:
-            err_msgs.append(
-                "Required variable LLM_API_KEY is not set. "
-                "Set the environment variable EDS_LLM_API_KEY."
-            )
+            logger().debug("No LLM_API_KEY is set. Using dummy-api-key as default.")
+            self.LLM_API_KEY = "dummy-api-key"
 
         if err_msgs:
             raise exceptions.ParametersValidationException(err_msgs)
