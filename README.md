@@ -10,7 +10,7 @@
 - [Quick Start](#quick-start)
 - [Use Different LLM Endpoints](#use-different-llm-endpoints)
   - [Use local Ollama service for inference and embedding](#use-local-ollama-service-for-inference-and-embedding)
-  - [Using DeepSeek API with a different embedding services](#using-deepseek-api-with-a-different-embedding-services)
+  - [Using DeepSeek API with different embedding services](#using-deepseek-api-with-different-embedding-services)
 - [Usage Examples](#usage-examples)
   - [Build a local knowledge base using PDFs from the web](#build-a-local-knowledge-base-using-pdfs-from-the-web)
   - [Generate news list from updates in KB](#generate-news-list-from-updates-in-kb)
@@ -55,25 +55,24 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 
 **Run with pip**
 
+If you are using an OpenAI compatible LLM endpoint, you can install and run LeetTools 
+with pip as follows:
+
 ```bash
 % conda create -y -n leettools python=3.11
 % conda activate leettools
 % pip install leettools
 
-# where we store all the data and logs
-% export LEET_HOME=${HOME}/leettools
-% mkdir -p ${LEET_HOME}
+# the default value is the OpenAI API endpoint
+# % export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
+% export EDS_LLM_API_KEY=<your_api_key>
 
-% export EDS_LLM_API_KEY=<your_openai_api_key>
-
-# now you can run the command line commands
-# flow: the subcommand to run different flows, use --list to see all the available flows
-# -t run this 'answer' flow, use --info option to see the function description
-# -q the query
-# -k save the scraped web page to the knowledge base
-# -l log level, info shows the essential log messages
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
+
+The above `flow -t answer` command will run the `answer` flow with the query "How does
+GraphRAG work?" and save the scraped web page to the knowledge base `graphrag`. The
+`-l info` option will show the essential log messages.
 
 **Run with source code**
 
@@ -85,21 +84,13 @@ environment variables or switching .env files](#use-different-llm-endpoints).
 % conda activate leettools
 % pip install -r requirements.txt
 % pip install -e .
-
-# where we store all the data and logs
-% export LEET_HOME=${HOME}/leettools
-% mkdir -p ${LEET_HOME}
-
 # add the script path to the path
 % export PATH=`pwd`/scripts:${PATH}
-% export EDS_LLM_API_KEY=<your_openai_api_key>
 
-# now you can run the command line commands
-# flow: the subcommand to run different flows, use --list to see all the available flows
-# -t run this 'answer' flow, use --info option to see the function description
-# -q the query
-# -k save the scraped web page to the knowledge base
-# -l log level, info shows the essential log messages
+# the default value is the OpenAI API endpoint
+# % export EDS_DEFAULT_LLM_BASE_URL=https://api.openai.com/v1
+% export EDS_LLM_API_KEY=<your_api_key>
+
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
@@ -149,12 +140,8 @@ related settings.
 % ollama serve
 
 % cat > .env.ollama <<EOF
-# need tot change LEET_HOME to the correct path
-LEET_HOME=</Users/myhome/leettools>
 EDS_DEFAULT_LLM_BASE_URL=http://localhost:11434/v1
-EDS_LLM_API_KEY=dummy-key
 EDS_DEFAULT_INFERENCE_MODEL=llama3.2
-EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_openai
 EDS_DEFAULT_EMBEDDING_MODEL=nomic-embed-text
 EDS_EMBEDDING_MODEL_DIMENSION=768
 EOF
@@ -163,7 +150,7 @@ EOF
 % leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
 ```
 
-## Using DeepSeek API with a different embedding services
+## Using DeepSeek API with different embedding services
 
 For another example, since DeepSeek does not provide an embedding endpoint yet, we can
 use the "EDS_DEFAULT_DENSE_EMBEDDER" setting to specify a local embedder with a default
@@ -188,7 +175,6 @@ Ollama embedder, you can set the embedding endpoint URL and API key separately a
 
 ```bash
 % cat > .env.deepseek <<EOF
-LEET_HOME=</Users/myhome/leettools>
 EDS_DEFAULT_LLM_BASE_URL=https://api.deepseek.com/v1
 EDS_LLM_API_KEY=<sk-0d8-mykey>
 EDS_DEFAULT_INFERENCE_MODEL=deepseek-chat
@@ -198,7 +184,6 @@ EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_openai
 
 # the following specifies the embedding endpoint URL and model to use
 EDS_DEFAULT_EMBEDDING_BASE_URL=http://localhost:11434/v1
-EDS_EMBEDDING_API_KEY=dummy-key
 EDS_DEFAULT_EMBEDDING_MODEL=nomic-embed-text
 EDS_EMBEDDING_MODEL_DIMENSION=768
 EOF
