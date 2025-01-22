@@ -14,7 +14,7 @@ class Tokenizer:
         if model_name is None:
             model_name = self.settings.DEFAULT_INFERENCE_MODEL
 
-        if model_name.startswith("gpt"):
+        if model_name.startswith("gpt") or model_name.startswith("o1"):
             import tiktoken
 
             encoding = tiktoken.encoding_for_model(model_name)

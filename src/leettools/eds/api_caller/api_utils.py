@@ -144,39 +144,41 @@ def run_inference_call_direct(
     start_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
     completion = None
     try:
+        if model_name.startswith("o1"):
+            messages = [
+                {
+                    "role": "user",
+                    "content": user_prompt,
+                },
+            ]
+            temperature = 1.0
+        else:
+            messages = [
+                {
+                    "role": "system",
+                    "content": system_prompt,
+                },
+                {
+                    "role": "user",
+                    "content": user_prompt,
+                },
+            ]
+
         if use_parsed:
             completion = api_client.beta.chat.completions.parse(
                 model=model_name,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt,
-                    },
-                    {
-                        "role": "user",
-                        "content": user_prompt,
-                    },
-                ],
+                messages=messages,
                 temperature=temperature,
-                max_tokens=max_tokens,
+                max_completion_tokens=max_tokens,
                 response_format=response_pydantic_model,
             )
         else:
             completion = api_client.chat.completions.create(
                 model=model_name,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt,
-                    },
-                    {
-                        "role": "user",
-                        "content": user_prompt,
-                    },
-                ],
+                messages=messages,
                 response_format=format_dict,
                 temperature=temperature,
-                max_tokens=max_tokens,
+                max_completion_tokens=max_tokens,
             )
         display_logger.info(
             f"({completion.usage.total_tokens}) tokens used for ({call_target})."
@@ -479,6 +481,9 @@ def get_rerank_client_for_user(
 
 def _support_pydantic_response(final_llm_model_name: str) -> bool:
     if final_llm_model_name.startswith("gpt-"):
+        return True
+
+    if final_llm_model_name.startswith("o1"):
         return True
 
     if final_llm_model_name.startswith("gemini-"):
