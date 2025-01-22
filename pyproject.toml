@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "leettools"
-version = "1.0.5"
+version = "1.0.6"
 authors = [
   { name="LeetTools-dev", email="leettools@gmail.com" },
 ]
@@ -40,6 +40,7 @@ dependencies = [
     "docling==2.10.0",
     "docling_core==2.9.0",
     "chonkie==0.1.2",
+    "langchain-community==0.3.15",
 ]
 
 [project.urls]
