@@ -50,7 +50,7 @@ Currently LeetTools provides the following workflow:
 # Quick Start
 
 We can use any OpenAI-compatible LLM endpoint, such as local Ollama service or public 
-provider such as Gemini or DeepSeek. We can switch the servce easily by [defining
+provider such as Gemini or DeepSeek. We can switch the service easily by [defining
 environment variables or switching .env files](#use-different-llm-endpoints). 
 
 **Run with pip**
