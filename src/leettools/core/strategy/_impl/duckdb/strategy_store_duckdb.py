@@ -105,7 +105,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
     def _create_prompt_from_file(
         self, file: str, cat: PromptCategory, type: PromptType
     ) -> Prompt:
-        with open(file, "r") as f:
+        with open(file, "r", encoding="utf-8") as f:
             prompt_text = f.read()
 
             variables: Dict[str, Any] = {}
@@ -307,7 +307,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         # read the chat_strategy.json file
         # TODO: should change to the new format
         json_file = self._get_file_with_default(path, "chat_strategy.json")
-        with open(json_file, "r") as f:
+        with open(json_file, "r", encoding="utf-8") as f:
             chat_strategy_create = StrategyConfCreate.model_validate_json(f.read())
 
         if user is None:
@@ -319,7 +319,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         # ignore the lines started with # and empty lines
         # strip the leading and trailing spaces
         intention_list_file = self._get_file_with_default(path, "intention_list.txt")
-        with open(intention_list_file, "r") as f:
+        with open(intention_list_file, "r", encoding="utf-8") as f:
             chat_strategy_create.intention_list = [
                 line.strip()
                 for line in f.readlines()

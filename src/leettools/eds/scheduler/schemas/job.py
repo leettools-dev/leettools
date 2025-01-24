@@ -106,7 +106,7 @@ class JobInDB(JobInDBBase):
         self.log_location = f"{log_dir}/job.log"
         # make sure the file exists for log streaming
         # append mode will create the file if it does not exist
-        with open(self.log_location, "a+") as f:
+        with open(self.log_location, "a+", encoding="utf-8") as f:
             f.write(
                 f"Job log for {job_uuid} created at {time_utils.current_datetime()}\n"
             )

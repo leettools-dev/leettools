@@ -516,7 +516,7 @@ class SystemSettings(BaseModel):
         if leet_home is None or leet_home == "":
             home_dir = Path.home()
             leet_home = str(home_dir / "leettools")
-            logger().info(
+            logger().debug(
                 f"The LEET_HOME env var is not set. Using {leet_home} as default. "
             )
 

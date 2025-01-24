@@ -179,7 +179,7 @@ class TempSetup:
         docsource_store = self.context.get_repo_manager().get_docsource_store()
 
         file_path = tmp_path / file_name
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
 
         file_uri = f"file://{file_path.absolute()}"

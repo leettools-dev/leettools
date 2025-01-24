@@ -200,14 +200,14 @@ class APICallerBase:
             user_prompt_template_file = (
                 f"{self.script_dir}/prompts/default_user_prompt.txt"
             )
-            with open(user_prompt_template_file, "r") as file:
+            with open(user_prompt_template_file, "r", encoding="utf-8") as file:
                 self.user_prompt_template = file.read()
 
         if self.system_prompt_template is None:
             system_prompt_template_file = (
                 f"{self.script_dir}/prompts/default_system_prompt.txt"
             )
-            with open(system_prompt_template_file, "r") as file:
+            with open(system_prompt_template_file, "r", encoding="utf-8") as file:
                 self.system_prompt_template = file.read()
 
     def setup_prompts_for_intention(self, query_metadata: ChatQueryMetadata):

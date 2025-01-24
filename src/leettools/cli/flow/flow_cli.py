@@ -289,7 +289,7 @@ def flow(
         result_article = _run_flow_cli(**locals())
 
         if output_file:
-            with open(output_file, "w") as f:
+            with open(output_file, "w", encoding="utf-8") as f:
                 f.write(result_article)
         else:
             click.echo(result_article)

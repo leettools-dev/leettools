@@ -243,7 +243,7 @@ def eval(eval_file: str, print_example: Optional[bool] = False):
     # expand the eval_file to the full path
     eval_file_path = Path(eval_file).absolute()
 
-    with open(eval_file_path, "r") as f:
+    with open(eval_file_path, "r", encoding="utf-8") as f:
         eval_data = EvalDataSet.model_validate_json(f.read())
 
     logger().info(f"Loaded eval data from {eval_file_path}")

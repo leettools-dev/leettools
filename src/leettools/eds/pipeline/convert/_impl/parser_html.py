@@ -117,7 +117,7 @@ class ParserHTML(BaseModel):
 def parse_html(input_file: str, output_file: str) -> None:
     parser = ParserHTML()
     markdown_content = parser.html2md(input_file)
-    with open(output_file, "w", encoding="utf8") as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(markdown_content)
 
 

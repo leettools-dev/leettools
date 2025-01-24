@@ -34,7 +34,7 @@ def load_params_from_file(file_path: str) -> Dict[str, Any]:
     """
     params = {}
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 # Skip empty lines and comments

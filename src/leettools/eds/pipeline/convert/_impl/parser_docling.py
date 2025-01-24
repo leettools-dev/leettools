@@ -92,7 +92,7 @@ class ParserDocling(AbstractParser):
 
             content = result.document.export_to_markdown()
             if target_path:
-                with open(target_path, "w", encoding="utf8") as f:
+                with open(target_path, "w", encoding="utf-8") as f:
                     f.write(content)
             return content
         except Exception as exc:
