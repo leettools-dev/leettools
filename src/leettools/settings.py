@@ -529,8 +529,15 @@ class SystemSettings(BaseModel):
         eds_log_root = os.environ.get(f"{ENV_VAR_PREFIX}LOG_ROOT", None)
         if not eds_data_root:
             os.environ[f"{ENV_VAR_PREFIX}DATA_ROOT"] = f"{leet_home}/data"
+            self.DATA_ROOT = f"{leet_home}/data"
+        else:
+            self.DATA_ROOT = eds_data_root
+
         if not eds_log_root:
             os.environ[f"{ENV_VAR_PREFIX}LOG_ROOT"] = f"{leet_home}/logs"
+            self.LOG_ROOT = f"{leet_home}/logs"
+        else:
+            self.LOG_ROOT = eds_log_root
 
         for field_name in self.model_fields.keys():
             if field_name in self.__class_vars__:
