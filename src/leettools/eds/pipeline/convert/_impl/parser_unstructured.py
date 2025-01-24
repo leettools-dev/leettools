@@ -52,7 +52,7 @@ class ParserUnstructured(AbstractParser):
             elements = partition_docx(filename=docx_filepath)
             md_text = "\n\n".join([str(el) for el in elements])
             if target_path:
-                with open(target_path, "w", encoding="utf8") as f:
+                with open(target_path, "w", encoding="utf-8") as f:
                     f.write(md_text)
         except Exception as exc:
             logger().error(f"Failed to parser {docx_filepath}, error: {exc}")
@@ -87,7 +87,7 @@ class ParserUnstructured(AbstractParser):
         title = converter_utils.extract_title(self.settings, header_text)
         return_text = f"{title}\n\n{rtn_text}"
         if target_path:
-            with open(target_path, "w", encoding="utf8") as f:
+            with open(target_path, "w", encoding="utf-8") as f:
                 f.write(return_text)
         return return_text
 
@@ -98,7 +98,7 @@ class ParserUnstructured(AbstractParser):
             elements = partition_pptx(filename=pptx_filepath)
             return_text = "\n\n".join([str(el) for el in elements])
             if target_path:
-                with open(target_path, "w", encoding="utf8") as f:
+                with open(target_path, "w", encoding="utf-8") as f:
                     f.write(return_text)
             return return_text
         except Exception as exc:
@@ -114,7 +114,7 @@ class ParserUnstructured(AbstractParser):
             for table in elements:
                 rtn_text += table.text + "\n\n"
             if target_path:
-                with open(target_path, "w", encoding="utf8") as f:
+                with open(target_path, "w", encoding="utf-8") as f:
                     f.write(rtn_text)
             return rtn_text
         except Exception as exc:

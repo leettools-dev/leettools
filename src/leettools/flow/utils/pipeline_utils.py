@@ -167,7 +167,7 @@ def run_adhoc_pipeline_for_docsinks(
         log_dir_path.mkdir(parents=True, exist_ok=True)
         log_location = f"{log_dir}/web_search_job.log"
         display_logger.info(f"Web search job log location: {log_location}")
-        with open(log_location, "a+") as f:
+        with open(log_location, "a+", encoding="utf-8") as f:
             f.write(
                 f"Job log for web search {query} created at {time_utils.current_datetime()}\n"
             )

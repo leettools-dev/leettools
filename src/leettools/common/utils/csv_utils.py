@@ -15,7 +15,7 @@ def read_csv_to_dict_list(
     Returns:
     - List[Dict[str, Any]]: The list of dictionaries. The keys are the column names.
     """
-    with open(file_path, mode="r", newline=newline) as csvfile:
+    with open(file_path, mode="r", encoding="utf-8", newline=newline) as csvfile:
         filtered_lines = (line for line in csvfile if not line.lstrip().startswith("#"))
 
         reader = csv.DictReader(filtered_lines)

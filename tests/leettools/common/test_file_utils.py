@@ -96,7 +96,7 @@ def test_get_files_with_timestamp(tmp_path):
     ts_O1 = time_utils.current_datetime()
     timestamp_01 = file_utils.filename_timestamp(now=ts_O1)
     file_path_01 = f"{tmp_path}/{prefix}.{timestamp_01}.{suffix}"
-    with open(file_path_01, "w") as file:
+    with open(file_path_01, "w", encoding="utf-8") as file:
         file.write("test1")
 
     file_list = file_utils.get_files_with_timestamp(tmp_path, prefix, suffix)
@@ -109,7 +109,7 @@ def test_get_files_with_timestamp(tmp_path):
     ts_O2 = time_utils.current_datetime()
     timestamp_02 = file_utils.filename_timestamp(now=ts_O2)
     file_path_02 = f"{tmp_path}/{prefix}.{timestamp_02}.{suffix}"
-    with open(file_path_02, "w") as file:
+    with open(file_path_02, "w", encoding="utf-8") as file:
         file.write("test2")
 
     file_list = file_utils.get_files_with_timestamp(tmp_path, prefix, suffix)

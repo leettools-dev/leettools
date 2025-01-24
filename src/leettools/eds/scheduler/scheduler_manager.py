@@ -47,7 +47,7 @@ def _read_lock_file(lock_file: str) -> Optional[int]:
     """
     if os.path.exists(lock_file):
         try:
-            with open(lock_file, "r") as file:
+            with open(lock_file, "r", encoding="utf-8") as file:
                 pid = int(file.read().strip())
                 return pid
         except (IOError, ValueError):
@@ -62,7 +62,7 @@ def _write_lock_file(lock_file: str, pid: int) -> None:
     :param lock_file: Path to the lock file
     :param pid: Current process ID to write
     """
-    with open(lock_file, "w") as file:
+    with open(lock_file, "w", encoding="utf-8") as file:
         file.write(str(pid))
 
 

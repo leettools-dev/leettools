@@ -199,7 +199,7 @@ if __name__ == "__main__":
     settings = SystemSettings().initialize()
     chunker = ChunkerSimple(settings)
     input_file = sys.argv[1]
-    with open(input_file, "r") as f:
+    with open(input_file, "r", encoding="utf-8") as f:
         text = f.read()
 
     chunks: List[Chunk] = chunker.chunk(text)

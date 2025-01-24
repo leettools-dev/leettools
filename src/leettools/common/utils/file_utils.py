@@ -104,9 +104,9 @@ def is_valid_filename(filename: str) -> bool:
         with tempfile.TemporaryDirectory() as tmpdirname:
             # Try to create a temporary file with the given filename in the temporary directory
             tmpfile_path = os.path.join(tmpdirname, filename)
-            with open(tmpfile_path, "w") as tmpfile:
+            with open(tmpfile_path, "w", encoding="utf-8") as tmpfile:
                 tmpfile.write("test")
-            with open(tmpfile_path, "r") as tmpfile:
+            with open(tmpfile_path, "r", encoding="utf-8") as tmpfile:
                 read_content = tmpfile.read()
                 if read_content != "test":
                     return False
@@ -295,7 +295,7 @@ def read_template_file(file_path: str) -> str:
     Returns:
         str: The content of the file.
     """
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = []
         for line in file:
             # Strip whitespace from the beginning and end of the line

@@ -80,7 +80,7 @@ def section_set(
         return
 
     try:
-        with open(answer_content_file, "r") as f:
+        with open(answer_content_file, "r", encoding="utf-8") as f:
             answer_content = f.read()
     except Exception as e:
         click.echo(f"Error reading file {answer_content_file}: {e}", err=True)

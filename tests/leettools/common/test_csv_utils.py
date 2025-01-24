@@ -13,7 +13,7 @@ Bob,25,Los Angeles
 Charlie,35,Chicago
 """
     file_path = tmp_path / "sample.csv"
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(data)
     return file_path
 
@@ -42,7 +42,7 @@ def test_read_csv_to_dict_list_with_newline(sample_csv_file):
 
 def test_read_csv_to_dict_list_empty_file(tmp_path):
     file_path = tmp_path / "empty.csv"
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write("")
 
     result = read_csv_to_dict_list(file_path)
@@ -54,7 +54,7 @@ def test_read_csv_to_dict_list_only_comments(tmp_path):
 # Another comment
 """
     file_path = tmp_path / "comments_only.csv"
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(data)
 
     result = read_csv_to_dict_list(file_path)

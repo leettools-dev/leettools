@@ -63,7 +63,7 @@ class ConfigManager:
         Returns:
         - None
         """
-        with open(output_file, "w") as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             yaml.dump(self.configs, f)
         return
 
@@ -77,6 +77,6 @@ class ConfigManager:
         Returns:
         - None
         """
-        with open(input_file, "r") as f:
+        with open(input_file, "r", encoding="utf-8") as f:
             self.configs = yaml.load(f, Loader=yaml.FullLoader)
         return

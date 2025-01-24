@@ -87,7 +87,7 @@ def inference_func(
     llm_cli_tool = LLMCliTool(context, user, inference_section, display_logger)
 
     if user_prompt_file is not None:
-        with open(user_prompt_file, "r") as file:
+        with open(user_prompt_file, "r", encoding="utf-8") as file:
             user_prompt_template = file.read()
     else:
         user_prompt_template = "{{ query }}\n{{ content }}"
@@ -103,7 +103,7 @@ def inference_func(
             # Join the current working directory with the filename
             filename = os.path.join(current_dir, input_text)
 
-        with open(filename, "r") as file:
+        with open(filename, "r", encoding="utf-8") as file:
             content = file.read()
 
     user_prompt = render_template(

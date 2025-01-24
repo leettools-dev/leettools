@@ -107,7 +107,7 @@ def section_regen(
 
     prompt_dict: Dict[str, str] = {}
     try:
-        with open(prompt_file, "r") as f:
+        with open(prompt_file, "r", encoding="utf-8") as f:
             prompt_dict = json.loads(f.read())
     except Exception as e:
         click.echo(f"Error reading file {prompt_file}: {e}", err=True)

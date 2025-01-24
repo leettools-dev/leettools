@@ -37,7 +37,7 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     logger().info("Adding a new docsource.")
 
     filepath_01 = Path.joinpath(tmp_path, "test_01.md")
-    with open(filepath_01, "w") as f:
+    with open(filepath_01, "w", encoding="utf-8") as f:
         f.write(
             "#Title with a head\n"
             "Paragraph 1 as 1\n"
@@ -60,7 +60,7 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     logger().info("Finished running the task for kb.")
 
     filepath_02 = Path.joinpath(tmp_path, "test_01.md")
-    with open(filepath_02, "w") as f:
+    with open(filepath_02, "w", encoding="utf-8") as f:
         f.write(
             "#Title with a head\n"
             "Paragraph 1 as 1\n"

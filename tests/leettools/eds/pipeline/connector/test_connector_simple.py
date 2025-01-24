@@ -81,10 +81,10 @@ def _test_file_copy(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     docsink_store = context.get_repo_manager().get_docsink_store()
 
     filepath = f"{str(tmp_path)}/test.html"
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write("<html><body><h1>Test</h1></body></html>")
     filepath = f"{str(tmp_path)}/test1.html"
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write("<html><body><h1>Test</h1></body></html>")
 
     docsource_create = DocSourceCreate(
@@ -124,10 +124,10 @@ def _test_local_file(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     docsink_store = context.get_repo_manager().get_docsink_store()
 
     filepath = f"{str(tmp_path)}/test.txt"
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write("html body h1 Test h1 body html")
     filepath = f"{str(tmp_path)}/test1.txt"
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write("html body h1 Test h1 body html")
     docsource_create = DocSourceCreate(
         org_id=org.org_id,
