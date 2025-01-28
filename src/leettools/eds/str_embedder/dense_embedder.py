@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, TypeVar
+from typing import Any, Dict, Optional, TypeVar
 
 from leettools.common import exceptions
 from leettools.common.logging import logger
@@ -27,7 +27,13 @@ class AbstractDenseEmbedder(ABC):
     """
 
     @abstractmethod
-    def __init__(self, org: Org, kb: KnowledgeBase, user: User, context: Context):
+    def __init__(
+        self,
+        context: Context,
+        org: Optional[Org] = None,
+        kb: Optional[KnowledgeBase] = None,
+        user: Optional[User] = None,
+    ):
         pass
 
     @abstractmethod
@@ -52,6 +58,50 @@ class AbstractDenseEmbedder(ABC):
             int: The dimension of the embedding vectors.
         """
         pass
+
+    @abstractmethod
+    def get_model_name(self) -> str:
+        """
+        Returns the model name of the embedding model or service.
+
+        Returns:
+        - str: The model name of the embedding model or service.
+        """
+        pass
+
+    def is_compatible_class(self, other: "AbstractDenseEmbedder") -> bool:
+        """
+        Check if the other embedder class is compatible with this embedder class.
+        By default only the same class is compatible.
+
+        Args:
+        - other: The other embedder to check compatibility with.
+
+        Returns:
+        - True if the other embedder is compatible with this embedder, False otherwise.
+        """
+        return isinstance(other, self.__class__)
+
+    def is_compatible(self, other: "AbstractDenseEmbedder") -> bool:
+        """
+        Check if the other embedder is compatible with this embedder.
+
+        Args:
+        - other: The other embedder to check compatibility with.
+
+        Returns:
+        - True if the other embedder is compatible with this embedder, False otherwise.
+        """
+        if not self.is_compatible_class(other):
+            return False
+
+        if other.get_dimension() != self.get_dimension():
+            return False
+
+        if other.get_model_name() != self.get_model_name():
+            return False
+
+        return True
 
     @classmethod
     @abstractmethod
@@ -119,8 +169,8 @@ def create_dense_embedder_for_kb(
 
     dense_embedder_class = get_dense_embedder_class(kb.dense_embedder, context.settings)
     return dense_embedder_class(
+        context=context,
         org=org,
         kb=kb,
         user=user,
-        context=context,
     )

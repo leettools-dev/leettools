@@ -1,6 +1,6 @@
 from typing import Optional
 
-import leettools.common.exceptions as LlmedsException
+import leettools.common.exceptions as exceptions
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context, ContextManager
 
@@ -30,7 +30,7 @@ class LogLocator:
             return f"{server_log_root}/models/{model_name}/{service_name}"
         else:
             if adapter_uuid is None:
-                raise LlmedsException.UnexpectedNullValueException(
+                raise exceptions.UnexpectedNullValueException(
                     "get_log_for_server", "adapter_uuid"
                 )
             return f"{server_log_root}/adapters/{model_name}/{adapter_name}/{adapter_uuid}/{service_name}"

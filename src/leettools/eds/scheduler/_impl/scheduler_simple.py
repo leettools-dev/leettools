@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from queue import Queue
 from typing import Dict, List, Optional, Union
 
-import leettools.common.exceptions as LlmedsException
+import leettools.common.exceptions as exceptions
 from leettools.common.logging import get_logger
 from leettools.common.utils import time_utils
 from leettools.context_manager import Context
@@ -107,11 +107,11 @@ class SchedulerSimple(AbstractScheduler):
         job = None
 
         if task.task_status == TaskStatus.ABORTED:
-            raise LlmedsException.UnexpectedCaseException(
+            raise exceptions.UnexpectedCaseException(
                 "Trying to create job for an aborted task."
             )
         if task.is_deleted:
-            raise LlmedsException.UnexpectedCaseException(
+            raise exceptions.UnexpectedCaseException(
                 "Trying to create job for a deleted task."
             )
 
@@ -162,7 +162,7 @@ class SchedulerSimple(AbstractScheduler):
             for task in todo_tasks:
                 # deleted tasks won't be retrieved
                 if task.is_deleted:
-                    raise LlmedsException.UnexpectedCaseException(
+                    raise exceptions.UnexpectedCaseException(
                         "get_incomplete_tasks returned a deleted task."
                     )
 
@@ -342,7 +342,7 @@ class SchedulerSimple(AbstractScheduler):
         task_in_db = self.taskstore.get_task_by_uuid(task_uuid)
         if task_in_db is None:
             self.logger.error(f"[{id}]Task {task_uuid} not found in the task list")
-            raise LlmedsException.EntityNotFoundException(f"{task_uuid}", "task")
+            raise exceptions.EntityNotFoundException(f"{task_uuid}", "task")
 
         if task_in_db.is_deleted:
             self.logger.warning(f"[{id}]Task {task_uuid} is marked as deleted.")

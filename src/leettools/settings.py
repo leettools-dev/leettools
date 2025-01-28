@@ -82,6 +82,7 @@ class SystemSettings(BaseModel):
     API_V1_STR: ClassVar[str] = "/api/v1"
     PROJECT_NAME: ClassVar[str] = "LeetTools"
     LEETAPI_PROJECT_NAME: ClassVar[str] = "LeetAPI"
+    env_file: str = _default_env_file
 
     ##########################################################################
     #
@@ -505,6 +506,7 @@ class SystemSettings(BaseModel):
         #
         logger().debug("Initializing settings with default values.")
         logger().debug(f"Loading environment variables from .env file: {env_file_path}")
+        self.env_file = env_file_path
 
         # load the environment variables from the .env file
         # if an env variable is already set in the system, it will not be overwritten
@@ -675,6 +677,9 @@ class SystemSettings(BaseModel):
 
         if err_msgs:
             raise exceptions.ParametersValidationException(err_msgs)
+
+    def using_default_env(self) -> bool:
+        return self.env_file == _default_env_file
 
     def __repr__(self) -> str:
         return f"SystemSettings({self.__dict__})"

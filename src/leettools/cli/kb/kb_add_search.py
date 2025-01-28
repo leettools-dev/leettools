@@ -99,7 +99,7 @@ def add_search(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "add_search_to_kb"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_add_search_to_kb"
     if scheduler_check == False:
         context.scheduler_is_running = True
 

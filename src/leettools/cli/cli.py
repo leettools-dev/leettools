@@ -1,4 +1,5 @@
 import importlib
+import traceback
 from pathlib import Path
 
 import click
@@ -10,13 +11,16 @@ from leettools.cli.docsrc import docsrc_cli
 from leettools.cli.flow import flow_cli
 from leettools.cli.kb import kb_cli
 from leettools.cli.llm import llm_cli
+from leettools.cli.options_common import common_options
 from leettools.cli.parser import parser_cli
 from leettools.cli.query import query_cli
+from leettools.common import exceptions
 from leettools.context_manager import Context
 
 
 @click.group(name="edscmd")
-def run():
+@common_options
+def run(**kwargs):
     """
     Commad line tools for leettools system.
     """
@@ -91,11 +95,22 @@ def main():
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "eds_cli"
+    context.name = context.EDS_CLI_CONTEXT_PREFIX
 
     _add_extension_cli(context)
     try:
         run()
+    except exceptions.EdsExceptionBase as leettools_exception:
+        errmsg = leettools_exception.exception_message
+        stack_trace = traceback.format_exc()
+
+        # Print the header
+        click.secho("=" * 40, fg="cyan", bold=True)
+        click.secho(f" ERROR: {errmsg} ", fg="red", bold=True)
+        click.secho("=" * 40, fg="cyan", bold=True)
+
+        # Print the stack trace
+        click.secho(stack_trace, fg="yellow")
     finally:
         # Add any cleanup code here
         pass

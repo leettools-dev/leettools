@@ -1,6 +1,5 @@
 import json
 import uuid
-from datetime import datetime
 from typing import Dict, List, Optional
 
 from leettools.common import exceptions
@@ -20,8 +19,14 @@ from leettools.core.schemas.knowledgebase import (
 )
 from leettools.core.schemas.organization import Org
 from leettools.core.user.user_store import AbstractUserStore
-from leettools.eds.str_embedder.dense_embedder import get_dense_embedder_class
-from leettools.eds.str_embedder.sparse_embedder import get_sparse_embedder_class
+from leettools.eds.str_embedder.dense_embedder import (
+    AbstractDenseEmbedder,
+    get_dense_embedder_class,
+)
+from leettools.eds.str_embedder.sparse_embedder import (
+    AbstractSparseEmbedder,
+    get_sparse_embedder_class,
+)
 from leettools.settings import SystemSettings
 
 
@@ -139,7 +144,7 @@ class KBManagerDuckDB(AbstractKBManager):
             kb_create.dense_embedder_params is None
             or kb_create.dense_embedder_params == {}
         ):
-            dense_embedder_class = get_dense_embedder_class(
+            dense_embedder_class: AbstractDenseEmbedder = get_dense_embedder_class(
                 kb_create.dense_embedder, self.settings
             )
             kb_create.dense_embedder_params = dense_embedder_class.get_default_params(
@@ -158,8 +163,8 @@ class KBManagerDuckDB(AbstractKBManager):
                 kb_create.sparse_embedder_params is None
                 or kb_create.sparse_embedder_params == {}
             ):
-                sparse_embedder_class = get_sparse_embedder_class(
-                    kb_create.sparse_embedder, self.settings
+                sparse_embedder_class: AbstractSparseEmbedder = (
+                    get_sparse_embedder_class(kb_create.sparse_embedder, self.settings)
                 )
                 kb_create.sparse_embedder_params = (
                     sparse_embedder_class.get_default_params(self.settings)

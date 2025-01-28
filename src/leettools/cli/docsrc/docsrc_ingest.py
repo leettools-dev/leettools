@@ -59,7 +59,7 @@ def ingest(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "cli_docsource_ingest"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_docsource_ingest"
     docsource_store = context.get_repo_manager().get_docsource_store()
 
     display_logger = logger()

@@ -31,7 +31,7 @@ def list(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "kb_list"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_kb_list"
 
     org_manager = context.get_org_manager()
     kb_manager = context.get_kb_manager()

@@ -186,7 +186,7 @@ def run_adhoc_pipeline_for_docsinks(
             f"The docsink created has status: {docsink.docsink_status}"
         )
         if len(docsink.docsource_uuids) > 1:
-            display_logger.info(
+            display_logger.debug(
                 f"Adhoc query: docsink {docsink.docsink_uuid} already created before."
             )
             return docsink
@@ -241,7 +241,7 @@ def run_adhoc_pipeline_for_docsinks(
 
     def _split_helper(log_file_location: str, doc: Document) -> Document:
         if doc.split_status == DocumentStatus.COMPLETED:
-            display_logger.info(
+            display_logger.debug(
                 f"Adhoc query: document {doc.document_uuid} already split."
             )
             return doc
@@ -277,7 +277,7 @@ def run_adhoc_pipeline_for_docsinks(
 
     for doc in success_documents:
         if doc.embed_status == DocumentStatus.COMPLETED:
-            display_logger.info(
+            display_logger.debug(
                 f"Adhoc query: document {doc.document_uuid} already embedded."
             )
             continue

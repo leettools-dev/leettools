@@ -48,7 +48,7 @@ def list_db(
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False
-    context.name = "get_db_list"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_get_db_list"
 
     org_manager = context.get_org_manager()
     kb_manager = context.get_kb_manager()

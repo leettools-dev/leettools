@@ -1,8 +1,11 @@
+import os
 from typing import Any, Dict, Optional, Tuple
 
 import click
 
 from leettools.common import exceptions
+from leettools.common.logging import logger
+from leettools.common.utils import config_utils
 from leettools.context_manager import Context
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.schemas.knowledgebase import KBCreate, KnowledgeBase
@@ -116,5 +119,46 @@ def setup_org_kb_user(
                     enable_contextual_retrieval=context.settings.ENABLE_CONTEXTUAL_RETRIEVAL,
                 ),
             )
+
+    # check if the kb's embedder has correct setup
+    ignore_embedded_check = config_utils.value_to_bool(
+        os.environ.get("EDS_IGNORE_EMBEDDET_CHECK", False)
+    )
+    if not ignore_embedded_check:
+        from leettools.eds.str_embedder.dense_embedder import (
+            AbstractDenseEmbedder,
+            create_dense_embedder_for_kb,
+            get_dense_embedder_class,
+        )
+
+        logger().info(f"Checking dense embedder for KB {kb_name} ...")
+        dense_embedder_kb = create_dense_embedder_for_kb(
+            context=context,
+            org=org,
+            kb=kb,
+            user=user,
+        )
+        default_dense_embedder_class = get_dense_embedder_class(None, context.settings)
+        logger().info("Getting default dense embedder from settings to compare ...")
+        default_dense_embedder: AbstractDenseEmbedder = default_dense_embedder_class(
+            context=context
+        )
+        if not dense_embedder_kb.is_compatible(default_dense_embedder):
+            click.secho(
+                f"Warning: KB {kb_name} uses a dense embedder that is not compatible "
+                f"with the default specfied in {context.settings.env_file}:\n"
+                f"KB embedder: {dense_embedder_kb.__class__.__name__}"
+                f"[model: {dense_embedder_kb.get_model_name()}]"
+                f"[dimension: {dense_embedder_kb.get_dimension()}]\n"
+                f"Default    : {default_dense_embedder_class.__name__}"
+                f"[model: {default_dense_embedder.get_model_name()}]"
+                f"[dimension: {default_dense_embedder.get_dimension()}].",
+                err=True,
+                fg="yellow",
+            )
+    else:
+        logger().info(
+            f"Skipping embedder check for KB {kb_name} as per EDS_IGNORE_EMBEDDET_CHECK."
+        )
 
     return org, kb, user

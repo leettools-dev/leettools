@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from leettools.common.logging import logger
 from leettools.context_manager import Context
@@ -19,13 +19,22 @@ from leettools.settings import SystemSettings
 
 class SparseStrEmbedderSplade(AbstractSparseEmbedder):
 
-    def __init__(self, org: Org, kb: KnowledgeBase, user: User, context: Context):
-        if kb.sparse_embedder_params is None:
+    def __init__(
+        self,
+        context: Context,
+        org: Optional[Org] = None,
+        kb: Optional[KnowledgeBase] = None,
+        user: Optional[User] = None,
+    ):
+        if kb is None:
             model_name = context.settings.DEFAULT_SPLADE_EMBEDDING_MODEL
         else:
-            model_name = kb.sparse_embedder_params[SPARSE_EMBED_PARAM_MODEL]
-            if model_name is None:
+            if kb.sparse_embedder_params is None:
                 model_name = context.settings.DEFAULT_SPLADE_EMBEDDING_MODEL
+            else:
+                model_name = kb.sparse_embedder_params[SPARSE_EMBED_PARAM_MODEL]
+                if model_name is None:
+                    model_name = context.settings.DEFAULT_SPLADE_EMBEDDING_MODEL
         self.splade_ef = SpladeFunction().get_function(model_name)
 
     def embed(self, embed_requests: SparseEmbeddingRequest) -> SparseEmbeddings:

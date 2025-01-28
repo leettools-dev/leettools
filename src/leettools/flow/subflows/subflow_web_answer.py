@@ -203,7 +203,7 @@ def get_answer_from_web(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "report"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_report"
 
     exec_info = chat_utils.setup_exec_info(
         context=context,

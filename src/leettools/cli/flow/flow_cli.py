@@ -33,16 +33,14 @@ def _run_flow_cli(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = flow_type
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}{flow_type}"
     history_manager = get_history_manager(context)
 
-    if kb_name is None or kb_name == "":
-        kb_name = get_kb_name_from_query(query)
-        kb_description = f"Created by CLI {flow_type} command for query {query}"
-    else:
-        kb_description = (
-            f"Created by CLI {flow_type} command for query {query} in kb {kb_name}"
-        )
+    org, kb, user = cli_utils.setup_org_kb_user(context, org_name, kb_name, username)
+    org_name = org.name
+    kb_name = kb.name
+    kb_description = kb.description
+    username = user.username
 
     exec_info = chat_utils.setup_exec_info(
         context=context,

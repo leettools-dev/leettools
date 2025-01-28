@@ -110,7 +110,7 @@ def run_ingestion(eval_data: EvalDataSet) -> ExecInfo:
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False
-    context.name = "eval"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_eval"
 
     repo_manager = context.get_repo_manager()
     docsource_store = repo_manager.get_docsource_store()
