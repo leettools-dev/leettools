@@ -1,4 +1,5 @@
 import importlib
+import traceback
 from pathlib import Path
 
 import click
@@ -12,6 +13,7 @@ from leettools.cli.kb import kb_cli
 from leettools.cli.llm import llm_cli
 from leettools.cli.parser import parser_cli
 from leettools.cli.query import query_cli
+from leettools.common import exceptions
 from leettools.context_manager import Context
 
 
@@ -95,7 +97,19 @@ def main():
 
     _add_extension_cli(context)
     try:
+        raise exceptions.EntityNotFoundException(entity_name="test", entity_type="type")
         run()
+    except exceptions.EdsExceptionBase as leettools_exception:
+        errmsg = leettools_exception.exception_message
+        stack_trace = traceback.format_exc()
+
+        # Print the header
+        click.secho("=" * 40, fg="cyan", bold=True)
+        click.secho(f" ERROR: {errmsg} ", fg="red", bold=True)
+        click.secho("=" * 40, fg="cyan", bold=True)
+
+        # Print the stack trace
+        click.secho(stack_trace, fg="yellow")
     finally:
         # Add any cleanup code here
         pass

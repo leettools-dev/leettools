@@ -17,11 +17,6 @@ from leettools.chat.schemas.chat_history import (
 )
 from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
-from leettools.common.exceptions import (
-    EdsExceptionBase,
-    EntityNotFoundException,
-    UnexpectedOperationFailureException,
-)
 from leettools.common.logging import logger, remove_logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.logging.logger_for_query import get_logger_for_chat
@@ -84,7 +79,9 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
 
         ch_in_db = self.get_ch_entry(username, chat_id)
         if ch_in_db is None:
-            raise EntityNotFoundException(entity_name=chat_id, entity_type="CHInDB")
+            raise exceptions.EntityNotFoundException(
+                entity_name=chat_id, entity_type="CHInDB"
+            )
 
         chat_answer_item_list: List[ChatAnswerItem] = []
         for (
@@ -306,8 +303,8 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 chat_query_item=chat_query_item,
                 display_logger=display_logger,
             )
-        except EdsExceptionBase as leettools_exception:
-            display_logger.debug("Getting LlmedsException.")
+        except exceptions.EdsExceptionBase as leettools_exception:
+            display_logger.debug("Getting a LeetTools exception.")
             errmsg = str(leettools_exception)
             trace = leettools_exception.exception_trace
             return self._create_answer_for_exception(
@@ -375,7 +372,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
     ) -> ChatHistory:
         ch_in_db = self.get_ch_entry(username, chat_id)
         if ch_in_db is None:
-            raise EntityNotFoundException(
+            raise exceptions.EntityNotFoundException(
                 entity_name=chat_id, entity_type="ChatHistory"
             )
 
@@ -426,7 +423,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         )
         updated_ch = self.get_ch_entry(username, chat_id)
         if updated_ch is None:
-            raise UnexpectedOperationFailureException(
+            raise exceptions.UnexpectedOperationFailureException(
                 operation_desc="Adding answer to chat history in DB",
                 error="The newly updated chat history is None",
             )
@@ -469,7 +466,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         chat_id = chat_query_item_create.chat_id
         ch_in_db = self.get_ch_entry(username, chat_id)
         if ch_in_db is None:
-            raise EntityNotFoundException(
+            raise exceptions.EntityNotFoundException(
                 entity_name=chat_id, entity_type="ChatHistory"
             )
         chat_query_item = ChatQueryItem.from_query_create(chat_query_item_create)
@@ -507,7 +504,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         if rtn_ch_in_db is not None:
             return chat_query_item
         else:
-            raise UnexpectedOperationFailureException(
+            raise exceptions.UnexpectedOperationFailureException(
                 operation_desc="Adding query to chat history in DB",
                 error="No return from update_one",
             )
@@ -526,7 +523,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
     def delete_ch_entry_item(self, username: str, chat_id: str, query_id: str) -> None:
         ch_in_db = self.get_ch_entry(username, chat_id)
         if ch_in_db is None:
-            raise EntityNotFoundException(
+            raise exceptions.EntityNotFoundException(
                 entity_name=chat_id, entity_type="ChatHistory"
             )
 
@@ -559,7 +556,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         )
         rtn_ch_in_db = self.get_ch_entry(username, chat_id)
         if rtn_ch_in_db is None:
-            raise UnexpectedOperationFailureException(
+            raise exceptions.UnexpectedOperationFailureException(
                 operation_desc="Deleting query from chat history in DB",
                 error="No return from update_one",
             )
@@ -636,7 +633,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
     ) -> list[ChatHistory]:
         kb_owner_name = kb.get_owner_name()
         if kb_owner_name is None:
-            raise UnexpectedOperationFailureException(
+            raise exceptions.UnexpectedOperationFailureException(
                 operation_desc="Getting owner for KB", error="Owner is None"
             )
         if article_type is None:
@@ -718,7 +715,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
     ) -> Optional[ChatHistory]:
         ch_in_db = self.get_ch_entry(username, chat_id)
         if ch_in_db is None:
-            raise EntityNotFoundException(
+            raise exceptions.EntityNotFoundException(
                 entity_name=chat_id, entity_type="ChatHistory"
             )
         updated = False
@@ -907,7 +904,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         # First, get the current chat history
         chat = self.get_ch_entry(username, chat_id)
         if not chat:
-            raise EntityNotFoundException(
+            raise exceptions.EntityNotFoundException(
                 entity_name=f"Chat history {chat_id}", entity_type="ChatHistory"
             )
         updated = False
