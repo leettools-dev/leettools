@@ -7,7 +7,6 @@ from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 from leettools.context_manager import Context
 from leettools.core.schemas.user import User
 from leettools.core.schemas.user_settings import UserSettings
-from leettools.settings import SystemSettings
 
 
 def _get_settings_value(
@@ -16,15 +15,15 @@ def _get_settings_value(
     value = user_settings.settings[first_key].value
     username = user_settings.username
     if value is None or value == "":
-        logger().debug(f"No {first_key} in the settings of {username}.")
+        logger().debug(f"No {first_key} in the user settings of {username}.")
         if second_key is not None:
             value = user_settings.settings[second_key].value
             if value is None or value == "":
-                logger().debug(f"No {second_key} in the settings of {username}.")
+                logger().debug(f"No {second_key} in the user settings of {username}.")
             else:
-                logger().debug(f"Using {second_key} setting of {username}.")
+                logger().debug(f"Using {second_key} user setting of {username}.")
     else:
-        logger().debug(f"Using {first_key} setting of {username}.")
+        logger().debug(f"Using {first_key} user setting of {username}.")
     return value
 
 
