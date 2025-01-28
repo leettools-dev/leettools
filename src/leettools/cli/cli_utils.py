@@ -1,8 +1,11 @@
+import os
 from typing import Any, Dict, Optional, Tuple
 
 import click
 
 from leettools.common import exceptions
+from leettools.common.logging import logger
+from leettools.common.utils import config_utils
 from leettools.context_manager import Context
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.schemas.knowledgebase import KBCreate, KnowledgeBase
@@ -118,13 +121,17 @@ def setup_org_kb_user(
             )
 
     # check if the kb's embedder has correct setup
-    if not context.settings.using_default_env():
+    ignore_embedded_check = config_utils.value_to_bool(
+        os.environ.get("EDS_IGNORE_EMBEDDET_CHECK", False)
+    )
+    if not ignore_embedded_check:
         from leettools.eds.str_embedder.dense_embedder import (
             AbstractDenseEmbedder,
             create_dense_embedder_for_kb,
             get_dense_embedder_class,
         )
 
+        logger().info(f"Checking dense embedder for KB {kb_name} ...")
         dense_embedder_kb = create_dense_embedder_for_kb(
             context=context,
             org=org,
@@ -132,6 +139,7 @@ def setup_org_kb_user(
             user=user,
         )
         default_dense_embedder_class = get_dense_embedder_class(None, context.settings)
+        logger().info("Getting default dense embedder from settings to compare ...")
         default_dense_embedder: AbstractDenseEmbedder = default_dense_embedder_class(
             context=context
         )
@@ -148,5 +156,9 @@ def setup_org_kb_user(
                 err=True,
                 fg="yellow",
             )
+    else:
+        logger().info(
+            f"Skipping embedder check for KB {kb_name} as per EDS_IGNORE_EMBEDDET_CHECK."
+        )
 
     return org, kb, user

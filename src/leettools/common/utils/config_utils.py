@@ -16,6 +16,9 @@ def value_to_bool(value: Any) -> bool:
     if isinstance(value, int):
         return bool(value)
 
+    if value is None:
+        return False
+
     value_str = str(value)
 
     # Normalize the string to lowercase and strip leading/trailing whitespaces

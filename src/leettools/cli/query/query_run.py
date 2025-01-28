@@ -61,7 +61,7 @@ def run(
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False
-    context.name = "query"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_query"
     chat_manager = get_history_manager(context)
 
     from leettools.chat import chat_utils

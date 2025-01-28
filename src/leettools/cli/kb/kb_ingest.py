@@ -48,7 +48,8 @@ def ingest(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "cli_kb_ingest"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_cli_kb_ingest"
+
     docsource_store = context.get_repo_manager().get_docsource_store()
     document_store = context.get_repo_manager().get_document_store()
 

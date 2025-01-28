@@ -64,7 +64,7 @@ def create(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "kb_create"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_kb_create"
 
     if schedule:
         adhoc_kb = False

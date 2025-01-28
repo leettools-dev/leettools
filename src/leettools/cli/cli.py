@@ -95,7 +95,7 @@ def main():
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "eds_cli"
+    context.name = context.EDS_CLI_CONTEXT_PREFIX
 
     _add_extension_cli(context)
     try:

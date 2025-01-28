@@ -96,7 +96,7 @@ def add_local_dir(
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False
-    context.name = "add_local_dir"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_add_local_dir"
     if scheduler_check == False:
         context.scheduler_is_running = True
 

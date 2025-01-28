@@ -187,13 +187,16 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         if len(trace) > 5000:
             trace = trace[:5000] + " ...[truncated]"
 
-        display_trace = trace.replace("\n", "<br>")
+        if Context.EDS_CLI_CONTEXT_PREFIX in self.context.name:
+            display_trace = trace
+        else:
+            display_trace = trace.replace("\n", "<br>")
         chat_answer_item_create_list = []
 
         # TODO: use a central place to handle i18n strings
         answer_content = (
             "Sorry, I am unable to answer the question because of a "
-            f"backend error:\n\n{errmsg}\n\nPlease report to admin@linktime.cloud and "
+            f"backend error:\n\n{errmsg}\n\nPlease report to admin@leettools.com and "
             f"try again later. Error details:\n\n{display_trace}\n"
         )
 
@@ -202,7 +205,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             query_id=chat_query_item.query_id,
             answer_content=answer_content,
             answer_plan=None,
-            answer_score=-1,
+            answer_score=0,
         )
         chat_answer_item_create_list.append(chat_answer_item_create)
         return ChatQueryResultCreate(

@@ -48,7 +48,7 @@ def info(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "cli_kb_info"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_cli_kb_info"
 
     display_logger = logger()
 

@@ -1,6 +1,6 @@
 import threading
 from enum import Enum
-from typing import Optional
+from typing import ClassVar, Optional
 
 from leettools.common.singleton_meta import SingletonMeta
 from leettools.core.config.config_manager import ConfigManager
@@ -36,6 +36,8 @@ class ContextStatus(str, Enum):
 
 
 class Context:
+
+    EDS_CLI_CONTEXT_PREFIX: ClassVar[str] = "eds_cli"
 
     def __init__(self, settings: SystemSettings):
         self.name = "default_context"

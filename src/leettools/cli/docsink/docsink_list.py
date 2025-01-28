@@ -44,7 +44,7 @@ def list(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "cli_docsrc_list"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_docsrc_list"
     docsink_store = context.get_repo_manager().get_docsink_store()
     org_manager = context.get_org_manager()
     kb_manager = context.get_kb_manager()

@@ -78,7 +78,7 @@ def add_url(
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False
-    context.name = "add_url_to_kb"
+    context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_add_url_to_kb"
     if scheduler_check == False:
         context.scheduler_is_running = True
 
