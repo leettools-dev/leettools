@@ -117,4 +117,36 @@ def setup_org_kb_user(
                 ),
             )
 
+    # check if the kb's embedder has correct setup
+    if not context.settings.using_default_env():
+        from leettools.eds.str_embedder.dense_embedder import (
+            AbstractDenseEmbedder,
+            create_dense_embedder_for_kb,
+            get_dense_embedder_class,
+        )
+
+        dense_embedder_kb = create_dense_embedder_for_kb(
+            context=context,
+            org=org,
+            kb=kb,
+            user=user,
+        )
+        default_dense_embedder_class = get_dense_embedder_class(None, context.settings)
+        default_dense_embedder: AbstractDenseEmbedder = default_dense_embedder_class(
+            context=context
+        )
+        if not dense_embedder_kb.is_compatible(default_dense_embedder):
+            click.secho(
+                f"Warning: KB {kb_name} uses a dense embedder that is not compatible "
+                f"with the default specfied in {context.settings.env_file}:\n"
+                f"KB embedder: {dense_embedder_kb.__class__.__name__}"
+                f"[model: {dense_embedder_kb.get_model_name()}]"
+                f"[dimension: {dense_embedder_kb.get_dimension()}]\n"
+                f"Default    : {default_dense_embedder_class.__name__}"
+                f"[model: {default_dense_embedder.get_model_name()}]"
+                f"[dimension: {default_dense_embedder.get_dimension()}].",
+                err=True,
+                fg="yellow",
+            )
+
     return org, kb, user

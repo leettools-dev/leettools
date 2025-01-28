@@ -1,14 +1,10 @@
-from datetime import datetime
 from typing import List, Optional, Set
 
 import click
 
 from leettools.cli.cli_utils import setup_org_kb_user
 from leettools.cli.options_common import common_options
-from leettools.common import exceptions
 from leettools.common.logging import logger
-from leettools.common.utils import time_utils
-from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.consts.schedule_type import ScheduleType
 from leettools.core.schemas.document import Document
 from leettools.flow.utils import pipeline_utils
@@ -29,7 +25,7 @@ from leettools.flow.utils import pipeline_utils
     "kb_name",
     default=None,
     required=True,
-    help="The knowledgebase to extract.",
+    help="The knowledgebase to ingest.",
 )
 @click.option(
     "-u",
@@ -52,7 +48,7 @@ def ingest(
 
     context = ContextManager().get_context()
     context.is_svc = False
-    context.name = "cli_docsource_ingest"
+    context.name = "cli_kb_ingest"
     docsource_store = context.get_repo_manager().get_docsource_store()
     document_store = context.get_repo_manager().get_document_store()
 

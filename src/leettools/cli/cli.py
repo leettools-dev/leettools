@@ -11,6 +11,7 @@ from leettools.cli.docsrc import docsrc_cli
 from leettools.cli.flow import flow_cli
 from leettools.cli.kb import kb_cli
 from leettools.cli.llm import llm_cli
+from leettools.cli.options_common import common_options
 from leettools.cli.parser import parser_cli
 from leettools.cli.query import query_cli
 from leettools.common import exceptions
@@ -18,7 +19,8 @@ from leettools.context_manager import Context
 
 
 @click.group(name="edscmd")
-def run():
+@common_options
+def run(**kwargs):
     """
     Commad line tools for leettools system.
     """
@@ -97,7 +99,6 @@ def main():
 
     _add_extension_cli(context)
     try:
-        raise exceptions.EntityNotFoundException(entity_name="test", entity_type="type")
         run()
     except exceptions.EdsExceptionBase as leettools_exception:
         errmsg = leettools_exception.exception_message

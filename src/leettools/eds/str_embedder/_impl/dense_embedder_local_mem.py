@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import click
 
@@ -31,16 +31,41 @@ class DenseEmbedderLocalMem(AbstractDenseEmbedder, metaclass=SingletonMeta):
     startup is faster.
     """
 
-    def __init__(self, org: Org, kb: KnowledgeBase, user: User, context: Context):
+    def __init__(
+        self,
+        context: Context,
+        org: Optional[Org] = None,
+        kb: Optional[KnowledgeBase] = None,
+        user: Optional[User] = None,
+    ):
         if not hasattr(
             self, "initialized"
         ):  # This ensures __init__ is only called once
             self.initialized = True
             self.context = context
-            self.embedder = DenseEmbedderSentenceTransformer(org, kb, user, context)
+            self.embedder = DenseEmbedderSentenceTransformer(
+                context=context, org=org, kb=kb, user=user
+            )
 
     def embed(self, embed_requests: DenseEmbeddingRequest) -> DenseEmbeddings:
         return self.embedder.embed(embed_requests)
+
+    def is_compatible_class(self, other: AbstractDenseEmbedder) -> bool:
+        from leettools.eds.str_embedder._impl.dense_embedder_local_svc_client import (
+            DenseEmbedderLocalSvcClient,
+        )
+
+        if (
+            isinstance(other, DenseEmbedderLocalMem)
+            or isinstance(other, DenseEmbedderLocalSvcClient)
+            or isinstance(other, DenseEmbedderSentenceTransformer)
+        ):
+            return True
+
+        return False
+
+    def get_model_name(self) -> str:
+        return self.embedder.get_model_name()
 
     def get_dimension(self) -> int:
         return self.embedder.get_dimension()

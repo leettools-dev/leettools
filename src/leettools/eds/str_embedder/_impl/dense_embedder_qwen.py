@@ -1,6 +1,6 @@
 import os
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import dashscope
 
@@ -35,7 +35,11 @@ EMBEDDER_MODEL_MAPPNG = {
 class DenseEmbedderQwen(AbstractDenseEmbedder):
 
     def __init__(
-        self, org: Org, kb: KnowledgeBase, user: User, context: Context
+        self,
+        context: Context,
+        org: Optional[Org] = None,
+        kb: Optional[KnowledgeBase] = None,
+        user: Optional[User] = None,
     ) -> None:
 
         self.org = org
@@ -44,28 +48,33 @@ class DenseEmbedderQwen(AbstractDenseEmbedder):
         self.context = context
         self.usage_store = context.get_usage_store()
 
-        params = kb.dense_embedder_params
-        settings = context.settings
-
         self.QWEN_API_PROVIDER_NAME = os.environ.get(
             "QWEN_API_PROVIDER_NAME", "aliyuncs"
         )
         self.DASHSCORE_API_KEY = os.environ.get("DEFAULT_DASHSCOPE_API_KEY")
-        if params is None or DENSE_EMBED_PARAM_MODEL not in params:
+
+        if kb is None:
             self.model_name = os.environ.get(
                 "DEFAULT_EMBEDDING_QWEN_MODEL", "text-embedding-v2"
             )
             self.QWEN_EMBEDDING_MODEL_DIMENSION = 1536
         else:
-            self.model_name = params[DENSE_EMBED_PARAM_MODEL]
-            if (
-                DENSE_EMBED_PARAM_DIM not in params
-                or params[DENSE_EMBED_PARAM_MODEL] is None
-            ):
-                raise ConfigValueException(
-                    DENSE_EMBED_PARAM_DIM, "Qwen embedding model dim not specified."
+            params = kb.dense_embedder_params
+            if params is None or DENSE_EMBED_PARAM_MODEL not in params:
+                self.model_name = os.environ.get(
+                    "DEFAULT_EMBEDDING_QWEN_MODEL", "text-embedding-v2"
                 )
-            self.QWEN_EMBEDDING_MODEL_DIMENSION = params[DENSE_EMBED_PARAM_DIM]
+                self.QWEN_EMBEDDING_MODEL_DIMENSION = 1536
+            else:
+                self.model_name = params[DENSE_EMBED_PARAM_MODEL]
+                if (
+                    DENSE_EMBED_PARAM_DIM not in params
+                    or params[DENSE_EMBED_PARAM_MODEL] is None
+                ):
+                    raise ConfigValueException(
+                        DENSE_EMBED_PARAM_DIM, "Qwen embedding model dim not specified."
+                    )
+                self.QWEN_EMBEDDING_MODEL_DIMENSION = params[DENSE_EMBED_PARAM_DIM]
 
     def embed(self, embed_requests: DenseEmbeddingRequest) -> DenseEmbeddings:
         response = None
@@ -117,6 +126,9 @@ class DenseEmbedderQwen(AbstractDenseEmbedder):
             )
             self.usage_store.record_api_call(usage_api_call)
         return DenseEmbeddings(dense_embeddings=rtn_list)
+
+    def get_model_name(self) -> str:
+        return self.model_name
 
     def get_dimension(self) -> int:
         return self.QWEN_EMBEDDING_MODEL_DIMENSION

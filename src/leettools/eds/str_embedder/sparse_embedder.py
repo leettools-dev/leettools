@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, TypeVar
+from typing import Any, Dict, Optional, TypeVar
 
 from leettools.common import exceptions
 from leettools.common.logging import logger
@@ -27,7 +27,13 @@ class AbstractSparseEmbedder(ABC):
     """
 
     @abstractmethod
-    def __init__(self, org: Org, kb: KnowledgeBase, user: User, context: Context):
+    def __init__(
+        self,
+        context: Context,
+        org: Optional[Org] = None,
+        kb: Optional[KnowledgeBase] = None,
+        user: Optional[User] = None,
+    ):
         pass
 
     @abstractmethod

@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from leettools.common.logging import logger
 from leettools.context_manager import Context
@@ -17,14 +17,31 @@ from leettools.settings import SystemSettings
 
 
 class DenseEmbedderSentenceTransformer(AbstractDenseEmbedder):
-    def __init__(self, org: Org, kb: KnowledgeBase, user: User, context: Context):
+    def __init__(
+        self,
+        context: Context,
+        org: Optional[Org] = None,
+        kb: Optional[KnowledgeBase] = None,
+        user: Optional[User] = None,
+    ):
         from sentence_transformers import SentenceTransformer
 
-        # default is all-MiniLM-L6-v2
-        model_name = context.settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME
+        if kb is None:
+            # default is all-MiniLM-L6-v2
+            model_name = context.settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME
+        else:
+            if kb.dense_embedder_params is None:
+                model_name = context.settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME
+            else:
+                model_name = kb.dense_embedder_params[DENSE_EMBED_PARAM_MODEL]
+                if model_name is None:
+                    model_name = (
+                        context.settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME
+                    )
 
-        logger().info(f"Loading model {model_name}...")
+        logger().info(f"Loading dense embedder model {model_name}...")
         # TODO: allow SentenceTransformer to more parameters
+        self.model_name = model_name
         self.model = SentenceTransformer(model_name)
         embeddings = self.model.encode("")
         self.embedding_dimension = len(embeddings.tolist())
@@ -35,6 +52,26 @@ class DenseEmbedderSentenceTransformer(AbstractDenseEmbedder):
             # TODO: allow the encode function to take extra parameters
             results.dense_embeddings.append(self.model.encode(sentence).tolist())
         return results
+
+    def is_compatible_class(self, other: AbstractDenseEmbedder) -> bool:
+        from leettools.eds.str_embedder._impl.dense_embedder_local_mem import (
+            DenseEmbedderLocalMem,
+        )
+        from leettools.eds.str_embedder._impl.dense_embedder_local_svc_client import (
+            DenseEmbedderLocalSvcClient,
+        )
+
+        if (
+            isinstance(other, DenseEmbedderLocalMem)
+            or isinstance(other, DenseEmbedderLocalSvcClient)
+            or isinstance(other, DenseEmbedderSentenceTransformer)
+        ):
+            return True
+
+        return False
+
+    def get_model_name(self) -> str:
+        return self.model_name
 
     def get_dimension(self) -> int:
         return self.embedding_dimension
