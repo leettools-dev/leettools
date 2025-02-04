@@ -64,20 +64,26 @@ def list(
             [f"Knowledge base {kb_name} not found in Org {org.name}"]
         )
 
-    """
-    "123456789012345678901234"
-    "66bcf7f2c593676ade4d2a37"
-    """
-    uid_width = 26
+    uid_width = 36
 
     docsources = docsource_store.get_docsources_for_kb(org, kb)
+    if not json_output:
+        click.echo(
+            f"{'DocSource UUID':<{uid_width}} {'Created at':<19} {'Status':<15} {'Display Name':<40} URI"
+        )
+
     for docsource in docsources:
         if json_output:
             click.echo(docsource.model_dump_json(indent=indent))
         else:
+            display_name = docsource.display_name
+            if display_name is None:
+                display_name = "None"
+            created_at = docsource.created_at.strftime("%Y-%m-%d %H:%M:%S")
             click.echo(
-                f"{docsource.docsource_uuid:<{uid_width}}"
-                f"{docsource.docsource_status:<15}"
-                f"{docsource.display_name:<40}"
+                f"{docsource.docsource_uuid:<{uid_width}} "
+                f"{created_at:<19} "
+                f"{docsource.docsource_status.value:<15} "
+                f"{display_name:<40} "
                 f"{docsource.uri}"
             )
