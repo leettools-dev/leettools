@@ -12,14 +12,14 @@ from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.flow.utils import pipeline_utils
 
 
-@click.command(help="Manually ingest a doc source.")
+@click.command(help="Remove a DocSource and its documents.")
 @click.option(
     "-i",
     "--docsource-uuid",
     "docsource_uuid",
     default=None,
     required=True,
-    help="The docsource uuid to ingest.",
+    help="The docsource uuid to remove.",
 )
 @click.option(
     "-g",
@@ -46,13 +46,11 @@ from leettools.flow.utils import pipeline_utils
     help="The user to use, default the admin user.",
 )
 @common_options
-def ingest(
+def remove(
     docsource_uuid: str,
     kb_name: str,
     org_name: Optional[str] = None,
     username: Optional[str] = None,
-    json_output: bool = False,
-    indent: int = None,
     **kwargs,
 ) -> None:
     from leettools.context_manager import ContextManager
@@ -66,43 +64,16 @@ def ingest(
 
     org, kb, user = setup_org_kb_user(context, org_name, kb_name, username)
 
-    uid_width = 35
-
     docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
     if docsource is None:
         raise exceptions.ParametersValidationException(
             [f"Docsource {docsource_uuid} not found in Org {org.name}, KB {kb.name}"]
         )
 
-    docsource.docsource_status = DocSourceStatus.CREATED
-    docsource.updated_at = time_utils.current_datetime()
-    docsource_store.update_docsource(org, kb, docsource)
+    if docsource.is_deleted:
+        click.echo(f"Docsource {docsource_uuid} has already been marked deleted.")
+        return
 
-    if kb.auto_schedule:
-        pipeline_utils.process_docsources_auto(
-            org=org,
-            kb=kb,
-            docsources=[docsource],
-            context=context,
-            display_logger=display_logger,
-        )
-    else:
-        pipeline_utils.process_docsource_manual(
-            org=org,
-            kb=kb,
-            user=user,
-            docsource=docsource,
-            context=context,
-            display_logger=display_logger,
-        )
-
-    docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
-    if json_output:
-        click.echo(docsource.model_dump_json(indent=indent))
-    else:
-        click.echo(
-            f"{docsource.docsource_uuid:<{uid_width}}"
-            f"{docsource.docsource_status:<15}"
-            f"{docsource.display_name:<40}"
-            f"{docsource.uri}"
-        )
+    docsource_store.delete_docsource(org, kb, docsource)
+    uri = docsource.uri
+    click.echo(f"Docsource {uri} removed from KB {kb.name} in Org {org.name}")

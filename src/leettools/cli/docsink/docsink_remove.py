@@ -6,7 +6,7 @@ from leettools.cli.options_common import common_options
 from leettools.common import exceptions
 
 
-@click.command(help="List all DocSink in a KB.")
+@click.command(help="Remove a DocSink in a KB.")
 @click.option(
     "-g",
     "--org",
@@ -31,13 +31,20 @@ from leettools.common import exceptions
     required=False,
     help="The user to use, default the admin user.",
 )
+@click.option(
+    "-i",
+    "--docsink-uuid",
+    "docsink_uuid",
+    default=None,
+    required=True,
+    help="The DocSink UUID",
+)
 @common_options
-def list(
+def remove(
     kb_name: str,
+    docsink_uuid: str,
     org_name: Optional[str] = None,
     username: Optional[str] = None,
-    json_output: bool = False,
-    indent: int = None,
     **kwargs,
 ) -> None:
     from leettools.context_manager import ContextManager
@@ -64,23 +71,17 @@ def list(
             [f"Knowledge base {kb_name} not found in Org {org.name}"]
         )
 
-    uid_width = 36
-
-    docsinks = docsink_store.get_docsinks_for_kb(org, kb)
-
-    if not json_output:
-        click.echo(
-            f"{'DocSink UUID':<{uid_width}} {'Created at':<19} {'Status':<15} {'Original Doc URI':<25}"
+    docsink = docsink_store.get_docsink_by_id(org, kb, docsink_uuid)
+    if docsink is None:
+        raise exceptions.EntityNotFoundException(
+            entity_name=docsink_uuid, entity_type="DocSink"
         )
 
-    for docsink in docsinks:
-        if json_output:
-            click.echo(docsink.model_dump_json(indent=indent))
-        else:
-            created_at = docsink.created_at.strftime("%Y-%m-%d %H:%M:%S")
-            click.echo(
-                f"{docsink.docsink_uuid:<{uid_width}} "
-                f"{created_at:<19} "
-                f"{docsink.docsink_status.value:<15} "
-                f"{docsink.original_doc_uri:<25} "
-            )
+    if docsink.is_deleted:
+        click.echo(f"DocSink {docsink_uuid} has been marked as deleted.")
+        return
+
+    uri = docsink.original_doc_uri
+    if uri is None or uri == "":
+        uri = docsink.raw_doc_uri
+    click.echo(f"DocSink {uri} removed from KB {kb.name} in Org {org.name}")

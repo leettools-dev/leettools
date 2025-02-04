@@ -177,6 +177,7 @@ def run_scheduler(
 
     Args:
     - context: The context object
+    - org: if specified, only process this organization
     - kb: if specified, only process this knowledge base
     - docsources: if specified, only process this docsrc
     """
@@ -206,14 +207,14 @@ def run_scheduler(
     scheduler.start()
 
     # TODO: we need to allow the task_scanner enough time to pick up the tasks
-    time.sleep(30)
+    time.sleep(15)
 
     try:
         _print_scheduler_status(scheduler)
         active_tasks = scheduler.active_tasks()
         while len(active_tasks) > 0:
             _print_scheduler_status(scheduler)
-            time.sleep(10)
+            time.sleep(5)
             active_tasks = scheduler.active_tasks()
 
         logger().info("Finished running the task.")

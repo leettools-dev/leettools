@@ -99,17 +99,20 @@ def list(
             if json_output:
                 click.echo(document.model_dump_json(indent=indent))
             else:
+                created_at = document.created_at.strftime("%Y-%m-%d %H:%M:%S")
                 click.echo(
-                    f"{document.docsink_uuid:<{uid_width}}"
-                    f"{document.document_uuid:<{uid_width}}"
-                    f"{doc_original_uri}"
+                    f"{document.document_uuid:<{uid_width}} "
+                    f"{created_at:<19} "
+                    f"{doc_original_uri:<25} "
+                    f"{document.doc_uri:<25}"
                 )
 
     if not json_output:
         click.echo(
-            f"{'DocSink UUID':<{uid_width}}"
-            f"{'Document UUID':<{uid_width}}"
-            f"Original URI"
+            f"{'Document UUID':<{uid_width}} "
+            f"{'Created At':<19} "
+            f"{'Original URI':<25} "
+            f"Document URI"
         )
     if docsource_uuid is not None:
         docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
