@@ -5,7 +5,6 @@ from leettools.chat.schemas.chat_history import CHCreate
 from leettools.common.exceptions import EntityNotFoundException
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context
-from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.schemas.chat_query_item import ChatQueryItem, ChatQueryItemCreate
 from leettools.core.schemas.chat_query_options import ChatQueryOptions
 from leettools.core.schemas.knowledgebase import KBCreate

@@ -150,20 +150,21 @@ related settings.
 
 % cat > .env.ollama <<EOF
 EDS_DEFAULT_LLM_BASE_URL=http://localhost:11434/v1
+EDS_LLM_API_KEY=dummy-llm-api-key
 EDS_DEFAULT_INFERENCE_MODEL=llama3.2
 EDS_DEFAULT_EMBEDDING_MODEL=nomic-embed-text
 EDS_EMBEDDING_MODEL_DIMENSION=768
 EOF
 
 # Then run the command with the -e option to specify the .env file to use
-% leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag -l info
+% leet flow -e .env.ollama -t answer -q "How does GraphRAG work?" -k graphrag.ollama -l info
 ```
 
 ## Using DeepSeek API with different embedding services
 
 For another example, since DeepSeek does not provide an embedding endpoint yet, we can
 use the "EDS_DEFAULT_DENSE_EMBEDDER" setting to specify a local embedder with a default
-all-MiniLM-L6-v2 model:
+`all-MiniLM-L6-v2` model:
 
 ```bash
 ### to you can put the settings in the .env.deepseek file

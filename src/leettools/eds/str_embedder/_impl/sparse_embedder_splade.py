@@ -58,9 +58,18 @@ class SparseStrEmbedderSplade(AbstractSparseEmbedder):
         user_settings = user_settings_store.get_settings_for_user(user)
         params: Dict[str, Any] = {}
 
-        params[SPARSE_EMBED_PARAM_MODEL] = user_settings.get_value(
-            key="DEFAULT_SPARSE_EMBEDDING_MODEL",
-            default_value=settings.DEFAULT_SPLADE_EMBEDDING_MODEL,
-        )
+        if context.is_svc:
+            params[SPARSE_EMBED_PARAM_MODEL] = user_settings.get_value(
+                key="DEFAULT_SPARSE_EMBEDDING_MODEL",
+                default_value=settings.DEFAULT_SPLADE_EMBEDDING_MODEL,
+            )
+        else:
+            value = settings.DEFAULT_SPLADE_EMBEDDING_MODEL
+            if value is None or value == "":
+                value = user_settings.get_value(
+                    key="DEFAULT_SPARSE_EMBEDDING_MODEL",
+                    default_value="naver/splade-cocondenser-selfdistil",
+                )
+            params[SPARSE_EMBED_PARAM_MODEL] = value
 
         return params

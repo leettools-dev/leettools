@@ -224,21 +224,24 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         )
 
         if existing_same_hash is not None:
-            logger().debug(
-                f"Found existing strategy with the same values hash: {strategy_create_str}"
+            logger().noop(
+                f"Found existing strategy with the same values hash: {strategy_create_str}",
+                noop_lvl=2,
             )
             existing_strategy = self._dict_to_strategy(existing_same_hash)
             if active_same_name is not None:
                 if existing_strategy.strategy_id == active_same_name.strategy_id:
-                    logger().debug(
-                        f"The existing strategy is the same as the active strategy: {strategy_create.strategy_name}"
+                    logger().noop(
+                        f"The existing strategy is the same as the active strategy: {strategy_create.strategy_name}",
+                        noop_lvl=1,
                     )
                     return active_same_name
                 else:
-                    logger().debug(
+                    logger().noop(
                         f"The existing strategy is different from the active strategy with "
                         f"the same name: {strategy_create.strategy_name}, "
-                        "archive the active strategy and set the existing strategy to active."
+                        "archive the active strategy and set the existing strategy to active.",
+                        noop_lvl=2,
                     )
                     self._archive_strategy(active_same_name)
                     self.set_strategy_status_by_id(

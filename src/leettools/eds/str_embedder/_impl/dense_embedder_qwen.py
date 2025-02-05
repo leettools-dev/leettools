@@ -141,14 +141,30 @@ class DenseEmbedderQwen(AbstractDenseEmbedder):
         user_settings = user_settings_store.get_settings_for_user(user)
         params: Dict[str, Any] = {}
 
-        params[DENSE_EMBED_PARAM_MODEL] = user_settings.get_value(
-            key="DEFAULT_EMBEDDING_QWEN_MODEL",
-            default_value=os.environ.get(
-                "DEFAULT_EMBEDDING_QWEN_MODEL", "text-embedding-v2"
-            ),
-        )
-        params[DENSE_EMBED_PARAM_DIM] = user_settings.get_value(
-            key="EMBEDDING_QWEN_MODEL_DIMENSION",
-            default_value=os.environ.get("EMBEDDING_QWEN_MODEL_DIMENSION", 1536),
-        )
+        if context.is_svc:
+            params[DENSE_EMBED_PARAM_MODEL] = user_settings.get_value(
+                key="DEFAULT_EMBEDDING_QWEN_MODEL",
+                default_value=os.environ.get(
+                    "DEFAULT_EMBEDDING_QWEN_MODEL", "text-embedding-v2"
+                ),
+            )
+            params[DENSE_EMBED_PARAM_DIM] = user_settings.get_value(
+                key="EMBEDDING_QWEN_MODEL_DIMENSION",
+                default_value=os.environ.get("EMBEDDING_QWEN_MODEL_DIMENSION", 1536),
+            )
+        else:
+            value = os.environ.get("DEFAULT_EMBEDDING_QWEN_MODEL", None)
+            if value is None or value == "":
+                value = user_settings.get_value(
+                    key="DEFAULT_EMBEDDING_QWEN_MODEL",
+                    default_value="text-embedding-v2",
+                )
+            params[DENSE_EMBED_PARAM_MODEL] = value
+
+            value = os.environ.get("EMBEDDING_QWEN_MODEL_DIMENSION", None)
+            if value is None or value == "":
+                value = user_settings.get_value(
+                    key="EMBEDDING_QWEN_MODEL_DIMENSION", default_value=1536
+                )
+            params[DENSE_EMBED_PARAM_DIM] = value
         return params

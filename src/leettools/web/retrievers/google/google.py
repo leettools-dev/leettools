@@ -262,7 +262,7 @@ class GoogleSearch(AbstractRetriever):
             )
             return None
 
-        display_logger.debug(f"Google API response: {resp.text}")
+        display_logger.noop(f"Google API response: {resp.text}", noop_lvl=2)
 
         search_results_dict = None
         try:

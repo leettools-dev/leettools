@@ -36,13 +36,13 @@ class EmbedderSettings(BaseModel):
     )
 
 
-def get_embedder_settings_for_user(context: Context, user: User) -> EmbedderSettings:
+def _get_embedder_settings_for_user(context: Context, user: User) -> EmbedderSettings:
     """
     Get the default embedder params for the user. If no user settings are found,
     use the system default settings.
 
-    This function should be in sync with the constructor of the default dense embedder,
-    currently DenseEmbedderOpenAI.
+    If used in cli, the values from the environment variables have higher priority;
+    if used in svc, the values from the user settings have higher priority.
     """
 
     user_settings_store = context.get_user_settings_store()
@@ -52,39 +52,87 @@ def get_embedder_settings_for_user(context: Context, user: User) -> EmbedderSett
     # get_user_configurable_settings() method
     user_settings = user_settings_store.get_settings_for_user(user)
 
-    embedder_type_item = user_settings.settings.get("DEFAULT_EMBEDDER_TYPE", None)
-    if embedder_type_item is not None:
-        embedder_type = embedder_type_item.value
+    embedder_type_us = user_settings.get_value("DEFAULT_EMBEDDER_TYPE", None)
+    embedder_type_env = settings.DEFAULT_SEGMENT_EMBEDDER_TYPE
+    dense_embedder_us = user_settings.get_value("DEFAULT_DENSE_EMBEDDER", None)
+    dense_embedder_env = settings.DEFAULT_DENSE_EMBEDDER
+    sparse_embedder_us = user_settings.get_value("DEFAULT_SPARSE_EMBEDDER", None)
+    sparse_embedder_env = settings.DEFAULT_SPARSE_EMBEDDER
+
+    if context.is_svc:
+        # user setting has higher priority
+        if embedder_type_us is not None and embedder_type_us != "":
+            embedder_type = SegmentEmbedderType(embedder_type_us)
+        else:
+            embedder_type = SegmentEmbedderType(embedder_type_env)
+
+        # right now we always have a dense embedder
+        if dense_embedder_us is not None and dense_embedder_us != "":
+            dense_embedder = dense_embedder_us
+        else:
+            dense_embedder = dense_embedder_env
+
+        dense_embeder_class: AbstractDenseEmbedder = get_dense_embedder_class(
+            dense_embedder, settings
+        )
+        dense_embedder_params = dense_embeder_class.get_default_params(context, user)
+        if embedder_type == SegmentEmbedderType.SIMPLE:
+            return EmbedderSettings(
+                embedder_type=embedder_type,
+                dense_embedder=dense_embedder,
+                dense_embedder_params=dense_embedder_params,
+            )
+
+        if embedder_type != SegmentEmbedderType.HYBRID:
+            raise exceptions.UnexpectedCaseException(
+                f"Unknown embedder type: {embedder_type}"
+            )
+
+        if sparse_embedder_us is not None and sparse_embedder_us.value != "":
+            sparse_embedder = sparse_embedder_us
+        else:
+            sparse_embedder = sparse_embedder_env
+
+        sparse_embedder_class: AbstractSparseEmbedder = get_sparse_embedder_class(
+            sparse_embedder, settings
+        )
+        sparse_embedder_params = sparse_embedder_class.get_default_params(context, user)
     else:
-        embedder_type = settings.DEFAULT_SEGMENT_EMBEDDER_TYPE
+        # cli has higher priority
+        if embedder_type_env is not None and embedder_type_env != "":
+            embedder_type = SegmentEmbedderType(embedder_type_env)
+        else:
+            embedder_type = SegmentEmbedderType(embedder_type_us)
 
-    # right now we always have a dense embedder
-    dense_embedder = user_settings.get_value(
-        key="DEFAULT_DENSE_EMBEDDER", default_value=settings.DEFAULT_DENSE_EMBEDDER
-    )
-    dense_embeder_class: AbstractDenseEmbedder = get_dense_embedder_class(
-        dense_embedder, settings
-    )
-    dense_embedder_params = dense_embeder_class.get_default_params(context, user)
-    if embedder_type == SegmentEmbedderType.SIMPLE:
-        return EmbedderSettings(
-            embedder_type=embedder_type,
-            dense_embedder=dense_embedder,
-            dense_embedder_params=dense_embedder_params,
+        if dense_embedder_env is not None and dense_embedder_env != "":
+            dense_embedder = dense_embedder_env
+        else:
+            dense_embedder = dense_embedder_us
+
+        dense_embeder_class: AbstractDenseEmbedder = get_dense_embedder_class(
+            dense_embedder, settings
         )
+        dense_embedder_params = dense_embeder_class.get_default_params(context, user)
+        if embedder_type == SegmentEmbedderType.SIMPLE:
+            return EmbedderSettings(
+                embedder_type=embedder_type,
+                dense_embedder=dense_embedder,
+                dense_embedder_params=dense_embedder_params,
+            )
 
-    if embedder_type != SegmentEmbedderType.HYBRID:
-        raise exceptions.UnexpectedCaseException(
-            f"Unknown embedder type: {embedder_type}"
+        if embedder_type != SegmentEmbedderType.HYBRID:
+            raise exceptions.UnexpectedCaseException(
+                f"Unknown embedder type: {embedder_type}"
+            )
+
+        if sparse_embedder_env is not None and sparse_embedder_env != "":
+            sparse_embedder = sparse_embedder_env
+        else:
+            sparse_embedder = sparse_embedder_us
+
+        sparse_embedder_class: AbstractSparseEmbedder = get_sparse_embedder_class(
+            sparse_embedder, settings
         )
-
-    sparse_embedder = user_settings.get_value(
-        key="DEFAULT_SPARSE_EMBEDDER", default_value=settings.DEFAULT_SPARSE_EMBEDDER
-    )
-    sparse_embedder_class: AbstractSparseEmbedder = get_sparse_embedder_class(
-        sparse_embedder, settings
-    )
-    sparse_embedder_params = sparse_embedder_class.get_default_params(context, user)
 
     return EmbedderSettings(
         embedder_type=embedder_type,
@@ -118,22 +166,37 @@ def set_kb_create_embedder_params(
 
     embedder_settings = None
     if kb_create.embedder_type is None or kb_create.embedder_type == "":
-        embedder_settings = get_embedder_settings_for_user(context, user)
+        display_logger.debug(
+            "No embedder type is set in KBCreate, using user settings."
+        )
+        embedder_settings = _get_embedder_settings_for_user(context, user)
         kb_create.embedder_type = embedder_settings.embedder_type
         kb_create.dense_embedder = embedder_settings.dense_embedder
         kb_create.dense_embedder_params = embedder_settings.dense_embedder_params
         kb_create.sparse_embedder = embedder_settings.sparse_embedder
         kb_create.sparse_embedder_params = embedder_settings.sparse_embedder_params
     else:
+        display_logger.debug(
+            f"Embedder type is set in KBCreate: {kb_create.embedder_type}"
+        )
         if kb_create.dense_embedder is None or kb_create.dense_embedder == "":
-            embedder_settings = get_embedder_settings_for_user(context, user)
+            display_logger.debug(
+                "No dense embedder is set in KBCreate, using user settings."
+            )
+            embedder_settings = _get_embedder_settings_for_user(context, user)
             kb_create.dense_embedder = embedder_settings.dense_embedder
             kb_create.dense_embedder_params = embedder_settings.dense_embedder_params
         else:
+            display_logger.debug(
+                f"Dense embedder is set in KBCreate: {kb_create.dense_embedder}"
+            )
             if (
                 kb_create.dense_embedder_params == None
                 or kb_create.dense_embedder_params == {}
             ):
+                display_logger.debug(
+                    "No dense embedder params are set in KBCreate, using default params."
+                )
                 dense_embedder_class: AbstractDenseEmbedder = get_dense_embedder_class(
                     kb_create.dense_embedder, settings
                 )
@@ -142,20 +205,22 @@ def set_kb_create_embedder_params(
                 )
             else:
                 # the dense embedder params are passed in, just use them
-                pass
+                display_logger.debug(
+                    f"Dense embedder params are set in KBCreate: {kb_create.dense_embedder_params}"
+                )
 
     display_logger.info(
-        f"Embedder type for KB {kb_create.name} is {kb_create.embedder_type}"
+        f"Final value: Embedder type for KB {kb_create.name} is {kb_create.embedder_type}"
     )
     display_logger.info(
-        f"Dense Embedder for KB {kb_create.name} is "
+        f"Final value: Dense Embedder for KB {kb_create.name} is "
         f"{kb_create.dense_embedder} and params {kb_create.dense_embedder_params}"
     )
 
     if kb_create.embedder_type == SegmentEmbedderType.HYBRID:
         if kb_create.sparse_embedder is None or kb_create.sparse_embedder == "":
             if embedder_settings == None:
-                embedder_settings = get_embedder_settings_for_user(context, user)
+                embedder_settings = _get_embedder_settings_for_user(context, user)
             kb_create.sparse_embedder = embedder_settings.sparse_embedder
             kb_create.sparse_embedder_params = embedder_settings.sparse_embedder_params
         else:

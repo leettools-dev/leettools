@@ -85,9 +85,18 @@ class DenseEmbedderSentenceTransformer(AbstractDenseEmbedder):
         user_settings = user_settings_store.get_settings_for_user(user)
         params: Dict[str, Any] = {}
 
-        params[DENSE_EMBED_PARAM_MODEL] = user_settings.get_value(
-            key="DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME",
-            default_value=settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME,
-        )
+        if context.is_svc:
+            params[DENSE_EMBED_PARAM_MODEL] = user_settings.get_value(
+                key="DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME",
+                default_value=settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME,
+            )
+        else:
+            value = settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME
+            if value is None or value == "":
+                value = user_settings.get_value(
+                    key="DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME",
+                    default_value="sentence-transformers/all-MiniLM-L6-v2",
+                )
+            params[DENSE_EMBED_PARAM_MODEL] = value
 
         return params

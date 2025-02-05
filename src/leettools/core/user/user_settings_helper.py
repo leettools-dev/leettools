@@ -15,12 +15,15 @@ def _get_settings_value(
     value = user_settings.settings[first_key].value
     username = user_settings.username
     if value is None or value == "":
-        logger().debug(f"No first key {first_key} user settings of {username}.")
+        logger().noop(
+            f"No first key {first_key} user settings of {username}.", noop_lvl=1
+        )
         if second_key is not None:
             value = user_settings.settings[second_key].value
             if value is None or value == "":
-                logger().debug(
-                    f"No second key {second_key} user settings of {username}."
+                logger().noop(
+                    f"No second key {second_key} user settings of {username}.",
+                    noop_lvl=1,
                 )
             else:
                 logger().debug(
@@ -64,7 +67,7 @@ def get_value_from_settings(
     if value is not None and value != "":
         return value
 
-    logger().debug(f"Checking admin settings ...")
+    logger().noop(f"Checking admin settings ...", noop_lvl=1)
     admin_user = context.get_user_store().get_user_by_name(User.ADMIN_USERNAME)
     admin_user_settings = context.get_user_settings_store().get_settings_for_user(
         admin_user
@@ -77,7 +80,7 @@ def get_value_from_settings(
     if value is not None and value != "":
         return value
 
-    logger().debug(f"Checking system settings variable {default_env} ...")
+    logger().noop(f"Checking system settings variable {default_env} ...", noop_lvl=1)
     try:
         value = context.settings.__getattribute__(default_env)
         if value is not None and value != "":

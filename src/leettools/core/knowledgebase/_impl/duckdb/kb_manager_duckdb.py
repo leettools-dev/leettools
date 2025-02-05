@@ -6,7 +6,6 @@ from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.common.utils import time_utils
-from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.knowledgebase._impl.duckdb.kb_duckdb_schema import KBDuckDBSchema
 from leettools.core.knowledgebase.kb_manager import AbstractKBManager
 from leettools.core.repo.repo_manager import RepoManager
@@ -19,14 +18,6 @@ from leettools.core.schemas.knowledgebase import (
 )
 from leettools.core.schemas.organization import Org
 from leettools.core.user.user_store import AbstractUserStore
-from leettools.eds.str_embedder.dense_embedder import (
-    AbstractDenseEmbedder,
-    get_dense_embedder_class,
-)
-from leettools.eds.str_embedder.sparse_embedder import (
-    AbstractSparseEmbedder,
-    get_sparse_embedder_class,
-)
 from leettools.eds.str_embedder.utils.embedder_settings import (
     set_kb_create_embedder_params,
 )
