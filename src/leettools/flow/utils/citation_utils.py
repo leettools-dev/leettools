@@ -151,9 +151,12 @@ def create_reference_section(
         return reference_section
 
     if reference_style != "default":
-        display_logger.warning(
-            f"Unknown reference style {reference_style}. Use the default style."
-        )
+        if reference_style == None or reference_style == "":
+            display_logger.debug("No reference_style specified. Using default.")
+        else:
+            display_logger.info(
+                f"Unknown reference style {reference_style}. Use the default style."
+            )
         reference_style = "default"
 
     # for default style, we just show the cited items with a simple link
@@ -210,9 +213,13 @@ def reorder_cited_source_items(
                 reorder_id += 1
     else:
         if reference_style != "default":
-            display_logger.warning(
-                f"Unknown reference style {reference_style}. Use the default style."
-            )
+            if reference_style == None or reference_style == "":
+                display_logger.debug("No reference_style specified. Using default.")
+            else:
+                display_logger.info(
+                    f"Unknown reference style {reference_style}. Use the default style."
+                )
+            reference_style = "default"
         # index mapping from the old index to the new index
         reorder_id = 1
         # the key is the uri, the value is the new index
@@ -292,9 +299,13 @@ def replace_reference_in_result(
             replacement = ""
         else:
             if reference_style != "default":
-                display_logger.warning(
-                    f"Unknown reference style {reference_style}. Use the default style."
-                )
+                if reference_style == None or reference_style == "":
+                    display_logger.debug("No reference_style specified. Using default.")
+                else:
+                    display_logger.info(
+                        f"Unknown reference style {reference_style}. Use the default style."
+                    )
+                reference_style = "default"
             replacement = f"[{new_index}_XYZUVW]"
         result = re.sub(pattern, replacement, result)
 
