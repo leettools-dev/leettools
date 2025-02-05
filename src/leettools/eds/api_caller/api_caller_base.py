@@ -104,9 +104,11 @@ class APICallerBase:
                 api_provider_config=self.api_provider_config,
             )
             if self.model_name is None:
-                self.model_name = context.settings.DEFAULT_INFERENCE_MODEL
+                self.model_name = api_utils.get_default_inference_model_for_user(
+                    context, self.user
+                )
                 self.display_logger.debug(
-                    f"Using system default model {self.model_name} for {strategy_section.section_name}."
+                    f"Using default model {self.model_name} for {strategy_section.section_name}."
                 )
             else:
                 self.display_logger.debug(
@@ -132,9 +134,11 @@ class APICallerBase:
                 api_provider_config=self.api_provider_config,
             )
             if self.model_name is None:
-                self.model_name = context.settings.DEFAULT_RERANK_MODEL
+                self.model_name = api_utils.get_default_rerank_model_for_user(
+                    context, self.user
+                )
                 self.display_logger.debug(
-                    f"Using system default model {self.model_name} for {strategy_section.section_name}."
+                    f"Using default model {self.model_name} for {strategy_section.section_name}."
                 )
             else:
                 self.display_logger.debug(

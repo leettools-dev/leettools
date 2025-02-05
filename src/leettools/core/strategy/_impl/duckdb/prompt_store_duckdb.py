@@ -78,7 +78,8 @@ class PromptStoreDuckDB(AbstractPromptStore):
         )
         if result is not None:
             logger().noop(
-                f"Found existing prompt with the same values hash: {prompt_create_str}"
+                f"Found existing prompt with the same values hash: {prompt_create_str}",
+                noop_lvl=1,
             )
             return self._dict_to_prompt(result)
 

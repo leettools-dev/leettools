@@ -138,8 +138,20 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
         return self.embedding_model_dimension
 
     @classmethod
-    def get_default_params(cls, settings: SystemSettings) -> Dict[str, Any]:
+    def get_default_params(cls, context: Context, user: User) -> Dict[str, Any]:
+        if user is None:
+            user = User.get_admin_user()
+        settings = context.settings
+        user_settings_store = context.get_user_settings_store()
+        user_settings = user_settings_store.get_settings_for_user(user)
         params: Dict[str, Any] = {}
-        params[DENSE_EMBED_PARAM_MODEL] = settings.DEFAULT_EMBEDDING_MODEL
-        params[DENSE_EMBED_PARAM_DIM] = settings.EMBEDDING_MODEL_DIMENSION
+
+        params[DENSE_EMBED_PARAM_MODEL] = user_settings.get_value(
+            key="DEFAULT_EMBEDDING_MODEL",
+            default_value=settings.DEFAULT_EMBEDDING_MODEL,
+        )
+        params[DENSE_EMBED_PARAM_DIM] = user_settings.get_value(
+            key="EMBEDDING_MODEL_DIMENSION",
+            default_value=settings.EMBEDDING_MODEL_DIMENSION,
+        )
         return params

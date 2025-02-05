@@ -86,9 +86,10 @@ def create_manager_with_repo_type(
     else:
         full_module_name = module_name
 
-    logger().debug(
+    logger().noop(
         f"Creating manager object with name {manager_name}, repo type {repo_type}, "
-        f"and module name {full_module_name}"
+        f"and module name {full_module_name}",
+        noop_lvl=1,
     )
 
     return create_object(

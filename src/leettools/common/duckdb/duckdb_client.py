@@ -26,7 +26,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             self._lock = Lock()
             self.table_locks = {}
 
-            logger().debug(f"Connecting to DuckDB at {self.db_path}")
+            logger().info(f"Connecting to DuckDB at {self.db_path}")
 
             try:
                 self.conn = duckdb.connect(str(self.db_path))
@@ -78,7 +78,9 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 INSERT INTO {table_name} ({",".join(column_list)})
                 VALUES {placeholders}
             """
-            logger().noop(f"batch_insert_into_table SQL: {insert_sql}")
+            logger().noop(
+                f"SQL Statement batch_insert_into_table: {insert_sql}", noop_lvl=1
+            )
             with self._get_table_lock(table_name):
                 cursor.execute(insert_sql, flattened_values)
 
@@ -155,7 +157,10 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                     create_table_sql = self._get_create_table_sql(
                         new_schema_name, new_table_name, columns
                     )
-                    logger().noop(f"SQL Statement create_table_sql: {create_table_sql}")
+                    logger().noop(
+                        f"SQL Statement create_table_sql: {create_table_sql}",
+                        noop_lvl=1,
+                    )
                     cursor.execute(create_table_sql)
                 self.created_tables[table_key] = f"{new_schema_name}.{new_table_name}"
                 return self.created_tables[table_key]
@@ -167,7 +172,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             delete_sql = f"DELETE FROM {table_name}"
             if where_clause is not None:
                 delete_sql += f" {where_clause}"
-            logger().noop(f"SQL Statement delete_sql: {delete_sql}")
+            logger().noop(f"SQL Statement delete_sql: {delete_sql}", noop_lvl=1)
             with self._get_table_lock(table_name):
                 if value_list is not None:
                     cursor.execute(delete_sql, value_list)
@@ -223,7 +228,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 SELECT {column_str} FROM {table_name} 
                 {where_clause}
                 """
-            logger().noop(f"SQL Statement  select_sql: {select_sql}")
+            logger().noop(f"SQL Statement select_sql: {select_sql}", noop_lvl=1)
             with self._get_table_lock(table_name):
                 if value_list is not None:
                     results = cursor.execute(select_sql, value_list).fetchall()
@@ -296,6 +301,6 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             update_sql = f"UPDATE {table_name} SET {set_clause} "
             if where_clause is not None:
                 update_sql += f"{where_clause}"
-            logger().noop(f"SQL Statement update_sql: {update_sql}")
+            logger().noop(f"SQL Statement update_sql: {update_sql}", noop_lvl=1)
             with self._get_table_lock(table_name):
                 cursor.execute(update_sql, value_list)

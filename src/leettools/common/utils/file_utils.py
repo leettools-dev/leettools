@@ -85,10 +85,10 @@ def redact_api_key(api_key: str) -> str:
     Redact an API key by replacing all but the last 4 characters with asterisks.
 
     Args:
-        api_key (str): The API key to redact.
+    - api_key (str): The API key to redact.
 
     Returns:
-        str: The redacted API key.
+    - str: The redacted API key.
     """
     asterisks = "******"
     if len(api_key) <= 6:

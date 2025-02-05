@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-
 import inspect
+import io
 import logging
 import os
 import sys
@@ -13,17 +11,15 @@ thread_local = threading.local()
 
 
 class EventLogger:
-    """This is an event logger wrapper.
-
-    Args:
-        name (str): The name of the logger.
-
+    """
+    This is an event logger wrapper.
     """
 
     # todo: the value is Logger, need to figure out how to type hint
     __instances: Dict[str, "EventLogger"] = {}
 
     global_default_level: str = os.environ.get("EDS_LOG_LEVEL", "INFO")
+    default_encoding: str = os.environ.get("EDS_LOG_ENCODING", "utf-8")
 
     @staticmethod
     def set_global_default_level(level: str) -> None:
@@ -52,10 +48,10 @@ class EventLogger:
         """Get the unique single logger instance based on name.
 
         Args:
-            name (str): The name of the logger.
+        - name (str): The name of the logger.
 
         Returns:
-            EventLogger: An EventLogger object
+        - EventLogger: An EventLogger object
         """
         if name in EventLogger.__instances:
             return EventLogger.__instances[name]
@@ -68,10 +64,10 @@ class EventLogger:
         """Remove the single logger instance based on name.
 
         Args:
-            name (str): The name of the logger.
+        - name (str): The name of the logger.
 
         Returns:
-            EventLogger: An EventLogger object
+        - EventLogger: An EventLogger object
         """
         # TOCHECK: should we worry about race conditions?
         if name in EventLogger.__instances:
@@ -88,7 +84,7 @@ class EventLogger:
         """Get the default formatter with no rich formatting.
 
         Returns:
-            logging.Formatter: The default formatter.
+        - logging.Formatter: The default formatter.
         """
         fmt = "[%(asctime)s.%(msecs)03d] %(levelname)s %(message)s"
         datefmt = "%d/%m/%y %H:%M:%S"
@@ -101,9 +97,27 @@ class EventLogger:
                 "Logger with the same name exists, you should use leettools.logging.get_logger"
             )
         else:
-            handler = None
+            env_log_noop_level = os.getenv("EDS_LOG_NOOP_LEVEL")
+            if env_log_noop_level is not None:
+                try:
+                    log_noop_value = int(env_log_noop_level)
+                    self.log_noop_level = log_noop_value
+                except ValueError:
+                    self.log_noop_level = 0
+            else:
+                self.log_noop_level = 0
 
+            handler = None
+            stdout_wrapper = sys.stdout
+            # io.TextIOWrapper(
+            #     sys.stdout.buffer, encoding="utf-8", line_buffering=True
+            # )
+            stderr_wrapper = sys.stderr
+            # io.TextIOWrapper(
+            #     sys.stderr.buffer, encoding="utf-8", line_buffering=True
+            # )
             try:
+                # enable utf-8 encoding for stdout and stderr
                 if os.getenv(f"EDS_LOGGING_ENABLE_RICH"):
                     from rich.logging import Console, RichHandler
 
@@ -118,15 +132,15 @@ class EventLogger:
                     handler.setFormatter(formatter)
                 else:
                     if os.getenv("EDS_LOGGING_TO_STDERR"):
-                        handler = logging.StreamHandler(stream=sys.stderr)
+                        handler = logging.StreamHandler(stream=stderr_wrapper)
                     else:
-                        handler = logging.StreamHandler(stream=sys.stdout)
+                        handler = logging.StreamHandler(stream=stdout_wrapper)
                     handler.setFormatter(self.get_default_formatter())
             except Exception as e:
                 if os.getenv("EDS_LOGGING_TO_STDERR"):
-                    handler = logging.StreamHandler(stream=sys.stderr)
+                    handler = logging.StreamHandler(stream=stderr_wrapper)
                 else:
-                    handler = logging.StreamHandler(stream=sys.stdout)
+                    handler = logging.StreamHandler(stream=stdout_wrapper)
                 handler.setFormatter(self.get_default_formatter())
 
             self._name = name
@@ -219,10 +233,10 @@ class EventLogger:
         """Save the logs to a dir
 
         Args:
-            dir (A string or pathlib.Path object): The directory to save the log.
-            mode (str): The mode to write log into the file.
-            level (str): Can only be INFO, DEBUG, WARNING and ERROR. If None, use current logger level.
-            filename (str): a log filename, default is 'events.log'.
+        - dir (A string or pathlib.Path object): The directory to save the log.
+        - mode (str): The mode to write log into the file.
+        - level (str): Can only be INFO, DEBUG, WARNING and ERROR. If None, use current logger level.
+        - filename (str): a log filename, default is 'events.log'.
         """
         assert isinstance(
             dir, (str, Path)
@@ -242,7 +256,9 @@ class EventLogger:
         log_file = dir.joinpath(filename)
 
         # add file handler
-        file_handler = logging.FileHandler(log_file, mode)
+        file_handler = logging.FileHandler(
+            filename=log_file, mode=mode, encoding=self.default_encoding
+        )
         file_handler.setLevel(log_level)
         file_handler.setFormatter(self.get_default_formatter())
         self._logger.addHandler(file_handler)
@@ -253,7 +269,7 @@ class EventLogger:
         """Get the default handler of the logger.
 
         Returns:
-            RichHandler: The default handler of the logger.
+        - RichHandler: The default handler of the logger.
         """
         return self._default_handler
 
@@ -330,15 +346,18 @@ class EventLogger:
         """
         self._log("error", self._get_full_massage(message))
 
-    def noop(self, message: str) -> None:
+    def noop(self, message: str, noop_lvl: Optional[int] = 1) -> None:
         """No-op, for place holders and temporary logging.
 
         Args:
-            message (str): The message to be logged.
+        - message (str): The message to be logged.
+        - noop_lvl (int): The level of the no-op, default is 1. The higher the level,
+            more verbose the message. The default noop level is 0 so all noop messages
+            are ignored.
         """
-        # TODO: using an env variable to enable this most verbose logging
-        # but we do not want to check the environment every time we call this function
-        # self._log("info", self._get_full_massage(message))
+
+        if noop_lvl <= self.log_noop_level:
+            self._log("debug", self._get_full_massage(message))
         return
 
 

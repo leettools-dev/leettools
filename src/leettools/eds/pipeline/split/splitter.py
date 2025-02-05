@@ -147,7 +147,9 @@ class Splitter:
             api_provider_config=api_provider_config,
         )
         model_options = {}
-        model_name = self.settings.DEFAULT_INFERENCE_MODEL
+        model_name = api_utils.get_default_inference_model_for_user(
+            context=self.context, user=self.user
+        )
         try:
             (context_summary, _) = api_utils.run_inference_call_direct(
                 context=self.context,

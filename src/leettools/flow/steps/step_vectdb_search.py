@@ -164,19 +164,19 @@ class StepVectorSearch(AbstractStep):
             default_value=None,
             display_logger=display_logger,
         )
-        if docsource_uuid is not None:
+        if docsource_uuid:
             docsink_store = context.get_repo_manager().get_docsink_store()
             docsource_store = context.get_repo_manager().get_docsource_store()
             try:
                 docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
                 if docsource is None:
                     display_logger.debug(
-                        f"DocSource not found for docsource_uuid: {docsource_uuid}"
+                        f"VectorSearch: DocSource not found for docsource_uuid {docsource_uuid}"
                     )
                     return []
             except Exception as e:
                 display_logger.debug(
-                    f"DocSource not found for docsource_uuid: {docsource_uuid}: {e}"
+                    f"Exception when search for docsource_uuid: {docsource_uuid}: {e}"
                 )
                 return []
             docsinks = docsink_store.get_docsinks_for_docsource(org, kb, docsource)

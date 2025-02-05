@@ -50,11 +50,15 @@ class IntentionGetterDynamic(AbstractIntentionGetter, APICallerBase):
             self.user_prompt_template,
             {"question": question, "intention_list": self.intention_list},
         )
-        self.display_logger.debug(f"final user_prompt for intention: {user_prompt}")
+        self.display_logger.noop(
+            f"final user_prompt for intention: {user_prompt}", noop_lvl=2
+        )
 
         # right now we do not have any variables in the system prompt
         system_prompt = render_template(self.system_prompt_template, {})
-        self.display_logger.debug(f"final system_prompt for intention: {system_prompt}")
+        self.display_logger.noop(
+            f"final system_prompt for intention: {system_prompt}", noop_lvl=2
+        )
 
         try:
             response_str, completion = self.run_inference_call(

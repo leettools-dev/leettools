@@ -6,7 +6,6 @@ from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import config_utils, file_utils
 from leettools.context_manager import Context
 from leettools.core.consts import flow_option
-from leettools.core.consts.retriever_type import RetrieverType
 from leettools.core.schemas.docsink import DocSinkCreate
 from leettools.core.schemas.docsource import DocSource
 from leettools.core.schemas.knowledgebase import KnowledgeBase
@@ -115,10 +114,10 @@ local storage.
         """
         Gets the new urls from the given url set.
         Args:
-            url_list (list[str]): The url list to check
+        - url_list (list[str]): The url list to check
 
         Returns:
-            list[str]: The new urls from the given url set
+        - list[str]: The new urls from the given url set
         """
 
         new_urls = []

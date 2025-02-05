@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.logging import logger
+from leettools.common.utils.config_utils import value_to_bool
 from leettools.common.utils.obj_utils import add_fieldname_constants
 
 
@@ -56,6 +58,39 @@ class UserSettings(UserSettingsCreate):
     updated_at: Optional[datetime] = Field(
         None, description="The time the settings was updated."
     )
+
+    def get_value(self, key: str, default_value: Any) -> Optional[Any]:
+        setting_item: UserSettingsItem = self.settings.get(key)
+        if setting_item is None:
+            return default_value
+        value = setting_item.value
+        if value is None:
+            value = setting_item.default_value
+
+        if setting_item.value_type == "int":
+            try:
+                return_value = int(value)
+            except ValueError:
+                return default_value
+            return return_value
+
+        if setting_item.value_type == "float":
+            try:
+                return_value = float(value)
+            except ValueError:
+                return default_value
+            return return_value
+
+        if setting_item.value_type == "bool":
+            return value_to_bool(value)
+
+        if setting_item.value_type == "str":
+            return value
+
+        logger().warning(
+            f"Unsupported value type {setting_item.value_type} for key {key}"
+        )
+        return value
 
 
 @dataclass

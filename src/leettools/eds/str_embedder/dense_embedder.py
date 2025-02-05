@@ -105,12 +105,13 @@ class AbstractDenseEmbedder(ABC):
 
     @classmethod
     @abstractmethod
-    def get_default_params(cls, settings: SystemSettings) -> Dict[str, Any]:
+    def get_default_params(cls, context: Context, user: User) -> Dict[str, Any]:
         """
-        Returns the default parameters for the embedding model or service.
+        Returns the default parameters for the embedding model or service. If no user
+        settings are found, use the system default settings.
 
         Returns:
-            dict: The default parameters for the embedding model or service.
+        - dict: The default parameters for the embedding model or service.
         """
         pass
 
