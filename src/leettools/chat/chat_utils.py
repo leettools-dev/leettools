@@ -5,7 +5,6 @@ from leettools.chat.schemas.chat_history import CHCreate
 from leettools.common.exceptions import EntityNotFoundException
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context
-from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.schemas.chat_query_item import ChatQueryItem, ChatQueryItemCreate
 from leettools.core.schemas.chat_query_options import ChatQueryOptions
 from leettools.core.schemas.knowledgebase import KBCreate
@@ -68,10 +67,8 @@ def setup_exec_info_base(
             kb_description = f"Created by auto setup."
         if ad_hoc_kb:
             auto_schedule = False
-            embedder_type = SegmentEmbedderType.SIMPLE
         else:
             auto_schedule = True
-            embedder_type = SegmentEmbedderType.HYBRID
 
         kb = kb_manager.add_kb(
             org,
@@ -80,7 +77,6 @@ def setup_exec_info_base(
                 description=kb_description,
                 user_uuid=user.user_uuid,
                 auto_schedule=auto_schedule,
-                embedder_type=embedder_type,
                 enable_contextual_retrieval=context.settings.ENABLE_CONTEXTUAL_RETRIEVAL,
             ),
         )

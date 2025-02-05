@@ -102,19 +102,19 @@ class LocalSearch(AbstractRetriever):
             default_value=None,
             display_logger=display_logger,
         )
-        if docsource_uuid is not None:
+        if docsource_uuid is not None and docsource_uuid != "":
             docsink_store = context.get_repo_manager().get_docsink_store()
             docsource_store = context.get_repo_manager().get_docsource_store()
             try:
                 docsource = docsource_store.get_docsource(org, kb, docsource_uuid)
                 if docsource is None:
                     display_logger.debug(
-                        f"DocSource not found for docsource_uuid: {docsource_uuid}"
+                        f"LocalSearch: DocSource not found for docsource_uuid {docsource_uuid}"
                     )
                     return []
             except Exception as e:
                 display_logger.debug(
-                    f"DocSource not found for docsource_uuid: {docsource_uuid}: {e}"
+                    f"LocalSearch: failed to lookup docsource {docsource_uuid}: {e}"
                 )
                 return []
 

@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
@@ -120,12 +119,14 @@ class TaskStoreDuckDB(AbstractTaskStore):
         where_clause = f"""
             WHERE {Task.FIELD_KB_ID}=? AND {Task.FIELD_ORG_ID}=? AND {Task.FIELD_IS_DELETED}=FALSE
         """
+        logger().info(f"get_all_tasks_for_kb: {kb.kb_id}, {org.org_id}")
         value_list = [kb.kb_id, org.org_id]
         rtn_list = self.duckdb_client.fetch_all_from_table(
             table_name=self.table_name,
             where_clause=where_clause,
             value_list=value_list,
         )
+        logger().info(f"get_all_tasks_for_kb: {rtn_list}")
         return [self._dict_to_task(dict(rtn_list[i])) for i in range(len(rtn_list))]
 
     def get_incomplete_tasks(self) -> List[Task]:

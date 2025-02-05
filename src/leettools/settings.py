@@ -1,5 +1,4 @@
 import os
-import traceback
 from pathlib import Path
 from typing import ClassVar, Dict, List
 
@@ -7,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from leettools.common import exceptions
 from leettools.common.logging import logger
+from leettools.common.utils import file_utils
 from leettools.common.utils.obj_utils import ENV_VAR_PREFIX, add_env_var_constants
 from leettools.core.schemas.user_settings import UserSettingsItem
 
@@ -25,10 +25,21 @@ PPTX_EXT = ".pptx"
 TXT_EXT = ".txt"
 XLSX_EXT = ".xlsx"
 XLS_EXT = ".xls"
+LOG_EXT = ".log"
 
 
 def supported_file_extensions() -> List[str]:
-    return [DOCX_EXT, HTML_EXT, MD_EXT, PDF_EXT, PPTX_EXT, TXT_EXT, XLSX_EXT, XLS_EXT]
+    return [
+        DOCX_EXT,
+        HTML_EXT,
+        MD_EXT,
+        PDF_EXT,
+        PPTX_EXT,
+        TXT_EXT,
+        LOG_EXT,
+        XLSX_EXT,
+        XLS_EXT,
+    ]
 
 
 def supported_audio_file_extensions() -> List[str]:
@@ -83,6 +94,7 @@ class SystemSettings(BaseModel):
     PROJECT_NAME: ClassVar[str] = "LeetTools"
     LEETAPI_PROJECT_NAME: ClassVar[str] = "LeetAPI"
     env_file: str = _default_env_file
+    is_production: bool = False
 
     ##########################################################################
     #
@@ -92,6 +104,10 @@ class SystemSettings(BaseModel):
 
     DATA_ROOT: str = Field(None, description="The root directory for all the data")
     LOG_ROOT: str = Field(None, description="The root directory for all the logs")
+    SINGLE_USER_MODE: bool = Field(
+        True,
+        description="Whether the system is running in single user mode, default True.",
+    )
     AUTH_ENABLED: bool = Field(
         False, description="Whether to enable the authentication"
     )
@@ -549,10 +565,16 @@ class SystemSettings(BaseModel):
             env_var = os.environ.get(env_var_name, None)
 
             if env_var is not None:
-                logger().debug(
-                    f"Setting from environment variable: {field_name}={env_var}"
-                )
+                redact = file_utils.redact_api_key(env_var)
+                logger().debug(f"Setting from env variable: {field_name}={redact}")
                 setattr(self, field_name, env_var)
+
+        if self.is_production:
+            logger().info(
+                f"Current system is running in production mode per EDS_IS_PRODUCTION."
+            )
+        else:
+            logger().info(f"Current system is running in development mode.")
 
         # set derived values that have not been set by env variables
 
@@ -595,9 +617,23 @@ class SystemSettings(BaseModel):
             "DEFAULT_INFERENCE_MODEL": UserSettingsItem(
                 section="RAG",
                 name="DEFAULT_INFERENCE_MODEL",
-                description="Default inference Model used in the inference process.",
+                description="Default inference model used in the inference process.",
                 default_value=self.DEFAULT_INFERENCE_MODEL,
                 value_type="str",
+            ),
+            "DEFAULT_EMBEDDING_MODEL": UserSettingsItem(
+                section="RAG",
+                name="DEFAULT_EMBEDDING_MODEL",
+                description="Default dense embedding model used in the embedding process.",
+                default_value=self.DEFAULT_EMBEDDING_MODEL,
+                value_type="str",
+            ),
+            "EMBEDDING_MODEL_DIMENSION": UserSettingsItem(
+                section="RAG",
+                name="EMBEDDING_MODEL_DIMENSION",
+                description="Dense embedding model dimension.",
+                default_value=str(self.EMBEDDING_MODEL_DIMENSION),
+                value_type="int",
             ),
             "EMBEDDING_API_KEY": UserSettingsItem(
                 section="RAG",
@@ -625,6 +661,13 @@ class SystemSettings(BaseModel):
                 name="RERANK_BASE_URL",
                 description="Base url used in the reranking process.",
                 default_value=None,
+                value_type="str",
+            ),
+            "DEFAULT_RERANK_MODEL": UserSettingsItem(
+                section="RAG",
+                name="DEFAULT_RERANK_MODEL",
+                description="Default rerank model used in the rerank process.",
+                default_value=self.DEFAULT_RERANK_MODEL,
                 value_type="str",
             ),
             "GOOGLE_API_KEY": UserSettingsItem(

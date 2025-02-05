@@ -75,6 +75,23 @@ def create_reference_section(
         display_logger=display_logger,
     )
 
+    display_mode = config_utils.get_str_option_value(
+        options=flow_options,
+        option_name=flow_option.FLOW_OPTION_DISPLAY_MODE,
+        default_value="cli",
+        display_logger=display_logger,
+    )
+
+    if display_mode == "cli":
+        newlines = "\n"
+    elif display_mode == "web":
+        newlines = "\n\n"
+    else:
+        display_logger.warning(
+            f"Unknown display mode {display_mode}. Use the default cli mode."
+        )
+        newlines = "\n"
+
     if reference_style == "news":
         # for news, we aggregate all the references from the same document together
         uris: Set[str] = set()
@@ -90,7 +107,7 @@ def create_reference_section(
             index += 1
             # We can add emojis here
             # the index is not shown in the article so the order does not matter
-            reference_section += f"[{index}] [{uri}]({uri})\n\n"
+            reference_section += f"[{index}] [{uri}]({uri}){newlines}"
         return reference_section
 
     if reference_style == "full":
@@ -118,25 +135,28 @@ def create_reference_section(
             )
             reference_section += (
                 f'<a id="reference-{index}"></a> [{index}] '
-                f"[{source_content}]({file_link})\n"
+                f"[{source_content}]({file_link}){newlines}"
             )
             if original_uri is not None:
                 if original_uri.startswith("http"):
-                    reference_section += f"[{original_uri}]({original_uri})\n\n"
+                    reference_section += f"[{original_uri}]({original_uri})\n{newlines}"
                 elif original_uri.startswith("/app/"):
                     uri_link = f"/#/file?uri={original_uri}"
-                    reference_section += f"[{original_uri}]({uri_link})\n\n"
+                    reference_section += f"[{original_uri}]({uri_link})\n{newlines}"
                 else:
-                    reference_section += f"[{original_uri}]({original_uri})\n\n"
+                    reference_section += f"[{original_uri}]({original_uri})\n{newlines}"
             else:
-                reference_section += f"\n"
+                reference_section += f"{newlines}"
 
         return reference_section
 
     if reference_style != "default":
-        display_logger.warning(
-            f"Unknown reference style {reference_style}. Use the default style."
-        )
+        if reference_style == None or reference_style == "":
+            display_logger.debug("No reference_style specified. Using default.")
+        else:
+            display_logger.info(
+                f"Unknown reference style {reference_style}. Use the default style."
+            )
         reference_style = "default"
 
     # for default style, we just show the cited items with a simple link
@@ -155,7 +175,7 @@ def create_reference_section(
         else:
             uri = doc_uri
 
-        reference_section += f"[{index}] [{uri}]({uri})\n"
+        reference_section += f"[{index}] [{uri}]({uri}){newlines}"
     return reference_section
 
 
@@ -193,9 +213,13 @@ def reorder_cited_source_items(
                 reorder_id += 1
     else:
         if reference_style != "default":
-            display_logger.warning(
-                f"Unknown reference style {reference_style}. Use the default style."
-            )
+            if reference_style == None or reference_style == "":
+                display_logger.debug("No reference_style specified. Using default.")
+            else:
+                display_logger.info(
+                    f"Unknown reference style {reference_style}. Use the default style."
+                )
+            reference_style = "default"
         # index mapping from the old index to the new index
         reorder_id = 1
         # the key is the uri, the value is the new index
@@ -275,9 +299,13 @@ def replace_reference_in_result(
             replacement = ""
         else:
             if reference_style != "default":
-                display_logger.warning(
-                    f"Unknown reference style {reference_style}. Use the default style."
-                )
+                if reference_style == None or reference_style == "":
+                    display_logger.debug("No reference_style specified. Using default.")
+                else:
+                    display_logger.info(
+                        f"Unknown reference style {reference_style}. Use the default style."
+                    )
+                reference_style = "default"
             replacement = f"[{new_index}_XYZUVW]"
         result = re.sub(pattern, replacement, result)
 

@@ -9,6 +9,7 @@ from leettools.core.strategy.schemas.strategy_section import (
     StrategySection,
     StrategySectionName,
 )
+from leettools.eds.api_caller.api_utils import get_default_inference_model_for_user
 from leettools.eds.pipeline.split.splitter import remove_heading_from_content
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
@@ -82,7 +83,9 @@ class StepExtendContext(AbstractStep):
                     f"Using model {inference_model_name} specified in the strategy for inference."
                 )
             else:
-                inference_model_name = settings.DEFAULT_INFERENCE_MODEL
+                inference_model_name = get_default_inference_model_for_user(
+                    context=context, user=exec_info.user
+                )
                 display_logger.debug(
                     f"Using the default model {inference_model_name} for inference."
                 )

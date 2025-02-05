@@ -416,10 +416,10 @@ class ConnectorSimple(AbstractConnector):
         Crawls the website and saves the content to a local folder.
 
         Args:
-        -    url: The URL of the website to be crawled.
-        -    crawled_urls: A dictionary of crawled URLs.
-        -    depth: The depth of the crawl.
-        -    ingest_config: The ingestion configuration.
+        - url: The URL of the website to be crawled.
+        - crawled_urls: A dictionary of crawled URLs.
+        - depth: The depth of the crawl.
+        - ingest_config: The ingestion configuration.
 
         """
         if ingest_config.extra_parameters is None:
@@ -555,7 +555,10 @@ class ConnectorSimple(AbstractConnector):
                 query_id = extra_parameters.get("query_id", None)
 
         if flow_options == {}:
-            retriever_type = RetrieverType(params["provider"])
+            try:
+                retriever_type = RetrieverType(params["provider"]).value
+            except KeyError:
+                retriever_type = RetrieverType.GOOGLE.value
             date_range_para = params.get("date_range", None)
             if date_range_para is None:
                 days_limit = 0

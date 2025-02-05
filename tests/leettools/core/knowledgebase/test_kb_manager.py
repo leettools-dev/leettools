@@ -4,6 +4,7 @@ from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSourceCreate
 from leettools.core.schemas.knowledgebase import KBCreate, KBUpdate, KnowledgeBase
 from leettools.core.schemas.organization import Org
+from leettools.core.schemas.user import User
 
 
 def test_kb_manager():
@@ -19,20 +20,22 @@ def test_kb_manager():
         org, kb, user = temp_setup.create_tmp_org_kb_user()
 
         try:
-            _test_function(context, org, kb)
-            _test_adhoc_kb(context, org, kb)
-            _test_kb_name(context, org, kb)
+            _test_function(context, org, kb, user)
+            _test_adhoc_kb(context, org, kb, user)
+            _test_kb_name(context, org, kb, user)
         finally:
             temp_setup.clear_tmp_org_kb_user(org, kb)
 
 
-def _test_function(context: Context, org: Org, kb: KnowledgeBase):
+def _test_function(context: Context, org: Org, kb: KnowledgeBase, user: User):
     kb_manager = context.get_kb_manager()
     ds_store = context.get_repo_manager().get_docsource_store()
 
     test_name = "test_kb_1"
     test_desc = "This is a test KB"
-    kb_create = KBCreate(name=test_name, description=test_desc)
+    kb_create = KBCreate(
+        name=test_name, description=test_desc, user_uuid=user.user_uuid
+    )
     kb_1 = kb_manager.add_kb(org, kb_create)
     assert kb_1.name == test_name
 
@@ -51,7 +54,12 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
         assert e.__class__.__name__ == "EntityExistsException"
 
     kb_2 = kb_manager.add_kb(
-        org, KBCreate(name="test_kb_2", description="This is a test KB 2")
+        org,
+        KBCreate(
+            name="test_kb_2",
+            description="This is a test KB 2",
+            user_uuid=user.user_uuid,
+        ),
     )
     assert kb_2 is not None
     assert kb_2.name == "test_kb_2"
@@ -115,13 +123,16 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     assert len(docsources) == 0
 
 
-def _test_adhoc_kb(context: Context, org: Org, kb: KnowledgeBase):
+def _test_adhoc_kb(context: Context, org: Org, kb: KnowledgeBase, user: User):
 
     kb_manager = context.get_kb_manager()
     adhoc_kb = kb_manager.add_kb(
         org,
         KBCreate(
-            name="adhoc_kb", description="This is an adhoc KB", auto_schedule=False
+            name="adhoc_kb",
+            description="This is an adhoc KB",
+            user_uuid=user.user_uuid,
+            auto_schedule=False,
         ),
     )
     assert adhoc_kb is not None
@@ -151,18 +162,26 @@ def _test_adhoc_kb(context: Context, org: Org, kb: KnowledgeBase):
     assert adhoc_kb_retrieved is None
 
 
-def _test_kb_name(context: Context, org: Org, kb: KnowledgeBase):
+def _test_kb_name(context: Context, org: Org, kb: KnowledgeBase, user: User):
 
     kb_manager = context.get_kb_manager()
     lower_case_name = "case_kb"
     lower_case_kb = kb_manager.add_kb(
         org,
-        KBCreate(name=lower_case_name, description="This is an adhoc KB"),
+        KBCreate(
+            name=lower_case_name,
+            user_uuid=user.user_uuid,
+            description="This is an adhoc KB",
+        ),
     )
     upper_case_name = "CASE_KB"
     upper_case_kb = kb_manager.add_kb(
         org,
-        KBCreate(name=upper_case_name, description="This is an adhoc KB"),
+        KBCreate(
+            name=upper_case_name,
+            user_uuid=user.user_uuid,
+            description="This is an adhoc KB",
+        ),
     )
     assert lower_case_kb.kb_id != upper_case_kb.kb_id
     assert lower_case_kb.name != upper_case_kb.name

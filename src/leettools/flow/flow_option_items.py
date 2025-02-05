@@ -565,12 +565,12 @@ def _reference_style(
         name=FLOW_OPTION_REFERENCE_STYLE,
         display_name="Reference Style",
         description=(
-            "The style of the references in the output article. Right now only "
-            "default and news are supported."
+            "The style of the references in the output article. Right now support "
+            "news, default, and full."
         ),
-        default_value="default",
+        default_value=None,
         value_type="str",
-        example_value="default",
+        example_value="full",
         multiline=False,
         explicit=explicit,
         required=required,
@@ -654,9 +654,9 @@ def _recursive_scrape_iteration(
             "When we do recursive scraping, we will not stop until we reach the max "
             "number of results or the number of iterations specified here."
         ),
-        default_value="False",
-        value_type="bool",
-        example_value="False",
+        default_value="3",
+        value_type="int",
+        example_value="3",
         multiline=False,
         explicit=explicit,
         required=required,
@@ -673,9 +673,9 @@ def _recursive_scrape_max_count(
             "When we do recursive scraping, we will not stop until we reach the number of "
             "max iterations or the max number of results specified here."
         ),
-        default_value="False",
-        value_type="bool",
-        example_value="False",
+        default_value="10",
+        value_type="int",
+        example_value="10",
         multiline=False,
         explicit=explicit,
         required=required,
@@ -726,7 +726,7 @@ def _query_docsource_uuid(
         description="The docsource uuid to run the query on when querying local KB.",
         default_value=None,
         value_type="str",
-        example_value="",
+        example_value=None,
         multiline=False,
         explicit=explicit,
         required=required,

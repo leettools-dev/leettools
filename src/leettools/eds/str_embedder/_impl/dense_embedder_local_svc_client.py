@@ -102,12 +102,38 @@ class DenseEmbedderLocalSvcClient(AbstractDenseEmbedder):
         return self.dimension
 
     @classmethod
-    def get_default_params(cls, settings: SystemSettings) -> Dict[str, Any]:
+    def get_default_params(cls, context: Context, user: User) -> Dict[str, Any]:
+        if user is None:
+            user = User.get_admin_user()
+        settings = context.settings
+        user_settings_store = context.get_user_settings_store()
+        user_settings = user_settings_store.get_settings_for_user(user)
         params: Dict[str, Any] = {}
-        params[DENSE_EMBED_PARAM_SVC] = (
-            settings.DEFAULT_DENSE_EMBEDDING_SERVICE_ENDPOINT
-        )
-        params[DENSE_EMBED_PARAM_MODEL] = (
-            settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME
-        )
+
+        if context.is_svc:
+            params[DENSE_EMBED_PARAM_SVC] = user_settings.get_value(
+                key="DEFAULT_DENSE_EMBEDDING_SERVICE_ENDPOINT",
+                default_value=settings.DEFAULT_DENSE_EMBEDDING_SERVICE_ENDPOINT,
+            )
+            params[DENSE_EMBED_PARAM_MODEL] = user_settings.get_value(
+                key="DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME",
+                default_value=settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME,
+            )
+        else:
+            value = settings.DEFAULT_DENSE_EMBEDDING_SERVICE_ENDPOINT
+            if value is None or value == "":
+                value = user_settings.get_value(
+                    key="DEFAULT_DENSE_EMBEDDING_SERVICE_ENDPOINT",
+                    default_value="http://localhost:8000/embed",
+                )
+            params[DENSE_EMBED_PARAM_SVC] = value
+
+            value = settings.DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME
+            if value is None or value == "":
+                value = user_settings.get_value(
+                    key="DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME",
+                    default_value="sentence-transformers/all-MiniLM-L6-v2",
+                )
+            params[DENSE_EMBED_PARAM_MODEL] = value
+
         return params

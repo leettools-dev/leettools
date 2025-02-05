@@ -6,7 +6,6 @@ from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.common.utils import time_utils
-from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.knowledgebase._impl.duckdb.kb_duckdb_schema import KBDuckDBSchema
 from leettools.core.knowledgebase.kb_manager import AbstractKBManager
 from leettools.core.repo.repo_manager import RepoManager
@@ -19,13 +18,8 @@ from leettools.core.schemas.knowledgebase import (
 )
 from leettools.core.schemas.organization import Org
 from leettools.core.user.user_store import AbstractUserStore
-from leettools.eds.str_embedder.dense_embedder import (
-    AbstractDenseEmbedder,
-    get_dense_embedder_class,
-)
-from leettools.eds.str_embedder.sparse_embedder import (
-    AbstractSparseEmbedder,
-    get_sparse_embedder_class,
+from leettools.eds.str_embedder.utils.embedder_settings import (
+    set_kb_create_embedder_params,
 )
 from leettools.settings import SystemSettings
 
@@ -127,53 +121,16 @@ class KBManagerDuckDB(AbstractKBManager):
     def add_kb(self, org: Org, kb_create: KBCreate) -> KnowledgeBase:
         """
         Adds a new knowledge base entry.
+
+        Args:
+        - org: The organization to which the knowledge base belongs.
+        - kb_create: The knowledge base to add.
+
+        Returns:
+        - The added knowledge base.
         """
+        kb_create = set_kb_create_embedder_params(kb_create)
         self.record_perf_config(KBPerfConfig.from_base_model(kb_create))
-
-        s = self.settings
-        if kb_create.embedder_type is None or kb_create.embedder_type == "":
-            kb_create.embedder_type = s.DEFAULT_SEGMENT_EMBEDDER_TYPE
-
-        logger().info(
-            f"Embedder type for KB {kb_create.name} is {kb_create.embedder_type}"
-        )
-
-        if kb_create.dense_embedder is None or kb_create.dense_embedder == "":
-            kb_create.dense_embedder = s.DEFAULT_DENSE_EMBEDDER
-        if (
-            kb_create.dense_embedder_params is None
-            or kb_create.dense_embedder_params == {}
-        ):
-            dense_embedder_class: AbstractDenseEmbedder = get_dense_embedder_class(
-                kb_create.dense_embedder, self.settings
-            )
-            kb_create.dense_embedder_params = dense_embedder_class.get_default_params(
-                self.settings
-            )
-
-        logger().info(
-            f"Dense Embedder type for KB {kb_create.name} is "
-            f"{kb_create.dense_embedder} and params {kb_create.dense_embedder_params}"
-        )
-
-        if kb_create.embedder_type == SegmentEmbedderType.HYBRID:
-            if kb_create.sparse_embedder is None or kb_create.sparse_embedder == "":
-                kb_create.sparse_embedder = s.DEFAULT_SPARSE_EMBEDDER
-            if (
-                kb_create.sparse_embedder_params is None
-                or kb_create.sparse_embedder_params == {}
-            ):
-                sparse_embedder_class: AbstractSparseEmbedder = (
-                    get_sparse_embedder_class(kb_create.sparse_embedder, self.settings)
-                )
-                kb_create.sparse_embedder_params = (
-                    sparse_embedder_class.get_default_params(self.settings)
-                )
-
-            logger().info(
-                f"Sparse Embedder type for KB {kb_create.name} is "
-                f"{kb_create.sparse_embedder} and params {kb_create.sparse_embedder_params}"
-            )
 
         kb_in_db = KBInDB.from_kb_create(kb_create)
         rtn_kb = self.get_kb_by_name(org=org, kb_name=kb_in_db.name)

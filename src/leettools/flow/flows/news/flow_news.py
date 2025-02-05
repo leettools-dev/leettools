@@ -1,6 +1,7 @@
+import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import ClassVar, Dict, List, Optional, Set, Tuple, Type
+from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseModel, ConfigDict, create_model
 
@@ -10,6 +11,7 @@ from leettools.common.utils import config_utils, json_utils, lang_utils, time_ut
 from leettools.common.utils.template_eval import render_template
 from leettools.core.consts import flow_option
 from leettools.core.consts.article_type import ArticleType
+from leettools.core.consts.display_type import DisplayType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.chat_query_result import ChatQueryResultCreate
 from leettools.core.schemas.document import Document
@@ -31,6 +33,7 @@ from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
+from leettools.flow.schemas.article import ArticleSection
 from leettools.flow.utils import flow_utils
 
 
@@ -117,9 +120,9 @@ Please find the news items in the context about {{ query }} and return
             display_name="News item source count threshold",
             description=(
                 "Number of sources a news item has to have to be included in the result."
-                "Default is 2. Depends on the nature of the knowledge base."
+                "Default is 1. Depends on the nature of the knowledge base."
             ),
-            default_value="2",
+            default_value="1",
             value_type="int",
             explicit=False,
             required=False,
@@ -134,6 +137,18 @@ Please find the news items in the context about {{ query }} and return
             ),
             default_value="False",
             value_type="bool",
+            explicit=False,
+            required=False,
+        )
+
+        foi_news_output_format = FlowOptionItem(
+            name=flow_option.FLOW_OPTION_EXTRACT_OUTPUT_FORMAT,
+            display_name="Output format",
+            description=(
+                "The format of the output: 'md' (default), 'table and 'json'."
+            ),
+            default_value="md",
+            value_type="str",
             explicit=False,
             required=False,
         )
@@ -466,6 +481,12 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
 
         # combine the new and existing objects
         all_objs_dict = {**new_objs_dict, **existing_objs_dict}
+        if len(all_objs_dict) == 0:
+            return flow_utils.create_chat_result_with_manual_msg(
+                msg="No news items found in the KB. Please create a docsource with search or url first.",
+                exec_info=exec_info,
+                query_metadata=None,
+            )
 
         # generate the markdown tables with the news
         target_list = flow_utils.flatten_results(all_objs_dict)
@@ -550,7 +571,7 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
 
         display_logger.info(f"deduped_news_results:\n{deduped_news_results}")
 
-        final_news_items = []
+        final_news_items: List[CombinedNewsItems] = []
         for item in deduped_news_items:
             if item.source_urls is None or len(item.source_urls) == 0:
                 display_logger.warning(
@@ -588,16 +609,67 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
 
         display_logger.info(f"Generating results for the final answer.")
 
-        final_news_results = flow_utils.to_markdown_table(
-            instances=final_news_items,
-            skip_fields=[EXTRACT_DB_METADATA_FIELD, EXTRACT_DB_TIMESTAMP_FIELD],
-            output_fields=None,
-            url_compact_fields=[],
+        if len(final_news_items) == 0:
+            return flow_utils.create_chat_result_with_manual_msg(
+                msg="No news items found in the KB.",
+                exec_info=exec_info,
+                query_metadata=None,
+            )
+
+        output_format = config_utils.get_str_option_value(
+            options=exec_info.flow_options,
+            option_name=flow_option.FLOW_OPTION_NEWS_OUTPUT_FORMAT,
+            default_value="md",
+            display_logger=display_logger,
         )
-        return flow_utils.create_chat_result_with_table_msg(
-            msg=final_news_results,
-            header=list(CombinedNewsItems.model_fields.keys()),
-            rows=[item.model_dump() for item in deduped_news_items],
+
+        if output_format == "table":
+            final_news_results = flow_utils.to_markdown_table(
+                instances=final_news_items,
+                skip_fields=[EXTRACT_DB_METADATA_FIELD, EXTRACT_DB_TIMESTAMP_FIELD],
+                output_fields=None,
+                url_compact_fields=[],
+            )
+            return flow_utils.create_chat_result_with_table_msg(
+                msg=final_news_results,
+                header=list(CombinedNewsItems.model_fields.keys()),
+                rows=[item.model_dump() for item in deduped_news_items],
+                exec_info=exec_info,
+                query_metadata=None,
+            )
+
+        if output_format == "json":
+            json_data: Dict[str, Any] = {}
+            for idx, item in enumerate(final_news_items):
+                json_data[f"news_item_{idx}"] = item.model_dump_json()
+            return flow_utils.create_chat_result_with_json_data(
+                json_data=json.dumps(final_news_items),
+                exec_info=exec_info,
+                query_metadata=None,
+            )
+
+        final_sections: List[ArticleSection] = []
+        for idx, item in enumerate(final_news_items):
+            news_report = ""
+            news_report += f"Date: {item.date}\n\n"
+            news_report += f"Categories: {', '.join(item.categories)}\n\n"
+            news_report += f"Keywords: {', '.join(item.keywords)}\n\n"
+            news_report += f"Sources: {', '.join(item.source_urls)}\n\n"
+            news_report += f"{item.description}\n\n"
+
+            section = ArticleSection(
+                title=item.title,
+                content=news_report,
+                plan=None,
+                display_type=DisplayType.TEXT,
+                user_data=item.model_dump(),
+            )
+            final_sections.append(section)
+
+        return flow_utils.create_chat_result_with_sections(
             exec_info=exec_info,
-            query_metadata=None,
+            query=query,
+            article_type=ArticleType.RESEARCH.value,
+            sections=final_sections,
+            accumulated_source_items={},
         )

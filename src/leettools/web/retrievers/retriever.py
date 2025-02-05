@@ -61,7 +61,7 @@ def create_retriever(
     Create a retriever object based on the retriever type.
 
     Right now the only place outside of the web package that uses this function is the
-    step_local_kb_search.py and flow_extractor in the flow package. They were used to
+    step_local_kb_search.py and flow_extract in the flow package. They were used to
     search the local KB and get compatible search results. We should remove direct usage
     in those places and use the web_searcher.py instead.
 

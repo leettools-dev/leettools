@@ -2,7 +2,7 @@ import threading
 import time
 import traceback
 from concurrent.futures import Future, ThreadPoolExecutor
-from datetime import datetime, timedelta
+from datetime import timedelta
 from queue import Queue
 from typing import Dict, List, Optional, Union
 
@@ -75,7 +75,7 @@ class SchedulerSimple(AbstractScheduler):
             self.status != SchedulerStatus.RUNNING
         ), f"Scheduler status is {self.status} while trying to clear tasks."
         with self.lock:
-            self.logger.noop("Inside the lock ...")
+            self.logger.noop("Inside the lock ...", noop_lvl=3)
             if self.task_queue.qsize() > 0:
                 while self.task_queue.qsize() > 0:
                     item = self.task_queue.get()
@@ -94,7 +94,7 @@ class SchedulerSimple(AbstractScheduler):
             self.tasks_todo = {}
 
             self.logger.info("Cleared tasks in the queue.")
-        self.logger.noop("Outside the lock ...")
+        self.logger.noop("Outside the lock ...", noop_lvl=3)
 
     def _create_job_for_task_if_needed(self, task: Task) -> Optional[Job]:
         """
@@ -152,7 +152,7 @@ class SchedulerSimple(AbstractScheduler):
             self.status != SchedulerStatus.RUNNING
         ), f"Scheduler status is {self.status} while trying to reload tasks."
         with self.lock:
-            self.logger.noop("Inside the lock ...")
+            self.logger.noop("Inside the lock ...", noop_lvl=3)
             todo_tasks = self.task_scanner.scan_kb_for_tasks(
                 target_org=self.target_org,
                 target_kb=self.target_kb,
@@ -185,7 +185,7 @@ class SchedulerSimple(AbstractScheduler):
             for job in self.tasks_in_queue.values():
                 self.logger.info(f"Adding job {job.job_uuid} to the queue.")
                 self.task_queue.put(job)
-        self.logger.noop("Outside the lock ...")
+        self.logger.noop("Outside the lock ...", noop_lvl=3)
 
     def _update_tasks(self) -> None:
         """
@@ -197,15 +197,15 @@ class SchedulerSimple(AbstractScheduler):
         ), f"Scheduler status is {self.status} while trying to load tasks."
 
         with self.lock:
-            self.logger.noop("Inside the lock ...")
-            self.logger.debug("Scan the KB for new tasks ...")
+            self.logger.noop("Inside the lock ...", noop_lvl=3)
+            self.logger.noop("Scan the KB for new tasks ...", noop_lvl=1)
             todo_tasks = self.task_scanner.scan_kb_for_tasks(
                 target_org=self.target_org,
                 target_kb=self.target_kb,
                 target_docsources=self.target_docsources,
             )
 
-            self.logger.debug("Checking incomplete tasks ...")
+            self.logger.noop("Checking incomplete tasks ...", noop_lvl=1)
             for task in todo_tasks:
                 if task.task_uuid in self.tasks_todo:
                     continue
@@ -227,7 +227,7 @@ class SchedulerSimple(AbstractScheduler):
                 self.tasks_todo[task.task_uuid] = job.job_status
                 self.task_queue.put(job)
 
-        self.logger.noop("Outside the lock ...")
+        self.logger.noop("Outside the lock ...", noop_lvl=3)
         self._check_cooldown_queue()
 
     def _task_loader(self, interval: int) -> None:
@@ -283,10 +283,10 @@ class SchedulerSimple(AbstractScheduler):
             )
             job.job_status = JobStatus.ABORTED
             with self.lock:
-                self.logger.noop("Inside the lock ...")
+                self.logger.noop("Inside the lock ...", noop_lvl=3)
                 self.tasks_todo[job.task_uuid] = job.job_status
                 self.tasks_in_cooldown_queue.pop(job.task_uuid)
-            self.logger.noop("Outside the lock ...")
+            self.logger.noop("Outside the lock ...", noop_lvl=3)
         else:
             delay_in_seconds = min(max_delay, base_delay * 2**job.retry_count)
             diff: timedelta = time_utils.current_datetime() - job.last_failed_at
@@ -296,12 +296,12 @@ class SchedulerSimple(AbstractScheduler):
             else:
                 job.job_status = JobStatus.PENDING
                 with self.lock:
-                    self.logger.noop("Inside the lock ...")
+                    self.logger.noop("Inside the lock ...", noop_lvl=3)
                     self.tasks_in_queue[job.task_uuid] = job
                     self.tasks_todo[job.task_uuid] = job.job_status
                     self.task_queue.put(job)
                     self.tasks_in_cooldown_queue.pop(job.task_uuid)
-                self.logger.noop("Outside the lock ...")
+                self.logger.noop("Outside the lock ...", noop_lvl=3)
         self.taskstore.update_task_status(job.task_uuid, job.job_status)
         self.cooldown_queue.task_done()
 
@@ -388,11 +388,11 @@ class SchedulerSimple(AbstractScheduler):
         else:
             raise ValueError(f"Unknown job status {job.job_status}")
         with self.lock:
-            self.logger.noop("Inside the lock ...")
+            self.logger.noop("Inside the lock ...", noop_lvl=3)
 
             self.tasks_running[task_uuid] = job
             self.tasks_todo[task_uuid] = JobStatus.RUNNING
-        self.logger.noop("Outside the lock ...")
+        self.logger.noop("Outside the lock ...", noop_lvl=3)
         return True
 
     def _worker_finalizes_job(self, id: int, job: Job) -> None:
@@ -414,10 +414,10 @@ class SchedulerSimple(AbstractScheduler):
             job.job_status = JobStatus.FAILED
 
         with self.lock:
-            self.logger.noop("Inside the lock ...")
+            self.logger.noop("Inside the lock ...", noop_lvl=3)
             self.tasks_running.pop(job.task_uuid)
             self.tasks_todo[job.task_uuid] = job.job_status
-        self.logger.noop("Outside the lock ...")
+        self.logger.noop("Outside the lock ...", noop_lvl=3)
 
         if job.job_status == JobStatus.FAILED:
             self.logger.debug(
@@ -430,10 +430,10 @@ class SchedulerSimple(AbstractScheduler):
                 job.retry_count = job.retry_count + 1
 
             with self.lock:
-                self.logger.noop("Inside the lock ...")
+                self.logger.noop("Inside the lock ...", noop_lvl=3)
                 self.tasks_in_cooldown_queue[job.task_uuid] = job
                 self.cooldown_queue.put(job)
-            self.logger.noop("Outside the lock ...")
+            self.logger.noop("Outside the lock ...", noop_lvl=3)
 
         self.taskstore.update_task_status(job.task_uuid, job.job_status)
         if job.job_status == JobStatus.COMPLETED:
@@ -447,7 +447,7 @@ class SchedulerSimple(AbstractScheduler):
 
     # Worker function
     def _worker(self, id: int):
-        self.logger.info(f"[{id}] starting the worker thread.")
+        self.logger.debug(f"[{id}] starting the worker thread.")
         should_run = True
         while should_run:
             job = self.task_queue.get()
@@ -461,9 +461,9 @@ class SchedulerSimple(AbstractScheduler):
                     continue
 
                 with self.lock:
-                    self.logger.noop("Inside the lock ...")
+                    self.logger.noop("Inside the lock ...", noop_lvl=3)
                     self.tasks_in_queue.pop(job.task_uuid)
-                self.logger.noop("Outside the lock ...")
+                self.logger.noop("Outside the lock ...", noop_lvl=3)
 
                 if self.status != SchedulerStatus.RUNNING:
                     self.logger.info(

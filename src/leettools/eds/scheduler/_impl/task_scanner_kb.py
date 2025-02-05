@@ -505,13 +505,14 @@ class TaskScannerKB(AbstractTaskScanner):
                         if current_time - docsource.updated_at > docsource_retry_range:
                             self.logger.noop(
                                 f"Docsource is older than "
-                                f"{self.docsource_retry_range_in_hours} hours: {dssig}"
+                                f"{self.docsource_retry_range_in_hours} hours: {dssig}",
+                                noop_lvl=1,
                             )
                             continue
                     else:
                         if schedule_config.schedule_type == ScheduleType.MANUAL:
-                            self.logger.debug(
-                                f"Docsource is set to manual run: {dssig}"
+                            self.logger.noop(
+                                f"Docsource is set to manual run: {dssig}", noop_lvl=1
                             )
                             continue
 
@@ -543,12 +544,15 @@ class TaskScannerKB(AbstractTaskScanner):
                             return True
                         else:
                             self.logger.noop(
-                                f"Ignore finished docsource with no unfinished tasks: {dssig}"
+                                f"Ignore finished docsource with no unfinished tasks: {dssig}",
+                                noop_lvl=1,
                             )
                         return False
 
                     if _need_to_check_docsource() == False:
-                        self.logger.noop(f"No need to check the docsource: {dssig}")
+                        self.logger.noop(
+                            f"No need to check the docsource: {dssig}", noop_lvl=1
+                        )
                         continue
 
                     try:
@@ -579,5 +583,5 @@ class TaskScannerKB(AbstractTaskScanner):
                         )
         end_time = time.perf_counter()
         elapsed_time = end_time - start_time
-        self.logger.info(f"Task scanning took {elapsed_time:.6f} seconds.")
+        self.logger.debug(f"Task scanning took {elapsed_time:.6f} seconds.")
         return new_tasks

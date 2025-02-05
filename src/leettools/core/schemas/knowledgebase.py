@@ -2,7 +2,7 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -22,7 +22,7 @@ class KBPerfConfig(PerfBaseModel):
     The configuration for KB that may change its performance in retrieval.
     """
 
-    embedder_type: Optional[SegmentEmbedderType] = Field(
+    embedder_type: Optional[str] = Field(
         None,
         description="The type of embedder to use for the KB",
     )

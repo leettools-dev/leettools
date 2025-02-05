@@ -7,7 +7,6 @@ from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.utils import config_utils
 from leettools.context_manager import Context
-from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.schemas.knowledgebase import KBCreate, KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
@@ -97,7 +96,6 @@ def setup_org_kb_user(
                 kb_create=KBCreate(
                     name=kb_name,
                     description=f"Created automatically by CLI command",
-                    embedder_type=SegmentEmbedderType.SIMPLE,
                     user_uuid=user.user_uuid,
                     auto_schedule=False,
                     enable_contextual_retrieval=context.settings.ENABLE_CONTEXTUAL_RETRIEVAL,

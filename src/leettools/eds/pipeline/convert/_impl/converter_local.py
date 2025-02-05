@@ -16,6 +16,7 @@ from leettools.eds.pipeline.convert.parser import create_parser
 from leettools.settings import (
     DOCX_EXT,
     HTML_EXT,
+    LOG_EXT,
     MD_EXT,
     PDF_EXT,
     PPTX_EXT,
@@ -161,6 +162,9 @@ class ConverterLocal(AbstractConverter):
             with open(file_path, "r", encoding="utf-8") as md_file:
                 md_content = md_file.read()
         elif file_path.suffix == TXT_EXT:
+            with open(file_path, "r", encoding="utf-8") as txt_file:
+                md_content = txt_file.read()
+        elif file_path.suffix == LOG_EXT:
             with open(file_path, "r", encoding="utf-8") as txt_file:
                 md_content = txt_file.read()
         elif is_media_file(file_path.suffix):

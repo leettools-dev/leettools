@@ -6,7 +6,7 @@ import dashscope
 
 from leettools.common.exceptions import ConfigValueException
 from leettools.common.logging import logger
-from leettools.common.utils import time_utils
+from leettools.common.utils import config_utils, time_utils
 from leettools.context_manager import Context
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
@@ -134,10 +134,37 @@ class DenseEmbedderQwen(AbstractDenseEmbedder):
         return self.QWEN_EMBEDDING_MODEL_DIMENSION
 
     @classmethod
-    def get_default_params(cls, settings: SystemSettings) -> Dict[str, Any]:
+    def get_default_params(cls, context: Context, user: User) -> Dict[str, Any]:
+        if user is None:
+            user = User.get_admin_user()
+        user_settings_store = context.get_user_settings_store()
+        user_settings = user_settings_store.get_settings_for_user(user)
         params: Dict[str, Any] = {}
-        params[DENSE_EMBED_PARAM_MODEL] = os.environ.get(
-            "DEFAULT_EMBEDDING_QWEN_MODEL", "text-embedding-v2"
-        )
-        params[DENSE_EMBED_PARAM_DIM] = 1536
+
+        if context.is_svc:
+            params[DENSE_EMBED_PARAM_MODEL] = user_settings.get_value(
+                key="DEFAULT_EMBEDDING_QWEN_MODEL",
+                default_value=os.environ.get(
+                    "DEFAULT_EMBEDDING_QWEN_MODEL", "text-embedding-v2"
+                ),
+            )
+            params[DENSE_EMBED_PARAM_DIM] = user_settings.get_value(
+                key="EMBEDDING_QWEN_MODEL_DIMENSION",
+                default_value=os.environ.get("EMBEDDING_QWEN_MODEL_DIMENSION", 1536),
+            )
+        else:
+            value = os.environ.get("DEFAULT_EMBEDDING_QWEN_MODEL", None)
+            if value is None or value == "":
+                value = user_settings.get_value(
+                    key="DEFAULT_EMBEDDING_QWEN_MODEL",
+                    default_value="text-embedding-v2",
+                )
+            params[DENSE_EMBED_PARAM_MODEL] = value
+
+            value = os.environ.get("EMBEDDING_QWEN_MODEL_DIMENSION", None)
+            if value is None or value == "":
+                value = user_settings.get_value(
+                    key="EMBEDDING_QWEN_MODEL_DIMENSION", default_value=1536
+                )
+            params[DENSE_EMBED_PARAM_DIM] = value
         return params

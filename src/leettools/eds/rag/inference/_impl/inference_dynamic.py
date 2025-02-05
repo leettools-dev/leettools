@@ -96,10 +96,12 @@ Here is the context:\n{{ context }}
             template_vars,
         )
 
-        self.display_logger.debug(
-            f"Final inference system prompt: {final_system_prompt}"
+        self.display_logger.noop(
+            f"Final inference system prompt: {final_system_prompt}", noop_lvl=1
         )
-        self.display_logger.debug(f"Final inference user prompt: {final_user_prompt}")
+        self.display_logger.noop(
+            f"Final inference user prompt: {final_user_prompt}", noop_lvl=1
+        )
 
         return self.run_inference_call(
             system_prompt=final_system_prompt,

@@ -130,9 +130,9 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
     def _get_file_with_default(self, path: str, filename: str) -> str:
         target_file = os.path.join(path, filename)
         if os.path.exists(target_file):
-            logger().noop(f"Found {filename} file.")
+            logger().noop(f"Found {filename} file.", noop_lvl=1)
         else:
-            logger().noop(f"No {filename} file found, using the default.")
+            logger().noop(f"No {filename} file found, using the default.", noop_lvl=1)
             target_file = os.path.join(self.default_path, filename)
         return target_file
 
@@ -206,7 +206,10 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         strategy_create_dict = strategy_create.model_dump()
         strategy_create_str = json.dumps(strategy_create_dict, sort_keys=True)
         strategy_hash = hashlib.sha256(strategy_create_str.encode()).hexdigest()
-        logger().noop(f"Creating strategy: {strategy_create} with hash {strategy_hash}")
+        logger().noop(
+            f"Creating strategy: {strategy_create} with hash {strategy_hash}",
+            noop_lvl=1,
+        )
         table_name = self._get_table_name()
         where_clause = (
             f"WHERE {Strategy.FIELD_USER_UUID} = '{user.user_uuid}' "
@@ -221,21 +224,24 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         )
 
         if existing_same_hash is not None:
-            logger().debug(
-                f"Found existing strategy with the same values hash: {strategy_create_str}"
+            logger().noop(
+                f"Found existing strategy with the same values hash: {strategy_create_str}",
+                noop_lvl=2,
             )
             existing_strategy = self._dict_to_strategy(existing_same_hash)
             if active_same_name is not None:
                 if existing_strategy.strategy_id == active_same_name.strategy_id:
-                    logger().debug(
-                        f"The existing strategy is the same as the active strategy: {strategy_create.strategy_name}"
+                    logger().noop(
+                        f"The existing strategy is the same as the active strategy: {strategy_create.strategy_name}",
+                        noop_lvl=1,
                     )
                     return active_same_name
                 else:
-                    logger().debug(
+                    logger().noop(
                         f"The existing strategy is different from the active strategy with "
                         f"the same name: {strategy_create.strategy_name}, "
-                        "archive the active strategy and set the existing strategy to active."
+                        "archive the active strategy and set the existing strategy to active.",
+                        noop_lvl=2,
                     )
                     self._archive_strategy(active_same_name)
                     self.set_strategy_status_by_id(
@@ -286,7 +292,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
             column_list=column_list,
             value_list=value_list,
         )
-        logger().noop(f"Created strategy: {strategy_create}")
+        logger().noop(f"Created strategy: {strategy_create}", noop_lvl=1)
         return self.get_strategy_by_id(strategy_dict[Strategy.FIELD_STRATEGY_ID])
 
     def create_strategy_from_path(
@@ -302,7 +308,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
             logger().error(f"The path {path} does not exist.")
             return None
 
-        logger().noop(f"Creating strategy from {path}")
+        logger().noop(f"Creating strategy from {path}", noop_lvl=1)
 
         # read the chat_strategy.json file
         # TODO: should change to the new format
@@ -325,7 +331,9 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
                 for line in f.readlines()
                 if line.strip() and not line.strip().startswith("#")
             ]
-        logger().noop(f"The intention list is {chat_strategy_create.intention_list}")
+        logger().noop(
+            f"The intention list is {chat_strategy_create.intention_list}", noop_lvl=1
+        )
 
         # TODO: should add more information to the intention configuration
         for intention in chat_strategy_create.intention_list:
@@ -337,7 +345,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
                     )
                 )
             except EntityExistsException:
-                logger().noop(f"Intention {intention} already exists.")
+                logger().noop(f"Intention {intention} already exists.", noop_lvl=1)
                 existing_intention = self.intention_store.get_intention_by_name(
                     intention
                 )
@@ -375,7 +383,8 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
                 chat_strategy_create.rewrite_sp_ids[intention] = rewrite_sp.prompt_id
             else:
                 logger().noop(
-                    f"No rewrite_sp_{intention}.txt file found, using default."
+                    f"No rewrite_sp_{intention}.txt file found, using default.",
+                    noop_lvl=1,
                 )
                 chat_strategy_create.rewrite_sp_ids[intention] = (
                     chat_strategy_create.rewrite_sp_ids["default"]
@@ -391,7 +400,8 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
                 chat_strategy_create.rewrite_up_ids[intention] = rewrite_up.prompt_id
             else:
                 logger().noop(
-                    f"No rewrite_up_{intention}.txt file found, using default."
+                    f"No rewrite_up_{intention}.txt file found, using default.",
+                    noop_lvl=1,
                 )
                 chat_strategy_create.rewrite_up_ids[intention] = (
                     chat_strategy_create.rewrite_up_ids["default"]
@@ -411,7 +421,8 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
                 )
             else:
                 logger().noop(
-                    f"No system_prompt_{intention}.txt file found, using default."
+                    f"No system_prompt_{intention}.txt file found, using default.",
+                    noop_lvl=1,
                 )
                 chat_strategy_create.system_prompt_ids[intention] = (
                     chat_strategy_create.system_prompt_ids["default"]
@@ -427,7 +438,8 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
                 chat_strategy_create.user_prompt_ids[intention] = user_prompt.prompt_id
             else:
                 logger().noop(
-                    f"No user_prompt_{intention}.txt file found, using default."
+                    f"No user_prompt_{intention}.txt file found, using default.",
+                    noop_lvl=1,
                 )
                 chat_strategy_create.user_prompt_ids[intention] = (
                     chat_strategy_create.user_prompt_ids["default"]

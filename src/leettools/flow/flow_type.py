@@ -8,7 +8,7 @@ from enum import Enum
 class FlowType(str, Enum):
     ANSWER = "answer"
     BOOTSTRAP = "bootstrap"
-    EXTRACTOR = "extractor"
+    EXTRACT = "extract"
     DIGEST = "digest"
     SEARCH = "search"
     NEWS = "news"

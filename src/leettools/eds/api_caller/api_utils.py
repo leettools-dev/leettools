@@ -134,11 +134,11 @@ def run_inference_call_direct(
     system_prompt_info = truncate_str(normalize_newlines(system_prompt), info_len)
     user_prompt_info = truncate_str(normalize_newlines(user_prompt), info_len)
 
-    display_logger.debug(
-        f"Final system prompt(first {info_len} chars): {system_prompt_info}"
+    display_logger.noop(
+        f"Final system prompt(first {info_len} chars): {system_prompt_info}", noop_lvl=2
     )
-    display_logger.debug(
-        f"Final user prompt (first {info_len} chars): {user_prompt_info}"
+    display_logger.noop(
+        f"Final user prompt (first {info_len} chars): {user_prompt_info}", noop_lvl=2
     )
 
     start_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
@@ -252,6 +252,42 @@ def get_api_function_list() -> List[str]:
     return [api_function for api_function in APIFunction]
 
 
+def get_default_inference_model_for_user(context: Context, user: User) -> str:
+    if user is None:
+        user = User.get_admin_user()
+
+    user_settings = context.get_user_settings_store().get_settings_for_user(user)
+    model_name = get_value_from_settings(
+        context=context,
+        user_settings=user_settings,
+        default_env="DEFAULT_INFERENCE_MODEL",
+        first_key="DEFAULT_INFERENCE_MODEL",
+        second_key=None,
+        allow_empty=True,
+    )
+    if model_name is None or model_name == "":
+        model_name = context.settings.DEFAULT_INFERENCE_MODEL
+    return model_name
+
+
+def get_default_rerank_model_for_user(context: Context, user: User) -> str:
+    if user is None:
+        user = User.get_admin_user()
+
+    user_settings = context.get_user_settings_store().get_settings_for_user(user)
+    model_name = get_value_from_settings(
+        context=context,
+        user_settings=user_settings,
+        default_env="DEFAULT_RERANK_MODEL",
+        first_key="DEFAULT_RERANK_MODEL",
+        second_key=None,
+        allow_empty=True,
+    )
+    if model_name is None or model_name == "":
+        model_name = context.settings.DEFAULT_RERANK_MODEL
+    return model_name
+
+
 def get_openai_embedder_client_for_user(
     context: Context,
     user: User,
@@ -269,7 +305,7 @@ def get_openai_embedder_client_for_user(
         f"and api_key: {file_utils.redact_api_key(api_key)}"
     )
     # used to track where the call is coming from
-    logger().noop(f"Calling Trace: {trace}")
+    logger().noop(f"Calling Trace: {trace}", noop_lvl=2)
     return api_provider_config, OpenAI(base_url=base_url, api_key=api_key)
 
 
@@ -288,8 +324,12 @@ def get_default_inference_api_provider_config(
         default_env="LLM_API_KEY",
         first_key="LLM_API_KEY",
         second_key=None,
-        allow_empty=False,
+        allow_empty=True,
     )
+    if api_key is None:
+        logger().info("No API key found for inference. Using a dummy key.")
+        api_key = "dummy-inference-api-key"
+
     base_url = get_value_from_settings(
         context=context,
         user_settings=user_settings,
@@ -340,8 +380,11 @@ def get_default_embed_api_provider_config(
             default_env="LLM_API_KEY",
             first_key="LLM_API_KEY",
             second_key=None,
-            allow_empty=False,
+            allow_empty=True,
         )
+    if api_key is None:
+        logger().info("No API key found for embedding. Using a dummy key.")
+        api_key = "dummy-embedding-api-key"
 
     base_url = get_value_from_settings(
         context=context,
@@ -352,7 +395,9 @@ def get_default_embed_api_provider_config(
         allow_empty=True,
     )
 
-    if base_url is None:
+    logger().info(f"base_url: {base_url}")
+
+    if base_url is None or base_url == "":
         base_url = get_value_from_settings(
             context=context,
             user_settings=user_settings,
@@ -445,7 +490,7 @@ def get_openai_client_for_user(
         f"Creating OpenAI-compatible client with base_url: {base_url} "
         f"and api_key: {api_key[:5]}******{api_key[-5:]}"
     )
-    logger().noop(f"Calling Trace: {trace}")
+    logger().noop(f"Calling Trace: {trace}", noop_lvl=2)
     return OpenAI(base_url=base_url, api_key=api_key)
 
 
