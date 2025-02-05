@@ -105,7 +105,8 @@ class SystemSettings(BaseModel):
     DATA_ROOT: str = Field(None, description="The root directory for all the data")
     LOG_ROOT: str = Field(None, description="The root directory for all the logs")
     SINGLE_USER_MODE: bool = Field(
-        False, description="Whether the system is running in single user mode"
+        True,
+        description="Whether the system is running in single user mode, default True.",
     )
     AUTH_ENABLED: bool = Field(
         False, description="Whether to enable the authentication"
