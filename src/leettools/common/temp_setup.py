@@ -7,6 +7,7 @@ from typing import Optional, Tuple
 from leettools.chat.history_manager import _HMInstances
 from leettools.common.logging import logger
 from leettools.common.utils import file_utils, time_utils
+from leettools.core.auth._impl.eds_authorizer import EDSAuthorizer
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate
@@ -25,6 +26,12 @@ class TempSetup:
 
         self.context = ContextManager().get_context()
         self.context.reset(is_test=True)
+        self.context.settings.SINGLE_USER_MODE = False
+        self.context.settings.DEFAULT_DENSE_EMBEDDER = "dense_embedder_local_svc_client"
+
+        # TODO: the author should be dynamically set
+        self.context.get_authorizer()._reset_for_test()
+
         _HMInstances().reset_for_test()
 
     def __get_call_info(self):

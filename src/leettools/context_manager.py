@@ -3,6 +3,7 @@ from enum import Enum
 from typing import ClassVar, Optional
 
 from leettools.common.singleton_meta import SingletonMeta
+from leettools.core.auth.authorizer import AbstractAuthorizer, create_authorizer
 from leettools.core.config.config_manager import ConfigManager
 from leettools.core.knowledgebase.kb_manager import AbstractKBManager, create_kb_manager
 from leettools.core.org.org_manager import AbstractOrgManager, create_org_manager
@@ -63,6 +64,7 @@ class Context:
 
         self._usage_store: Optional[AbstractUsageStore] = None
         self._user_settings_store: Optional[AbstractUserSettingsStore] = None
+        self._authorizer: Optional[AbstractAuthorizer] = None
 
         self._task_manager: Optional[TaskManager] = None
 
@@ -80,6 +82,14 @@ class Context:
 
     def get_config_manager(self) -> ConfigManager:
         return self._config_manager
+
+    def get_authorizer(self):
+        with self.lock:
+            if self._user_store is None:
+                self._user_store = create_user_store(self.settings)
+            if self._authorizer is None:
+                self._authorizer = create_authorizer(self.settings, self._user_store)
+            return self._authorizer
 
     def get_prompt_store(self) -> AbstractPromptStore:
         with self.lock:

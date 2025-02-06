@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from leettools.common import exceptions
 from leettools.common.logging import logger
-from leettools.common.utils import file_utils
+from leettools.common.utils import config_utils, file_utils
 from leettools.common.utils.obj_utils import ENV_VAR_PREFIX, add_env_var_constants
 from leettools.core.schemas.user_settings import UserSettingsItem
 
@@ -93,6 +93,7 @@ class SystemSettings(BaseModel):
     API_V1_STR: ClassVar[str] = "/api/v1"
     PROJECT_NAME: ClassVar[str] = "LeetTools"
     LEETAPI_PROJECT_NAME: ClassVar[str] = "LeetAPI"
+
     env_file: str = _default_env_file
     is_production: bool = False
 
@@ -111,6 +112,7 @@ class SystemSettings(BaseModel):
     AUTH_ENABLED: bool = Field(
         False, description="Whether to enable the authentication"
     )
+    AUTHORIZER: str = Field("dummy_auth", description="The authorizer to use.")
 
     #   Repo type for all the data storages unless overridden by the detailed settings
     #   For all the data manager xyz, the default implementation will be put under
@@ -565,9 +567,24 @@ class SystemSettings(BaseModel):
             env_var = os.environ.get(env_var_name, None)
 
             if env_var is not None:
+
+                field_info = self.model_fields[field_name]
+                # set the values based on the field type
+                if field_info.annotation == bool:
+                    final_value = config_utils.value_to_bool(env_var)
+                elif field_info.annotation == int:
+                    final_value = int(env_var)
+                elif field_info.annotation == Path:
+                    final_value = Path(env_var)
+                elif field_info.annotation == float:
+                    final_value = float(env_var)
+                else:
+                    final_value = env_var
+
                 redact = file_utils.redact_api_key(env_var)
+
                 logger().debug(f"Setting from env variable: {field_name}={redact}")
-                setattr(self, field_name, env_var)
+                setattr(self, field_name, final_value)
 
         if self.is_production:
             logger().info(
@@ -575,6 +592,13 @@ class SystemSettings(BaseModel):
             )
         else:
             logger().info(f"Current system is running in development mode.")
+
+        if self.SINGLE_USER_MODE:
+            logger().info(
+                f"Current system is running in single user mode per EDS_SINGLE_USER_MODE."
+            )
+        else:
+            logger().info(f"Current system is running in multi user mode.")
 
         # set derived values that have not been set by env variables
 

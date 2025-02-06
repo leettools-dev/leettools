@@ -3,9 +3,21 @@ from typing import Any, Dict
 
 from fastapi import Request
 
+from leettools.common.logging import logger
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
+from leettools.core.user.user_store import AbstractUserStore
+from leettools.settings import SystemSettings
+
+# probably need to move this file to common
+
+HEADER_USERNAME_FIELD = "username"
+HEADER_FULL_NAME_FIELD = "full_name"
+HEADER_EMAIL_FIELD = "email"
+HEADER_AUTH_UUID_FIELD = "auth_uuid"
+HEADER_AUTH_USERNAME_FIELD = "auth_username"
+HEADER_AUTH_PROVIDER_FIELD = "auth_provider"
 
 
 class AbstractAuthorizer(ABC):
@@ -13,6 +25,10 @@ class AbstractAuthorizer(ABC):
     Abstract class for authorizer. The authorizer is responsible for determining
     whether user can read, write, share, or unshare the knowledge bases.
     """
+
+    def __init__(self, settings: SystemSettings, user_store: AbstractUserStore):
+        self.settings = settings
+        self.user_store = user_store
 
     @abstractmethod
     def get_admin_user(self) -> User:
@@ -106,5 +122,26 @@ class AbstractAuthorizer(ABC):
         """
         pass
 
+    @abstractmethod
+    def _reset_for_test(self) -> None:
+        pass
 
-HEADER_USERNAME_FIELD = "username"
+
+def create_authorizer(
+    settings: SystemSettings, user_store: AbstractUserStore
+) -> AbstractAuthorizer:
+    from leettools.common.utils import factory_util
+
+    if settings.AUTHORIZER is not None and settings.AUTHORIZER != "":
+        authorizer = settings.AUTHORIZER
+    else:
+        authorizer = "eds_authorizer"
+
+    logger().info(f"Creating authorizer: {authorizer}")
+    module_name = f"{__package__}._impl.{authorizer.lower()}"
+    return factory_util.create_object(
+        module_name,
+        AbstractAuthorizer,
+        settings=settings,
+        user_store=user_store,
+    )
