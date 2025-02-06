@@ -38,11 +38,11 @@ if [ -f "${BASE_DIR}"/"${ENV_FILE}" ]; then
     done < "${BASE_DIR}"/"${ENV_FILE}"
 fi
 
-# if LEETHOME is set, we will have a default value for EDS_LOG_ROOT
-if [ -z "${LEETHOME-}" ]; then
+# if LEET_HOME is set, we will have a default value for EDS_LOG_ROOT
+if [ -z "${LEET_HOME-}" ]; then
     DEFAULT_LOG_ROOT="/tmp/leettools/logs/svc"
 else
-    DEFAULT_LOG_ROOT="${LEETHOME}/logs/svc"
+    DEFAULT_LOG_ROOT="${LEET_HOME}/logs/svc"
 fi
 
 LOG_OUTPUT=${LOG_OUTPUT:-"console"}
