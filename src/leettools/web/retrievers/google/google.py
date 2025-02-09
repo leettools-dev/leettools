@@ -9,6 +9,7 @@ from leettools.common import exceptions
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import file_utils
 from leettools.common.utils.file_utils import redact_api_key
+from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 from leettools.context_manager import Context
 from leettools.core.consts import flow_option
 from leettools.core.schemas.knowledgebase import KnowledgeBase

@@ -228,7 +228,7 @@ class SystemSettings(BaseModel):
             "The default embedding base URL, default to the same as the LLM base URL",
         ),
     )
-    RERANK_BASE_URL: str = Field(
+    DEFAULT_RERANK_BASE_URL: str = Field(
         None, description="The default rerank base URL for the API"
     )
 
@@ -607,9 +607,9 @@ class SystemSettings(BaseModel):
                 default_value=None,
                 value_type="str",
             ),
-            "LLM_BASE_URL": UserSettingsItem(
+            "DEFAULT_LLM_BASE_URL": UserSettingsItem(
                 section="RAG",
-                name="LLM_BASE_URL",
+                name="DEFAULT_LLM_BASE_URL",
                 description="LLM Base URL used in the inference process.",
                 default_value=self.DEFAULT_LLM_BASE_URL,
                 value_type="str",
@@ -642,9 +642,9 @@ class SystemSettings(BaseModel):
                 default_value=self.EMBEDDING_API_KEY,
                 value_type="str",
             ),
-            "EMBEDDING_BASE_URL": UserSettingsItem(
+            "DEFAULT_EMBEDDING_BASE_URL": UserSettingsItem(
                 section="RAG",
-                name="EMBEDDING_BASE_URL",
+                name="DEFAULT_EMBEDDING_BASE_URL",
                 description="Base URL for the the embedder service.",
                 default_value=self.DEFAULT_EMBEDDING_BASE_URL,
                 value_type="str",
@@ -656,9 +656,9 @@ class SystemSettings(BaseModel):
                 default_value=None,
                 value_type="str",
             ),
-            "RERANK_BASE_URL": UserSettingsItem(
+            "DEFAULT_RERANK_BASE_URL": UserSettingsItem(
                 section="RAG",
-                name="RERANK_BASE_URL",
+                name="DEFAULT_RERANK_BASE_URL",
                 description="Base url used in the reranking process.",
                 default_value=None,
                 value_type="str",

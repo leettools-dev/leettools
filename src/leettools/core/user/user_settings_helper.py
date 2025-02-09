@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 
+from leettools.common import exceptions
 from leettools.common.exceptions import ConfigValueException
 from leettools.common.logging import logger
 from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
@@ -44,10 +45,18 @@ def get_value_from_settings(
 ) -> str:
     """
     Get a value from the settings in this order:
-        - user's user-settings,
+
+    If the context is service:
+        - user's user-settings
         - admin's user-settings
-        - value in the context settings,
+        - value in the context system settings
         - environment variables
+
+    If the context is CLI:
+        - environment variables
+        - value in the context system settings
+        - user's user-settings
+        - admin's user-settings
 
     args:
     - context: Context
@@ -59,6 +68,39 @@ def get_value_from_settings(
             will use default open_ai_api_key if no embedly_api_key is found
     - allow_empty: if false, an exception will be raised if no value is found
     """
+    if context.is_svc:
+        return _get_value_from_settings_for_svc(
+            context=context,
+            user_settings=user_settings,
+            default_env=default_env,
+            first_key=first_key,
+            second_key=second_key,
+            allow_empty=allow_empty,
+        )
+
+    if context.is_cli():
+        return _get_value_from_settings_for_cli(
+            context=context,
+            user_settings=user_settings,
+            default_env=default_env,
+            first_key=first_key,
+            second_key=second_key,
+            allow_empty=allow_empty,
+        )
+
+    raise exceptions.UnexpectedCaseException(
+        f"Context name {context.name} is not a service or CLI."
+    )
+
+
+def _get_value_from_settings_for_svc(
+    context: Context,
+    user_settings: UserSettings,
+    default_env: str,
+    first_key: str,
+    second_key: Optional[str] = None,
+    allow_empty: Optional[bool] = False,
+) -> str:
     value = _get_settings_value(
         user_settings=user_settings,
         first_key=first_key,
@@ -90,9 +132,64 @@ def get_value_from_settings(
         logger().debug(f"No system settings variable {default_env}.")
 
     env_var_name = f"{ENV_VAR_PREFIX}{default_env.upper()}"
+
     value = os.environ.get(env_var_name, None)
     if value is not None and value != "":
-        logger().debug(f"Using env variable {default_env}.")
+        logger().debug(f"Using env variable {env_var_name}.")
+        return value
+
+    if not allow_empty:
+        raise ConfigValueException(
+            config_item=first_key,
+            config_value="None",
+        )
+    return value
+
+
+def _get_value_from_settings_for_cli(
+    context: Context,
+    user_settings: UserSettings,
+    default_env: str,
+    first_key: str,
+    second_key: Optional[str] = None,
+    allow_empty: Optional[bool] = False,
+) -> str:
+
+    env_var_name = f"{ENV_VAR_PREFIX}{default_env.upper()}"
+
+    value = os.environ.get(env_var_name, None)
+    if value is not None and value != "":
+        logger().debug(f"Using env variable {env_var_name}.")
+        return value
+
+    logger().noop(f"Checking system settings variable {default_env} ...", noop_lvl=1)
+    try:
+        value = context.settings.__getattribute__(default_env)
+        if value is not None and value != "":
+            logger().debug(f"Using system settings variable {default_env}.")
+            return value
+    except AttributeError:
+        logger().debug(f"No system settings variable {default_env}.")
+
+    value = _get_settings_value(
+        user_settings=user_settings,
+        first_key=first_key,
+        second_key=second_key,
+    )
+    if value is not None and value != "":
+        return value
+
+    logger().noop(f"Checking admin settings ...", noop_lvl=1)
+    admin_user = context.get_user_store().get_user_by_name(User.ADMIN_USERNAME)
+    admin_user_settings = context.get_user_settings_store().get_settings_for_user(
+        admin_user
+    )
+    value = _get_settings_value(
+        user_settings=admin_user_settings,
+        first_key=first_key,
+        second_key=second_key,
+    )
+    if value is not None and value != "":
         return value
 
     if not allow_empty:

@@ -12,6 +12,7 @@ from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import file_utils, json_utils, time_utils, url_utils
 from leettools.common.utils.content_utils import normalize_newlines, truncate_str
 from leettools.common.utils.dynamic_model import gen_pydantic_example
+from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 from leettools.context_manager import Context
 from leettools.core.schemas.api_provider_config import (
     APIEndpointInfo,
@@ -228,6 +229,10 @@ def run_inference_call_direct(
         if need_json:
             pattern = r"\n?```json\n?|\n?```\n?"
             response_str = re.sub(pattern, "", response_str)
+            # remove the leading <think></think> content at the start if present
+            response_str = re.sub(
+                r"^\s*<think>.*?</think>", "", response_str, flags=re.DOTALL
+            )
             display_logger.debug(f"Clean up: {response_str}")
 
             # we are using a model that does not support parsed response
@@ -334,7 +339,7 @@ def get_default_inference_api_provider_config(
         context=context,
         user_settings=user_settings,
         default_env="DEFAULT_LLM_BASE_URL",
-        first_key="LLM_BASE_URL",
+        first_key="DEFAULT_LLM_BASE_URL",
         second_key=None,
         allow_empty=False,
     )
@@ -373,7 +378,7 @@ def get_default_embed_api_provider_config(
         second_key="LLM_API_KEY",
         allow_empty=True,
     )
-    if api_key is None:
+    if api_key is None or api_key == "":
         api_key = get_value_from_settings(
             context=context,
             user_settings=user_settings,
@@ -382,7 +387,7 @@ def get_default_embed_api_provider_config(
             second_key=None,
             allow_empty=True,
         )
-    if api_key is None:
+    if api_key is None or api_key == "":
         logger().info("No API key found for embedding. Using a dummy key.")
         api_key = "dummy-embedding-api-key"
 
@@ -390,22 +395,21 @@ def get_default_embed_api_provider_config(
         context=context,
         user_settings=user_settings,
         default_env="DEFAULT_EMBEDDING_BASE_URL",
-        first_key="EMBEDDING_BASE_URL",
-        second_key="LLM_BASE_URL",
+        first_key="DEFAULT_EMBEDDING_BASE_URL",
+        second_key="DEFAULT_LLM_BASE_URL",
         allow_empty=True,
     )
-
-    logger().info(f"base_url: {base_url}")
 
     if base_url is None or base_url == "":
         base_url = get_value_from_settings(
             context=context,
             user_settings=user_settings,
             default_env="DEFAULT_LLM_BASE_URL",
-            first_key="LLM_BASE_URL",
+            first_key="DEFAULT_LLM_BASE_URL",
             second_key=None,
             allow_empty=False,
         )
+    logger().info(f"base_url: {base_url}")
 
     tld = url_utils.get_first_level_domain_from_url(base_url)
 
@@ -444,8 +448,8 @@ def get_default_rerank_api_provider_config(
     base_url = get_value_from_settings(
         context=context,
         user_settings=user_settings,
-        default_env="RERANK_BASE_URL",
-        first_key="RERANK_BASE_URL",
+        default_env="DEFAULT_RERANK_BASE_URL",
+        first_key="DEFAULT_RERANK_BASE_URL",
         second_key=None,
         allow_empty=True,
     )

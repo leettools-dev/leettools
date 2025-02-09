@@ -78,6 +78,9 @@ class Context:
         # except Exception as e:
         #     pass
 
+    def is_cli(self) -> bool:
+        return self.name.startswith(self.EDS_CLI_CONTEXT_PREFIX)
+
     def get_config_manager(self) -> ConfigManager:
         return self._config_manager
 
