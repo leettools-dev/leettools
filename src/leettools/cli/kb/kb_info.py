@@ -1,13 +1,10 @@
-from typing import List, Optional, Set
+from typing import Optional
 
 import click
 
 from leettools.cli.cli_utils import setup_org_kb_user
 from leettools.cli.options_common import common_options
 from leettools.common.logging import logger
-from leettools.core.consts.schedule_type import ScheduleType
-from leettools.core.schemas.document import Document
-from leettools.flow.utils import pipeline_utils
 
 
 @click.command(help="Display the metadata for a KB.")

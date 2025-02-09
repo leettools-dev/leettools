@@ -9,6 +9,7 @@ from .kb_info import info
 from .kb_ingest import ingest
 from .kb_list import list
 from .kb_list_db import list_db
+from .kb_remove import remove
 
 
 @click.group()
@@ -28,3 +29,4 @@ kb.add_command(add_url)
 kb.add_command(create)
 kb.add_command(ingest)
 kb.add_command(info)
+kb.add_command(remove)
