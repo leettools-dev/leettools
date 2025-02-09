@@ -144,7 +144,7 @@ def setup_org_kb_user(
         if not dense_embedder_kb.is_compatible(default_dense_embedder):
             click.secho(
                 f"Warning: KB {kb_name} uses a dense embedder that is not compatible "
-                f"with the default specfied in {context.settings.env_file}:\n"
+                f"with the default specified in {context.settings.env_file}:\n"
                 f"KB embedder: {dense_embedder_kb.__class__.__name__}"
                 f"[model: {dense_embedder_kb.get_model_name()}]"
                 f"[dimension: {dense_embedder_kb.get_dimension()}]\n"
