@@ -229,6 +229,10 @@ def run_inference_call_direct(
         if need_json:
             pattern = r"\n?```json\n?|\n?```\n?"
             response_str = re.sub(pattern, "", response_str)
+            # remove the leading <think></think> content at the start if present
+            response_str = re.sub(
+                r"^\s*<think>.*?</think>", "", response_str, flags=re.DOTALL
+            )
             display_logger.debug(f"Clean up: {response_str}")
 
             # we are using a model that does not support parsed response
