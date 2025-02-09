@@ -143,6 +143,14 @@ class TokenConverterBasic(AbstractTokenConverter):
                     "batch_output": 30,
                 }
             },
+            "fireworks": {
+                "default": {
+                    "input": 15,
+                    "output": 60,
+                    "batch_input": None,
+                    "batch_output": None,
+                }
+            },
         }
         return token_map
 
