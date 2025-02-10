@@ -1,16 +1,16 @@
-# Run DeepSearch with DeepSeek models
+# Run DeepResearch with DeepSeek Models
 
 Both OpenAI o1-pro model and Google Gemini 1.5-pro model provide the "DeepResearch"
 function that allows users to generate a research report based on a query. The
 "digest" flow from LeetTools provides a similar function that can work with any LLM
-model that can perform text extract and summarize functions. In this tutorail, we will
+model that can perform text extract and summarize functions. In this tutorial, we will
 use the DeepSeek model API from fireworks.ai as an example.
 
 ## Get a DeepSeek API key
 
 To use the DeepSeek API, you can either host the model yourself or use the hosted
 version from API providers. In this example, we will use the API endpoint provided by
-fireworks.ai as an example.
+fireworks.ai.
 
 1. Go to the [fireworks.ai](https://fireworks.ai) website and sign up for an account.
 2. After you have signed up, go to the API section and create a new API key.
@@ -23,7 +23,7 @@ fireworks.ai as an example.
 
 ## Create an environment file
 
-We will use the deepseek-r1 model in the exmaple, but note that the full deepseek-r1 
+We will use the deepseek-r1 model in the example, but note that the full deepseek-r1 
 model is usually more expensive than the deepseek-v3 model. The benefit is that it can
 show the thinking trace of the writing process, which may be useful in some cases.
 
@@ -44,12 +44,12 @@ We can specify to search up to 30 results and limit the search to the last 360 d
 
 ```bash
 % leet flow -e .env.fireworks -t digest -k aijob.fireworks \
-    -p search_max_results=30 -p days_limit=360 \ 
+    -p search_max_results=30 -p days_limit=360 \
     -q "How will agentic AI and generative AI affect our non-tech jobs?"  \
     -l info -o outputs/aijob.fireworks.md
 ```
 
-The example output is in [examples/deepsearch/aijob.fireworks.md](examples/deepsearch/aijob.fireworks.md).
+The example output is in [examples/deepseek/aijob.fireworks.md](examples/deepseek/aijob.fireworks.md).
 
 The output from 
 - OpenAI o1-pro model: https://chatgpt.com/share/67a6a4db-1564-800f-baae-a6b127366947
