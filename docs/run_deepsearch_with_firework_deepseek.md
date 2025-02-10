@@ -23,11 +23,15 @@ fireworks.ai as an example.
 
 ## Create an environment file
 
+We will use the deepseek-r1 model in the exmaple, but note that the full deepseek-r1 
+model is usually more expensive than the deepseek-v3 model. The benefit is that it can
+show the thinking trace of the writing process, which may be useful in some cases.
+
 ```bash
 % cat > .env.fireworks <<EOF
 EDS_DEFAULT_LLM_BASE_URL=https://api.fireworks.ai/inference/v1
 EDS_LLM_API_KEY=fw_3ZS**********pJr
-EDS_DEFAULT_INFERENCE_MODEL=accounts/fireworks/models/deepseek-v3
+EDS_DEFAULT_INFERENCE_MODEL=accounts/fireworks/models/deepseek-r1
 EDS_DEFAULT_EMBEDDING_MODEL=nomic-ai/nomic-embed-text-v1.5
 EDS_EMBEDDING_MODEL_DIMENSION=768
 ```
@@ -39,13 +43,13 @@ If you are using another provider or model, change the values accordingly.
 We can specify to search up to 30 results and limit the search to the last 360 days.
 
 ```bash
-% leet flow -e .env.firework -t digest -k aijob.firework \
+% leet flow -e .env.fireworks -t digest -k aijob.fireworks \
     -p search_max_results=30 -p days_limit=360 \ 
     -q "How will agentic AI and generative AI affect our non-tech jobs?"  \
-    -l info -o outputs/aijob.firework.md
+    -l info -o outputs/aijob.fireworks.md
 ```
 
-The example output is in [examples/deepsearch/aijob.firework.md](examples/deepsearch/aijob.firework.md).
+The example output is in [examples/deepsearch/aijob.fireworks.md](examples/deepsearch/aijob.fireworks.md).
 
 The output from 
 - OpenAI o1-pro model: https://chatgpt.com/share/67a6a4db-1564-800f-baae-a6b127366947
