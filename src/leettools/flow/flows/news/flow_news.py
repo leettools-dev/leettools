@@ -27,7 +27,7 @@ from leettools.eds.extract.extract_store import (
 from leettools.eds.rag.search.filter import BaseCondition
 from leettools.eds.str_embedder.dense_embedder import create_dense_embedder_for_kb
 from leettools.eds.str_embedder.utils.cluster import cluster_strings
-from leettools.flow import flow_option_items, iterators
+from leettools.flow import flow_option_items, iterators, steps
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
@@ -72,6 +72,7 @@ class _NewsParams:
     language_instruction: str
     old_news_instruction: str
     include_old_news: bool
+    run_search: bool
 
 
 class FlowNews(AbstractFlow):
@@ -111,7 +112,7 @@ Please find the news items in the context about {{ query }} and return
 
     @classmethod
     def depends_on(cls) -> List[Type["FlowComponent"]]:
-        return [iterators.ExtractKB]
+        return [steps.StepSearchToDocsource, iterators.ExtractKB]
 
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
@@ -153,6 +154,19 @@ Please find the news items in the context about {{ query }} and return
             required=False,
         )
 
+        foi_news_run_search = FlowOptionItem(
+            name=flow_option.FLOW_OPTION_NEWS_RUN_SEARCH,
+            display_name="Run search before extracting news data",
+            description=(
+                "Run the search step before extracting the news data."
+                "Default is True."
+            ),
+            default_value="True",
+            value_type="bool",
+            explicit=False,
+            required=False,
+        )
+
         return AbstractFlow.direct_flow_option_items() + [
             flow_option_items.FOI_DAYS_LIMIT(),
             flow_option_items.FOI_OUTPUT_LANGUAGE(),
@@ -160,6 +174,8 @@ Please find the news items in the context about {{ query }} and return
             flow_option_items.FOI_ARTICLE_STYLE(),
             foi_news_source_min,
             foi_news_include_old,
+            foi_news_output_format,
+            foi_news_run_search,
         ]
 
     def _get_news_params(self, exec_info: ExecInfo) -> _NewsParams:
@@ -230,6 +246,13 @@ Please find the news items in the context about {{ query }} and return
             display_logger=display_logger,
         )
 
+        run_search = config_utils.get_bool_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_NEWS_RUN_SEARCH,
+            default_value=True,
+            display_logger=display_logger,
+        )
+
         news_params = _NewsParams(
             news_source_min=news_source_min,
             updated_time_threshold=updated_time_threshold,
@@ -238,6 +261,7 @@ Please find the news items in the context about {{ query }} and return
             language_instruction=language_instruction,
             old_news_instruction="",
             include_old_news=include_old_news,
+            run_search=run_search,
         )
         return news_params
 
@@ -448,6 +472,15 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
         news_params = self._get_news_params(exec_info)
 
         # the flow starts here
+        if news_params.run_search:
+            display_logger.info("Running search step before extracting news data.")
+            search_keywords = query
+            steps.StepSearchToDocsource.run_step(
+                exec_info=exec_info, search_keywords=search_keywords
+            )
+        else:
+            display_logger.info("Skipping search step before extracting news data.")
+
         extract_instructions = render_template(
             self.default_news_instructions,
             {
