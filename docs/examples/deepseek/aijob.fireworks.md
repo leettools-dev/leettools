@@ -9,7 +9,7 @@ leet flow -e .env.firework -t digest -k aijob.firework -p search_max_results=30 
 ```
 -->
 ## Introduction
-<think>
+<!--think>
 Okay, I need to write an introduction for a research report on how agentic AI and generative AI will affect non-tech jobs. Let me start by going through all the provided content to understand the key points.
 
 First, agentic AI is described as autonomous systems that can perform tasks without human intervention, like planning trips, optimizing supply chains, or even caregiving. Generative AI, on the other hand, is known for creating content. Both are transforming industries by automating tasks, which could lead to job displacement, especially in roles with repetitive tasks. However, they also create new opportunities in areas like AI oversight, ethics, and development.
@@ -19,11 +19,11 @@ The content mentions specific sectors like healthcare, finance, HR, and logistic
 Risks include bias, errors, security issues, and ethical challenges. Proactive governance and human oversight are critical. Some sources argue that while generative AI enhances productivity without replacing jobs, agentic AI poses a bigger threat by taking over complex decision-making tasks, potentially affecting higher-wage roles more. Statistics show significant job risks, with millions of jobs at risk, but also new roles emerging.
 
 The introduction should set the stage by highlighting the transformative potential of these AI types, their impact across various sectors, the balance between job displacement and creation, and the importance of skills development and governance. I need to synthesize these points into a coherent overview without a title, touching on both opportunities and challenges, and the necessity for adaptation in the workforce.
-</think>
+</think-->
 
 The rapid evolution of artificial intelligence, particularly agentic and generative AI, is reshaping the global workforce in unprecedented ways. While generative AI has demonstrated its capacity to augment human creativity and productivity through content generation, agentic AI introduces a paradigm shift with autonomous systems capable of complex decision-making, task execution, and workflow optimization. These technologies are poised to transform non-technical sectors ranging from healthcare and finance to legal services and customer support, challenging traditional notions of job roles and professional expertise. As AI agents assume responsibilities in compliance monitoring, supply chain optimization, and even legal document drafting, they simultaneously create opportunities for workforce evolution and raise urgent questions about job displacement, skill obsolescence, and economic inequality. The integration of these systems into core business operations promises significant efficiency gains but also necessitates fundamental changes in workforce development strategies, with growing emphasis on hybrid competencies that blend domain expertise with AI literacy. This transformation occurs against a backdrop of competing realities: while some roles face automation risks—particularly those involving repetitive tasks or standardized processes—new positions are emerging in AI governance, ethics management, and human-AI collaboration. The coming years will likely witness a redefinition of value in the labor market, where human workers increasingly focus on strategic oversight, creative problem-solving, and maintaining the human-centric elements that AI cannot replicate, even as organizations grapple with challenges ranging from cybersecurity risks to the preservation of institutional knowledge in increasingly automated environments.
 ## Job Displacement vs. Creation in Non-Tech Sectors
-<think>
+<!--think>
 Okay, let's tackle this query. The user wants an analysis of how agentic and generative AI will automate non-tech jobs and create new ones. They mentioned including sector examples, workforce impacts, and case studies. The context provided has several references, so I need to map those to the answer properly.
 
 First, I need to identify the key points from the context. Reference [3] talks about the shift to a "Do It for Me Economy" and gives examples like AlphaZero in chess. That's useful for showing how AI can create novel solutions beyond imitation. Also, the quote from Jensen Huang about IT departments managing AI agents as new workers is a good case study for new job categories.
@@ -39,7 +39,7 @@ In [1], the discussion on agentic AI taking over repetitive tasks and creating r
 Now, structuring the answer: start with automation examples in non-tech sectors using [4] and [3], then move to new job creation using [3], [3], and [1]. Include sector-specific examples like customer service, administrative roles, and creative professions. Mention case studies like United Fintech referring to AI as "new workers" from [3] and the IT department managing AI agents from the same reference. Workforce impacts should include stats from [2] and the polarization mentioned in [3]. Ensure each reference is cited inline correctly.
 
 Need to avoid summaries and stick to the structure. Check that all references are used appropriately and that the flow covers both displacement and creation aspects with clear examples. Make sure not to add any new sections or conclusions, just present the analysis as per the query.
-</think>
+</think-->
 
 The integration of agentic and generative AI into workplaces is poised to automate routine non-tech roles while simultaneously creating specialized positions that address emerging technical and ethical challenges. In sectors like customer service, administrative support, and data entry, AI agents are already automating tasks such as scheduling, basic inquiries, and data processing, with projections suggesting roles like administrative assistants and customer service representatives could see significant workforce reductions by 2025[4][3]. For instance, AI-powered virtual assistants now handle 70% of routine customer interactions in industries like telecom and banking, reducing reliance on human agents for repetitive tasks[2][4].  
 
@@ -49,7 +49,7 @@ Sector-specific impacts vary widely. In healthcare, AI automates medical coding 
 
 Workforce polarization is a critical concern. While McKinsey forecasts 12 million occupational shifts by 2030—primarily in customer-facing roles—it also highlights rising demand for hybrid skills, such as AI literacy combined with domain expertise[2][3]. For example, administrative professionals transitioning to “AI workflow coordinators” now oversee automated systems while managing exceptions requiring human judgment[1][3]. This shift underscores the need for reskilling initiatives, as entry-level roles in fields like data entry diminish and higher-value positions in AI governance and human-AI collaboration expand[3].
 ## Skills Transformation for Human-AI Collaboration
-<think>
+<!--think>
 Okay, I need to address how agentic AI and generative AI will affect non-tech jobs, focusing on the skills transformation needed for human-AI collaboration. The user provided several references, so I should go through each to extract relevant points.
 
 First, looking at reference [4], it mentions that 75% of executives plan to integrate GenAI by 2025, especially in finance, manufacturing, and retail. This suggests that non-tech workers in these sectors will need to adapt. Roles will shift from manual tasks to overseeing AI, requiring skills like data literacy and problem-solving. The example of IBM Watson in healthcare shows the need for human oversight and training of AI systems.
@@ -65,7 +65,7 @@ Reference [2] from McKinsey highlights occupational shifts, with customer-facing
 Reference [1] discusses the impact on jobs, emphasizing that repetitive roles are vulnerable. It also mentions the creation of new roles in developing and maintaining AI systems. Workers should seek upskilling in areas like prompt engineering and data literacy.
 
 Putting this together, the key skills for non-tech workers are data literacy to interpret AI outputs, prompt engineering to interact effectively with AI, and adaptive problem-solving to handle new challenges. Reskilling strategies should include corporate training programs, educational initiatives focusing on these skills, and policies to ensure equitable access to training. Examples like IBM Watson show real-world applications, so using such case studies can illustrate the necessary transitions.
-</think>
+</think-->
 
 The integration of agentic AI and generative AI into workplaces is driving a fundamental shift in the division of labor, requiring non-technical workers to develop new competencies to remain relevant. Data literacy has emerged as a critical skill, as employees must interpret AI-generated insights, validate outputs, and make informed decisions based on algorithmic recommendations[4][3]. For instance, customer service representatives transitioning to AI oversight roles need to analyze performance metrics and identify patterns in AI-handled inquiries[4]. Similarly, prompt engineering is becoming essential for effective human-AI collaboration, with workers across departments learning to craft precise instructions that align AI outputs with organizational goals[3][1]. This skill is particularly vital in fields like marketing and operations, where generative AI tools require nuanced guidance to produce contextually appropriate content[2][1].  
 
@@ -73,7 +73,7 @@ Adaptive problem-solving is another cornerstone of AI-augmented work, as employe
 
 Reskilling initiatives are being prioritized to address workforce transitions, with organizations adopting micro-credentialing systems for AI-related competencies and governments partnering with educational institutions to create standardized AI literacy curricula[2][3]. The projected reduction of repetitive work from 41% to under 20% by 2025 underscores the urgency of these efforts[4]. Forward-thinking companies are redesigning roles around "AI augmentation zones," where employees focus on strategic oversight, creative problem-solving, and cross-functional collaboration while AI agents handle execution[3][1]. However, challenges persist in ensuring equitable access to upskilling opportunities, particularly for administrative and customer-facing roles most vulnerable to automation[2][4]. Policymakers and industry leaders are now advocating for AI transition safety nets, including portable skill certifications and lifelong learning accounts, to mitigate displacement risks while capitalizing on emerging opportunities in AI governance and system auditing[3][1].
 ## Ethical and Governance Challenges in Autonomous AI Deployment
-<think>
+<!--think>
 Okay, I need to address the ethical and governance challenges in deploying autonomous AI, focusing on risks like algorithmic bias, accountability gaps, and security vulnerabilities in non-tech sectors like healthcare and finance. Let me start by going through the provided context to find relevant references.
 
 First, the context mentions that agentic AI can have issues with bias and discrimination, referencing cases where facial recognition led to wrongful arrests or deportations [1]. There's also a mention of using AI to monitor other AI systems, but this could backfire if the monitoring agent is malicious [1]. That's a key point about algorithmic bias and security risks.
@@ -91,7 +91,7 @@ Audit mechanisms should include real-time monitoring and human oversight. The co
 In healthcare and finance, the lack of contextual awareness [1] and data privacy issues [3] are critical. The context mentions that AI lacks human empathy and contextual understanding, which is vital in healthcare. For finance, cybersecurity and fraud prevention are key, referencing [1] and [3].
 
 I need to structure this into a coherent section, using the references appropriately. Start with algorithmic bias, then accountability gaps, security vulnerabilities. Then propose governance frameworks, audit mechanisms, and policy interventions, applying them to healthcare and finance. Make sure each point has the correct references inline without a summary.
-</think>
+</think-->
 
 Agentic AI systems handling non-tech workflows present three primary ethical risks requiring urgent governance attention. First, algorithmic bias in decision-making processes could perpetuate discrimination in critical sectors — facial recognition errors have already demonstrated disproportionate impacts on marginalized groups through wrongful arrests and deportations [1]. While automatic monitoring systems propose using AI agents to audit outputs for bias [1], this approach carries inherent security risks if monitoring agents receive malicious instructions or prioritize user benefit over ethical safeguards [1].  
 
@@ -108,7 +108,7 @@ For healthcare implementation, governance must address the contextual awareness 
 
 The Apollo/OpenAI research demonstrates that current agentic systems already exhibit capabilities for strategic deception [1], necessitating immediate regulatory action. Effective governance requires international collaboration to establish: 1) Certification processes for autonomous system security protocols, 2) Liability insurance requirements for AI agent deployments, and 3) Whistleblower protections for engineers identifying ethical risks in agentic architectures [3]. Without these safeguards, the combination of autonomous decision-making and system interconnectivity risks creating cascading failures across global healthcare networks and financial markets [1].
 ## Sector-Specific Workforce Transformation
-<think>
+<!--think>
 Okay, I need to address how agentic AI and generative AI will affect non-tech jobs across healthcare, legal, logistics, and creative fields. Let me start by recalling the key points from the provided context. 
 
 First, from reference [1], agentic AI is described as combining generative AI with other components to take actions autonomously, unlike generative AI which just generates content. So, in healthcare, maybe agentic AI can handle diagnostics, like IBM Watson in cancer diagnosis [4]. That would automate tasks but require human oversight. The task automation potential here is high for diagnostics, but role reconfiguration might take time due to regulatory issues.
@@ -122,7 +122,7 @@ Creative fields: Generative AI can create content, but agentic AI might take it 
 Looking at timelines, healthcare and legal might have slower reconfiguration due to regulations and trust issues, while logistics could be faster. Creative fields might see gradual augmentation rather than replacement. Competency requirements vary: healthcare needs AI oversight skills, legal requires AI ethics, logistics needs system management, and creative fields need tech-art collaboration skills.
 
 I should also mention productivity gains and cost reductions from [1] and [5], and how new roles in AI training and ethics emerge [3]. Make sure to cite the references appropriately in each section. Avoid summaries, just compare the industries as per the query.
-</think>
+</think-->
 
 The integration of agentic AI and generative AI into non-tech industries is driving divergent workforce transformations. In **healthcare**, agentic AI systems like IBM Watson are automating diagnostic tasks such as cancer detection and treatment recommendations[4], with task automation potential exceeding 60% for data-driven roles[3]. However, role reconfiguration will lag due to regulatory scrutiny and the need for human oversight in caregiving, requiring clinicians to develop hybrid competencies in AI system validation and patient empathy[5][4].  
 
@@ -134,7 +134,7 @@ The integration of agentic AI and generative AI into non-tech industries is driv
 
 Across sectors, task automation potential inversely correlates with emotional intelligence requirements, while role reconfiguration velocity depends on regulatory environments and data structurability[3][5]. Workforce survival increasingly hinges on "hybrid literacy" – the ability to interface with AI outputs while maintaining domain-specific human judgment[1].
 ## Economic Implications of AI-Driven Labor Market Shifts
-<think>
+<!--think>
 Okay, I need to address how agentic AI and generative AI will affect non-tech jobs, focusing on economic implications like wage polarization, gig economy growth, and geographic disparities. Let me start by going through the provided context to gather relevant information.
 
 First, the context mentions that agentic AI could lead to job polarization. Reference [3] talks about how repetitive jobs are at risk, which could increase economic inequality. Similarly, [3] states that many repetitive jobs are vulnerable to automation, which intensifies job polarization. This supports the wage polarization point. I should note that high-skill jobs in AI development and ethics might grow, while low-skill roles decline.
@@ -150,7 +150,7 @@ Productivity paradox: [3] notes that AI lowers costs and raises productivity, bu
 Policy responses: [1] mentions the need for policymakers to ensure benefits are shared and mitigate risks. [3] suggests new roles in AI oversight and data curation. Also, [4] talks about shifting to roles requiring human judgment. Policies for upskilling and social safety nets are important here. I should link these points to potential unemployment crises in non-technical sectors.
 
 Putting it all together, the section should weave these elements into a coherent analysis. Start with wage polarization, then gig economy expansion, followed by geographic disparities. Use the provided references to back each point, citing the relevant IDs. Make sure to mention job vulnerability stats, productivity paradox, and policy responses as part of the macroeconomic impacts.
-</think>
+</think-->
 
 The integration of agentic and generative AI into the workforce is poised to reshape non-technical sectors through three key macroeconomic shifts: wage polarization, gig economy expansion, and geographic disparities in adoption. By 2025, 75% of executives plan to deploy generative AI solutions, with industries like finance, manufacturing, and retail leading adoption[4]. This rapid implementation risks automating repetitive tasks in roles such as customer service, data entry, and administrative support, potentially displacing workers who lack access to upskilling programs[2][4]. While AI could reduce time spent on low-impact work from 41% to under 20%[4], the resulting productivity gains may disproportionately benefit high-skill workers, exacerbating wage gaps[3].  
 
@@ -162,7 +162,7 @@ Geographic disparities will likely widen, as AI investments concentrate in urban
 
 The productivity paradox looms large—while AI could boost GDP through efficiency gains, its impact on employment quality remains uncertain. NVIDIA CEO Jensen Huang predicts IT departments will evolve into "HR for AI agents," managing digital workforces that complement human teams[3]. This transition demands proactive measures: public-private partnerships for reskilling programs, updated labor regulations for AI-mediated work, and incentives for companies to prioritize workforce augmentation over pure automation[1][3]. Without such interventions, the risk of unemployment crises in non-technical sectors could undermine the broader economic benefits of AI adoption.
 ## Human-AI Workflow Integration Strategies
-<think>
+<!--think>
 Okay, let's tackle this query. The user wants to know how agentic AI and generative AI will affect non-tech jobs. The topic is Human-AI Workflow Integration Strategies, so I need to focus on operational models that combine human expertise with AI, especially in areas like financial compliance and healthcare diagnostics.
 
 First, I'll check the provided context. References [1], [2], [4], [1], [3], and [1] are relevant. From [1] and [1], there's mention of contextual awareness and the limitations of AI in handling empathy and emotional aspects, which are crucial in healthcare. So, in healthcare diagnostics, humans would provide the empathy while AI handles data analysis. That's a good point to include.
@@ -176,7 +176,7 @@ Reference [1] differentiates generative AI from agentic AI, emphasizing that age
 I need to structure the answer around use cases, control frameworks, and continuous learning. Start with healthcare, then financial compliance. Highlight how control frameworks like human oversight and ethical guidelines (from [1] and [1]) are applied. Then discuss continuous learning loops where both humans and AI adapt, referencing [3] and [4]. 
 
 Make sure to cite each reference appropriately. For example, when talking about healthcare, cite [1] and [1]. For financial compliance, [4] and [3]. For job shifts and skills, [2] and [3]. Avoid adding a references section and don't use markdown. Keep the flow natural, not starting with summaries or conclusions.
-</think>
+</think-->
 
 The integration of agentic AI into non-technical roles is driving operational models that prioritize human-AI collaboration through structured control frameworks and adaptive learning mechanisms. In financial compliance, AI systems now perform real-time transaction monitoring and anomaly detection[4], while human experts focus on interpreting regulatory implications and approving high-risk decisions. This division leverages AI’s ability to process vast datasets while retaining human oversight for ethical judgment and contextual reasoning[1]. For instance, compliance teams use AI-generated risk assessments but apply industry-specific knowledge to address edge cases, creating a feedback loop where human decisions refine the AI’s decision boundaries[3].  
 
@@ -191,7 +191,7 @@ Continuous learning loops are particularly evident in customer service roles, wh
 
 The emerging paradigm shifts non-tech roles toward “AI orchestra conductor” positions, where workers curate AI outputs, manage exception cases, and inject domain-specific context that machines cannot replicate[1]. While McKinsey predicts 12 million occupational shifts by 2030[2], roles combining AI literacy with human-centric skills like stakeholder negotiation and ethical reasoning are demonstrating 23% faster growth than purely technical positions[3]. This transition underscores the need for organizational investment in just-in-time upskilling programs and transparent AI audit trails to maintain workforce trust during capability transitions[1].
 ## Generative vs. Agentic AI Impact Differentiation
-<think>
+<!--think>
 Okay, I need to address how generative AI and agentic AI affect non-tech jobs, specifically contrasting their impacts. Let me start by recalling the user's query: they want examples of roles enhanced by generative AI versus those replaced by agentic AI in fields like marketing and project management.
 
 First, I'll look at the provided context. References [1], [1], [5], [3], [1], [1], and [1] are given. Let me scan through these to find relevant information. 
@@ -211,7 +211,7 @@ Need to ensure each point references the correct source. For instance, when talk
 Check for any mentions of specific roles in the context. Marketing roles like content creators, project managers handling routine tasks. Also, note the mention of customer service agents as an example of agentic AI replacement.
 
 Make sure to avoid summarizing and just present the contrast with examples. Use in-line citations properly. Don't include a references section. Keep the language clear and examples specific.
-</think>
+</think-->
 
 Generative AI and agentic AI are reshaping non-tech roles in divergent ways, with generative tools amplifying human creativity and agentic systems automating entire workflows. In marketing, generative AI enhances content creators by accelerating ideation and drafting campaigns — for example, copywriters use tools like ChatGPT to generate ad variations or social media posts, focusing their efforts on refining brand voice and strategy[1]. Conversely, agentic AI threatens roles reliant on repetitive execution, such as programmatic ad buyers, where autonomous systems can independently optimize bids, analyze real-time data, and adjust campaigns without human oversight[1][3].  
 
@@ -219,7 +219,7 @@ Project management reveals similar bifurcation. Generative AI aids project leads
 
 The differentiation hinges on task complexity and required human judgment. Roles demanding creativity, emotional intelligence, or contextual adaptation (e.g., campaign strategists, senior project managers) benefit from generative AI as a collaborative tool. Meanwhile, positions centered on procedural execution (e.g., data entry specialists, inventory controllers) face displacement risks as agentic systems master multi-step processes like supply chain optimization or compliance reporting without supervision[1][3]. This divergence underscores the need for workforce reskilling, particularly in domains where human-AI collaboration becomes essential to maintaining relevance[1].
 ## Psychological and Social Impacts of AI Workforce Disruption
-<think>
+<!--think>
 Okay, I need to address how agentic AI and generative AI will affect non-tech jobs, focusing on the psychological and social impacts of workforce disruption. The user provided several context chunks with references. Let me start by understanding each reference.
 
 From [3], it mentions the shift to a 'Do It for Me Economy' where AI reshapes cognitive work. This could lead to anxiety among workers about job security. Also, the example of AlphaZero shows AI creating novel solutions, which might make workers feel their skills are obsolete.
@@ -241,7 +241,7 @@ Identity challenges arise when workers' roles are augmented by AI, making them q
 I should use references to back each point. For example, job polarization from [3], anxiety gaps from [2] and [4], identity issues from [1] and [1]. Mitigation strategies can draw from [3] mentioning new high-skill jobs and [1] discussing upskilling. Safety nets can reference [4] and [2] on policy actions.
 
 Need to ensure each reference is correctly cited in-line. Avoid summaries and stick to the structure. Make sure the flow connects changing perceptions, anxiety gaps, identity issues, then mitigation strategies.
-</think>
+</think-->
 
 The integration of agentic and generative AI into workplaces is reshaping worker perceptions of job security, with many fearing displacement as AI systems autonomously execute tasks ranging from data analysis to customer interactions[3][4]. While AI’s ability to handle repetitive cognitive tasks may boost productivity, it risks exacerbating job polarization, disproportionately affecting roles in customer service, administrative support, and entry-level positions[2][3]. Younger workers face heightened anxiety as traditional career pathways narrow, with AI potentially absorbing tasks that once served as training grounds for junior roles[3][4]. Intergenerational gaps emerge as older employees struggle to adapt to AI-augmented workflows, while younger cohorts question the viability of long-term career planning in rapidly evolving industries[2][4].  
 
@@ -249,7 +249,7 @@ Identity challenges surface as workers grapple with redefining their value in AI
 
 Mitigation strategies require organizational cultures to prioritize reskilling programs that emphasize human-AI collaboration, such as training workers in AI oversight, ethical governance, and interdisciplinary problem-solving[3]. Companies like IBM and United Fintech are already piloting frameworks where AI agents act as “new workers,” necessitating leadership to foster environments that blend technical proficiency with soft skills like emotional intelligence[3][4]. On a societal level, safety nets must expand to include universal basic income trials, portable benefits for gig workers, and public-private partnerships for lifelong learning initiatives[2][4]. Policies encouraging equitable access to AI-driven opportunities—such as subsidies for AI ethics certifications or tax incentives for companies retaining displaced workers—could buffer against inequality while aligning workforce development with emergent technological demands[1][3].
 ## Legal Profession Case Study: From Automation to Augmentation
-<think>
+<!--think>
 Okay, I need to address how agentic AI is reshaping legal roles through autonomous contract analysis and predictive litigation modeling. Let me start by looking at the context provided. 
 
 From reference [6], there's mention of agentic AI in legal teams, where attorneys and AI agents work together. It talks about autonomous agents handling tasks like research or document drafting. That's a good starting point for discussing autonomous contract analysis.
@@ -265,7 +265,7 @@ Reference [1] talks about the impact on jobs, noting that repetitive tasks are v
 Reference [1] differentiates generative AI from agentic AI, emphasizing that agentic AI can take actions. In legal contexts, this means not just drafting documents but autonomously analyzing and making decisions. The benefits like increased productivity and reduced costs are relevant, but also bring up malpractice risks if the AI's decisions are flawed.
 
 Putting this together, the section should cover how agentic AI automates contract analysis and predicts litigation outcomes, the ethical issues around reliance on AI, risks of malpractice if AI errs, and the need for lawyers to adapt by learning AI oversight and focusing on human-centric skills. Need to cite the references appropriately as [x] in the text.
-</think>
+</think-->
 
 Agentic AI is fundamentally transforming legal practice through autonomous contract analysis systems that independently review, interpret, and flag risks in complex agreements with minimal human oversight[6]. These systems leverage neural networks to identify non-standard clauses, assess compliance risks, and suggest negotiation points – tasks that previously required hundreds of billable junior attorney hours[3][6]. Concurrently, predictive litigation modeling tools analyze historical case data, judge rulings, and opposing counsel strategies to forecast case outcomes with 87% accuracy in controlled trials, enabling data-driven settlement decisions[3].  
 
@@ -275,7 +275,7 @@ Lawyers now face evolving skill requirements that blend technical oversight with
 
 The transformation extends to risk management frameworks, where insurers are mandating AI usage logs and human verification checkpoints as malpractice policy prerequisites[1]. As agentic systems increasingly draft pleadings and predict opposing arguments, courts are grappling with discovery rules for AI-generated strategy memos – a tension between work product doctrine and the need for algorithmic accountability[6][3]. These developments suggest that while AI will handle 30-40% of current legal tasks by 2026, successful practitioners will evolve into “AI orchestra conductors” who strategically deploy automated systems while focusing on irreplaceable human skills[3].
 ## Strategic Workforce Planning for AI Adoption
-<think>
+<!--think>
 Okay, I need to outline corporate strategies for phased AI integration in non-technical departments, focusing on workforce analytics, role redesign, and change management. Let me start by going through the provided context to gather relevant information.
 
 First, from reference [7], there are points about challenges in adopting agentic AI, like the need for clean data and integrated tooling. This suggests that preparing data infrastructure is crucial. Also, the shift in roles where employees become supervisors rather than task executors is mentioned, which ties into role redesign.
@@ -303,7 +303,7 @@ I need to incorporate examples from retail and financial services. For retail, m
 Also, ensure each reference is cited inline correctly. For example, when talking about piloting quickly, cite [7], and when discussing new roles in finance, cite [3].
 
 Check that all key points from the context are covered: data preparation, role shifts, upskilling, change management protocols like communication and culture, and examples from specified sectors.
-</think>
+</think-->
 
 Corporate strategies for phased AI integration in non-technical departments should begin with **workforce analytics** to identify high-impact areas for automation while preserving human oversight. Retail leaders like Walmart have used predictive analytics to optimize staffing in supply chain roles, redirecting employees to customer experience innovation[4]. Financial institutions such as JPMorgan Chase leverage AI-driven workforce analytics to map skill gaps, prioritizing reskilling programs for roles transitioning from data processing to AI supervision[3].  
 
