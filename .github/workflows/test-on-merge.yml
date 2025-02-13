@@ -35,7 +35,15 @@ jobs:
           echo "EDS_DEFAULT_LLM_BASE_URL=${{ secrets.OPENAI_BASE_URL }}" >> .env
           echo "EDS_LLM_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
 
+      - name: Run the local embeddings server
+        run: |
+          nohup src/local/embedding/run.sh > /dev/null 2>&1 &
+          echo $! > local-embedding-server.pid
 
       # Run pytest
       - name: Run tests
         run: pytest
+      
+      # Stop the local embeddings server
+      - name: Stop the local embeddings server
+        run: kill $(cat local-embedding-server.pid)
