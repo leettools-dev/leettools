@@ -96,7 +96,7 @@ class ParserDocling(AbstractParser):
                     f.write(content)
             return content
         except Exception as exc:
-            logger().error(f"Failed to parser {filepath}, error: {exc}")
+            logger().error(f"Failed to parse {filepath}, error: {exc}")
             return ""
 
     def docx2md(self, docx_filepath: str, target_path: Optional[Path] = None) -> str:

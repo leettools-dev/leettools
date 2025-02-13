@@ -32,7 +32,10 @@ class IntentionStoreDuckDB(AbstractIntentionStore):
         self.duckdb_client = DuckDBClient(self.settings)
 
     def _dict_to_intention(self, data: dict) -> Intention:
-        if Intention.FIELD_EXAMPLES in data:
+        examples = data.get(Intention.FIELD_EXAMPLES, None)
+        if examples is None or examples == "[]" or examples == "":
+            data[Intention.FIELD_EXAMPLES] = []
+        else:
             list_str = data[Intention.FIELD_EXAMPLES]
             list_str = list_str[1:-1]
             list = list_str.split(", ")
@@ -48,7 +51,7 @@ class IntentionStoreDuckDB(AbstractIntentionStore):
 
     def _intention_to_dict(self, intention: Intention) -> dict:
         intention_dict = intention.model_dump()
-        if Intention.FIELD_EXAMPLES in intention_dict:
+        if intention.examples is not None and len(intention.examples) > 0:
             intention_dict[Intention.FIELD_EXAMPLES] = (
                 "[" + ", ".join(intention_dict[Intention.FIELD_EXAMPLES]) + "]"
             )
@@ -84,6 +87,7 @@ class IntentionStoreDuckDB(AbstractIntentionStore):
                 entity_type="Intention",
             )
         intention_dict = self._intention_to_dict(intention_create)
+
         if intention_create.display_name is None:
             intention_dict[Intention.FIELD_DISPLAY_NAME] = intention_create.intention
         intention_dict[Intention.FIELD_CREATED_AT] = time_utils.current_datetime()

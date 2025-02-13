@@ -136,10 +136,10 @@ def run_inference_call_direct(
     user_prompt_info = truncate_str(normalize_newlines(user_prompt), info_len)
 
     display_logger.noop(
-        f"Final system prompt(first {info_len} chars): {system_prompt_info}", noop_lvl=2
+        f"Final system prompt(first {info_len} chars): {system_prompt_info}", noop_lvl=1
     )
     display_logger.noop(
-        f"Final user prompt (first {info_len} chars): {user_prompt_info}", noop_lvl=2
+        f"Final user prompt (first {info_len} chars): {user_prompt_info}", noop_lvl=1
     )
 
     start_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
@@ -536,6 +536,9 @@ def _support_pydantic_response(final_llm_model_name: str) -> bool:
         return True
 
     if final_llm_model_name.startswith("gemini-"):
+        return True
+
+    if final_llm_model_name.startswith("llama3.2"):
         return True
 
     return False

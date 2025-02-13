@@ -7,6 +7,9 @@ pyyaml==6.0.2
 pydantic==2.10.3
 python-dotenv==1.0.1
 Requests==2.32.3
+httpx==0.27.2
+fastapi==0.109.2
+uvicorn==0.27.1
 rich==13.9.4
 nltk==3.8.1
 psutil==5.9.8
