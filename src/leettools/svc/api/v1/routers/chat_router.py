@@ -372,7 +372,7 @@ class ChatRouter(APIRouterBase):
             ch = self.chat_manager.get_ch_entry(calling_user.username, chat_id)
             if ch is None:
                 logger().warning(
-                    "Chat history with ID {chat_id} for user {user.username} not found."
+                    f"Chat history with ID {chat_id} for user {calling_user.username} not found."
                 )
                 return None
             if ch.creator_id != calling_user.username:
@@ -415,13 +415,13 @@ class ChatRouter(APIRouterBase):
             """
             Create chat history
             """
-
-            if calling_user.username != ch_create.creator_id:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Creator ID in the URL {calling_user.username} does not match the creator "
-                    f"ID in the request body {ch_create.creator_id}",
-                )
+            if self.settings.SINGLE_USER_MODE is False:
+                if calling_user.username != ch_create.creator_id:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Creator ID in the URL {calling_user.username} does not match the creator "
+                        f"ID in the request body {ch_create.creator_id}",
+                    )
 
             org = self.org_manager.get_org_by_id(ch_create.org_id)
             if org is None:

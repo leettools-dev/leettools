@@ -3,8 +3,8 @@ from typing import Optional
 
 from fastapi import HTTPException
 
+from leettools.core.auth.authorizer import HEADER_AUTH_UUID_FIELD
 from leettools.core.schemas.user import User, UserCreate
-from src.leettools.core.auth.authorizer import HEADER_AUTH_UUID_FIELD
 
 
 def get_user_with_auth(

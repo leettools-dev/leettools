@@ -1,5 +1,3 @@
-""" This module contains the Neo4jGraphDB class for Neo4j graph database. """
-
 import uuid
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient

@@ -20,8 +20,8 @@ def test_segment_router():
 
     temp_setup = TempSetup()
     context = temp_setup.context
-    context.settings.DOC_STORE_TYPE = "mongo"
-    context.settings.VECTOR_STORE_TYPE = "milvus"
+    context.settings.DOC_STORE_TYPE = "duckdb"
+    context.settings.VECTOR_STORE_TYPE = "duckdb"
 
     org, kb, user = temp_setup.create_tmp_org_kb_user()
 

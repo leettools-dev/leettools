@@ -15,8 +15,8 @@ from leettools.svc.api.v1.routers.md_router import MDRouter
 
 def test_md_router():
     temp_setup = TempSetup()
-    temp_setup.context.settings.DOC_STORE_TYPE = "mongo"
-    temp_setup.context.settings.VECTOR_STORE_TYPE = "milvus"
+    temp_setup.context.settings.DOC_STORE_TYPE = "duckdb"
+    temp_setup.context.settings.VECTOR_STORE_TYPE = "duckdb"
 
     org, kb, user = temp_setup.create_tmp_org_kb_user()
 

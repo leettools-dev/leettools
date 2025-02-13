@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from bson import ObjectId
 from fastapi import FastAPI
 from httpx import AsyncClient
 
@@ -108,7 +107,7 @@ async def test_stream_log_file_not_found():
     app = FastAPI(title="test")
     app.include_router(JobRouter())
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        job_uuid = ObjectId("60d1f2b1b1b3b3b3b3b3b3b3")
+        job_uuid = "73727787-6914-4fc6-ab5d-13df949840ab"
         response = await ac.get(f"/logs/{job_uuid}")
         assert response.status_code == 404
         assert response.json() == {"detail": f"Job {job_uuid} not found."}

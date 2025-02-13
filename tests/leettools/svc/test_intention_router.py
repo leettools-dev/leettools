@@ -16,7 +16,7 @@ from leettools.svc.api.v1.routers.intention_router import IntentionRouter
 
 def test_intention_router():
     temp_setup = TempSetup()
-    temp_setup.context.settings.DOC_STORE_TYPE = "mongo"
+    temp_setup.context.settings.DOC_STORE_TYPE = "duckdb"
     org, kb, user = temp_setup.create_tmp_org_kb_user()
     intention_store = temp_setup.context.get_intention_store()
 

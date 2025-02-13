@@ -17,8 +17,8 @@ from leettools.svc.api.v1.routers.docsink_router import DocSinkRouter
 
 def test_permission_docsink_router():
     temp_setup = TempSetup()
-    temp_setup.context.settings.DOC_STORE_TYPE = "mongo"
-    temp_setup.context.settings.VECTOR_STORE_TYPE = "milvus"
+    temp_setup.context.settings.DOC_STORE_TYPE = "duckdb"
+    temp_setup.context.settings.VECTOR_STORE_TYPE = "duckdb"
 
     context = temp_setup.context
     admin_user = context.get_user_store().get_user_by_name(User.ADMIN_USERNAME)
@@ -36,8 +36,8 @@ def test_permission_docsink_router():
 
 def test_multiuser_permission_docsink_router():
     temp_setup = TempSetup()
-    temp_setup.context.settings.DOC_STORE_TYPE = "mongo"
-    temp_setup.context.settings.VECTOR_STORE_TYPE = "milvus"
+    temp_setup.context.settings.DOC_STORE_TYPE = "duckdb"
+    temp_setup.context.settings.VECTOR_STORE_TYPE = "duckdb"
 
     user1 = temp_setup.create_tmp_user()
     org, kb, user1 = temp_setup.create_tmp_org_kb_user(user1)
@@ -56,8 +56,8 @@ def test_multiuser_permission_docsink_router():
 
 def test_regular_docsink_router():
     temp_setup = TempSetup()
-    temp_setup.context.settings.DOC_STORE_TYPE = "mongo"
-    temp_setup.context.settings.VECTOR_STORE_TYPE = "milvus"
+    temp_setup.context.settings.DOC_STORE_TYPE = "duckdb"
+    temp_setup.context.settings.VECTOR_STORE_TYPE = "duckdb"
     org, kb, user = temp_setup.create_tmp_org_kb_user()
 
     context = temp_setup.context
@@ -116,7 +116,7 @@ def _test_user_access_user(
     response = client.get(f"/{org.name}", headers=headers)
     assert response.status_code == 200
     assert isinstance(response.json(), dict)
-    assert len(response.json()) == 0
+    assert len(response.json()) == 1
 
     try:
         response = client.get(f"/{org.name}/{kb.name}", headers=headers)

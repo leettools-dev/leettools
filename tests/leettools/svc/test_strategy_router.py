@@ -21,7 +21,7 @@ from leettools.svc.api.v1.routers.strategy_router import StrategyRouter
 def test_strategy_router():
 
     temp_setup = TempSetup()
-    temp_setup.context.settings.DOC_STORE_TYPE = "mongo"
+    temp_setup.context.settings.DOC_STORE_TYPE = "duckdb"
     org, kb, user = temp_setup.create_tmp_org_kb_user()
 
     router = StrategyRouter()

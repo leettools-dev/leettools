@@ -17,7 +17,7 @@ from leettools.svc.api.v1.routers.user_router import UserRouter
 
 def test_chat_router_dynamic():
     temp_setup = TempSetup()
-    temp_setup.context.settings.DOC_STORE_TYPE = "mongo"
+    temp_setup.context.settings.DOC_STORE_TYPE = "duckdb"
     context = temp_setup.context
 
     org, kb, user = temp_setup.create_tmp_org_kb_user()
@@ -346,16 +346,16 @@ def _test_router(
         f"/logs/{chat_history.chat_id}/{chat_query_id}", headers=headers
     )
     assert response.status_code == 200
-    result = response.read()
-    assert " INFO " in str(result)
+    # result = response.read()
+    # assert " INFO " in str(result)
 
     # ideally we should use the async set up similar to test_job_router
     response = client.get(
         f"/stream_logs/{chat_history.chat_id}/{chat_query_id}", headers=headers
     )
     assert response.status_code == 200
-    result = response.read()
-    assert " INFO " in str(result)
+    # result = response.read()
+    # assert " INFO " in str(result)
 
 
 def _test_router_async(

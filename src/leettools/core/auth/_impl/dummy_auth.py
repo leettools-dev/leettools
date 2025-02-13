@@ -27,10 +27,22 @@ class DummyAuth(AbstractAuthorizer):
         return self.admin_user
 
     def get_user_from_request(self, request: Request) -> User:
-        return self.admin_user
+        user_name = request.headers.get("username")
+        if user_name is None or user_name == "":
+            return self.admin_user
+        user = self.user_store.get_user_by_name(user_name)
+        if user is None:
+            raise HTTPException(status_code=404, detail=f"User {user_name} not found")
+        return user
 
     def get_user_from_payload(self, user_dict: Dict[str, Any]) -> User:
-        return self.admin_user
+        user_name = user_dict.get("username")
+        if user_name is None or user_name == "":
+            return self.admin_user
+        user = self.user_store.get_user_by_name(user_name)
+        if user is None:
+            raise HTTPException(status_code=404, detail=f"User {user_name} not found")
+        return user
 
     def can_read_kb(self, org: Org, kb: KnowledgeBase, user: User) -> bool:
         return True

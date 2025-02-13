@@ -101,7 +101,7 @@ class DocSinkRouter(APIRouterBase):
             kb_name: str,
             docsource_uuid: str,
             calling_user: User = Depends(self.auth.get_user_from_request),
-        ) -> None:
+        ) -> List[DocSink]:
             """
             Get all docsinks for a docsource
 
