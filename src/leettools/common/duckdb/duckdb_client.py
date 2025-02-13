@@ -79,7 +79,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 VALUES {placeholders}
             """
             logger().noop(
-                f"SQL Statement batch_insert_into_table: {insert_sql}", noop_lvl=1
+                f"SQL Statement batch_insert_into_table: {insert_sql}", noop_lvl=2
             )
             with self._get_table_lock(table_name):
                 cursor.execute(insert_sql, flattened_values)
@@ -159,7 +159,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                     )
                     logger().noop(
                         f"SQL Statement create_table_sql: {create_table_sql}",
-                        noop_lvl=1,
+                        noop_lvl=2,
                     )
                     cursor.execute(create_table_sql)
                 self.created_tables[table_key] = f"{new_schema_name}.{new_table_name}"
@@ -172,7 +172,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             delete_sql = f"DELETE FROM {table_name}"
             if where_clause is not None:
                 delete_sql += f" {where_clause}"
-            logger().noop(f"SQL Statement delete_sql: {delete_sql}", noop_lvl=1)
+            logger().noop(f"SQL Statement delete_sql: {delete_sql}", noop_lvl=2)
             with self._get_table_lock(table_name):
                 if value_list is not None:
                     cursor.execute(delete_sql, value_list)
@@ -228,7 +228,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 SELECT {column_str} FROM {table_name} 
                 {where_clause}
                 """
-            logger().noop(f"SQL Statement select_sql: {select_sql}", noop_lvl=1)
+            logger().noop(f"SQL Statement select_sql: {select_sql}", noop_lvl=2)
             with self._get_table_lock(table_name):
                 if value_list is not None:
                     results = cursor.execute(select_sql, value_list).fetchall()
@@ -301,6 +301,6 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             update_sql = f"UPDATE {table_name} SET {set_clause} "
             if where_clause is not None:
                 update_sql += f"{where_clause}"
-            logger().noop(f"SQL Statement update_sql: {update_sql}", noop_lvl=1)
+            logger().noop(f"SQL Statement update_sql: {update_sql}", noop_lvl=2)
             with self._get_table_lock(table_name):
                 cursor.execute(update_sql, value_list)
