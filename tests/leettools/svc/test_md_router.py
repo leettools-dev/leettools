@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from leettools.common.logging import logger
 from leettools.common.temp_setup import TempSetup
-from leettools.context_manager import Context, ContextManager
+from leettools.context_manager import Context
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsink import DocSinkCreate
 from leettools.core.schemas.docsource import DocSourceCreate

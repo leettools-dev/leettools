@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from leettools.common.temp_setup import TempSetup
-from leettools.context_manager import Context, ContextManager
+from leettools.context_manager import Context
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User

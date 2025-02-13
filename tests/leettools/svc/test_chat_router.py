@@ -346,16 +346,16 @@ def _test_router(
         f"/logs/{chat_history.chat_id}/{chat_query_id}", headers=headers
     )
     assert response.status_code == 200
-    # result = response.read()
-    # assert " INFO " in str(result)
+    result = response.read()
+    assert " INFO " in str(result)
 
     # ideally we should use the async set up similar to test_job_router
     response = client.get(
         f"/stream_logs/{chat_history.chat_id}/{chat_query_id}", headers=headers
     )
     assert response.status_code == 200
-    # result = response.read()
-    # assert " INFO " in str(result)
+    result = response.read()
+    assert " INFO " in str(result)
 
 
 def _test_router_async(
