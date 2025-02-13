@@ -24,17 +24,17 @@ while getopts ":e:" opt; do
       exit 1
       ;;
   esac
-done 
+done
 
 
 # Check if the .env file exists in the root directory
 if [ -f "${BASE_DIR}"/"${ENV_FILE}" ]; then
   #Load environment variables from .env file
-    while IFS='=' read -r name value; do 
+    while IFS='=' read -r name value; do
     if [[ ! $name =~ ^\# ]] && [[ -n $name ]]; then
       # echo "$name" "$value";
-      export "$name=$value"; 
-    fi; 
+      export "$name=$value";
+    fi;
     done < "${BASE_DIR}"/"${ENV_FILE}"
 fi
 

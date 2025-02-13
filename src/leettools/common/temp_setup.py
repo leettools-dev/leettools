@@ -1,13 +1,11 @@
 import inspect
 import random
-from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
 
 from leettools.chat.history_manager import _HMInstances
 from leettools.common.logging import logger
-from leettools.common.utils import file_utils, time_utils
-from leettools.core.auth._impl.eds_authorizer import EDSAuthorizer
+from leettools.common.utils import time_utils
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate
