@@ -80,6 +80,12 @@ class AbstractDenseEmbedder(ABC):
         Returns:
         - True if the other embedder is compatible with this embedder, False otherwise.
         """
+        if other is None:
+            return False
+
+        if self.__class__ == other.__class__:
+            return True
+
         return isinstance(other, self.__class__)
 
     def is_compatible(self, other: "AbstractDenseEmbedder") -> bool:

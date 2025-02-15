@@ -28,3 +28,46 @@ export EDS_DEFAULT_SCRAPER="firecrawl"
 Note that you can run the FireCrawl search engine locally:
 https://github.com/mendableai/firecrawl/blob/main/CONTRIBUTING.md
 
+# Use FireCrawl and Ollama to run Deep Research
+
+First we need to create a customized LLAMA3.2 model with a bigger context window. The
+default of Ollma is 2K and not enough for the summary tasks.
+
+```bash
+cat > llama3.2_8k <<EOF
+FROM llama3.2:latest
+PARAMETER num_ctx 8096
+EOF
+
+ollama create llama3.2_8k -f llama3.2_8k
+```
+
+Then we create a new environment file for the FireCrawl search engine and local Ollama:
+
+```bash
+cat > .env.ollama.firecrawl <<EOF
+EDS_DEFAULT_LLM_BASE_URL=http://localhost:11434/v1
+EDS_LLM_API_KEY=dummy-key
+EDS_DEFAULT_INFERENCE_MODEL=llama:3.2_8k
+EDS_DEFAULT_EMBEDDING_MODEL=nomic-embed-text
+EDS_EMBEDDING_MODEL_DIMENSION=768
+
+EDS_WEB_RETRIEVER=firecrawl
+EDS_FIRECRAWL_API_KEY=your_api_key
+EDS_FALLBACK_SCRAPER=firecrawl
+
+# Optional
+# modify the URL if you run FireCrawl locally
+# EDS_FIRECRAWL_API_URL=https://api.firecrawl.dev
+# use firecrawl as the default scraper, system default is beautiful_soup
+# EDS_DEFAULT_SCRAPER=firecrawl
+EOF
+```
+
+Now you can run digest flow with the FireCrawl search engine and Ollama:
+
+```bash
+% leet flow -e .env.ollama.firecrawl -t digest -k aijob.ollama \
+    -q "How will agentic AI and generative AI affect our non-tech jobs?"  \
+    -l debug -o aijob.ollama.firecrawl.md
+```

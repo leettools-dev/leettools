@@ -34,6 +34,7 @@ EDS_LLM_API_KEY=fw_3ZS**********pJr
 EDS_DEFAULT_INFERENCE_MODEL=accounts/fireworks/models/deepseek-r1
 EDS_DEFAULT_EMBEDDING_MODEL=nomic-ai/nomic-embed-text-v1.5
 EDS_EMBEDDING_MODEL_DIMENSION=768
+EOF
 ```
 
 If you are using another provider or model, change the values accordingly.

@@ -43,12 +43,12 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
 
         if kb is None:
             self.model_name = settings.DEFAULT_EMBEDDING_MODEL
-            self.embedding_model_dimension = settings.EMBEDDING_MODEL_DIMENSION
+            self.embedding_model_dimension = int(settings.EMBEDDING_MODEL_DIMENSION)
         else:
             params = kb.dense_embedder_params
             if params is None or DENSE_EMBED_PARAM_MODEL not in params:
                 self.model_name = settings.DEFAULT_EMBEDDING_MODEL
-                self.embedding_model_dimension = settings.EMBEDDING_MODEL_DIMENSION
+                self.embedding_model_dimension = int(settings.EMBEDDING_MODEL_DIMENSION)
             else:
                 self.model_name = params[DENSE_EMBED_PARAM_MODEL]
                 if (
@@ -58,7 +58,7 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
                     raise ConfigValueException(
                         DENSE_EMBED_PARAM_DIM, "Embedding model dim not specified."
                     )
-                self.embedding_model_dimension = params[DENSE_EMBED_PARAM_DIM]
+                self.embedding_model_dimension = int(params[DENSE_EMBED_PARAM_DIM])
 
         if self.user is not None:
             user = self.user
@@ -153,7 +153,7 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
             )
             params[DENSE_EMBED_PARAM_DIM] = user_settings.get_value(
                 key="EMBEDDING_MODEL_DIMENSION",
-                default_value=settings.EMBEDDING_MODEL_DIMENSION,
+                default_value=int(settings.EMBEDDING_MODEL_DIMENSION),
             )
         else:
             value = settings.DEFAULT_EMBEDDING_MODEL
@@ -170,6 +170,6 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
                     key="EMBEDDING_MODEL_DIMENSION", default_value=1536
                 )
 
-            params[DENSE_EMBED_PARAM_DIM] = value
+            params[DENSE_EMBED_PARAM_DIM] = int(value)
 
         return params
