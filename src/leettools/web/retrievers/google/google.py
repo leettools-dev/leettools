@@ -1,5 +1,4 @@
 import json
-import os
 import urllib.parse
 from typing import Any, Dict, List, Optional
 
@@ -9,14 +8,12 @@ from leettools.common import exceptions
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import file_utils
 from leettools.common.utils.file_utils import redact_api_key
-from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 from leettools.context_manager import Context
 from leettools.core.consts import flow_option
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
 from leettools.core.user.user_settings_helper import get_value_from_settings
-from leettools.settings import SystemSettings
 from leettools.web import search_utils
 from leettools.web.retrievers.retriever import AbstractRetriever
 from leettools.web.schemas.search_result import SearchResult

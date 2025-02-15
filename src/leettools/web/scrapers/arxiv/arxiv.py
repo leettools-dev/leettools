@@ -7,10 +7,10 @@ from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import file_utils
 from leettools.web.schemas.scrape_result import ScrapeResult
-from leettools.web.scrapers.scrapper import AbstractScrapper
+from leettools.web.scrapers.scraper import AbstractScraper
 
 
-class ArxivScraper(AbstractScrapper):
+class ArxivScraper(AbstractScraper):
 
     def __init__(
         self,
@@ -56,5 +56,7 @@ class ArxivScraper(AbstractScrapper):
             return ScrapeResult(url=url, file_path=file_path, content=content)
 
         except Exception as e:
-            self.display_logger.warning(f"scrape_to_file {url} {file_path}: {e}")
+            self.display_logger.warning(
+                f"scrape_to_file exception {url} {file_path}: {e}"
+            )
             return None

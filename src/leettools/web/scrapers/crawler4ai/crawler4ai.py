@@ -11,10 +11,10 @@ from leettools.common.utils import file_utils
 from leettools.core.consts.return_code import ReturnCode
 from leettools.web.schemas.scrape_result import ScrapeResult
 from leettools.web.scrapers import scraper_utils
-from leettools.web.scrapers.scrapper import AbstractScrapper
+from leettools.web.scrapers.scraper import AbstractScraper
 
 
-class Crawler4aiScraper(AbstractScrapper):
+class Crawler4aiScraper(AbstractScraper):
 
     def __init__(
         self,
@@ -160,7 +160,9 @@ class Crawler4aiScraper(AbstractScrapper):
             )
 
         except Exception as e:
-            self.display_logger.warning(f"scrape_to_file {url} {file_path}: {e}")
+            self.display_logger.warning(
+                f"scrape_to_file exception {url} {file_path}: {e}"
+            )
             return ScrapeResult(
                 url=url,
                 file_path=None,

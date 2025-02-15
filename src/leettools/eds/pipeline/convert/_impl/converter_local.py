@@ -34,8 +34,6 @@ LOAD_ACTION = "load"
 class ConverterLocal(AbstractConverter):
     """Class to parse and load website content to the docstore."""
 
-    docsink_list: Optional[List[DocSink]] = None
-    docstore: AbstractDocumentStore = None
     action: str = PARSE_ACTION
 
     def __init__(
@@ -195,11 +193,7 @@ class ConverterLocal(AbstractConverter):
 
     def convert(self) -> ReturnCode:
         """
-        Convert a list of document sinks to a list of documents
-        and save them to the docstore.
-
-        Args:
-        doc_sink: The docsink to convert.
+        Convert a list of document sinks to a list of documents and save them to the docstore.
 
         Returns:
         The return code.

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -10,10 +10,14 @@ from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import file_utils, time_utils, url_utils
 from leettools.core.consts.return_code import ReturnCode
 from leettools.web.schemas.scrape_result import ScrapeResult
-from leettools.web.scrapers.scrapper import AbstractScrapper
+from leettools.web.scrapers.scraper import AbstractScraper
+from leettools.web.scrapers.scraper_utils import (
+    check_existing_file,
+    save_url_content_to_file,
+)
 
 
-class BeautifulSoupSimpleScraper(AbstractScrapper):
+class BeautifulSoupSimpleScraper(AbstractScraper):
 
     def __init__(
         self,
@@ -61,86 +65,6 @@ class BeautifulSoupSimpleScraper(AbstractScrapper):
             self.display_logger.error(f"scrape_content_to_str {url}: {e}")
             return ""
 
-    def _check_existing_file(
-        self, url: str, dir: str, filename_prefix: str, suffix: str
-    ) -> ScrapeResult:
-        existing_file_list = file_utils.get_files_with_timestamp(
-            dir, filename_prefix, suffix
-        )
-        if existing_file_list:
-            latest_file, ts = existing_file_list[0]
-            self.display_logger.debug(
-                f"File with the same name and suffix already exists: {latest_file}, "
-                f"timestamp: {ts}"
-            )
-            # if the latest file is less than 1 day old, skip the scraping
-            now = time_utils.current_datetime()
-            diff: timedelta = now - ts
-            # TODO: make the delta configurable
-            if diff.days < 1:
-                self.display_logger.debug(
-                    f"Skipping saving: {url}: file already exists and is less than 1 day old"
-                )
-                file_path = f"{dir}/{latest_file}"
-                # TODO: maybe we can check the content length here
-                return ScrapeResult(
-                    url=url,
-                    file_path=file_path,
-                    content=None,
-                    reused=True,
-                    rtn_code=ReturnCode.SUCCESS,
-                )
-            else:
-                self.display_logger.debug(
-                    f"File is older than 1 day, scraping again: {url}"
-                )
-                return None
-        else:
-            return None
-
-    def _save_url_content_to_file(
-        self, url: str, dir: str, response: requests.Response
-    ) -> ScrapeResult:
-        file_path = ""
-        try:
-            content_type = response.headers.get("content-type")
-            suffix = url_utils.content_type_to_ext.get(content_type, "unknown.dat")
-            self.display_logger.info(
-                f"Non-html content_type: {content_type}, suffix: {suffix}"
-            )
-            filename_prefix = file_utils.extract_filename_from_uri(url)
-
-            # check if there is a file with the same name and suffix in the directory
-            existing_scrape_result = self._check_existing_file(
-                url=url, dir=dir, filename_prefix=filename_prefix, suffix=suffix
-            )
-            if existing_scrape_result:
-                return existing_scrape_result
-
-            timestamp = file_utils.filename_timestamp()
-            file_path = f"{dir}/{filename_prefix}.{timestamp}.{suffix}"
-
-            with open(file_path, "wb") as file:
-                file.write(response.content)
-
-            # TODO: here we just write the file to the disk without reading the content
-            return ScrapeResult(
-                url=url,
-                file_path=file_path,
-                content=None,
-                reused=False,
-                rtn_code=ReturnCode.SUCCESS,
-            )
-        except Exception as e:
-            self.display_logger.warning(f"scrape_to_file {url} {file_path}: {e}")
-            return ScrapeResult(
-                url=url,
-                file_path=file_path,
-                content=None,
-                reused=False,
-                rtn_code=ReturnCode.FAILURE_ABORT,
-            )
-
     def scrape_to_file(self, url: str, dir: str) -> ScrapeResult:
         # TODO: use settings to set the default values of the parameters
         # such as size limit, timeout, etc.
@@ -150,8 +74,12 @@ class BeautifulSoupSimpleScraper(AbstractScrapper):
             filename_prefix = file_utils.extract_filename_from_uri(url)
             suffix = file_utils.extract_file_suffix_from_url(url)
             if suffix != "":
-                existing_scrape_result = self._check_existing_file(
-                    url=url, dir=dir, filename_prefix=filename_prefix, suffix=suffix
+                existing_scrape_result = check_existing_file(
+                    url=url,
+                    dir=dir,
+                    filename_prefix=filename_prefix,
+                    suffix=suffix,
+                    display_logger=self.display_logger,
                 )
                 if existing_scrape_result is not None:
                     return existing_scrape_result
@@ -182,7 +110,15 @@ class BeautifulSoupSimpleScraper(AbstractScrapper):
 
             # if it is not an HTML file, save directly to the file
             if "text/html" not in content_type:
-                return self._save_url_content_to_file(url, dir, response)
+                content_type = response.headers.get("content-type")
+                content = response.content
+                return save_url_content_to_file(
+                    url=url,
+                    dir=dir,
+                    content_type=content_type,
+                    content=content,
+                    display_logger=self.display_logger,
+                )
 
             soup = BeautifulSoup(response.content, "lxml", from_encoding="utf-8")
 
@@ -229,8 +165,12 @@ class BeautifulSoupSimpleScraper(AbstractScrapper):
                 )
 
             suffix = "html"
-            existing_scrape_result = self._check_existing_file(
-                url=url, dir=dir, filename_prefix=filename_prefix, suffix=suffix
+            existing_scrape_result = check_existing_file(
+                url=url,
+                dir=dir,
+                filename_prefix=filename_prefix,
+                suffix=suffix,
+                display_logger=self.display_logger,
             )
             if existing_scrape_result is not None:
                 return existing_scrape_result
@@ -255,7 +195,9 @@ class BeautifulSoupSimpleScraper(AbstractScrapper):
             )
 
         except Exception as e:
-            self.display_logger.warning(f"scrape_to_file {url} {file_path}: {e}")
+            self.display_logger.warning(
+                f"Exception scrape_to_file {url} {file_path}: {e}"
+            )
             return ScrapeResult(
                 url=url,
                 file_path=None,
