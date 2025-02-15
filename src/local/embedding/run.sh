@@ -18,10 +18,17 @@ while IFS='=' read -r name value; do
     fi; 
 done < "$BASE_DIR/.env"
 
-LOG_ROOT=${LOG_ROOT:-"/tmp/leettools/logs/svc"}
+if [ -z "${LEET_HOME-}" ]; then
+    DEFAULT_LOG_ROOT="/tmp/leettools/logs/svc"
+else
+    DEFAULT_LOG_ROOT="${LEET_HOME}/logs/svc"
+fi
+
+LOG_OUTPUT=${LOG_OUTPUT:-"console"}
+EDS_LOG_ROOT=${EDS_LOG_ROOT:-"${DEFAULT_LOG_ROOT}"}
 logSizeLimit=${LOG_SIZE_LIMIT:-"10M"}
 logFileSig=${LOG_FILE_SIG:-"svc"}-embedding
-logDir=${LOG_ROOT}/${logFileSig}
+logDir=${EDS_LOG_ROOT}/${logFileSig}
 mkdir -p "$logDir"
 
 # re-export so that logPostProcess can use it
@@ -42,14 +49,14 @@ cd "$BASE_DIR"
 
 if [[ "$LOG_OUTPUT" == "console" ]]; then
     python src/local/embedding/local_embdedding_service.py \
-            --host "${DEFAULT_EMBEDDING_SERVICE_HOST:-0.0.0.0}" \
-            --port "${DEFAULT_EMBEDDING_SERVICE_PORT:-8001}" \
-            --log-level "${LOG_LEVEL:-INFO}"
+            --host "${EDS_DEFAULT_EMBEDDING_SERVICE_HOST:-0.0.0.0}" \
+            --port "${EDS_DEFAULT_EMBEDDING_SERVICE_PORT:-8001}" \
+            --log-level "${EDS_LOG_LEVEL:-INFO}"
 else
     python src/local/embedding/local_embdedding_service.py \
-        --host "${DEFAULT_EMBEDDING_SERVICE_HOST:-0.0.0.0}" \
-        --port "${DEFAULT_EMBEDDING_SERVICE_PORT:-8001}" \
-        --log-level "${LOG_LEVEL:-INFO}" 2>&1 \
+        --host "${EDS_DEFAULT_EMBEDDING_SERVICE_HOST:-0.0.0.0}" \
+        --port "${EDS_DEFAULT_EMBEDDING_SERVICE_PORT:-8001}" \
+        --log-level "${EDS_LOG_LEVEL:-INFO}" 2>&1 \
         | rotatelogs -L "${logDir}"/latest.log -f -c \
         -p "$BASE_DIR"/scripts/log_postprocess.sh "${logDir}"/"${logFileSig}".%Y-%m-%d-%H-%M.log "$logSizeLimit"
 fi
