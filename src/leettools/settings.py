@@ -137,6 +137,10 @@ class SystemSettings(BaseModel):
         "https://svc.leettools.com:8098/customsearch/v1",
         description="The search API base URL",
     )
+    DEFAULT_SCRAPER: str = Field(
+        "beautiful_soup",
+        description="The default scraper to use for scraping web pages.",
+    )
     FALLBACK_SCRAPER: str = Field(
         None,
         description=(

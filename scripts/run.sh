@@ -80,13 +80,13 @@ chmod +x "$BASE_DIR"/scripts/log_postprocess.sh
 
 if [[ "$LOG_OUTPUT" = "console" ]]; then
     python -m leettools.svc.main  \
-            --host "${EDS_API_SERVICE_HOST:-0.0.0.0}" \
-            --port "${EDS_API_SERVICE_PORT:-8000}" \
+            --host "${API_SERVICE_HOST:-0.0.0.0}" \
+            --port "${API_SERVICE_PORT:-8000}" \
             --log-level "${EDS_LOG_LEVEL:-INFO}"
 else
     python -m leettools.svc.main  \
-        --host "${EDS_API_SERVICE_HOST:-0.0.0.0}" \
-        --port "${EDS_API_SERVICE_PORT:-8000}" \
+        --host "${API_SERVICE_HOST:-0.0.0.0}" \
+        --port "${API_SERVICE_PORT:-8000}" \
         --log-level "${EDS_LOG_LEVEL:-INFO}" 2>&1 \
         | rotatelogs -L "${logDir}"/latest.log -f -c \
         -p "$BASE_DIR"/scripts/log_postprocess.sh "${logDir}"/"${logFileSig}".%Y-%m-%d-%H-%M.log "$logSizeLimit"

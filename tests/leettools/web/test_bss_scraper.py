@@ -18,16 +18,15 @@ def test_bss_scraper():
         "Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"
     )
 
-    web_scrapper = WebScraper(
+    web_scraper = WebScraper(
         context=context,
         user_agent=user_agent,
-        scraper_type="beautiful_soup",
         display_logger=display_logger,
     )
 
     url = "https://www.example.com"
 
-    results = web_scrapper.scrape_urls_to_file([url])
+    results = web_scraper.scrape_urls_to_file([url])
     assert len(results) == 1
 
     result = results[0]
@@ -38,7 +37,7 @@ def test_bss_scraper():
     old_file_path = result.file_path
     print(old_file_path)
 
-    results = web_scrapper.scrape_urls_to_file([url])
+    results = web_scraper.scrape_urls_to_file([url])
     assert len(results) == 1
     result = results[0]
     assert result.url == url

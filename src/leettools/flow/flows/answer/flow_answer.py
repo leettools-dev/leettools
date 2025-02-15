@@ -6,7 +6,7 @@ from leettools.common.utils import config_utils
 from leettools.core.consts import flow_option
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.consts.display_type import DisplayType
-from leettools.core.consts.retriever_type import RetrieverType
+from leettools.core.consts.retriever_type import RetrieverType, is_search_engine
 from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.schemas.chat_query_result import (
@@ -105,7 +105,7 @@ Search the web or local KB with the query and answer with source references:
         )
 
         # flow starts there
-        if retriever_type == RetrieverType.GOOGLE.value:
+        if is_search_engine(retriever_type):
             # query the web first, after this function, the search results
             # are processed and stored in the KB
             # TODO: make this function async

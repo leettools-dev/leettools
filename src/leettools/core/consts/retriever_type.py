@@ -13,6 +13,18 @@ class RetrieverType(str, Enum):
     TAVILY = "tavily"
     DUCKDUCKGO = "duckduckgo"
     SEARX = "searx"
+    FIRECRAWL = "firecrawl"
+
+
+def is_search_engine(retriever_type: str) -> bool:
+    return retriever_type in [
+        RetrieverType.BAIDU.value,
+        RetrieverType.BING.value,
+        RetrieverType.GOOGLE.value,
+        RetrieverType.DUCKDUCKGO.value,
+        RetrieverType.SEARX.value,
+        RetrieverType.FIRECRAWL.value,
+    ]
 
 
 def supported_retriever(region: Optional[str] = "all") -> List[str]:
