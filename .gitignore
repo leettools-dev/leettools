@@ -169,6 +169,10 @@ tests/data
 outputs/*
 .venv/
 
+# Data directory
+data/
+data/**
+
 # Eval specific ignores
 eval/*.json
 eval/results/
