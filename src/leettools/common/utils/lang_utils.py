@@ -2,7 +2,7 @@ from typing import Optional
 
 from leettools.common.logging import logger
 
-LANG_ID_THRESHOLD = -20.0
+LANG_ID_THRESHOLD = -70.0
 
 
 def get_language(text: str) -> Optional[str]:

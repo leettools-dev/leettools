@@ -25,7 +25,7 @@ class BaseCondition(BaseModel):
 
 class Filter(BaseModel):
     relation: Optional[Literal["and", "or", "not"]] = None
-    conditions: List[Union[BaseCondition, "Filter"]] = Field(..., min_items=1)
+    conditions: List[Union[BaseCondition, "Filter"]] = Field(..., min_length=1)
 
     @model_validator(mode="after")
     def validate_criteria(cls, values):
