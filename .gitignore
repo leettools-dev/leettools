@@ -167,3 +167,10 @@ cython_debug/
 test*.log.*
 tests/data
 outputs/*
+.venv/
+
+# Eval specific ignores
+eval/*.json
+eval/results/
+eval/__pycache__/
+eval/*.log

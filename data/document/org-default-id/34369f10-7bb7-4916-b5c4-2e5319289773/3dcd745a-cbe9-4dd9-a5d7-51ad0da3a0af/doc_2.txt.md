@@ -1,0 +1,1 @@
+Marie Curie was a physicist and chemist who conducted pioneering research on radioactivity and won two Nobel Prizes.
