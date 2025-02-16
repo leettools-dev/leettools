@@ -541,4 +541,7 @@ def _support_pydantic_response(final_llm_model_name: str) -> bool:
     if final_llm_model_name.startswith("llama3.2"):
         return True
 
+    if final_llm_model_name.startswith("deepseek"):
+        return True
+
     return False

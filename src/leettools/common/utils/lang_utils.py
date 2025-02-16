@@ -2,6 +2,8 @@ from typing import Optional
 
 from leettools.common.logging import logger
 
+LANG_ID_THRESHOLD = -20.0
+
 
 def get_language(text: str) -> Optional[str]:
     """
@@ -19,10 +21,22 @@ def get_language(text: str) -> Optional[str]:
         not be detected.
     """
     try:
-        from langdetect import detect
+        import langid
 
-        lan = detect(text)
-        return lan
+        lang, score = langid.classify(text)
+        logger().debug(f"Detected language: {lang} with score: {score}: {text}")
+        if score >= LANG_ID_THRESHOLD:
+            logger().warning(
+                f"Low confidence in detected language for text {text}. Using English as default."
+            )
+            return "en"
+
+        if lang not in ["en", "zh", "es", "fr", "de", "it", "ja", "ko", "ru", "ca"]:
+            logger().warning(
+                f"Unsupported language detected: {lang}. Using English as default."
+            )
+            return "en"
+        return lang
     except Exception as e:
         logger().error(
             f"Error detecting language for text {text}: {e}. Using English as default."
