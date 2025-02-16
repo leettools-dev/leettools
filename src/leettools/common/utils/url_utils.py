@@ -89,6 +89,9 @@ def is_url_accessible(
 
 
 content_type_to_ext = {
+    "md": "md",
+    "markdown": "md",
+    "text/markdown": "md",
     "text/html": "html",
     "text/plain": "txt",
     "text/css": "css",

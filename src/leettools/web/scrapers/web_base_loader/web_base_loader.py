@@ -5,10 +5,10 @@ from langchain_community.document_loaders import WebBaseLoader
 
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
-from leettools.web.scrapers.scrapper import AbstractScrapper
+from leettools.web.scrapers.scraper import AbstractScraper
 
 
-class WebBaseLoaderScraper(AbstractScrapper):
+class WebBaseLoaderScraper(AbstractScraper):
 
     def __init__(
         self,

@@ -114,7 +114,9 @@ class ConnectorSimple(AbstractConnector):
             self.display_logger.info(f"Scraping urls... {url}")
             urls = [url]
             scrape_results = WebScraper(
-                self.context, self.user_agent
+                context=self.context,
+                user_agent=self.user_agent,
+                display_logger=self.display_logger,
             ).scrape_urls_to_file(urls)
         except Exception as e:
             self.display_logger.error(f"Error in scrape_urls: {e}")

@@ -13,14 +13,22 @@ from leettools.core.schemas.user_settings import UserSettings
 def _get_settings_value(
     user_settings: UserSettings, first_key: str, second_key: Optional[str]
 ) -> str:
-    value = user_settings.settings[first_key].value
     username = user_settings.username
+    usi_first = user_settings.settings.get(first_key, None)
+    if usi_first is not None:
+        value = usi_first.value
+    else:
+        value = None
     if value is None or value == "":
         logger().noop(
             f"No first key {first_key} user settings of {username}.", noop_lvl=1
         )
         if second_key is not None:
-            value = user_settings.settings[second_key].value
+            usi_second = user_settings.settings.get(second_key, None)
+            if usi_second is not None:
+                value = usi_second.value
+            else:
+                value = None
             if value is None or value == "":
                 logger().noop(
                     f"No second key {second_key} user settings of {username}.",

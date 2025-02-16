@@ -74,7 +74,7 @@ class DenseEmbedderQwen(AbstractDenseEmbedder):
                     raise ConfigValueException(
                         DENSE_EMBED_PARAM_DIM, "Qwen embedding model dim not specified."
                     )
-                self.QWEN_EMBEDDING_MODEL_DIMENSION = params[DENSE_EMBED_PARAM_DIM]
+                self.QWEN_EMBEDDING_MODEL_DIMENSION = int(params[DENSE_EMBED_PARAM_DIM])
 
     def embed(self, embed_requests: DenseEmbeddingRequest) -> DenseEmbeddings:
         response = None

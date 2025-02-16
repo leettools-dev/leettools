@@ -12,7 +12,7 @@ from leettools.common.utils import url_utils
 from leettools.context_manager import Context
 from leettools.core.consts.return_code import ReturnCode
 from leettools.web.schemas.scrape_result import ScrapeResult
-from leettools.web.scrapers.scrapper import get_scraper
+from leettools.web.scrapers.scraper import get_scraper
 
 
 class WebScraper:
@@ -31,7 +31,7 @@ class WebScraper:
         self,
         context: Context,
         user_agent: str = None,
-        scraper_type: str = "beautiful_soup",
+        scraper_type: str = None,
         display_logger: EventLogger = None,
     ):
         self.context = context
@@ -44,7 +44,10 @@ class WebScraper:
             self.user_agent = url_utils.DEFAULT_USER_AGENT
 
         self.session.headers.update({"User-Agent": self.user_agent})
-        self.scraper_type = scraper_type
+        if scraper_type is None or scraper_type == "":
+            self.scraper_type = self.settings.DEFAULT_SCRAPER
+        else:
+            self.scraper_type = scraper_type
         self.output_root = f"{self.settings.DATA_ROOT}/websearch"
 
         if display_logger is not None:
