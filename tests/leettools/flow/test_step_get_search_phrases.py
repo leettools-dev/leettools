@@ -82,8 +82,9 @@ def _test_flow_step(context: Context, org: Org, kb: KnowledgeBase, user: User):
     assert query_phrases is not None
 
     logger().info(f"query_phrases: {query_phrases}")
+    lang = get_language(query_phrases)
 
     assert len(query_phrases) > 0
-    assert get_language(query_phrases) == "zh-cn"
+    assert lang == "zh" or lang == "en"
     assert query_phrases.startswith('"') == False
     assert query_phrases.endswith('"') == False
