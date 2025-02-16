@@ -1,1 +1,0 @@
-Charles Darwin introduced the theory of evolution by natural selection in his book 'On the Origin of Species'.

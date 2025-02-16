@@ -1,1 +1,0 @@
-Isaac Newton formulated the laws of motion and universal gravitation, laying the foundation for classical mechanics.

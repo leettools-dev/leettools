@@ -1,1 +1,0 @@
-Albert Einstein proposed the theory of relativity, which transformed our understanding of time, space, and gravity.
