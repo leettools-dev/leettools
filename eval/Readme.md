@@ -6,7 +6,7 @@ First we need to install the required packages. To do this, run the following co
 % pip install -r dev-requirements.txt
 ```
 
-We assumen the enviroment variables or .env file are set up correctly. If not, please 
+We assume the enviroment variables or .env file are set up correctly. If not, please 
 refer to the [main README](../README.md) file.
 
 To get an example configuration file, run the following command:
