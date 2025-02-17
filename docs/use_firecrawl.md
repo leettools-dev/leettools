@@ -54,13 +54,14 @@ EDS_EMBEDDING_MODEL_DIMENSION=768
 
 EDS_WEB_RETRIEVER=firecrawl
 EDS_FIRECRAWL_API_KEY=your_api_key
-EDS_FALLBACK_SCRAPER=firecrawl
 
 # Optional
 # modify the URL if you run FireCrawl locally
 # EDS_FIRECRAWL_API_URL=https://api.firecrawl.dev
 # use firecrawl as the default scraper, system default is beautiful_soup
 # EDS_DEFAULT_SCRAPER=firecrawl
+# we can use beautiful_soup as the main scraper and firecrawl as the backup scraper
+# EDS_FALLBACK_SCRAPER=firecrawl
 EOF
 ```
 
