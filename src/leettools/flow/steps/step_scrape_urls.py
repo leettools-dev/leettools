@@ -84,7 +84,7 @@ and save them as a list of DocSinks in the DocSource.
             docsinks.append(docsink)
 
         successful_documents: Dict[str, Document] = {}
-        if kb.auto_schedule == True:
+        if kb.auto_schedule == True and not context.is_cli():
             pipeline_utils.process_docsources_auto(
                 org=org,
                 kb=kb,

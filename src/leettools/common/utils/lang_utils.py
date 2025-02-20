@@ -24,7 +24,7 @@ def get_language(text: str) -> Optional[str]:
         import langid
 
         lang, score = langid.classify(text)
-        logger().debug(f"Detected language: {lang} with score: {score}: {text}")
+        logger().debug(f"Detected language: {lang} with score: {score}")
         if score >= LANG_ID_THRESHOLD:
             logger().warning(
                 f"Low confidence in detected language for text {text}. Using English as default."
@@ -39,7 +39,7 @@ def get_language(text: str) -> Optional[str]:
         return lang
     except Exception as e:
         logger().error(
-            f"Error detecting language for text {text}: {e}. Using English as default."
+            f"Error detecting language for text: {e}. Using English as default."
         )
         return "en"
 

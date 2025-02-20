@@ -63,12 +63,12 @@ from leettools.flow.utils import pipeline_utils
     help="The chunk size for each segment.",
 )
 @click.option(
-    "--scheduler_check",
-    "scheduler_check",
-    default=True,
+    "--use-scheduler",
+    "use_scheduler",
+    is_flag=True,
     help=(
-        "If set to True, start the scheduler or use the system scheduler. If False, "
-        "no scheduler check will be performed."
+        "If the KB is set to auto_schedule, force to use the scheduler. "
+        "No effect if the KB is not set to auto_schedule.",
     ),
 )
 @common_options
@@ -79,7 +79,7 @@ def add_local(
     kb_name: str,
     username: str,
     chunk_size: str,
-    scheduler_check: bool,
+    use_scheduler: bool,
     json_output: bool,
     indent: int,
     **kwargs,
@@ -97,8 +97,6 @@ def add_local(
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False
     context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_add_local_dir"
-    if scheduler_check == False:
-        context.scheduler_is_running = True
 
     repo_manager = context.get_repo_manager()
     docsource_store = repo_manager.get_docsource_store()
@@ -119,7 +117,7 @@ def add_local(
     )
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
 
-    if kb.auto_schedule:
+    if use_scheduler and kb.auto_schedule:
         pipeline_utils.process_docsources_auto(
             org=org,
             kb=kb,
