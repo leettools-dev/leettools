@@ -48,10 +48,7 @@ from leettools.flow.utils import pipeline_utils
     "--use-scheduler",
     "use_scheduler",
     is_flag=True,
-    help=(
-        "If the KB is set to auto_schedule, force to use the scheduler. "
-        "No effect if the KB is not set to auto_schedule.",
-    ),
+    help="If the KB is set to auto_schedule, force to use the scheduler. No effect if the KB is not set to auto_schedule.",
 )
 @common_options
 def ingest(
