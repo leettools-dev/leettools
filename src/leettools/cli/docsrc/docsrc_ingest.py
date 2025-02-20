@@ -44,12 +44,19 @@ from leettools.flow.utils import pipeline_utils
     required=False,
     help="The user to use, default the admin user.",
 )
+@click.option(
+    "--use-scheduler",
+    "use_scheduler",
+    is_flag=True,
+    help="If the KB is set to auto_schedule, force to use the scheduler. No effect if the KB is not set to auto_schedule.",
+)
 @common_options
 def ingest(
     docsource_uuid: str,
     kb_name: str,
     org_name: Optional[str] = None,
     username: Optional[str] = None,
+    use_scheduler: bool = False,
     json_output: bool = False,
     indent: int = None,
     **kwargs,
@@ -77,7 +84,7 @@ def ingest(
     docsource.updated_at = time_utils.current_datetime()
     docsource_store.update_docsource(org, kb, docsource)
 
-    if kb.auto_schedule:
+    if use_scheduler and kb.auto_schedule:
         pipeline_utils.process_docsources_auto(
             org=org,
             kb=kb,

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import ClassVar, List, Optional, Type
 
 from leettools.common import exceptions
@@ -7,7 +6,6 @@ from leettools.common.utils import config_utils, time_utils
 from leettools.core.consts import flow_option
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.consts.docsource_type import DocSourceType
-from leettools.core.consts.retriever_type import RetrieverType
 from leettools.core.consts.schedule_type import ScheduleType
 from leettools.core.schemas.docsource import DocSource, DocSourceCreate, IngestConfig
 from leettools.core.schemas.document import Document
@@ -115,17 +113,30 @@ processed immediately. The function will return after the document source is pro
             exec_info.kb.auto_schedule
             and schedule_config.schedule_type == ScheduleType.RECURRING
         ):
-            updated_docsources = pipeline_utils.process_docsources_auto(
-                org=org,
-                kb=kb,
-                docsources=[docsource],
-                context=context,
-                display_logger=display_logger,
+            display_logger.info(
+                "Process recurring docsource in auto_schedule KB with scheduler."
             )
+            if not context.is_cli():
+                updated_docsources = pipeline_utils.process_docsources_auto(
+                    org=org,
+                    kb=kb,
+                    docsources=[docsource],
+                    context=context,
+                    display_logger=display_logger,
+                )
+            else:
+                updated_docsources = pipeline_utils.process_docsource_manual(
+                    org=org,
+                    kb=kb,
+                    user=exec_info.user,
+                    docsource=docsource,
+                    context=context,
+                    display_logger=display_logger,
+                )
             assert len(updated_docsources) == 1
             return updated_docsources[0]
 
-        display_logger.info("[Status]Start the document process pipeline ...")
+        display_logger.info("[Status]Start the search to docsource pipeline ...")
         try:
             # if the kb.auto_schedule is False, we should run the process manually
             success_documents = _run_web_search_pipeline(

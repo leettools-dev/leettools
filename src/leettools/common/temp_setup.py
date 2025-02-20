@@ -201,7 +201,7 @@ class TempSetup:
             ),
         )
 
-        if kb.auto_schedule:
+        if kb.auto_schedule and not self.context.is_test:
             pipeline_utils.process_docsources_auto(
                 org=org,
                 kb=kb,
