@@ -33,7 +33,7 @@ To set up the environment for benchmark evaluation, follow these steps:
    uv pip install -r dev-requirements.txt -e .
    ```
 
-5. **Optional set up** if you directly run eval from the very begining:
+5. **Optional set up** if you get "No module named 'click'" error:
 
    - Install torch before installing click to avoid potential wheel support issues.
 
@@ -42,6 +42,18 @@ To set up the environment for benchmark evaluation, follow these steps:
    uv pip install click==8.1.7
    ## or uv add "click==8.1.7"
    ```
+
+## Testing
+### Prepare Dataset
+   ```bash
+   cd leettools/eval
+   ```
+1. [**FinanceBench repository**](https://github.com/patronus-ai/financebench)
+   ```bash
+   pytest test/data_preprocess/test_financebench_loader.py
+   ```
+
+
 
 ## Usage
 To evaluate a benchmark dataset, use the following command:
