@@ -35,6 +35,7 @@ To set up the environment for benchmark evaluation, follow these steps:
 
 5. **Optional set up** if you get "No module named 'click'" error:
 
+
    - Install torch before installing click to avoid potential wheel support issues.
 
    ```bash
@@ -109,6 +110,7 @@ To evaluate a benchmark dataset, use the following command:
 python eval_benchmarks.py -d finance
 # python eval_benchmarks.py --domain finance
 ```
+
 
 [usage instructions will go here]
 <!-- ```bash

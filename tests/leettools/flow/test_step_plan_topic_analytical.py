@@ -74,5 +74,5 @@ Designing a website involves several steps, including planning, designing, devel
 
     assert len(topic_list.topics) == 2
     for topic in topic_list.topics:
-        assert get_language(topic.title) == "zh-cn"
+        assert get_language(topic.title) == "zh"
         assert get_language(topic.prompt) == "en"

@@ -82,7 +82,6 @@ def get_output_lang(
     display_logger = logger()
     flow_options = exec_info.flow_options
 
-    # TODO: make sure the output language show up in the options
     lang = config_utils.get_str_option_value(
         options=flow_options,
         option_name=flow_option.FLOW_OPTION_OUTPUT_LANGUAGE,

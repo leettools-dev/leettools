@@ -2,6 +2,7 @@ from typing import ClassVar, Dict, List, Type
 
 from leettools.common import exceptions
 from leettools.core.strategy.schemas.prompt import PromptBase
+from leettools.flow import flow_option_items
 from leettools.flow.flow_component_type import FlowComponentType
 from leettools.flow.flow_option_items import FlowOptionItem
 
@@ -40,7 +41,8 @@ class FlowComponent:
 
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
-        return []
+        # Options that shared by all the flows
+        return [flow_option_items.FOI_OUTPUT_LANGUAGE()]
 
     @classmethod
     def can_depend_on_class(cls, dep_cls: Type["FlowComponent"]) -> bool:

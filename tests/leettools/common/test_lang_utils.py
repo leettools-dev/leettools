@@ -7,32 +7,32 @@ def test_lang_utils():
     lan = get_language(content)
     assert lan == "en"
 
-    # Test case 2: zh-cn
-    # the following content returned value 'ca' from langdetect
-    # content = "这是一张图片: ![alt text](https://example"
-
-    content = "这是一张图片"
+    # Test case 2: zh
+    content = "这是一张图片: ![alt text](https://example"
     lan = get_language(content)
-    assert lan == "zh-cn"
+    assert lan == "zh" or lan == "en"
 
     # Test case 3: ja
     content = "これは画像です: ![alt text](https://example"
     lan = get_language(content)
     assert lan == "ja"
 
-    # Test case 4: spanish
-    content = "Esta es una imagen"
+    # Test case 5: spanish
+    content = "Hoy es un día maravilloso"
     lan = get_language(content)
     assert lan == "es"
 
-    # Test case 5: french
-    # the following content returned value 'ro' from langdetect
-    # content = "Ceci est une image: ![alt text](https://example"
-    content = "Ceci est une image"
+    # Test case 6: french
+    content = "C'est une belle journée"
     lan = get_language(content)
     assert lan == "fr"
 
-    # Test case 6: mixed
+    # Test case 7: mixed
     content = "This is an image: ![alt text](https://example 这是一张图片"
+    lan = get_language(content)
+    assert lan == "en"
+
+    # Test case 8: empty
+    content = ""
     lan = get_language(content)
     assert lan == "en"

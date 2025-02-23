@@ -147,7 +147,7 @@ class DocSourceRouter(APIRouterBase):
             docsource.updated_at = time_utils.current_datetime()
             self.docsource_store.update_docsource(org, kb, docsource)
 
-            if kb.auto_schedule:
+            if kb.auto_schedule and self.context.is_svc:
                 updated_docsrc = pipeline_utils.process_docsources_auto(
                     org=org,
                     kb=kb,

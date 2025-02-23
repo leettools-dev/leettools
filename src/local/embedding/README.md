@@ -1,25 +1,57 @@
-All embedding operations should use the AbstractStringEmbedder abstract class as the following:
+# Local Embedding Service
+
+This service provides a local embedding service that can be used to embed text into vectors
+(called dense embeddings comparing to sparse embeddings such as SPLADE). The service is
+based on the SentenceTransformer library, which provides a simple interface to embed text
+into vectors. It can be used for local dev and testing purposes since using a 
+SentenceTransformer model can be slow to start up.
+
+All string dense embedding operations should use the factor method to create the 
+embedder object as follows:
 
 ```python
 
-embedder : AbstractStringEmbedder = LocalEmbedder()
-embed_request = EmbedRequest(sentences=["text1", "text2"])
+context = ContextManager().get_context()
+
+# the default name is "dense_embedder_openai"
+# the default can be modified by the EDS_DEFAULT_DENSE_EMBEDDER env variable
+# the class should be under src/leettools/eds/str_embedder/_impl/{dense_embedder_name}.py
+dense_embedder_name = "dense_embedder_local_svc_client"
+
+dense_embedder_class = get_dense_embedder_class(dense_embedder_name, context.settings)
+# we need the org, kb, and user objects to create the embedder to check their settings
+# leave them to None if the embedder class does not need them
+# we do not need them for local_svc_client
+embedder = dense_embedder_class(
+    context=context,
+    org=None,
+    kb=None,
+    user=None,
+)
+
+embed_request = DenseEmbeddingRequest(sentences=["text1", "text2"])
 embed_result = embedder.embed(embed_request)
 print(embed_result.embeddings[0]) # this is the result for "text1"
 ```
 
-We can set the EMBEDDING_SERVICE_TYPE settings variable to control the behavior:
+Right now we have the following embedder implementations:
+- local_mem: use the SentenceTransformerEmbedder class to load the model as a singleton
+- local_svc_client: call the local embedding service to do the embedding work
+- openai: call an OpenAI-compatible API to do the embedding work
+- qwen: call the Qwen API to do the embedding work
+- sentence_transformers: use the SentenceTransformer library directly
 
-- If the value is the default value "MEM", the default embeder is the LocalEmbedder singleton object, which uses the SentenceTransformerEmbedder class to load the model "all-MiniLM-L6-v2" into memory and provide service. Although it loads the model only once, it is still pretty slow at startup.
-- We can start a local service that runs the SentenceTransformerEmbedder as a service and use its API to do the embedding work. The service can either run on the same host or a different one.
+For the local_svc_client embedder, we can also set the following environment variables:
+
+- EDS_DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME: default is "all-MiniLM-L6-v2"
+- EDS_DEFAULT_DENSE_EMBEDDING_SERVICE_HOST: default 127.0.0.1
+- EDS_DEFAULT_DENSE_EMBEDDING_SERVICE_PORT: default 8001
 
 ```bash
-# by default this starts the service on 8001
-python src/embedding/local_embdedding_service.py
-export EMBEDDING_SERVICE_TYPE="LOCAL"
-export EMBEDDING_SERVICE_ENDPOINT="http://127.0.0.1:8001/api/v1/embed"
+# by default this starts the service on http://127.0.0.1:8001
+python src/local/embedding/local_embdedding_service.py >/dev/null 2>&1 &
+
+export EDS_DEFAULT_DENSE_EMBEDDER=local_svc_client
+
+# now all the requests will be sent to the local embedding service
 ```
-
-After the above setting, the embedder will use the local service to do the embedding work.
-
-- TODO: we can set EMBEDDING_SERVICE_TYPE to "OPENAI" or other providers and use the correct client to do the embedding work. All we need to do is provide a client wrapper implementing the AbstractStringEmbedder interface, like the example in LocalEmbeddingServiceClient.
