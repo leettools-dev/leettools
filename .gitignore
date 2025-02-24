@@ -166,6 +166,8 @@ cython_debug/
 .idea
 test*.log.*
 tests/data
+eval/data
+eval/backup
 outputs/*
 .venv/
 
