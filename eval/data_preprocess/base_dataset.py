@@ -44,6 +44,11 @@ class QuestionItem:
         raise AttributeError(f"'QuestionItem' has no attribute '{name}'")
 
 @dataclass
+class EvalItem:
+    input_files: List[str|Path]
+    sample_data: List[QuestionItem]
+
+@dataclass
 class BaseDataset(ABC):
     input_files: List[str] = field(default_factory=list)
     sample_data: List[QuestionItem] = field(default_factory=list)

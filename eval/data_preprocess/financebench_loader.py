@@ -46,22 +46,24 @@ class FinanceBenchDataset(BaseDataset):
         return [AnswerSource(metadata=ev) for ev in evidence_list]
 
     def get_document_paths(self) -> List[Path]:
-        paths = list(self.pdf_dir.glob("*.pdf"))
-        print(f"\nFound {len(paths)} PDF documents")
-
         if not self.pdf_dir.exists():
             raise ValueError(f"PDF directory not found: {self.pdf_dir}")
 
-        # Get the document names from the questions DataFrame
-        document_names = set(self.questions_df['doc_name'].unique())
+        paths = list(self.pdf_dir.glob("*.pdf"))
+        print(f"\nFound {len(paths)} PDF documents")
 
-        # Filter PDF files based on document names
-        pdf_files = [
-            pdf for pdf in paths
-            if pdf.stem in document_names  # Check if the PDF name (without extension) is in document names
-        ]
+        # # Get the document names from the questions DataFrame
+        # document_names = set(self.questions_df['doc_name'].unique())
 
-        return pdf_files
+        # # Filter PDF files based on document names
+        # pdf_files = [
+        #     pdf for pdf in paths
+        #     if pdf.stem in document_names  # Check if the PDF name (without extension) is in document names
+        # ]
+
+        return self.questions_df["doc_name"].apply(
+            lambda x: self.pdf_dir / f"{x}.pdf"
+        ).tolist()
 
     def get_questions(self) -> List[QuestionItem]:
         if self.questions_df is None:
@@ -77,7 +79,7 @@ class FinanceBenchDataset(BaseDataset):
                 question=row["question"],
                 expected_answer=row["answer"],
                 source_document=row["doc_name"],
-                expected_sources=expected_sources,
+                expected_sources=[{"source_text": ev.metadata["evidence_text"]} for ev in expected_sources],
                 # Sample sources: length: 1, keys: dict_keys(['evidence_text', 'doc_name', 'evidence_page_num', 'evidence_text_full_page'])
                 # Firstly just use evidence_text as the source text
             )
