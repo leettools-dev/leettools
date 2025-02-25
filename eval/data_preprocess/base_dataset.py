@@ -34,7 +34,7 @@ class QuestionItem:
     expected_answer: str
     ## simple case that we have only one source document
     ## we can extend this to multiple source documents in the future
-    source_document: str
+    source_document: str | Path
     expected_sources: List[AnswerSource] = field(default_factory=list)  
     
     def __getattr__(self, name: str) -> Any:
@@ -43,10 +43,11 @@ class QuestionItem:
             return self.metadata[name]
         raise AttributeError(f"'QuestionItem' has no attribute '{name}'")
 
-@dataclass
-class EvalItem:
-    input_files: List[str|Path]
-    sample_data: List[QuestionItem]
+# @dataclass
+# class EvalItem:
+#     ## input_files has been merged into QuestionItem["source_document"]
+#     input_files: List[str|Path]
+#     sample_data: List[QuestionItem]
 
 @dataclass
 class BaseDataset(ABC):

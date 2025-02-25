@@ -24,6 +24,7 @@ class FinanceBenchDataset(BaseDataset):
         # Load data
         self._load_data()
 
+
     def _validate_paths(self):
         """Validate that all required paths exist"""
         if not self.questions_path.exists():
@@ -50,7 +51,12 @@ class FinanceBenchDataset(BaseDataset):
             raise ValueError(f"PDF directory not found: {self.pdf_dir}")
 
         paths = list(self.pdf_dir.glob("*.pdf"))
-        print(f"\nFound {len(paths)} PDF documents")
+
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Found {len(paths)} PDF documents under {self.pdf_dir}")
+
+        # print(f"\nFound {len(paths)} PDF documents")
 
         # # Get the document names from the questions DataFrame
         # document_names = set(self.questions_df['doc_name'].unique())
@@ -61,9 +67,12 @@ class FinanceBenchDataset(BaseDataset):
         #     if pdf.stem in document_names  # Check if the PDF name (without extension) is in document names
         # ]
 
-        return self.questions_df["doc_name"].apply(
+        pdf_each_question_list = self.questions_df["doc_name"].apply(
             lambda x: self.pdf_dir / f"{x}.pdf"
         ).tolist()
+        logger.info(f"Number of PDF documents used for verified questions: {len(set(pdf_each_question_list))}")
+        
+        return pdf_each_question_list
 
     def get_questions(self) -> List[QuestionItem]:
         if self.questions_df is None:
@@ -78,7 +87,7 @@ class FinanceBenchDataset(BaseDataset):
             question_item = QuestionItem(
                 question=row["question"],
                 expected_answer=row["answer"],
-                source_document=row["doc_name"],
+                source_document=row["doc_name"].apply(lambda x: self.pdf_dir / f"{x}.pdf"),
                 expected_sources=[{"source_text": ev.metadata["evidence_text"]} for ev in expected_sources],
                 # Sample sources: length: 1, keys: dict_keys(['evidence_text', 'doc_name', 'evidence_page_num', 'evidence_text_full_page'])
                 # Firstly just use evidence_text as the source text

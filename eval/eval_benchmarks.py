@@ -5,7 +5,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import click
 from ragas.dataset_schema import EvaluationResult
 
-from eval.data_preprocess.base_dataset import EvalItem
+# from eval.data_preprocess.base_dataset import EvalItem
+from eval.data_preprocess.base_dataset import QuestionItem
 from eval.data_preprocess.config import (DEFAULT_FINANCEBENCH_PATH,
                                          DEFAULT_MEDICALBENCH_PATH)
 from eval.data_preprocess.financebench_loader import FinanceBenchDataset
@@ -121,13 +122,13 @@ def run_ingestion(kb_name: str, pdf_paths: List[Path]) -> None:
 
     logger.info(f"Ingestion completed for KB: {kb_name}")
 
-def run_queries(eval_data: EvalItem, exec_info: ExecInfo) -> List[Dict[str, Any]]:
+def run_queries(eval_data: QuestionItem, exec_info: ExecInfo) -> List[Dict[str, Any]]:
 
     context = exec_info.context
     chat_manager = get_history_manager(context)
     llm_result_dataset: List[Dict[str, Any]] = []
 
-    for eval_data_item in eval_data.sample_data:
+    for eval_data_item in eval_data:
 
         query = eval_data_item.question
         reference = eval_data_item.expected_answer
@@ -249,13 +250,7 @@ def orchestrate_eval(domain: str, ingesting_documents: bool, number_of_questions
         
         # Run queries
         logger.info("Running queries...")
-        llm_result_dataset = run_queries(
-            EvalItem(
-                input_files=source_dataset.get_document_paths(),
-                sample_data=source_dataset.get_questions()
-            ),
-            exec_info
-        )
+        llm_result_dataset = run_queries(source_dataset.get_questions(),exec_info)
         logger.info("Queries completed")
         
         # Run evaluation
