@@ -107,8 +107,13 @@ To set up the environment for benchmark evaluation, follow these steps:
 To evaluate a benchmark dataset, use the following command:
 
 ```bash
-python eval_benchmarks.py -d finance
-# python eval_benchmarks.py --domain finance
+# Navigate to the root directory
+cd leettools
+
+# -i: only run the ingestion process of documents for -n 5 verified questions
+python -m eval.eval_benchmarks -d finance -n 5 -i
+# remove -i to run the following query and evaluation process
+python -m eval.eval_benchmarks -d finance -n 5
 ```
 
 
