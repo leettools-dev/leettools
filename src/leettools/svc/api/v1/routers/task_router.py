@@ -43,8 +43,9 @@ class TaskRouter(APIRouterBase):
             doc.content = ""
         elif task.program_spec.program_type == ProgramType.EMBED:
             spec: EmbedProgramSpec = task.program_spec.real_program_spec
-            for segment in spec.source:
-                segment.content = ""
+            # for segment in spec.source:
+            #    segment.content = ""
+            spec.source = []
         return task
 
     def _remove_content_from_tasks(self, tasks: List[Task]) -> List[Task]:
@@ -74,6 +75,30 @@ class TaskRouter(APIRouterBase):
             Get all task statuses
             """
             return Task.get_task_status_descriptions()
+
+        @self.get("/list/{org_name}", response_model=List[Task])
+        async def get_tasks_for_org(
+            org_name: str,
+            calling_user: User = Depends(self.auth.get_user_from_request),
+        ) -> List[Task]:
+            """
+            Get all tasks for an organization.
+
+            Args:
+            - org_name: The name of the organization
+            - calling_user: The current user from the dependency injection
+
+            Returns:
+            - List[Task]: A list of tasks for the organization
+            """
+            org = self._get_org(org_name)
+            if not self.auth.can_read_org(org=org, user=calling_user):
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"User {calling_user.username} does not have permission to read org {org_name}",
+                )
+            tasks = self.task_store.get_all_tasks_for_org(org)
+            return self._remove_content_from_tasks(tasks)
 
         @self.get("/list/{org_name}/{kb_name}", response_model=List[Task])
         async def get_tasks_for_kb(

@@ -58,6 +58,13 @@ class AbstractAuthorizer(ABC):
         pass
 
     @abstractmethod
+    def can_read_org(self, org: Org, user: User) -> bool:
+        """
+        Can the user read the organization?
+        """
+        pass
+
+    @abstractmethod
     def can_read_kb(self, org: Org, kb: KnowledgeBase, user: User) -> bool:
         """
         Can the user read the knowledge base? Usually

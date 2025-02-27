@@ -115,6 +115,18 @@ class TaskStoreDuckDB(AbstractTaskStore):
         )
         return [self._dict_to_task(dict(rtn_list[i])) for i in range(len(rtn_list))]
 
+    def get_all_tasks_for_org(self, org: Org) -> List[Task]:
+        where_clause = f"""
+            WHERE {Task.FIELD_ORG_ID}=? AND {Task.FIELD_IS_DELETED}=FALSE
+        """
+        value_list = [org.org_id]
+        rtn_list = self.duckdb_client.fetch_all_from_table(
+            table_name=self.table_name,
+            where_clause=where_clause,
+            value_list=value_list,
+        )
+        return [self._dict_to_task(dict(rtn_list[i])) for i in range(len(rtn_list))]
+
     def get_all_tasks_for_kb(self, org: Org, kb: KnowledgeBase) -> List[Task]:
         where_clause = f"""
             WHERE {Task.FIELD_KB_ID}=? AND {Task.FIELD_ORG_ID}=? AND {Task.FIELD_IS_DELETED}=FALSE

@@ -44,6 +44,9 @@ class DummyAuth(AbstractAuthorizer):
             raise HTTPException(status_code=404, detail=f"User {user_name} not found")
         return user
 
+    def can_read_org(self, org: Org, user: User) -> bool:
+        return True
+
     def can_read_kb(self, org: Org, kb: KnowledgeBase, user: User) -> bool:
         return True
 

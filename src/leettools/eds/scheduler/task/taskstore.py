@@ -73,6 +73,19 @@ class AbstractTaskStore(ABC):
         pass
 
     @abstractmethod
+    def get_all_tasks_for_org(self, org: Org) -> List[Task]:
+        """
+        Get all tasks for an organization.
+
+        Args:
+        - org: The organization.
+
+        Returns:
+        - The list of tasks.
+        """
+        pass
+
+    @abstractmethod
     def get_all_tasks_for_kb(self, org: Org, kb: KnowledgeBase) -> List[Task]:
         """
         Get all tasks for a knowledgebase.

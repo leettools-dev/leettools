@@ -106,6 +106,16 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     assert tasks is not None
     assert len(tasks) == 2
 
+    # get all tasks for org
+    tasks = taskstore.get_all_tasks_for_org(org)
+    assert tasks is not None
+    assert len(tasks) == 2
+
+    # get all tasks for kb
+    tasks = taskstore.get_all_tasks_for_kb(org, kb)
+    assert tasks is not None
+    assert len(tasks) == 2
+
     # get incomplete tasks
     tasks = taskstore.get_incomplete_tasks()
     assert tasks is not None
