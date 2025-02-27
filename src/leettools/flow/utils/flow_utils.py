@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
+from leettools.common.models.model_info import ModelInfoManager
 from leettools.common.utils import config_utils, lang_utils, url_utils
 from leettools.common.utils.lang_utils import normalize_lang_name
 from leettools.common.utils.obj_utils import TypeVar_BaseModel
@@ -33,30 +34,6 @@ from leettools.flow.utils.citation_utils import (
     reorder_cited_source_items,
     replace_reference_in_result,
 )
-
-# TODO: move this to a config file
-context_size_map: Dict[str, int] = {
-    "gpt-3.5-turbo": 16385,
-    "gpt-3.5-turbo-0125": 16385,
-    "gpt-4": 8192,
-    "gpt-4-0613": 8192,
-    "gpt-4-turbo": 128000,
-    "gpt-4-turbo-preview": 128000,
-    "gpt-4-1106-preview": 128000,
-    "gpt-4o": 128000,
-    "gpt-4o-2024-05-13": 128000,
-    "gpt-4o-mini": 128000,
-    "gpt-4o-mini-2024-07-18": 128000,
-    "o1-mini": 128000,
-    "deepseek-chat": 65536,
-    "deepseek-reasoner": 65536,
-    "llama3-8b-8192": 8192,
-    "llama3-70b-8192": 8192,
-    "llama3.2": 131072,
-    "mixtral-8x7b-32768": 32768,
-    "gemma-7b-it": 8192,
-    "deepseek-v3": 65536,
-}
 
 URL_SEPARATOR = ", "
 
@@ -614,7 +591,9 @@ def create_chat_result_with_json_data(
 def limit_content(content: str, model_name: str, display_logger: EventLogger) -> str:
     # TODO: the way we need to pass the display_logger around is not ideal
     # TODO: use proper language or tokenzier to get the token count
-    context_limit = context_size_map.get(model_name, 65536)
+    context_limit = ModelInfoManager().get_context_size(
+        model_name, display_logger=display_logger
+    )
 
     token_per_char = lang_utils.token_per_char_ratio(content)
     token_count = int(len(content) * token_per_char)

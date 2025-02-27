@@ -42,7 +42,7 @@ jobs:
 
       # Run pytest
       - name: Run tests
-        run: pytest
+        run: pytest tests
       
       # Stop the local embeddings server
       - name: Stop the local embeddings server

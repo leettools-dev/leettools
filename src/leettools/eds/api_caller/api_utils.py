@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
+from leettools.common.models.model_info import ModelInfoManager
 from leettools.common.utils import file_utils, json_utils, time_utils, url_utils
 from leettools.common.utils.content_utils import normalize_newlines, truncate_str
 from leettools.common.utils.dynamic_model import gen_pydantic_example
@@ -106,7 +107,7 @@ def run_inference_call_direct(
     if need_json:
         if response_pydantic_model is not None:
             # check if model supports parsed response
-            if _support_pydantic_response(model_name):
+            if ModelInfoManager().support_pydantic_response(model_name):
                 format_dict = {"type": "json_schema"}
                 use_parsed = True
             else:
@@ -145,7 +146,7 @@ def run_inference_call_direct(
     start_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
     completion = None
     try:
-        if model_name.startswith("o1"):
+        if ModelInfoManager().no_system_prompt(model_name):
             messages = [
                 {
                     "role": "user",
@@ -166,21 +167,39 @@ def run_inference_call_direct(
             ]
 
         if use_parsed:
-            completion = api_client.beta.chat.completions.parse(
-                model=model_name,
-                messages=messages,
-                temperature=temperature,
-                max_completion_tokens=max_tokens,
-                response_format=response_pydantic_model,
-            )
+            if ModelInfoManager().use_max_completion_tokens(model_name):
+                completion = api_client.beta.chat.completions.parse(
+                    model=model_name,
+                    messages=messages,
+                    temperature=temperature,
+                    max_completion_tokens=max_tokens,
+                    response_format=response_pydantic_model,
+                )
+            else:
+                completion = api_client.chat.completions.create(
+                    model=model_name,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    response_format=response_pydantic_model,
+                )
         else:
-            completion = api_client.chat.completions.create(
-                model=model_name,
-                messages=messages,
-                response_format=format_dict,
-                temperature=temperature,
-                max_completion_tokens=max_tokens,
-            )
+            if ModelInfoManager().use_max_completion_tokens(model_name):
+                completion = api_client.chat.completions.create(
+                    model=model_name,
+                    messages=messages,
+                    response_format=format_dict,
+                    temperature=temperature,
+                    max_completion_tokens=max_tokens,
+                )
+            else:
+                completion = api_client.chat.completions.create(
+                    model=model_name,
+                    messages=messages,
+                    response_format=format_dict,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
         display_logger.info(
             f"({completion.usage.total_tokens}) tokens used for ({call_target})."
         )
@@ -526,22 +545,3 @@ def get_rerank_client_for_user(
             "and default base_url"
         )
     return cohere_client
-
-
-def _support_pydantic_response(final_llm_model_name: str) -> bool:
-    if final_llm_model_name.startswith("gpt-"):
-        return True
-
-    if final_llm_model_name.startswith("o1"):
-        return True
-
-    if final_llm_model_name.startswith("gemini-"):
-        return True
-
-    if final_llm_model_name.startswith("llama3.2"):
-        return True
-
-    if final_llm_model_name.startswith("deepseek"):
-        return True
-
-    return False
