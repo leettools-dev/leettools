@@ -1,6 +1,7 @@
 import pytest
 
 from leettools.common import exceptions
+from leettools.common.models.model_info import ModelInfoManager
 from leettools.context_manager import ContextManager
 from leettools.eds.usage.token_converter import MILLION, create_token_converter
 
@@ -13,7 +14,7 @@ def test_token_convert_basic():
     settings = context.settings
     settings.DEFAULT_TOKEN_CONVERTER = "token_converter_basic"
     token_converter: TokenConverterBasic = create_token_converter(settings)
-    price_dict = token_converter._load_token_map()
+    price_dict = ModelInfoManager().get_token_map()
 
     # Test case 1: Valid input
     provider = "openai"

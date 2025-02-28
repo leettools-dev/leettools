@@ -2,6 +2,7 @@ import re
 from typing import ClassVar, Dict, List, Optional, Tuple, Type
 
 from leettools.common.logging import logger
+from leettools.common.models.model_info import ModelInfoManager
 from leettools.common.utils import config_utils
 from leettools.core.schemas.chat_query_result import AnswerSource, SourceItem
 from leettools.core.schemas.segment import SearchResultSegment
@@ -71,7 +72,6 @@ class StepExtendContext(AbstractStep):
         )
 
         from leettools.common.utils.tokenizer import Tokenizer
-        from leettools.flow.utils.flow_utils import context_size_map
 
         if override_model_name is None:
             if (
@@ -96,15 +96,9 @@ class StepExtendContext(AbstractStep):
         tokenizer = Tokenizer(settings)
 
         extended_context = ""
-        if inference_model_name in context_size_map:
-            context_limit = context_size_map[inference_model_name]
-        else:
-            context_limit = settings.DEFAULT_CONTEXT_LIMIT
-            display_logger.info(
-                f"Inference model is not in the context size map: {inference_model_name}. "
-                f"Using default context size {context_limit}."
-            )
-
+        context_limit = ModelInfoManager().get_context_size(
+            inference_model_name, display_logger=display_logger
+        )
         display_logger.info(
             f"Creating references from vector search result for model {inference_model_name}, "
             f"the context limit is {context_limit} tokens. "
