@@ -13,4 +13,5 @@ class FlowType(str, Enum):
     SEARCH = "search"
     NEWS = "news"
     OPINIONS = "opinions"
+    MEDIUM = "medium"
     DUMMY = "dummy"  # mock the results for testing

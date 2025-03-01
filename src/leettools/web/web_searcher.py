@@ -17,6 +17,7 @@ from leettools.flow.flow_component_type import FlowComponentType
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.web.retrievers.retriever import create_retriever
 from leettools.web.schemas.scrape_result import ScrapeResult
+from leettools.web.schemas.search_result import SearchResult
 from leettools.web.web_scraper import WebScraper
 
 
@@ -239,3 +240,56 @@ local storage.
             kb=kb, docsource=docsource, scrape_results=scrape_results
         )
         return docsink_create_list
+
+    def simple_search(
+        self,
+        context: Context,
+        org: Org,
+        kb: KnowledgeBase,
+        user: User,
+        search_keywords: str,
+        flow_options: Optional[Dict[str, Any]] = {},
+        display_logger: Optional[EventLogger] = None,
+    ) -> List[SearchResult]:
+        """
+        Perform a simple search and return the search results.
+        Args:
+        - context (Context): the Context object.
+        - org (Org): The organization object.
+        - kb (KnowledgeBase): The KnowledgeBase object.
+        - user (User): The user object.
+        - search_keywords (str): The search keywords string.
+        - flow_options (Optional[Dict[str, Any]]): The flow options.
+        - display_logger (Optional[EventLogger]): The display logger.
+        """
+        if display_logger is None:
+            display_logger = logger()
+
+        if flow_options is None:
+            flow_options = {}
+
+        retrieve_type = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_RETRIEVER_TYPE,
+            default_value=context.settings.WEB_RETRIEVER,
+            display_logger=display_logger,
+        )
+        retriever = create_retriever(
+            retriever_type=retrieve_type,
+            context=context,
+            org=org,
+            kb=kb,
+            user=user,
+        )
+
+        search_results = retriever.retrieve_search_result(
+            search_keywords=search_keywords,
+            flow_options=flow_options,
+            display_logger=display_logger,
+        )
+
+        if len(search_results) == 0:
+            display_logger.info(f"No search results found for query {search_keywords}.")
+            return []
+
+        return search_results

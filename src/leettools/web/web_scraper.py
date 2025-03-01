@@ -2,7 +2,7 @@ import os
 import traceback
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import partial
-from typing import List
+from typing import List, Optional
 
 import requests
 
@@ -70,6 +70,31 @@ class WebScraper:
             results = executor.map(partial_extract, urls)
         res = [result for result in results if result.file_path is not None]
         return res
+
+    def scrape_url_to_content(self, url: str) -> Optional[str]:
+        """
+        Scrape the content from the URL and return the content as a string.
+        Args:
+        - url (str): The URL of the link to extract data from.
+        Returns:
+        - str: The content extracted from the URL.
+        """
+        display_logger = self.display_logger
+        try:
+            scraper = get_scraper(
+                url=url,
+                session=self.session,
+                default_type=self.scraper_type,
+                display_logger=self.display_logger,
+            )
+            return scraper.scrape_content_to_str(url)
+        except Exception as e:
+            trace = traceback.format_exc()
+            display_logger.debug(
+                f"Error scraping (failure): {url} to content, exception: {e}"
+            )
+            display_logger.debug(f"Detailed error: {trace}")
+            return None
 
     def _get_dir_for_url(self, url: str) -> str:
         tld = url_utils.get_first_level_domain_from_url(url)

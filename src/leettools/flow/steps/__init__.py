@@ -11,6 +11,7 @@ from .step_query_rewrite import StepQueryRewrite
 from .step_rerank import StepRerank
 from .step_scrape_urls import StepScrpaeUrlsToDocSource
 from .step_search_to_docsource import StepSearchToDocsource
+from .step_search_medium import StepSearchMedium
 from .step_summarize import StepSummarize
 from .step_vectdb_search import StepVectorSearch
 
@@ -30,4 +31,5 @@ __all__ = [
     "StepPlanTopic",
     "StepExtractInfo",
     "StepLocalKBSearch",
+    "StepSearchMedium",
 ]
