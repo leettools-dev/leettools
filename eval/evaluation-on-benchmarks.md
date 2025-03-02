@@ -8,11 +8,15 @@ Each dataset consists of:
 
 The evaluation framework supports assessing both individual processing stages (e.g., document retrieval, response generation) and the overall system performance.
 
-## Table of Contents
-1. [Installation](#installation)
-2. [Usage](#usage)
+## Overview of the RAG pipelines that can be evaluated
 
-## Installation
+
+## Table of Contents
+1. [Setup Eval Environment](#setup-eval-environment)
+2. [Testing](#testing)
+3. [Usage](#usage)
+
+## Setup Eval Environment
 To set up the environment for benchmark evaluation, follow these steps:
 
 1. **Use [uv](https://github.com/astral-sh/uv) for package management** to ensure a clean and efficient environment setup. The environment should be initialized in the [root directory](../) where `dev-requirements.txt` is located.
@@ -112,6 +116,8 @@ cd leettools
 
 # -i: only run the ingestion process of documents for -n 5 verified questions
 python -m eval.eval_benchmarks -d finance -n 5 -i
+# -i -p: parse documents into markdown only without chunking or embedding
+python -m eval.eval_benchmarks -d finance -i -p
 # remove -i to run the following query and evaluation process
 python -m eval.eval_benchmarks -d finance -n 5
 ```
