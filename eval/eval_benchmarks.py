@@ -1,15 +1,13 @@
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import click
 from ragas.dataset_schema import EvaluationResult
 
-# from eval.data_preprocess.base_dataset import EvalItem
 from eval.data_preprocess.base_dataset import QuestionItem
 from eval.data_preprocess.config import (DEFAULT_FINANCEBENCH_PATH,
                                          DEFAULT_MEDICALBENCH_PATH)
-from eval.data_preprocess.financebench_loader import FinanceBenchDataset
 from leettools.chat import chat_utils
 from leettools.chat.history_manager import get_history_manager
 from leettools.cli.cli_utils import setup_org_kb_user
@@ -29,7 +27,7 @@ def setup_context(context_name: str = "dataset_eval") -> Context:
     context.name = f"{context.EDS_CLI_CONTEXT_PREFIX}_{context_name}"
     return context
 
-def process_document(context: Context, org, kb, user, doc_path: Path, logger) -> None:
+def process_document(context: Context, org, kb, user, doc_path: Path, logger, parse_only: bool = False) -> None:
     """Process a single document and add to knowledge base"""
     logger.info(f"Processing document: {doc_path}")
     
@@ -46,14 +44,15 @@ def process_document(context: Context, org, kb, user, doc_path: Path, logger) ->
     # Add document to knowledge base
     docsource = docsource_store.create_docsource(org, kb, docsource_create)
     
-    # Process document through pipeline
+    # Process document through pipeline (conversion only)
     pipeline_utils.process_docsource_manual(
         org=org,
         kb=kb,
         user=user,
         docsource=docsource,
         context=context,
-        display_logger=logger
+        display_logger=logger,
+        convert_only=parse_only  # Only perform document conversion
     )
 
 def setup_exec_info(kb_name: str, context: Optional[Context] = None, logger: Optional[logging.Logger] = None) -> ExecInfo:
@@ -93,7 +92,7 @@ def setup_exec_info(kb_name: str, context: Optional[Context] = None, logger: Opt
     
     return exec_info
 
-def run_ingestion(kb_name: str, pdf_paths: List[Path]) -> None:
+def run_ingestion(kb_name: str, pdf_paths: List[Path], parse_only: bool) -> None:
     """Run ingestion process for dataset"""
     logger = logging.getLogger(__name__)
     logger.info(f"Starting ingestion process for KB: {kb_name}")
@@ -115,7 +114,7 @@ def run_ingestion(kb_name: str, pdf_paths: List[Path]) -> None:
 
     for pdf_path in pdf_paths:
         try:
-            process_document(context, org, kb, user, pdf_path, logger)
+            process_document(context, org, kb, user, pdf_path, logger, parse_only)
         except Exception as e:
             logger.error(f"Error processing {pdf_path}: {e}")
             continue
@@ -183,6 +182,8 @@ def run_eval(dataset: List[Dict[str, Any]]) -> EvaluationResult:
     )
     return result
 
+
+
 @click.command()
 @click.option(
     "-d",
@@ -200,6 +201,14 @@ def run_eval(dataset: List[Dict[str, Any]]) -> EvaluationResult:
     help="Ingesting documents takes a long time, please firstly run it before querying and evaluating"  
 )
 @click.option(
+    "-p",
+    "--parse-only",
+    "parse_only",
+    is_flag=True,
+    required=False,
+    help="Only parse documents to markdown without chunking or embedding"
+)
+@click.option(
     "-n",
     "--number-of-questions",
     "number_of_questions",
@@ -208,7 +217,10 @@ def run_eval(dataset: List[Dict[str, Any]]) -> EvaluationResult:
     required=False,
     help="Number of questions to evaluate"
 )
-def orchestrate_eval(domain: str, ingesting_documents: bool, number_of_questions: Optional[int]):
+
+
+def orchestrate_eval(domain: str, ingesting_documents: bool, number_of_questions: Optional[int], parse_only: bool):
+    # parse_only=true for only parsing documents to markdown without chunking or embedding
     """Run ingestion process from command line"""
     # Setup logging
     logging.basicConfig(level=logging.INFO)
@@ -239,7 +251,7 @@ def orchestrate_eval(domain: str, ingesting_documents: bool, number_of_questions
     if ingesting_documents:
         # Only run ingestion
         logger.info("Starting ingestion process...")
-        run_ingestion(kb_name, list(set(source_dataset.get_document_paths())))
+        run_ingestion(kb_name, list(set(source_dataset.get_document_paths())), parse_only)
         logger.info("Ingestion completed")
     else:
         # Run query and evaluation

@@ -1,0 +1,13 @@
+{
+    "strategy_name": "simple_embedder",
+    "strategy_description": "A straightforward embedding strategy using OpenAI's dense embedding model without contextual retrieval. Suitable for basic embedding tasks where simplicity and efficiency are prioritized.",
+    "embedder_type": "simple",
+    "dense_embedder": "dense_embedder_openai",
+    "dense_embedder_params": {
+        "model_name": "text-embedding-3-small",
+        "model_dimension": 1536
+    },
+    "sparse_embedder": null,
+    "sparse_embedder_params": {},
+    "enable_contextual_retrieval": false
+}
