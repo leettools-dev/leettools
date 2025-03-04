@@ -67,7 +67,7 @@ def generate_dockerfile(
     "output_filename",
     default="Dockerfile",
     required=False,
-    help="Output file name relative to the root dir, default to Dockerfile.",
+    help="Output file name relative to the script dir, default to Dockerfile.",
 )
 def run(type: str, output_filename: str) -> None:
     script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -80,7 +80,7 @@ def run(type: str, output_filename: str) -> None:
         print(f"Template file {template_file} does not exist.")
         return
 
-    output_file = os.path.join(root_dir, output_filename)
+    output_file = os.path.join(script_dir, output_filename)
 
     categories = parse_requirements(requirements_file)
 
