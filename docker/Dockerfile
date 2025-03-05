@@ -40,7 +40,7 @@ RUN pip install --no-cache-dir rich==13.9.4
 
 RUN pip install --no-cache-dir nltk==3.8.1
 
-RUN pip install --no-cache-dir psutil==5.9.8
+RUN pip install psutil
 
 RUN pip install --no-cache-dir tldextract==5.1.3
 
