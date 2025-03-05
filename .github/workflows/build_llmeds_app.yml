@@ -1,0 +1,72 @@
+name: Build LeetTools Docker Image
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+  push:
+    branches:
+      - main
+      - "release*"
+    paths:
+      - "src/leettools/**"
+      - "requirements.txt"
+      - "docker/Dockerfile"
+
+env:
+  APP_NAME: leettools
+  DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+jobs:
+  build-leettools-service-docker-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.DOCKER_USERNAME }}/${{ env.APP_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=edge
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64, linux/arm64
+
+      - name: Build and push Docker :latest version image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          push: true
+          tags: ${{ env.DOCKER_USERNAME }}/${{ env.APP_NAME }}:latest
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build successful
+        run: echo "Docker image name is ${{ env.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ steps.meta.outputs.tags }}
