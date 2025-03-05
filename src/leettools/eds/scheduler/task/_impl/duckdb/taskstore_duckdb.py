@@ -138,7 +138,7 @@ class TaskStoreDuckDB(AbstractTaskStore):
             where_clause=where_clause,
             value_list=value_list,
         )
-        logger().info(f"get_all_tasks_for_kb: {rtn_list}")
+        logger().info(f"get_all_tasks_for_kb: {len(rtn_list)}")
         return [self._dict_to_task(dict(rtn_list[i])) for i in range(len(rtn_list))]
 
     def get_incomplete_tasks(self) -> List[Task]:

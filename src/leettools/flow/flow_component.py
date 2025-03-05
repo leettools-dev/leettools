@@ -42,7 +42,10 @@ class FlowComponent:
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
         # Options that shared by all the flows
-        return [flow_option_items.FOI_OUTPUT_LANGUAGE()]
+        return [
+            flow_option_items.FOI_OUTPUT_LANGUAGE(),
+            flow_option_items.FOI_CONTEXT_LIMIT(),
+        ]
 
     @classmethod
     def can_depend_on_class(cls, dep_cls: Type["FlowComponent"]) -> bool:

@@ -183,8 +183,14 @@ Below is the provided content:
                 f"Returning list of objects using model_validate_json."
             )
             response_str = json_utils.ensure_json_item_list(response_str)
-            items = response_pydantic_model.model_validate_json(response_str)
-            if multiple_items:
-                return items.items
-            else:
-                return [items]
+            try:
+                items = response_pydantic_model.model_validate_json(response_str)
+                if multiple_items:
+                    return items.items
+                else:
+                    return [items]
+            except Exception as e:
+                display_logger.error(
+                    f"ModelValidating {model_class_name} failed: {response_str}"
+                )
+                raise e

@@ -1,3 +1,4 @@
+import json
 import re
 import traceback
 from typing import Any, Dict, List, Optional, Tuple
@@ -13,7 +14,6 @@ from leettools.common.models.model_info import ModelInfoManager
 from leettools.common.utils import file_utils, json_utils, time_utils, url_utils
 from leettools.common.utils.content_utils import normalize_newlines, truncate_str
 from leettools.common.utils.dynamic_model import gen_pydantic_example
-from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 from leettools.context_manager import Context
 from leettools.core.schemas.api_provider_config import (
     APIEndpointInfo,
@@ -112,15 +112,17 @@ def run_inference_call_direct(
                 use_parsed = True
             else:
                 display_logger.info(
-                    f"Target model {model_name} does not support parsed response."
+                    f"Target model {model_name} does not support parsed response. "
                     f"Using JSON response."
                 )
                 format_dict = {"type": "json_object"}
 
                 extra_instruction = (
-                    "\nPlease provide a valid JSON formatted response with length limite "
-                    "by the model's max_output parameter. The response output should not "
-                    "be trucated and should be strictly in the following format:\n"
+                    "\nPlease provide a valid JSON formatted response with length limit "
+                    "by the model's max_output parameter. Use double quotes instead of "
+                    "single quotes for the JSON keys and values. The response output "
+                    "should not be trucated and should be strictly in the following "
+                    "format:\n"
                     f"{gen_pydantic_example(response_pydantic_model, show_type=True)}\n"
                 )
 
@@ -243,15 +245,49 @@ def run_inference_call_direct(
     if use_parsed:
         response_str = completion.choices[0].message.parsed.model_dump_json()
     else:
+
         response_str = completion.choices[0].message.content
         display_logger.debug(f"Response from inference call\n: {response_str}")
         if need_json:
+            # remove any ```json``` or ``` code block markers from the response
+
             pattern = r"\n?```json\n?|\n?```\n?"
             response_str = re.sub(pattern, "", response_str)
+
             # remove the leading <think></think> content at the start if present
             response_str = re.sub(
                 r"^\s*<think>.*?</think>", "", response_str, flags=re.DOTALL
             )
+
+            # {
+            # "type": "json",
+            # "content": "{'items': [...]}"
+            # }
+            # for return data like the above, retain only the items part
+            try:
+                result_dict = json.loads(response_str)
+                if "items" in result_dict:
+                    # use only the items part
+                    valid_dict = {"items": result_dict["items"]}
+                    response_str = json.dumps(valid_dict)
+                else:
+                    if "content" in result_dict:
+                        if "items" in result_dict["content"]:
+                            valid_dict = {"items": result_dict["content"]["items"]}
+                            response_str = json.dumps(result_dict["content"])
+            except Exception as e:
+                # There may be cases the response is not a valid JSON
+                # but the items part is valid JSON.
+                # We do not handle this case for now.
+                display_logger.debug(f"Error in parsing response as JSON: {e}")
+                # try to use the regular expression to extract the items part
+                pattern = r"\{.*?items.*?\}\s*"
+                match = re.search(pattern, response_str)
+                if match:
+                    response_str = match.group(0)
+                else:
+                    display_logger.debug(f"No items found in response.")
+
             display_logger.debug(f"Clean up: {response_str}")
 
             # we are using a model that does not support parsed response

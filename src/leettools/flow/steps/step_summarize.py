@@ -239,7 +239,25 @@ Here is the content:
             override_max_token=3000,
         )
 
-        doc_summary = DocumentSummary.model_validate_json(response_str)
+        # get the element if the result is a string in the form of [{"summary": "..."}]
+        if response_str.startswith("[") and response_str.endswith("]"):
+            response_str = response_str[1:-1]
+            response_str = response_str.strip()
+
+        try:
+            doc_summary = DocumentSummary.model_validate_json(response_str)
+        except Exception as e:
+            display_logger.error(
+                f"ModelValidating DocumentSummary failed: {response_str}"
+            )
+            return DocumentSummary(
+                summary="",
+                keywords=[],
+                links=[],
+                authors=[],
+                content_date=None,
+                relevance_score=0,
+            )
 
         # sometimes the LLM uses the provided example content as the result
         if "The summary of the document" in doc_summary.summary:

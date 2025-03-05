@@ -6,6 +6,7 @@ from leettools.context_manager import Context
 from leettools.core.consts.flow_option import (
     FLOW_OPTION_ARTICLE_STYLE,
     FLOW_OPTION_CONTENT_INSTRUCTION,
+    FLOW_OPTION_CONTEXT_LIMIT,
     FLOW_OPTION_DAYS_LIMIT,
     FLOW_OPTION_EXCLUDED_SITES,
     FLOW_OPTION_EXTRACT_INSTRUCTION,
@@ -98,7 +99,7 @@ def _planning_model(
     required: Optional[bool] = False,
 ) -> FlowOptionItem:
     if context is None:
-        default_model = "gpt-4o-mini"
+        default_model = None
     else:
         default_model = context.settings.DEFAULT_PLANNING_MODEL
 
@@ -119,7 +120,7 @@ def _summary_model(
     required: Optional[bool] = False,
 ) -> FlowOptionItem:
     if context is None:
-        default_model = "gpt-4o-mini"
+        default_model = None
     else:
         default_model = context.settings.DEFAULT_PLANNING_MODEL
     return FlowOptionItem(
@@ -139,7 +140,7 @@ def _writing_model(
     required: Optional[bool] = False,
 ) -> FlowOptionItem:
     if context is None:
-        default_model = "gpt-4o-mini"
+        default_model = None
     else:
         default_model = context.settings.DEFAULT_PLANNING_MODEL
     return FlowOptionItem(
@@ -733,36 +734,53 @@ def _query_docsource_uuid(
     )
 
 
-FOI_PLANNING_MODEL = _planning_model
-FOI_SUMMARY_MODEL = _summary_model
-FOI_WRITING_MODEL = _writing_model
-FOI_RETRIEVER = _retriever
+def _context_limit(
+    explicit: Optional[bool] = False, required: Optional[bool] = False
+) -> FlowOptionItem:
+    return FlowOptionItem(
+        name=FLOW_OPTION_CONTEXT_LIMIT,
+        display_name="Context Limit",
+        description="Override the context limit from the model info.",
+        default_value=None,
+        value_type="int",
+        example_value=None,
+        multiline=False,
+        explicit=explicit,
+        required=required,
+    )
+
+
+FOI_ARTICLE_STYLE = _article_style
 FOI_CONTENT_INSTRUCTION = _content_instruction
+FOI_CONTEXT_LIMIT = _context_limit
 FOI_DAYS_LIMIT = _days_limit
-FOI_SEARCH_MAX_RESULTS = _search_max_results
-FOI_SEARCH_REWRITE = _search_rewrite
-FOI_SEARCH_LANGUAGE = _search_language
-FOI_OUTPUT_LANGUAGE = _output_language
+FOI_DOCSOURCE_UUID = _query_docsource_uuid
+FOI_EXTRACT_INSTRUCTION = _extract_instruction
+FOI_EXTRACT_JSON_SCHEMA = _extract_json_schema
+FOI_EXTRACT_KEY_FIELDS = _extract_key_fields
+FOI_EXTRACT_OUTPUT_FORMAT = _extract_output_format
+FOI_EXTRACT_PYDANTIC = _extract_pydantic
+FOI_EXTRACT_PYTHON_INSTRUCTION = _extract_python_instruction
+FOI_EXTRACT_PYTHON_TARGET_MODEL_NAME = _extract_target_model_name
+FOI_EXTRACT_SAVE_TO_BACKEND = _extract_save_to_backend
+FOI_EXTRACT_VERIFY_FIELDS = _extract_verify_fields
 FOI_IMAGE_SEARCH = _image_search
+FOI_NUM_OF_SECTIONS = _num_of_sections
+FOI_OUTPUT_EXAMPLE = _output_example
+FOI_OUTPUT_LANGUAGE = _output_language
+FOI_PLANNING_MODEL = _planning_model
+FOI_REFERENCE_STYLE = _reference_style
+FOI_RETRIEVER = _retriever
+FOI_SEARCH_EXCLUDED_SITES = _search_excluded_sites
+FOI_SEARCH_LANGUAGE = _search_language
+FOI_SEARCH_MAX_ITERATION = _search_iteration
+FOI_SEARCH_MAX_RESULTS = _search_max_results
 FOI_SEARCH_RECURSIVE_SCRAPE = _recursive_scrape
 FOI_SEARCH_RECURSIVE_SCRAPE_ITERATION = _recursive_scrape_iteration
 FOI_SEARCH_RECURSIVE_SCRAPE_MAX_COUNT = _recursive_scrape_max_count
-FOI_SEARCH_MAX_ITERATION = _search_iteration
-FOI_SEARCH_EXCLUDED_SITES = _search_excluded_sites
-FOI_TARGET_SITE = _target_site
+FOI_SEARCH_REWRITE = _search_rewrite
 FOI_STRICT_CONTEXT = _strict_context
-FOI_REFERENCE_STYLE = _reference_style
-FOI_EXTRACT_SAVE_TO_BACKEND = _extract_save_to_backend
-FOI_EXTRACT_VERIFY_FIELDS = _extract_verify_fields
-FOI_EXTRACT_KEY_FIELDS = _extract_key_fields
-FOI_EXTRACT_PYTHON_TARGET_MODEL_NAME = _extract_target_model_name
-FOI_EXTRACT_PYTHON_INSTRUCTION = _extract_python_instruction
-FOI_EXTRACT_JSON_SCHEMA = _extract_json_schema
-FOI_EXTRACT_PYDANTIC = _extract_pydantic
-FOI_EXTRACT_INSTRUCTION = _extract_instruction
-FOI_EXTRACT_OUTPUT_FORMAT = _extract_output_format
+FOI_SUMMARY_MODEL = _summary_model
+FOI_TARGET_SITE = _target_site
 FOI_WORD_COUNT = _word_count
-FOI_ARTICLE_STYLE = _article_style
-FOI_NUM_OF_SECTIONS = _num_of_sections
-FOI_OUTPUT_EXAMPLE = _output_example
-FOI_DOCSOURCE_UUID = _query_docsource_uuid
+FOI_WRITING_MODEL = _writing_model

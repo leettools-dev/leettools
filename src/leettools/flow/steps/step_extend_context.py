@@ -4,12 +4,10 @@ from typing import ClassVar, Dict, List, Optional, Tuple, Type
 from leettools.common.logging import logger
 from leettools.common.models.model_info import ModelInfoManager
 from leettools.common.utils import config_utils
+from leettools.core.consts import flow_option
 from leettools.core.schemas.chat_query_result import AnswerSource, SourceItem
 from leettools.core.schemas.segment import SearchResultSegment
-from leettools.core.strategy.schemas.strategy_section import (
-    StrategySection,
-    StrategySectionName,
-)
+from leettools.core.strategy.schemas.strategy_section import StrategySectionName
 from leettools.eds.api_caller.api_utils import get_default_inference_model_for_user
 from leettools.eds.pipeline.split.splitter import remove_heading_from_content
 from leettools.flow.exec_info import ExecInfo
@@ -66,7 +64,6 @@ class StepExtendContext(AbstractStep):
         org = exec_info.org
         kb = exec_info.kb
 
-        display_logger.info("[Status]Extending the context.")
         display_logger.debug(
             f"Incoming with accumulated_source_items so far: {len(accumulated_source_items)}."
         )
@@ -96,12 +93,28 @@ class StepExtendContext(AbstractStep):
         tokenizer = Tokenizer(settings)
 
         extended_context = ""
-        context_limit = ModelInfoManager().get_context_size(
-            inference_model_name, display_logger=display_logger
+
+        flow_options = exec_info.flow_options
+        context_limit = config_utils.get_int_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_CONTEXT_LIMIT,
+            default_value=None,
+            display_logger=display_logger,
         )
+        if context_limit is None:
+            context_limit = ModelInfoManager().get_context_size(
+                inference_model_name, display_logger=display_logger
+            )
+            display_logger.info(
+                f"Using the context limit from the model info: {context_limit}."
+            )
+        else:
+            display_logger.info(
+                f"Using the context limit from the flow options: {context_limit}."
+            )
+
         display_logger.info(
             f"Creating references from vector search result for model {inference_model_name}, "
-            f"the context limit is {context_limit} tokens. "
             f"Using {context_limit - 1000} toekns for the references."
         )
         context_limit = context_limit - 1000

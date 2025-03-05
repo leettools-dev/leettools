@@ -60,16 +60,21 @@ class IntentionGetterDynamic(AbstractIntentionGetter, APICallerBase):
             f"final system_prompt for intention: {system_prompt}", noop_lvl=2
         )
 
+        response_str = None
         try:
-            response_str, completion = self.run_inference_call(
+            response_str, _ = self.run_inference_call(
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
             return ChatQueryMetadata.model_validate_json(response_str)
         except Exception as e:
-            trace = traceback.format_exc()
-            self.display_logger.error(
-                f"Failed to get intention, will use default: {trace}"
-            )
+            if response_str is not None:
+                self.display_logger.error(
+                    f"ModelValidating ChatQueryMetadata failed: {response_str}"
+                )
+            else:
+                trace = traceback.format_exc()
+                self.display_logger.error(f"Failed to get intention: {trace}")
+            self.display_logger.info(f"Using default intention: {DEFAULT_INTENTION}")
             return ChatQueryMetadata(intention=DEFAULT_INTENTION)
 
 

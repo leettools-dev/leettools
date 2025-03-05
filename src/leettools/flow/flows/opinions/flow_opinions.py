@@ -162,8 +162,14 @@ def dedupe_items(
     else:
         display_logger.debug(f"Returning list of objects using model_validate_json.")
         response_str = json_utils.ensure_json_item_list(response_str)
-        items = response_pydantic_model.model_validate_json(response_str)
-        return items.items
+        try:
+            items = response_pydantic_model.model_validate_json(response_str)
+            return items.items
+        except Exception as e:
+            display_logger.error(
+                f"ModelValidating {target_model_name} failed: {response_str}"
+            )
+            raise e
 
 
 class FlowOpinions(AbstractFlow):

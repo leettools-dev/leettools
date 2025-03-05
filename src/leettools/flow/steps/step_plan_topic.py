@@ -232,5 +232,9 @@ def _step_plan_topic_for_style(
         call_target="get_topic_list",
         override_model_name=planning_model,
     )
-    topic_list = TopicList.model_validate_json(response_str)
+    try:
+        topic_list = TopicList.model_validate_json(response_str)
+    except Exception as e:
+        display_logger.error(f"ModelValidating TopicList failed: {response_str}")
+        raise e
     return topic_list
