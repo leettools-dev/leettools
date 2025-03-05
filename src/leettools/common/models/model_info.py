@@ -51,7 +51,7 @@ class ModelInfoManager(metaclass=SingletonMetaModelInfo):
             "mixtral-8x7b-32768": 32768,
             "gemma-7b-it": 8192,
             "deepseek-v3": 65536,
-            "/models/DeepSeek-R1-Distill-Llama-70B": 30720,
+            "DeepSeek-R1-Distill-Llama-70B": 65536,
         }
 
         self._pydantic_response_models = {"gpt-", "o1", "gemini-"}

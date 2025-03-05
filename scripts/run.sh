@@ -28,14 +28,23 @@ done
 
 
 # Check if the .env file exists in the root directory
-if [ -f "${BASE_DIR}"/"${ENV_FILE}" ]; then
+env_file="${BASE_DIR}/${ENV_FILE}"
+if [ -f "${env_file}" ]; then
   #Load environment variables from .env file
     while IFS='=' read -r name value; do
     if [[ ! $name =~ ^\# ]] && [[ -n $name ]]; then
-      # echo "$name" "$value";
-      export "$name=$value";
+      # we only export the variables that are not set in the environment
+      current_value="${!name:-}"
+      if [ -z "${current_value}" ]; then
+        export "$name=$value";
+      else
+        # print a warning message if the two values are different
+        if [ "${current_value}" != "${value}" ]; then
+          echo "[run.sh warning] Variable $name is already set to $current_value, but the $env_file file has a different value: $value"
+        fi;
+      fi;
     fi;
-    done < "${BASE_DIR}"/"${ENV_FILE}"
+    done < "${env_file}"
 fi
 
 # if LEET_HOME is set, we will have a default value for EDS_LOG_ROOT

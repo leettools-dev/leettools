@@ -2,6 +2,8 @@ from os import environ
 
 import click
 
+from leettools.common.logging import logger
+
 
 @click.command()
 @click.option(
@@ -51,6 +53,7 @@ def start_service(
     from leettools.svc.api_service import APIService
 
     EventLogger.set_global_default_level(log_level.upper())
+    logger().info(f"Log level set to {log_level.upper()}")
     context = ContextManager().get_context()
     scheduler = SchedulerManager(context).get_scheduler()
     scheduler.start()

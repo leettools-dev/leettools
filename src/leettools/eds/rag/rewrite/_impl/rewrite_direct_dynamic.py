@@ -52,16 +52,22 @@ class QueryRewriterDirectDynamic(AbstractQueryRewriter, APICallerBase):
         )
         logger().debug(f"Final system prompt for rewrite: {system_prompt}")
 
+        response_str = None
         try:
             response_str, completion = self.run_inference_call(
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
             return Rewrite.model_validate_json(response_str)
         except Exception as e:
-            trace = traceback.format_exc()
-            self.display_logger.error(
-                f"Failed to rewrite query, will use original: {trace}"
-            )
+            if response_str is not None:
+                self.display_logger.error(
+                    f"ModelValidating Rewrite failed: {response_str}"
+                )
+            else:
+                trace = traceback.format_exc()
+                self.display_logger.error(
+                    f"Failed to rewrite query, will use original: {trace}"
+                )
             return Rewrite(rewritten_question=query)
 
 
