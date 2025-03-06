@@ -64,6 +64,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./
+          file: docker/Dockerfile
           push: true
           file: docker/Dockerfile
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.APP_NAME }}:latest
