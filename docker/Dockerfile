@@ -8,6 +8,7 @@
 FROM python:3.11-slim
 
 RUN apt-get update && apt-get upgrade -y \
+    && apt-get install -y gcc python3-dev \
     && pip install --upgrade pip
 
 # we separate these requirements to speed up the build process
@@ -40,7 +41,7 @@ RUN pip install --no-cache-dir rich==13.9.4
 
 RUN pip install --no-cache-dir nltk==3.8.1
 
-RUN pip install psutil
+RUN pip install --no-cache-dir psutil==5.9.8
 
 RUN pip install --no-cache-dir tldextract==5.1.3
 
@@ -63,11 +64,11 @@ RUN pip install --no-cache-dir tiktoken==0.8.0
 
 RUN pip install --no-cache-dir duckdb==1.1.3
 
-RUN pip install --no-cache-dir docling==2.10.0
+RUN pip install --no-cache-dir docling==2.25.2
 
-RUN pip install --no-cache-dir docling_core==2.10.0
+RUN pip install --no-cache-dir docling_core==2.25.2
 
-RUN pip install --no-cache-dir chonkie==0.1.2
+RUN pip install --no-cache-dir chonkie==0.5.1
 
 RUN pip install --no-cache-dir langchain-community==0.3.15
 
@@ -92,7 +93,7 @@ RUN pip install -e . \
     && chmod +x scripts/run.sh
 
 # Expose port 8000
-EXPOSE ${EDS_SVC_PORT}
+EXPOSE ${EDS_API_SERVICE_PORT}
 
 ENV LOG_OUTPUT="console"
 

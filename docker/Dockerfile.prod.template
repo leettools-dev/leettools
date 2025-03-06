@@ -8,6 +8,7 @@
 FROM python:3.11-slim
 
 RUN apt-get update && apt-get upgrade -y \
+    && apt-get install -y gcc python3-dev \
     && pip install --upgrade pip
 
 # we separate these requirements to speed up the build process
