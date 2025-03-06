@@ -34,13 +34,13 @@ if [ -f "${env_file}" ]; then
     while IFS='=' read -r name value; do
     if [[ ! $name =~ ^\# ]] && [[ -n $name ]]; then
       # we only export the variables that are not set in the environment
-      current_value="${!name:-}"
-      if [ -z "${current_value}" ]; then
+      current_env_value="${!name:-}"
+      if [ -z "${current_env_value}" ]; then
         export "$name=$value";
       else
         # print a warning message if the two values are different
-        if [ "${current_value}" != "${value}" ]; then
-          echo "[run.sh warning] Variable $name is already set to $current_value, but the $env_file file has a different value: $value"
+        if [ "${current_env_value}" != "${value}" ]; then
+          echo "[run.sh warning] $name is set to $current_env_value in the current environment, but the $env_file file has a different value: $value"
         fi;
       fi;
     fi;

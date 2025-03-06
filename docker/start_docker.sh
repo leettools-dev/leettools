@@ -53,7 +53,9 @@ if [ ${#MOUNT_DIRS[@]} -gt 0 ]; then
   done
 fi
 
-container_name="leettools-svc"
+org_name="leettools"
+app_name="leettools"
+container_name="leettools"
 
 # If force remove is enabled, stop and remove existing container
 if [ "$FORCE_REMOVE" = true ]; then
@@ -86,10 +88,10 @@ if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 # check if the docker image exists
-if ! docker images leettools-dev/leettools:"${version}" | grep -q "${version}"; then
-    echo "Docker image leettools-dev/leettools:${version} does not exist"
+if ! docker images "${org_name}/${app_name}":"${version}" | grep -q "${version}"; then
+    echo "Docker image ${org_name}/${app_name}:${version} does not exist"
     version="latest"
-    if ! docker images leettools-dev/leettools:"${version}" | grep -q "${version}"; then
+    if ! docker images "${org_name}/${app_name}":"${version}" | grep -q "${version}"; then
         echo "Docker image leettools-dev/leettools:${version} does not exist"
         exit 1
     fi
@@ -143,7 +145,7 @@ echo "docker run -d ${envfile_opt} ${mount_opts} \\
     -v \"$LEET_HOME\":\"$leet_home_in_docker\" \\
     -v \"$EDS_DATA_DIR\":\"$leet_home_in_docker/data\" \\
     -v \"$EDS_LOG_DIR\":\"$leet_home_in_docker/logs\" \\
-    leettools-dev/leettools:\"${version}\""
+    ${org_name}/${app_name}:\"${version}\""
 
 # run the docker container
 # shellcheck disable=SC2086
@@ -154,4 +156,4 @@ docker run -d ${envfile_opt} ${mount_opts} \
     -v "$LEET_HOME":"$leet_home_in_docker" \
     -v "$EDS_DATA_DIR":"$leet_home_in_docker/data" \
     -v "$EDS_LOG_DIR":"$leet_home_in_docker/logs" \
-    leettools-dev/leettools:"${version}"
+    ${org_name}/${app_name}:"${version}"

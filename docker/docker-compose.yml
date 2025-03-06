@@ -17,6 +17,8 @@ services:
     volumes:
       - ${LEET_HOME}:/leettools
       # mount any extra directories that have documents need to be processed
+      - ${DOCUMENETS_HOME}:/leettools/web/incoming/documents:ro
+
     environment:
       - LEET_HOME=/leettools
     env_file:
@@ -34,7 +36,8 @@ services:
     volumes:
       - ${LEET_HOME}/web:/leettools/web
       # mount any extra directories that have documents need to be processed
-      
+      - ${DOCUMENETS_HOME}:/leettools/web/incoming/documents:ro
+
     environment:
       - LEET_HOME=/leettools
       - SERVICE_DOMAIN=http://leettools:8000
