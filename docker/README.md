@@ -1,6 +1,6 @@
 # Run LeetTools Docker containers
 
-We can use Docker-compose to start the LeetTools service and web UI.
+We can use Docker Compose to start the LeetTools service and web UI.
 
 ## Usage
 
@@ -36,9 +36,3 @@ docker/stop.sh
 
 Note that the leettols-web application is currently under development and not open sourced
 yet. We plan to open source it in the near future.
-
-
-
-
-
-
