@@ -66,7 +66,7 @@ RUN pip install --no-cache-dir duckdb==1.1.3
 
 RUN pip install --no-cache-dir docling==2.25.2
 
-RUN pip install --no-cache-dir docling_core==2.25.2
+RUN pip install --no-cache-dir docling_core==2.21.1
 
 RUN pip install --no-cache-dir chonkie==0.5.1
 
