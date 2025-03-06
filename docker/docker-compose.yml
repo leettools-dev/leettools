@@ -1,14 +1,3 @@
-# generated using docker-compose.yml.template file, do not edit directly
-# to regenerate, run: python start.py -g
-
-# In the template file, there are two kinds of variables
-# : variables that will be replaced by the actual value when generating the
-#      final docker-compose.yml file.
-# ${VARIABLE_NAME}: variables that will be replaced by the .env file when running, passwords
-#      and keys should use this format.
-# In theory we can all use the second format, but it's better to use the first format for system
-# settings that do not change much to keep the .env file short and clean.
-
 version: "3.8"
 
 x-logging: &default-logging # Define a reusable anchor for logging configuration
@@ -18,44 +7,36 @@ x-logging: &default-logging # Define a reusable anchor for logging configuration
     max-file: "10"
 
 services:
-  leettools-svc:
-    image: leettools/leettools:${LEETTOOLS_SVC_VERSION}
+  leettools:
+    image: leettools/leettools:${LEETTOOLS_VERSION}
     logging: *default-logging
-    container_name: leettools-svc
+    container_name: leettools
     restart: always
     ports:
       - "8000:8000"
     volumes:
-      - ${HOST_DATA_ROOT}/svc:/llmeds/data # match the DATA_ROOT in .env.docker.{compact,full}
-      - ${HOST_DATA_ROOT}/uploads:/app/uploads # match the /app/uploads in web app
-      - ${HOST_LOG_ROOT}/svc:/llmeds/logs # match the LOG_ROOT in .env.docker.local.{compact,full}
-      - ${HOST_DATA_ROOT}/incoming:/incoming
-      - ${HOST_DOCUMENT_ROOT}:/incoming/documents:ro
-      # mount any directories that have documents need to be processed
-      
+      - ${LEET_HOME}:/leettools
+      # mount any extra directories that have documents need to be processed
+    environment:
+      - LEET_HOME=/leettools
     env_file:
       - ${LEETTOOLS_ENV_FILE}
     profiles: ["full", "compact"]
 
   llmeds-web:
-    image: leettools/leettools_web:${LEETTOOLS_WEB_VERSION}
+    image: leettools/leettools-web:${LEETTOOLS_WEB_VERSION}
     logging: *default-logging
     restart: always
     depends_on:
-      - leettools-svc
+      - leettools
     ports:
       - "3000:3000"
     volumes:
-      - ${HOST_LOG_ROOT}/web:/llmeds-web
-      - ${HOST_DATA_ROOT}/uploads:/app/uploads
-      - ${HOST_LOG_ROOT}/web/logs:/app/logs
-      - ${HOST_DATA_ROOT}/localpermission:/app/localpermission
-      - ${HOST_DATA_ROOT}/incoming:/incoming
-      - ${HOST_DOCUMENT_ROOT}:/incoming/documents:ro
+      - ${LEET_HOME}/web:/leettools/web
       # mount any extra directories that have documents need to be processed
       
     environment:
-      - API_SERVICE_HOST=leettools-svc
-      - LLMEDS_SERVICE_DOMAIN=http://leettools-svc:8000
+      - LEET_HOME=/leettools
+      - SERVICE_DOMAIN=http://leettools:8000
       - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE}
     profiles: ["full", "compact"]
