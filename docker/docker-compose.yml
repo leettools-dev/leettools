@@ -1,0 +1,45 @@
+version: "3.8"
+
+x-logging: &default-logging # Define a reusable anchor for logging configuration
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "10"
+
+services:
+  leettools:
+    image: leettools/leettools:${LEETTOOLS_VERSION}
+    logging: *default-logging
+    container_name: leettools
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${LEET_HOME}:/leettools
+      # mount any extra directories that have documents need to be processed
+      - ${DOCUMENETS_HOME}:/leettools/web/incoming/documents:ro
+
+    environment:
+      - LEET_HOME=/leettools
+    env_file:
+      - ${LEETTOOLS_ENV_FILE}
+    profiles: ["full", "compact"]
+
+  llmeds-web:
+    image: leettools/leettools-web:${LEETTOOLS_WEB_VERSION}
+    logging: *default-logging
+    restart: always
+    depends_on:
+      - leettools
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${LEET_HOME}/web:/leettools/web
+      # mount any extra directories that have documents need to be processed
+      - ${DOCUMENETS_HOME}:/leettools/web/incoming/documents:ro
+
+    environment:
+      - LEET_HOME=/leettools
+      - SERVICE_DOMAIN=http://leettools:8000
+      - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE}
+    profiles: ["full", "compact"]
