@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# this program is used to start the docker container for the leettools service
+
 set -e -u
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
