@@ -1,0 +1,85 @@
+# generated using docker-compose.yml.template file, do not edit directly
+# to regenerate, run: python start.py -g
+
+# In the template file, there are two kinds of variables
+# : variables that will be replaced by the actual value when generating the
+#      final docker-compose.yml file.
+# ${VARIABLE_NAME}: variables that will be replaced by the .env file when running, passwords
+#      and keys should use this format.
+# In theory we can all use the second format, but it's better to use the first format for system
+# settings that do not change much to keep the .env file short and clean.
+
+version: "3.8"
+
+x-logging: &default-logging # Define a reusable anchor for logging configuration
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "10"
+
+services:
+  leettools-svc:
+    image: leettools/leettools:${LEETTOOLS_SVC_VERSION}
+    logging: *default-logging
+    container_name:leettools-svc
+    restart: always
+    depends_on:
+      - mongo
+      - neo4j
+      - milvus-standalone
+    ports:
+      - "8000:8000"
+      - "8008:8008"
+    volumes:
+      - ${HOST_DATA_ROOT}/svc:/llmeds/data # match the DATA_ROOT in .env.docker.{compact,full}
+      - ${HOST_DATA_ROOT}/uploads:/app/uploads # match the /app/uploads in web app
+      - ${HOST_LOG_ROOT}/svc:/llmeds/logs # match the LOG_ROOT in .env.docker.local.{compact,full}
+      - ${HOST_DATA_ROOT}/incoming:/incoming
+      - ${HOST_DOCUMENT_ROOT}:/incoming/documents:ro
+      # mount any directories that have documents need to be processed
+      
+    environment:
+      - MONGO_HOST=mongo
+      - MILVUS_HOST=milvus-standalone
+      - NEO4J_HOST=neo4j
+      - EDS_CONVERTER_API_URL=${EDS_CONVERTER_API_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - GOOGLE_CX_KEY=${GOOGLE_CX_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PAYMENT_LINK=${STRIPE_PAYMENT_LINK}
+      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
+      - RUN_LEET_API=${RUN_LEET_API}
+
+    env_file:
+      - .env.docker
+    profiles: ["full", "compact"]
+
+  llmeds-web:
+    image: linktimecorp/llmeds-web:${LLMEDS_WEB_VERSION}
+    logging: *default-logging
+    restart: always
+    depends_on:
+      - eds-svc
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${HOST_LOG_ROOT}/web:/llmeds-web
+      - ${HOST_DATA_ROOT}/uploads:/app/uploads
+      - ${HOST_LOG_ROOT}/web/logs:/app/logs
+      - ${HOST_DATA_ROOT}/localpermission:/app/localpermission
+      - ${HOST_DATA_ROOT}/incoming:/incoming
+      - ${HOST_DOCUMENT_ROOT}:/incoming/documents:ro
+      # mount any extra directories that have documents need to be processed
+      
+    environment:
+      - API_SERVICE_HOST=eds-svc
+      - LLMEDS_SERVICE_DOMAIN=http://eds-svc:8000
+      - WEB_DOMAIN=${WEB_DOMAIN}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE}
+      - ENABLE_RECHARGE=${ENABLE_RECHARGE}
+    profiles: ["full", "compact"]
