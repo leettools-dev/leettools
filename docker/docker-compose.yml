@@ -21,15 +21,10 @@ services:
   leettools-svc:
     image: leettools/leettools:${LEETTOOLS_SVC_VERSION}
     logging: *default-logging
-    container_name:leettools-svc
+    container_name: leettools-svc
     restart: always
-    depends_on:
-      - mongo
-      - neo4j
-      - milvus-standalone
     ports:
       - "8000:8000"
-      - "8008:8008"
     volumes:
       - ${HOST_DATA_ROOT}/svc:/llmeds/data # match the DATA_ROOT in .env.docker.{compact,full}
       - ${HOST_DATA_ROOT}/uploads:/app/uploads # match the /app/uploads in web app
@@ -38,31 +33,16 @@ services:
       - ${HOST_DOCUMENT_ROOT}:/incoming/documents:ro
       # mount any directories that have documents need to be processed
       
-    environment:
-      - MONGO_HOST=mongo
-      - MILVUS_HOST=milvus-standalone
-      - NEO4J_HOST=neo4j
-      - EDS_CONVERTER_API_URL=${EDS_CONVERTER_API_URL}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - COHERE_API_KEY=${COHERE_API_KEY}
-      - TAVILY_API_KEY=${TAVILY_API_KEY}
-      - GOOGLE_CX_KEY=${GOOGLE_CX_KEY}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_PAYMENT_LINK=${STRIPE_PAYMENT_LINK}
-      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
-      - RUN_LEET_API=${RUN_LEET_API}
-
     env_file:
-      - .env.docker
+      - ${LEETTOOLS_ENV_FILE}
     profiles: ["full", "compact"]
 
   llmeds-web:
-    image: linktimecorp/llmeds-web:${LLMEDS_WEB_VERSION}
+    image: leettools/leettools_web:${LEETTOOLS_WEB_VERSION}
     logging: *default-logging
     restart: always
     depends_on:
-      - eds-svc
+      - leettools-svc
     ports:
       - "3000:3000"
     volumes:
@@ -75,11 +55,7 @@ services:
       # mount any extra directories that have documents need to be processed
       
     environment:
-      - API_SERVICE_HOST=eds-svc
-      - LLMEDS_SERVICE_DOMAIN=http://eds-svc:8000
-      - WEB_DOMAIN=${WEB_DOMAIN}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - API_SERVICE_HOST=leettools-svc
+      - LLMEDS_SERVICE_DOMAIN=http://leettools-svc:8000
       - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE}
-      - ENABLE_RECHARGE=${ENABLE_RECHARGE}
     profiles: ["full", "compact"]
