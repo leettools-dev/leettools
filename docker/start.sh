@@ -4,11 +4,12 @@ set -e -u
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# check if the .env file exists in the DIR
+# check if the .env file exists in the docker directory
 env_file="$DIR/.env"
 if [ ! -f "$env_file" ]; then
-    echo "Error: .env file not found in $DIR. Please create one from $DIR/.env.template"
-    exit 1
+    # copy the .env.template file to .env if it doesn't exist
+    cp "$env_file.template" "$env_file"
+    echo ".env file not found in $DIR for docker-compose.yml. Copied from $DIR/.env.template."
 fi
 
 # load the .env file into the environment by exporting the variables
