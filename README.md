@@ -8,8 +8,6 @@
 
 - [AI Search Assistant with Local Knowledge Bases](#ai-search-assistant-with-local-knowledge-bases)
 - [Quick Start](#quick-start)
-  - [Before you start](#before-you-start)
-  - [Run with Docker](#run-with-docker)
 - [Use Different LLM and Search Providers](#use-different-llm-and-search-providers)
   - [Use local Ollama service for inference and embedding](#use-local-ollama-service-for-inference-and-embedding)
   - [Use DeepSeek API with different embedding services](#use-deepseek-api-with-different-embedding-services)
@@ -54,7 +52,7 @@ Currently LeetTools provides the following workflows:
 
 # Quick Start
 
-## Before you start
+**Before you start**
 
 - .env file: We can use any OpenAI-compatible LLM endpoint, such as local Ollama service
   or public provider such as Gemini or DeepSeek. we can switch the service easily by 
@@ -68,11 +66,9 @@ Currently LeetTools provides the following workflows:
 % mkdir -p ${LEET_HOME}
 ```
 
-## Run with Docker
+**🚀 New: Run LeetTools Web UI with Docker 🚀**
 
-🚀 New: Run LeetTools Web UI with Docker 🚀
-
-LeetTools now provide a Docker container that includes the web UI. You can start the 
+LeetTools now provides a Docker container that includes the web UI. You can start the 
 container by running the following command:
 
 ```bash
