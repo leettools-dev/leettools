@@ -17,13 +17,13 @@ fireworks.ai.
 3. Copy the API key and save it in a secure location.
 4. The endpoint will be:
    - https://api.fireworks.ai/inference/v1
-   and the model names will be
+     and the model names will be
    - accounts/fireworks/models/deepseek-r1
    - accounts/fireworks/models/deepseek-v3
 
 ## Create an environment file
 
-We will use the deepseek-r1 model in the example, but note that the full deepseek-r1 
+We will use the deepseek-r1 model in the example, but note that the full deepseek-r1
 model is usually more expensive than the deepseek-v3 model. The benefit is that it can
 show the thinking trace of the writing process, which may be useful in some cases.
 
@@ -44,7 +44,7 @@ If you are using another provider or model, change the values accordingly.
 We can specify to search up to 30 results and limit the search to the last 360 days.
 
 ```bash
-% leet flow -e .env.fireworks -t digest -k aijob.fireworks \
+leet flow -e .env.fireworks -t digest -k aijob.fireworks \
     -p search_max_results=30 -p days_limit=360 \
     -q "How will agentic AI and generative AI affect our non-tech jobs?"  \
     -l info -o outputs/aijob.fireworks.md
@@ -52,6 +52,7 @@ We can specify to search up to 30 results and limit the search to the last 360 d
 
 The example output is in [examples/deepseek/aijob.fireworks.md](examples/deepseek/aijob.fireworks.md).
 
-The output from 
+The output from
+
 - OpenAI o1-pro model: https://chatgpt.com/share/67a6a4db-1564-800f-baae-a6b127366947
 - Google Gemini 1.5-pro model: https://g.co/gemini/share/d63f48b93981

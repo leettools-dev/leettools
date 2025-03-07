@@ -8,13 +8,16 @@
 
 - [AI Search Assistant with Local Knowledge Bases](#ai-search-assistant-with-local-knowledge-bases)
 - [Quick Start](#quick-start)
+  - [Before you start](#before-you-start)
+  - [Run with Docker](#run-with-docker)
 - [Use Different LLM and Search Providers](#use-different-llm-and-search-providers)
   - [Use local Ollama service for inference and embedding](#use-local-ollama-service-for-inference-and-embedding)
   - [Use DeepSeek API with different embedding services](#use-deepseek-api-with-different-embedding-services)
   - [Use Google / FireCrawl as the default web retriever](#use-google--firecrawl-as-the-default-web-retriever)
 - [Usage Examples](#usage-examples)
   - [Build a local knowledge base using PDFs from the web](#build-a-local-knowledge-base-using-pdfs-from-the-web)
-  - [Generate news list from updates in KB](#generate-news-list-from-updates-in-kb)
+  - [Generate analytical research reports like OpenAI/Google's Deep Research](#generate-analytical-research-reports-like-openaigoogles-deep-research)
+  - [Generate news list from web search results](#generate-news-list-from-web-search-results)
 - [Main Components](#main-components)
 - [Community](#community)
 
@@ -22,14 +25,15 @@
 # AI Search Assistant with Local Knowledge Bases
 
 LeetTools is an AI search assistant that can perform highly customizable search workflows
-and save the search results and generated outputs to local knowledge bases. With an
+and generate customized format results based on both web and local knowledge bases. With an
 automated document pipeline that handles data ingestion, indexing, and storage, we can
-easily run complex search workflows that query, extract and generate content from the
-web or local knowledge bases. 
+focus on implementing the workflow without worrying about the underlying infrastructure.
 
 LeetTools can run with minimal resource requirements on the command line with a 
-DuckDB-backend and configurable LLM settings. It can be easily integrated with other 
-applications needing AI search and knowledge base support.
+DuckDB-backend and configurable LLM settings. It can also use other dedicated 
+databases for different functions, e.g., we can use MongoDB for document storage,
+Milvus for vector search, and Neo4j for graph search. We can configure different
+functions in the same workflow to use different LLM providers and models.
 
 Here is an illustration of the LeetTools **digest** flow where it can search the web
 (or local KB) and generate a digest article from the search results:
@@ -50,9 +54,34 @@ Currently LeetTools provides the following workflows:
 
 # Quick Start
 
-We can use any OpenAI-compatible LLM endpoint, such as local Ollama service or public 
-provider such as Gemini or DeepSeek. We can switch the service easily by [defining
-environment variables or switching .env files](#use-different-llm-endpoints). 
+## Before you start
+
+- .env file: We can use any OpenAI-compatible LLM endpoint, such as local Ollama service
+  or public provider such as Gemini or DeepSeek. we can switch the service easily by 
+  [defining environment variables or switching .env files](#use-different-llm-endpoints). 
+
+- LeetHome: By default the data is saved under ${HOME}/leettools, you can set a different 
+  LeetHome environment variable to change the location:
+
+```bash
+% export LEET_HOME=<your_leet_home>
+% mkdir -p ${LEET_HOME}
+```
+
+## Run with Docker
+
+🚀 New: Run LeetTools Web UI with Docker 🚀
+
+LeetTools now provide a Docker container that includes the web UI. You can start the 
+container by running the following command:
+
+```bash
+docker/start.sh
+```
+
+This will start the LeetTools service and the web UI. You can access the web UI at 
+[http://localhost:3000](http://localhost:3000). The web UI app is currently under development
+and not open sourced yet. We plan to open source it in the near future.
 
 **Run with pip**
 
@@ -70,14 +99,6 @@ with pip as follows (using Conda/Venv is recommended):
 The above `flow -t answer` command will run the `answer` flow with the query "How does
 GraphRAG work?" and save the scraped web pages to the knowledge base `graphrag`. The
 `-l info` option will show the essential log messages.
-
-By default the data is saved under ${HOME}/leettools, you can set a different LeetHome 
-environment variable to change the location:
-
-```bash
-% export LEET_HOME=<your_leet_home>
-% mkdir -p ${LEET_HOME}
-```
 
 The default API endpoint is set to the OpenAI API endpoint, which you can modify by
 changing the `EDS_DEFAULT_LLM_BASE_URL` environment variable:
@@ -98,42 +119,9 @@ changing the `EDS_DEFAULT_LLM_BASE_URL` environment variable:
 % pip install -e .
 # add the script path to the path
 % export PATH=`pwd`/scripts:${PATH}
-
 % export EDS_LLM_API_KEY=<your_api_key>
 
 % leet flow -t answer -q "How does GraphRAG work?" -k graphrag -l info
-```
-
-**Sample Output**
-
-Here is an example output of the `answer` flow:
-
-```markdown
-# How Does Graphrag Work?
-GraphRAG operates by constructing a knowledge graph from a set of documents, which
-involves several key steps. Initially, it ingests textual data and utilizes a large
-language model (LLM) to extract entities (such as people, places, and concepts) and
-their relationships, mapping these as nodes and edges in a graph structure[1]. 
-
-The process begins with pre-processing and indexing, where the text is segmented into
-manageable units, and entities and relationships are identified. These entities are
-then organized into hierarchical "communities," which are clusters of related topics
-that allow for a more structured understanding of the data[2][3]. 
-
-When a query is made, GraphRAG employs two types of searches: Global Search, which
-looks across the entire knowledge graph for broad connections, and Local Search, which
-focuses on specific subgraphs for detailed information[3]. This dual approach enables
-GraphRAG to provide comprehensive answers that consider both high-level themes and
-specific details, allowing it to handle complex queries effectively[3][4].
-
-In summary, GraphRAG enhances traditional retrieval-augmented generation (RAG) by
-leveraging a structured knowledge graph, enabling it to provide nuanced responses that
-reflect the interconnected nature of the information it processes[1][2].
-## References
-[1] [https://www.falkordb.com/blog/what-is-graphrag/](https://www.falkordb.com/blog/what-is-graphrag/)
-[2] [https://medium.com/@zilliz_learn/graphrag-explained-enhancing-rag-with-knowledge-graphs-3312065f99e1](https://medium.com/@zilliz_learn/graphrag-explained-enhancing-rag-with-knowledge-graphs-3312065f99e1)
-[3] [https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d](https://medium.com/data-science-in-your-pocket/how-graphrag-works-8d89503b480d)
-[4] [https://github.com/microsoft/graphrag/discussions/511](https://github.com/microsoft/graphrag/discussions/511)
 ```
 
 # Use Different LLM and Search Providers
@@ -250,59 +238,36 @@ We have a more [detailed example](docs/run_ollama_with_deepseek_r1.md) to show h
 use the local Ollama service with the DeepSeek-r1:1.5B model to build a local knowledge
 base.
 
-## Generate news list from updates in KB
+## Generate analytical research reports like OpenAI/Google's Deep Research
 
-We can create a knowledge base with a list of URLs or a search query, and then generate
+We can generate analytical research reports like OpenAI/Google's Deep Research by using
+the `digest` flow. Here is an example:
+
+```bash
+% leet flow -e .env.fireworks -t digest -k aijob.fireworks \
+    -p search_max_results=30 -p days_limit=360 \
+    -q "How will agentic AI and generative AI affect our non-tech jobs?"  \
+    -l info -o outputs/aijob.fireworks.md
+```
+
+An example of the output is available [here](docs/examples/deepseek/aijob.fireworks.md),
+and the tutorial to use the DeepSeek API from fireworks.ai for the above command is 
+available [here](docs/run_deepsearch_with_firework_deepseek.md).
+
+## Generate news list from web search results
+
+We can create a knowledge base with a web search with a date limit, and then generate
 a list of news items from the KB. Here is an example:
 
 ```bash
-# create a KB with a google search
-# -d 1 means to search for news from the last day
-# -m 30 means to scrape the top 30 search results
-% leet kb add-search -k genai -q "LLM GenAI Startups" -d 1 -m 30
-# you can add single url to the KB
-% leet kb add-url -k genai -r "https://www.techcrunch.com"
-# you can also add a list of urls, example in [docs/sample_url_list.txt](docs/sample_url_list.txt)
-% leet kb add-url-list -k genai -f <file_with_list_of_urls>
-
-# generate a news list from the KB
-% leet flow -t news -q "LLM GenAI Startups" -k genai -l info -o llm_genai_news.md
-
-# Next time you want to refresh the KB and generate the news list
-# this command will re-ingest all the docsources specified above
-% leet kb ingest -k genai
-
-# run the news flow again with parameter you need
-% leet flow -t news --info
-====================================================================================================
-news: Generating a list of news items from the KB.
-
-This flow generates a list of news items from the updated items in the KB: 
-1. check the KB for recently updated documents and find news items in them.
-2. combine all the similar items into one.
-3. remove items that have been reported before.
-4. rank the items by the number of sources.
-5. generate a list of news items with references.
-
-====================================================================================================
-Use -p name=value to specify options for news:
-
-article_style       : The style of the output article such as analytical research reports, humorous
-                      news articles, or technical blog posts. [default: analytical research reports]
-                      [FLOW: news]
-days_limit          : Number of days to limit the search results. 0 or empty means no limit. In
-                      local KB, filters by the import time. [FLOW: news]
-news_include_old    : Include all news items in the result, even if it has been reported
-                      before.Default is False. [default: False] [FLOW: news]
-news_source_min     : Number of sources a news item has to have to be included in the result.Default
-                      is 2. Depends on the nature of the knowledge base. [default: 2] [FLOW: news]
-output_language     : Output the result in the language. [FLOW: news]
-word_count          : The number of words in the output section. Empty means automatics.
-                      [FLOW: news]
-
+leet flow -t news -q "LLM GenAI Startups" -k genai -l info\
+    -p days_limit=3  -p search_iteration=3 -p search_max_results=100 \
+    -o llm_genai_news.md
 ```
 
-Note: scheduler support and UI view are coming soon.
+The query retrieves the latest web pages from the past 3 days up to 100 search result page
+and generates a list of news items from the search results. The output is saved to 
+the `llm_genai_news.md` file. An example of the output is available [here](docs/examples/llm_genai_news.md).
 
 # Main Components
 
@@ -335,6 +300,8 @@ Right now we are using the following open source libraries and tools (not limite
 - [Ollama](https://github.com/ollama/ollama)
 - [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
 - [BS4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+- [FastAPI](https://github.com/fastapi/fastapi)
+- [Pydantic](https://github.com/pydantic/pydantic)
 
 We plan to add more plugins for different components to support different workloads.
 
