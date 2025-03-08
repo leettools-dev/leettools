@@ -3,6 +3,21 @@
 set -e -u
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BASE_DIR="$(cd "$DIR"/.. && pwd)"
+
+# check if the .env file exists in the base directory
+if [ ! -f "$BASE_DIR/.env" ]; then
+    echo ".env file not found in $BASE_DIR. Using all default values."
+    echo "" >> "$BASE_DIR/.env"
+else
+    # load the .env file into the environment by exporting the variables
+    while IFS='=' read -r name value; do
+        if [[ ! $name =~ ^\# ]] && [[ -n $name ]]; then
+            export "$name=$value";
+        fi;
+    done < "$BASE_DIR/.env"
+fi
+
 
 # check if the .env file exists in the docker directory
 env_file="$DIR/.env"
@@ -54,15 +69,17 @@ fi
 if [ -z "${DOCUMENETS_HOME:-}" ]; then
     case "$(uname -s)" in
         Darwin|Linux)
-            export DOCUMENETS_HOME=~/Documents
+            DOCUMENETS_HOME=~/Documents
             ;;
         CYGWIN*|MINGW*|MSYS*)
-            export DOCUMENETS_HOME="$USERPROFILE/Documents"
+            DOCUMENETS_HOME="$USERPROFILE/Documents"
             ;;
         *)
             echo "Unsupported operating system, using the value from .env file"
             ;;
     esac
+    echo "DOCUMENETS_HOME is not set, using the default value: $DOCUMENETS_HOME"
+    export DOCUMENETS_HOME="$DOCUMENETS_HOME"
 fi
 
 pushd . > /dev/null
