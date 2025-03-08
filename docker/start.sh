@@ -55,10 +55,16 @@ cd "$DIR"
 
 # check if the docker image exists
 # read the images from the docker-compose.yml file
-images=$(grep -oP 'image: \K[^ ]+' docker-compose.yml)
+# replace ${LEETTOOLS_VERSION} and ${LEETTOOLS_WEB_VERSION} with the actual env vars
+images=$(grep 'image:' docker-compose.yml | sed 's/image: //')
 
 # check if the docker image exists
 for image in $images; do
+    # replace ${LEETTOOLS_VERSION} and ${LEETTOOLS_DEV_VERSION} with the actual env vars
+    # shellcheck disable=SC2001
+    image=$(echo "$image" | sed "s/\${LEETTOOLS_VERSION}/${LEETTOOLS_VERSION}/")
+    # shellcheck disable=SC2001
+    image=$(echo "$image" | sed "s/\${LEETTOOLS_WEB_VERSION}/${LEETTOOLS_WEB_VERSION}/")  
     if ! docker images "$image" | grep -q "$image"; then
         echo "Docker image $image does not exist. Pulling the image..."
         docker pull "$image"
