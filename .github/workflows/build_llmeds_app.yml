@@ -70,4 +70,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Build successful
-        run: echo "Docker image name is ${{ env.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ steps.meta.outputs.tags }}
+        run: echo "Docker image name is ${{ env.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ steps.meta.outputs.tags }}"
