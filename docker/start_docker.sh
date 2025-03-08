@@ -116,8 +116,19 @@ fi
 
 # check if the LEET_HOME, EDS_DATA_DIR, and EDS_LOG_DIR environment variables are set
 if [ -z "${LEET_HOME:-}" ]; then
-    echo "LEET_HOME is not set"
-    exit 1
+    case "$(uname -s)" in
+        Darwin|Linux)
+            LEET_HOME=~/leettools
+            ;;
+        CYGWIN*|MINGW*|MSYS*)
+            LEET_HOME="$USERPROFILE/leettools"
+            ;;
+        *)
+            echo "Unsupported operating system, using the value from .env file"
+            ;;
+    esac
+    echo "LEET_HOME is not set, using the default value: $LEET_HOME"
+    export LEET_HOME="$LEET_HOME"
 fi
 
 if [ -z "${EDS_DATA_DIR:-}" ]; then
@@ -135,7 +146,6 @@ fi
 # run the docker container as a service with port 8000:8000
 # mount the data directory at $LEET_HOME, $EDS_DATA_DIR, $EDS_LOG_DIR
 # run the docker container with the .env.docker file
-
 leet_home_in_docker="/leettools"
 
 # print the docker run command
