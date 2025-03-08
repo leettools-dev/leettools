@@ -52,8 +52,17 @@ pushd . > /dev/null
 
 cd "$DIR"
 
-docker compose --profile full down
-docker compose --profile full up -d
+# check if the docker image exists
+# read the images from the docker-compose.yml file
+images=$(grep -oP 'image: \K[^ ]+' docker-compose.yml)
+
+# check if the docker image exists
+for image in $images; do
+    if ! docker images "$image" | grep -q "$image"; then
+        echo "Docker image $image does not exist. Pulling the image..."
+        docker pull "$image"
+    fi
+done
 
 popd > /dev/null
 
