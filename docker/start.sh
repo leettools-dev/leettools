@@ -8,7 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 env_file="$DIR/.env"
 if [ ! -f "$env_file" ]; then
     # copy the .env.template file to .env if it doesn't exist
-    cp "$env_file.template" "$env_file"
+    cp "$DIR/$env_file.template" "$DIR/$env_file"
     echo ".env file not found in $DIR for docker-compose.yml. Copied from $DIR/.env.template."
 fi
 
