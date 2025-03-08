@@ -29,6 +29,22 @@ if [[ ! $name =~ ^\# ]] && [[ -n $name ]]; then
 fi;
 done < "${env_file}"
 
+if [ -z "${LEET_HOME:-}" ]; then
+    case "$(uname -s)" in
+        Darwin|Linux)
+            LEET_HOME=~/leettools
+            ;;
+        CYGWIN*|MINGW*|MSYS*)
+            LEET_HOME="$USERPROFILE/leettools"
+            ;;
+        *)
+            echo "Unsupported operating system, using the value from .env file"
+            ;;
+    esac
+    echo "LEET_HOME is not set, using the default value: $LEET_HOME"
+    export LEET_HOME="$LEET_HOME"
+fi
+
 # set DOCUMENETS_HOME to the Documents directory on different OS
 # windows: C:\Users\<username>\Documents
 # mac: ~/Documents
