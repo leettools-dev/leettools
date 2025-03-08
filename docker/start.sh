@@ -65,11 +65,17 @@ for image in $images; do
     image=$(echo "$image" | sed "s/\${LEETTOOLS_VERSION}/${LEETTOOLS_VERSION}/")
     # shellcheck disable=SC2001
     image=$(echo "$image" | sed "s/\${LEETTOOLS_WEB_VERSION}/${LEETTOOLS_WEB_VERSION}/")  
-    if ! docker images "$image" | grep -q "$image"; then
+    # Split image name and tag
+    image_name=$(echo "$image" | cut -d: -f1)
+    image_tag=$(echo "$image" | cut -d: -f2)
+    if ! docker images "$image_name" | grep -q "$image_tag"; then
         echo "Docker image $image does not exist. Pulling the image..."
         docker pull "$image"
     fi
 done
+
+docker compose down || true
+docker compose up -d
 
 popd > /dev/null
 
