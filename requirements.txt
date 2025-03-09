@@ -15,7 +15,7 @@ nltk==3.8.1
 psutil==5.9.8
 tldextract==5.1.3
 urllib3==2.2.3
-langid==1.1.6
+Babel==2.16.0
 # dev
 beautifulsoup4==4.12.3
 openai==1.59.7
@@ -28,5 +28,6 @@ docling_core==2.21.1
 chonkie==0.5.1
 langchain-community==0.3.15
 firecrawl-py==1.12.0
+langid==1.1.6
 
 
