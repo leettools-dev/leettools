@@ -512,7 +512,7 @@ class TaskScannerKB(AbstractTaskScanner):
                     else:
                         if schedule_config.schedule_type == ScheduleType.MANUAL:
                             self.logger.noop(
-                                f"Docsource is set to manual run: {dssig}", noop_lvl=2
+                                f"Docsource is set to manual run: {dssig}", noop_lvl=3
                             )
                             continue
 

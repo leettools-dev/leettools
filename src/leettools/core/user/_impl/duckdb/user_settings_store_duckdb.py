@@ -150,7 +150,13 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
             default_setting_items: Dict[str, UserSettingsItem] = (
                 self.settings.get_user_configurable_settings()
             )
-            default_setting_items.update(settings_update.settings)
+            # the only thing we should update is the value
+            for key, item in settings_update.settings.items():
+                if key not in default_setting_items:
+                    default_setting_items[key] = item
+                else:
+                    default_setting_items[key].value = item.value
+
             user_settings = UserSettingsCreate(
                 user_uuid=user.user_uuid,
                 username=user.username,
@@ -159,7 +165,14 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
             return self._save_new_user_settings(user_settings)
         else:
             existing_settings = self._dict_to_user_settings(result)
-            existing_settings.settings.update(settings_update.settings)
+
+            # the only thing we should update is the value
+            for key, item in settings_update.settings.items():
+                if key not in existing_settings.settings:
+                    existing_settings.settings[key] = item
+                else:
+                    existing_settings.settings[key].value = item.value
+
             return self._update_user_settings(existing_settings)
 
     def _user_settings_to_dict(self, user_settings: UserSettings) -> Dict[str, Any]:
