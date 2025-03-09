@@ -29,3 +29,12 @@ If all the po files are up to date, you should see no output from the above comm
 ```bash
 pybabel compile -d locales
 ```
+
+5. Run the unit tests to ensure the translations are working.
+
+In the project root, run the following command to run the unit tests.
+```bash
+pytest -s tests/leettools/common/test_i18n.py
+```
+
+Add the updated translation files to git if updated.
