@@ -70,7 +70,8 @@ class FinanceBenchDataset(BaseDataset):
         pdf_each_question_list = self.questions_df["doc_name"].apply(
             lambda x: self.pdf_dir / f"{x}.pdf"
         ).tolist()
-        logger.info(f"Number of PDF documents used for verified questions: {len(set(pdf_each_question_list))}")
+        pdf_each_question_list = list(set(pdf_each_question_list))
+        logger.info(f"Number of PDF documents used for verified questions: {len(pdf_each_question_list)}")
         
         return pdf_each_question_list
 
@@ -87,7 +88,7 @@ class FinanceBenchDataset(BaseDataset):
             question_item = QuestionItem(
                 question=row["question"],
                 expected_answer=row["answer"],
-                source_document=row["doc_name"].apply(lambda x: self.pdf_dir / f"{x}.pdf"),
+                source_document=self.pdf_dir / f"{row['doc_name']}.pdf",
                 expected_sources=[{"source_text": ev.metadata["evidence_text"]} for ev in expected_sources],
                 # Sample sources: length: 1, keys: dict_keys(['evidence_text', 'doc_name', 'evidence_page_num', 'evidence_text_full_page'])
                 # Firstly just use evidence_text as the source text
