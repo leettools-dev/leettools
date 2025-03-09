@@ -21,6 +21,7 @@ class APIService:
         self.app = FastAPI(
             title=settings.PROJECT_NAME,
         )
+        self.settings = settings
         self.api_router = ServiceAPIRouter()
         self.app.include_router(self.api_router, prefix=settings.API_V1_STR)
 
@@ -34,14 +35,14 @@ class APIService:
 
         @self.app.middleware("http")
         async def log_requests(request: Request, call_next):
-            if logger().log_noop_level < 3:
+            if logger().log_noop_level < 2:
                 response = await call_next(request)
                 return response
 
             # Log basic request information
-            logger().noop(f"Incoming Request Method: {request.method}", noop_lvl=3)
-            logger().noop(f"URL: {request.url}", noop_lvl=3)
-            logger().noop(f"Headers: {request.headers}", noop_lvl=3)
+            logger().noop(f"Incoming Request Method: {request.method}", noop_lvl=2)
+            logger().noop(f"URL: {request.url}", noop_lvl=2)
+            logger().noop(f"Headers: {request.headers}", noop_lvl=2)
 
             # Optionally, log the request body.
             # NOTE: Reading the body here can consume the stream, so if your endpoint also needs it,

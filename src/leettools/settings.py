@@ -5,6 +5,7 @@ from typing import ClassVar, Dict, List
 from pydantic import BaseModel, Field
 
 from leettools.common import exceptions
+from leettools.common.i18n import _
 from leettools.common.logging import logger
 from leettools.common.utils import config_utils, file_utils
 from leettools.common.utils.obj_utils import ENV_VAR_PREFIX, add_env_var_constants
@@ -631,98 +632,102 @@ class SystemSettings(BaseModel):
             "LLM_API_KEY": UserSettingsItem(
                 section="RAG",
                 name="LLM_API_KEY",
-                description="LLM API Key used in the inference process.",
+                description=_("LLM API Key used in the inference process."),
                 default_value=None,
                 value_type="str",
             ),
             "DEFAULT_LLM_BASE_URL": UserSettingsItem(
                 section="RAG",
                 name="DEFAULT_LLM_BASE_URL",
-                description="LLM Base URL used in the inference process.",
+                description=_("LLM Base URL used in the inference process."),
                 default_value=self.DEFAULT_LLM_BASE_URL,
                 value_type="str",
             ),
             "DEFAULT_INFERENCE_MODEL": UserSettingsItem(
                 section="RAG",
                 name="DEFAULT_INFERENCE_MODEL",
-                description="Default inference model used in the inference process.",
+                description=_("Default inference model used in the inference process."),
                 default_value=self.DEFAULT_INFERENCE_MODEL,
                 value_type="str",
             ),
             "DEFAULT_EMBEDDING_MODEL": UserSettingsItem(
                 section="RAG",
                 name="DEFAULT_EMBEDDING_MODEL",
-                description="Default dense embedding model used in the embedding process.",
+                description=_(
+                    "Default dense embedding model used in the embedding process."
+                ),
                 default_value=self.DEFAULT_EMBEDDING_MODEL,
                 value_type="str",
             ),
             "EMBEDDING_MODEL_DIMENSION": UserSettingsItem(
                 section="RAG",
                 name="EMBEDDING_MODEL_DIMENSION",
-                description="Dense embedding model dimension.",
+                description=_("Dense embedding model dimension."),
                 default_value=str(self.EMBEDDING_MODEL_DIMENSION),
                 value_type="int",
             ),
             "EMBEDDING_API_KEY": UserSettingsItem(
                 section="RAG",
                 name="EMBEDDING_API_KEY",
-                description="API Key used for the embedder.",
+                description=_("API Key used for the embedder."),
                 default_value=self.EMBEDDING_API_KEY,
                 value_type="str",
             ),
             "DEFAULT_EMBEDDING_BASE_URL": UserSettingsItem(
                 section="RAG",
                 name="DEFAULT_EMBEDDING_BASE_URL",
-                description="Base URL for the the embedder service.",
+                description=_("Base URL for the the embedder service."),
                 default_value=self.DEFAULT_EMBEDDING_BASE_URL,
                 value_type="str",
             ),
             "RERANK_API_KEY": UserSettingsItem(
                 section="RAG",
                 name="RERANK_API_KEY",
-                description="API Key used in the reranking process.",
+                description=_("API Key used in the reranking process."),
                 default_value=None,
                 value_type="str",
             ),
             "DEFAULT_RERANK_BASE_URL": UserSettingsItem(
                 section="RAG",
                 name="DEFAULT_RERANK_BASE_URL",
-                description="Base url used in the reranking process.",
+                description=_("Base url used in the reranking process."),
                 default_value=None,
                 value_type="str",
             ),
             "DEFAULT_RERANK_MODEL": UserSettingsItem(
                 section="RAG",
                 name="DEFAULT_RERANK_MODEL",
-                description="Default rerank model used in the rerank process.",
+                description=_("Default rerank model used in the rerank process."),
                 default_value=self.DEFAULT_RERANK_MODEL,
                 value_type="str",
             ),
             "GOOGLE_API_KEY": UserSettingsItem(
                 section="RAG",
                 name="GOOGLE_API_KEY",
-                description="Google API Key used in the search process.",
+                description=_("Google API Key used in the search process."),
                 default_value=None,
                 value_type="str",
             ),
             "GOOGLE_CX_KEY": UserSettingsItem(
                 section="RAG",
                 name="GOOGLE_CX_KEY",
-                description="Google custom search Key used in the search process.",
+                description=_("Google custom search Key used in the search process."),
                 default_value=None,
                 value_type="str",
             ),
             "GOOGLE_PATENT_CX_KEY": UserSettingsItem(
                 section="RAG",
                 name="GOOGLE_PATENT_CX_KEY",
-                description="Google custom search Key for patent used in the search process.",
+                description=_(
+                    "Google custom search Key for patent used in the search process."
+                ),
                 default_value=None,
                 value_type="str",
             ),
             "TAVILY_API_KEY": UserSettingsItem(
                 section="RAG",
                 name="TAVILY_API_KEY",
-                description="Tavily API Key used in the search process.",
+                description=_("Tavily API Key used in the search process."),
                 default_value=None,
                 value_type="str",
             ),

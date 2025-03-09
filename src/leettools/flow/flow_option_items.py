@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.i18n import _
 from leettools.context_manager import Context
 from leettools.core.consts.flow_option import (
     FLOW_OPTION_ARTICLE_STYLE,
@@ -46,50 +47,56 @@ class FlowOptionItem(BaseModel):
     Option item for FlowComponent.
     """
 
-    name: str = Field(..., description="The name of the variable.")
+    name: str = Field(..., description=_("The name of the variable."))
 
     flow_components: Optional[Dict[FlowComponentType, List[str]]] = Field(
-        None, description="The flow components that use this variable."
+        None, description=_("The flow components that use this variable.")
     )
 
     display_name: Optional[str] = Field(
-        None, description="The display name of the variable."
+        None, description=_("The display name of the variable.")
     )
     description: Optional[str] = Field(
-        None, description="The description of the variable."
+        None, description=_("The description of the variable.")
     )
     default_value: Optional[str] = Field(
-        None, description="The default value of the variable."
+        None, description=_("The default value of the variable.")
     )
     value_type: Optional[str] = Field(
         "str",
-        description="The type of the value," "currently support str, int, float, bool.",
+        description=_(
+            "The type of the value," "currently support str, int, float, bool."
+        ),
     )
     required: Optional[bool] = Field(
         False,
-        description="Whether the variable is required or not.",
+        description=_("Whether the variable is required or not."),
     )
     explicit: Optional[bool] = Field(
         False,
-        description="Whether the variable should be explicitly set by the user or not.",
+        description=_(
+            "Whether the variable should be explicitly set by the user or not."
+        ),
     )
     multiline: Optional[bool] = Field(
         False,
-        description="Whether the variable should be displayed in multiple lines or not.",
+        description=_(
+            "Whether the variable should be displayed in multiple lines or not."
+        ),
     )
     example_value: Optional[str] = Field(
         None,
-        description="The example value of the variable, if no default is provided.",
+        description=_("The example value of the variable, if no default is provided."),
     )
     code: Optional[str] = Field(
         None,
-        description=(
+        description=_(
             "If the value should be shown and edited as the specified programming "
             "code, such as Python, Markdown. Default is None."
         ),
     )
     code_variables: Optional[str] = Field(
-        None, description=("The variables the code should provide to the backend.")
+        None, description=_("The variables the code should provide to the backend.")
     )
 
 
@@ -105,8 +112,8 @@ def _planning_model(
 
     return FlowOptionItem(
         name=FLOW_OPTION_PLANNING_MODEL,
-        display_name="Planning Model",
-        description="The model used to do the article planning.",
+        display_name=_("Planning Model"),
+        description=_("The model used to do the article planning."),
         default_value=default_model,
         value_type="str",
         explicit=explicit,
@@ -125,8 +132,8 @@ def _summary_model(
         default_model = context.settings.DEFAULT_PLANNING_MODEL
     return FlowOptionItem(
         name=FLOW_OPTION_SUMMARIZING_MODEL,
-        display_name="Summarizing Model",
-        description="The model used to summarize each article.",
+        display_name=_("Summarizing Model"),
+        description=_("The model used to summarize each article."),
         default_value=default_model,
         value_type="str",
         explicit=explicit,
@@ -145,8 +152,8 @@ def _writing_model(
         default_model = context.settings.DEFAULT_PLANNING_MODEL
     return FlowOptionItem(
         name=FLOW_OPTION_WRITING_MODEL,
-        display_name="Writing Model",
-        description="The model used to generating each section.",
+        display_name=_("Writing Model"),
+        description=_("The model used to generating each section."),
         default_value=default_model,
         value_type="str",
         explicit=explicit,
@@ -159,8 +166,8 @@ def _retriever(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_RETRIEVER_TYPE,
-        display_name="Retriever",
-        description="The type of retriever to use for the web search.",
+        display_name=_("Retriever"),
+        description=_("The type of retriever to use for the web search."),
         default_value="google",
         value_type="str",
         example_value="google",
@@ -174,8 +181,8 @@ def _content_instruction(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_CONTENT_INSTRUCTION,
-        display_name="Content Instruction",
-        description=(
+        display_name=_("Content Instruction"),
+        description=_(
             "The relevance of the result documents from keyword search is assessed "
             "by the content instruction if provided. "
         ),
@@ -193,8 +200,8 @@ def _days_limit(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_DAYS_LIMIT,
-        display_name="Days Limit",
-        description=(
+        display_name=_("Days Limit"),
+        description=_(
             "Number of days to limit the search results. "
             "0 or empty means no limit. "
             "In local KB, filters by the import time."
@@ -211,8 +218,8 @@ def _search_max_results(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_SEARCH_MAX_RESULTS,
-        display_name="Max search Results",
-        description=(
+        display_name=_("Max search Results"),
+        description=_(
             "The maximum number of search results for retrievers to return. "
             "Each retriever may have different paging mechanisms. Use the parameter and "
             "the search iteration to control the number of results."
@@ -229,8 +236,8 @@ def _search_rewrite(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_SEARCH_REWRITE,
-        display_name="Rewrite Search Keywords",
-        description=("Ask the LLM to generate search keywords from the search query."),
+        display_name=_("Rewrite Search Keywords"),
+        description=_("Ask the LLM to generate search keywords from the search query."),
         default_value=None,
         value_type="bool",
         explicit=explicit,
@@ -243,8 +250,8 @@ def _search_language(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_SEARCH_LANGUAGE,
-        display_name="Search Language",
-        description=(
+        display_name=_("Search Language"),
+        description=_(
             "The language used for keyword search if the search API supports."
         ),
         default_value=None,
@@ -259,8 +266,8 @@ def _output_language(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_OUTPUT_LANGUAGE,
-        display_name="Output Language",
-        description=("Output the result in the language."),
+        display_name=_("Output Language"),
+        description=_("Output the result in the language."),
         default_value=None,
         value_type="str",
         explicit=explicit,
@@ -273,8 +280,8 @@ def _output_example(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_OUTPUT_EXAMPLE,
-        display_name="Output Example",
-        description=(
+        display_name=_("Output Example"),
+        description=_(
             "The example of the expected output content. "
             "If left empty, no example will be provided to LLM."
         ),
@@ -291,8 +298,8 @@ def _num_of_sections(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_NUM_OF_SECTIONS,
-        display_name="Number of Sections",
-        description=(
+        display_name=_("Number of Sections"),
+        description=_(
             "The number of sections in the output article. "
             "If left empty, the planning agent will decide automatically."
         ),
@@ -308,8 +315,8 @@ def _article_style(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_ARTICLE_STYLE,
-        display_name="Article Style",
-        description=(
+        display_name=_("Article Style"),
+        description=_(
             "The style of the output article such as analytical research reports, humorous "
             "news articles, or technical blog posts."
         ),
@@ -326,8 +333,10 @@ def _word_count(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_WORD_COUNT,
-        display_name="Word Count",
-        description="The number of words in the output section. Empty means automatics.",
+        display_name=_("Word Count"),
+        description=_(
+            "The number of words in the output section. Empty means automatics."
+        ),
         value_type="int",
         default_value=None,
         explicit=explicit,
@@ -340,8 +349,8 @@ def _extract_instruction(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_INSTRUCTION,
-        display_name="Extract Instruction",
-        description=("Describe what information to extract from the content."),
+        display_name=_("Extract Instruction"),
+        description=_("Describe what information to extract from the content."),
         default_value=None,
         value_type="str",
         explicit=explicit,
@@ -366,8 +375,8 @@ def _extract_pydantic(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_PYDANTIC,
-        display_name="Extract Pydantic Model",
-        description=(
+        display_name=_("Extract Pydantic Model"),
+        description=_(
             "The schema of the target data as a pydantic model, see https://docs.pydantic.dev"
         ),
         default_value=None,
@@ -389,8 +398,8 @@ def _extract_json_schema(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_JSON_SCHEMA_DEPRCATE,
-        display_name="Extract Schema as JSON",
-        description=(
+        display_name=_("Extract Schema as JSON"),
+        description=_(
             "The schema of the extracted information. Should be a JSON string."
             f"The schema should match the description in {FLOW_OPTION_EXTRACT_INSTRUCTION}."
         ),
@@ -432,8 +441,8 @@ def _extract_python_instruction(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_PYTHON_INSTRUCTION,
-        display_name="Extraction Instructions in Python",
-        description=(
+        display_name=_("Extraction Instructions in Python"),
+        description=_(
             "The instructions of the extractions in Python code. Right now the required "
             "variables are 'target_model_name' and 'instructions'. Also we need to specify "
             "the key fields and verify fields if needed."
@@ -470,8 +479,8 @@ def _extract_target_model_name(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_TARGET_MODEL_NAME,
-        display_name="Target Pydantic Model Name used in the final list",
-        description=(
+        display_name=_("Target Pydantic Model Name used in the final list"),
+        description=_(
             "There might be multiple Pydantic models in the schema definition. "
             "Specify which model to use for the final list."
         ),
@@ -489,8 +498,8 @@ def _extract_key_fields(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_KEY_FIELDS,
-        display_name="Key Fields",
-        description=(
+        display_name=_("Key Fields"),
+        description=_(
             "Comma separated field names that identifies an object in the extraction. "
             "Extracted data with the same key fields will be considered of the same object. "
             "All extracted versions of the same object will be deduped based on them. "
@@ -509,8 +518,8 @@ def _extract_save_to_backend(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_SAVE_TO_BACKEND,
-        display_name="Save extracted data to backend",
-        description=(
+        display_name=_("Save extracted data to backend"),
+        description=_(
             "Save the extracted data to the backend. Default True. If False, the "
             "extracted data will not be saved. The saved data will have the same "
             "schema specified in the pydantic model, plus metadata such as the "
@@ -528,8 +537,8 @@ def _extract_verify_fields(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_VERIFY_FIELDS,
-        display_name="Verification Fields",
-        description=(
+        display_name=_("Verification Fields"),
+        description=_(
             "Comma separated field names that need to be verified for the extracted objects. "
             "For example, although the address of a company is not in the key fields, and a "
             "company may have multiple addresses for different offices, we want to verify and "
@@ -547,8 +556,8 @@ def _extract_output_format(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXTRACT_OUTPUT_FORMAT,
-        display_name="Output format",
-        description=(
+        display_name=_("Output format"),
+        description=_(
             "The output of the extracted data. Default is json. Currently also support "
             " csv, md."
         ),
@@ -564,8 +573,8 @@ def _reference_style(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_REFERENCE_STYLE,
-        display_name="Reference Style",
-        description=(
+        display_name=_("Reference Style"),
+        description=_(
             "The style of the references in the output article. Right now support "
             "news, default, and full."
         ),
@@ -583,8 +592,10 @@ def _strict_context(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_STRICT_CONTEXT,
-        display_name="Strict Context",
-        description="When generating a section, whether to use strict context or not.",
+        display_name=_("Strict Context"),
+        description=_(
+            "When generating a section, whether to use strict context or not."
+        ),
         default_value="False",
         value_type="bool",
         example_value="False",
@@ -599,8 +610,8 @@ def _target_site(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_TARGET_SITE,
-        display_name="Target Site",
-        description=(
+        display_name=_("Target Site"),
+        description=_(
             "When searching the web, limit the search to this site. "
             "Empty means search all sites."
         ),
@@ -618,8 +629,10 @@ def _search_iteration(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_SEARCH_ITERATION,
-        display_name="Max iteration when using the web search retriever",
-        description="If the max result is not reached, how many times we go to the next page.",
+        display_name=_("Max iteration when using the web search retriever"),
+        description=_(
+            "If the max result is not reached, how many times we go to the next page."
+        ),
         default_value="3",
         value_type="int",
         example_value="3",
@@ -634,8 +647,10 @@ def _recursive_scrape(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_RECURSIVE_SCRAPE,
-        display_name="Recursive scrape",
-        description="If true, scrape the top urls found in the search results documents.",
+        display_name=_("Recursive scrape"),
+        description=_(
+            "If true, scrape the top urls found in the search results documents."
+        ),
         default_value="False",
         value_type="bool",
         example_value="False",
@@ -650,8 +665,8 @@ def _recursive_scrape_iteration(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_RECURSIVE_SCRAPE_ITERATION,
-        display_name="Recursive scrape iteration",
-        description=(
+        display_name=_("Recursive scrape iteration"),
+        description=_(
             "When we do recursive scraping, we will not stop until we reach the max "
             "number of results or the number of iterations specified here."
         ),
@@ -669,8 +684,8 @@ def _recursive_scrape_max_count(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_RECURSIVE_SCRAPE_MAX_COUNT,
-        display_name="Recursive scrape max item count",
-        description=(
+        display_name=_("Recursive scrape max item count"),
+        description=_(
             "When we do recursive scraping, we will not stop until we reach the number of "
             "max iterations or the max number of results specified here."
         ),
@@ -688,8 +703,8 @@ def _image_search(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_IMAGE_SEARCH,
-        display_name="Image Search",
-        description=("When searching on the web, limit the search to image search. "),
+        display_name=_("Image Search"),
+        description=_("When searching on the web, limit the search to image search. "),
         default_value="False",
         value_type="bool",
         example_value="False",
@@ -704,8 +719,8 @@ def _search_excluded_sites(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_EXCLUDED_SITES,
-        display_name="Excluded Site",
-        description=(
+        display_name=_("Excluded Site"),
+        description=_(
             "List of sites separated by comma to ignore when search for the information. "
             "Empty means no filter."
         ),
@@ -723,8 +738,8 @@ def _query_docsource_uuid(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name="docsource_uuid",
-        display_name="Docsource UUID",
-        description="The docsource uuid to run the query on when querying local KB.",
+        display_name=_("Docsource UUID"),
+        description=_("The docsource uuid to run the query on when querying local KB."),
         default_value=None,
         value_type="str",
         example_value=None,
@@ -739,8 +754,8 @@ def _context_limit(
 ) -> FlowOptionItem:
     return FlowOptionItem(
         name=FLOW_OPTION_CONTEXT_LIMIT,
-        display_name="Context Limit",
-        description="Override the context limit from the model info.",
+        display_name=_("Context Limit"),
+        description=_("Override the context limit from the model info."),
         default_value=None,
         value_type="int",
         example_value=None,

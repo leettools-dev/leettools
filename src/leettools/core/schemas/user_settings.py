@@ -5,6 +5,7 @@ from typing import Any, ClassVar, Dict, Optional
 
 from pydantic import BaseModel, Field
 
+from leettools.common.i18n import _
 from leettools.common.logging import logger
 from leettools.common.utils.config_utils import value_to_bool
 from leettools.common.utils.obj_utils import add_fieldname_constants
@@ -12,18 +13,20 @@ from leettools.common.utils.obj_utils import add_fieldname_constants
 
 class UserSettingsItem(BaseModel):
 
-    section: str = Field(..., description="The section of the settings")
-    name: str = Field(..., description="The name of the variable.")
+    section: str = Field(..., description=_("The section of the settings"))
+    name: str = Field(..., description=_("The name of the variable."))
     description: Optional[str] = Field(
-        None, description="The description of the variable."
+        None, description=_("The description of the variable.")
     )
     default_value: Optional[str] = Field(
-        None, description="The default value of the variable."
+        None, description=_("The default value of the variable.")
     )
-    value: Optional[str] = Field(None, description="The value of the variable.")
+    value: Optional[str] = Field(None, description=_("The value of the variable."))
     value_type: Optional[str] = Field(
         "str",
-        description="The type of the value," "currently support str, int, float, bool.",
+        description=_(
+            "The type of the value. Currently support str, int, float, bool."
+        ),
     )
 
 
@@ -34,10 +37,11 @@ See [README](./README.md) about the usage of different pydantic models.
 
 class UserSettingsCreate(BaseModel):
     # we use user_uuid to indentify the user, the user_name is just for display
-    user_uuid: str = Field(..., description="The uuid of the user.")
-    username: Optional[str] = Field(None, description="The name of the user.")
+    user_uuid: str = Field(..., description=_("The uuid of the user."))
+    username: Optional[str] = Field(None, description=_("The name of the user."))
     settings: Dict[str, UserSettingsItem] = Field(
-        ..., description="The settings of the user, the key is the name of the setting."
+        ...,
+        description=_("The settings of the user, the key is the name of the setting."),
     )
 
 
@@ -51,12 +55,12 @@ class UserSettings(UserSettingsCreate):
     The settings that can be set by the user.
     """
 
-    user_settings_id: str = Field(..., description="The id of the user settings.")
+    user_settings_id: str = Field(..., description=_("The id of the user settings."))
     created_at: Optional[datetime] = Field(
-        None, description="The time the settings was created."
+        None, description=_("The time the settings was created.")
     )
     updated_at: Optional[datetime] = Field(
-        None, description="The time the settings was updated."
+        None, description=_("The time the settings was updated.")
     )
 
     def get_value(self, key: str, default_value: Any) -> Optional[Any]:

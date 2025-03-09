@@ -3,6 +3,8 @@ from typing import Dict, List, Optional
 from fastapi import Depends, HTTPException
 
 from leettools.common.exceptions import EntityNotFoundException
+from leettools.common.i18n.translator import Translator
+from leettools.common.logging import logger
 from leettools.core.schemas.user import User
 from leettools.core.strategy.schemas.strategy import Strategy, StrategyCreate
 from leettools.core.strategy.schemas.strategy_display_settings import (
@@ -12,6 +14,7 @@ from leettools.core.strategy.schemas.strategy_display_settings import (
     get_strategy_display_sections,
 )
 from leettools.core.strategy.schemas.strategy_status import StrategyStatus
+from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_manager import FlowManager
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.svc.api_router_base import APIRouterBase
@@ -55,19 +58,32 @@ class StrategyRouter(APIRouterBase):
             response_model=List[FlowOptionItem],
             summary="Get the flow options for the flow type.",
         )
-        async def flow_options(flow_type: str) -> List[FlowOptionItem]:
+        async def flow_options(
+            flow_type: str, locale: str = Depends(self.get_locale)
+        ) -> List[FlowOptionItem]:
             """
             Get the flow options for the flow type.
             """
+            flow: AbstractFlow = None
             try:
                 flow = self.flow_manager.get_flow_by_type(flow_type)
-
-                return flow.get_flow_option_items()
             except Exception as e:
                 raise HTTPException(
                     status_code=400,
                     detail=f"Invalid flow type {flow_type}",
                 )
+
+            flow_option_items = flow.get_flow_option_items()
+            if locale != self.settings.DEFAULT_LANGUAGE:
+                try:
+                    translator = Translator().get_translator(locale)
+                    for item in flow_option_items:
+                        item.description = translator(item.description)
+                        item.display_name = translator(item.display_name)
+                except Exception as e:
+                    logger().error(f"Failed to translate flow option items: {e}")
+
+            return flow_option_items
 
         @self.get(
             "/",

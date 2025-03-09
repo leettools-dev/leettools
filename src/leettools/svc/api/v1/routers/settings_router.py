@@ -1,7 +1,9 @@
 from typing import Dict, List, Optional
 
+import babel
 from fastapi import Depends, HTTPException
 
+from leettools.common.i18n.translator import Translator
 from leettools.common.logging import logger
 from leettools.core.consts.retriever_type import supported_retriever
 from leettools.core.schemas.api_provider_config import APIProviderConfig
@@ -97,12 +99,26 @@ class SettingsRouter(APIRouterBase):
         @self.get("/", response_model=UserSettings)
         async def get_settings_for_user(
             calling_user: User = Depends(self.auth.get_user_from_request),
+            locale: str = Depends(self.get_locale),
         ) -> UserSettings:
             """
             Get the settings for the current user
             """
-
-            return self.user_settings_store.get_settings_for_user(calling_user)
+            logger().info(
+                f"Get settings for user {calling_user.username} locale: {locale}"
+            )
+            user_settings = self.user_settings_store.get_settings_for_user(calling_user)
+            # Set the translator in the context
+            if locale != self.settings.DEFAULT_LANGUAGE:
+                translator = Translator().get_translator(locale)
+                try:
+                    for key in user_settings.settings.keys():
+                        if user_settings.settings[key].description:
+                            value = user_settings.settings[key].description
+                            user_settings.settings[key].description = translator(value)
+                except Exception as e:
+                    logger().error(f"Error performing i18n tranlastion: {e}")
+            return user_settings
 
         @self.put("/", response_model=UserSettings)
         async def update_settings_for_user(
