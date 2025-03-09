@@ -1,0 +1,10 @@
+{
+    "strategy_name": "hybrid_embedder",
+    "strategy_description": "A hybrid embedding strategy combining both dense and sparse embeddings for improved retrieval performance. Suitable for complex search scenarios requiring high recall and precision.",
+    "embedder_type": "hybrid",
+    "dense_embedder": "dense_embedder_openai",
+    "dense_embedder_params": {
+        "model_name": "text-embedding-3-small",
+        "model_dimension": 1536
+    }
+}
