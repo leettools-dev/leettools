@@ -38,6 +38,7 @@ COPY . .
 # Install dependencies from requirements.txt
 # most should have been installed above
 RUN pip install -e . \
+    && pybabel compile -d src/leettools/common/i18n/locales \
     && chmod +x scripts/run.sh
 
 # Expose port 8000

@@ -43,4 +43,4 @@ docker compose up -d
 
 popd > /dev/null
 
-echo "LeetTools Docker containers started."
+echo "LeetTools Docker containers started. You can access the web app at http://localhost:3000"

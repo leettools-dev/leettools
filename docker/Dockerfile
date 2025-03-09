@@ -47,7 +47,7 @@ RUN pip install --no-cache-dir tldextract==5.1.3
 
 RUN pip install --no-cache-dir urllib3==2.2.3
 
-RUN pip install --no-cache-dir langid==1.1.6
+RUN pip install --no-cache-dir Babel==2.16.0
 
 
 # the version of the following lbraries may change more often
@@ -74,6 +74,8 @@ RUN pip install --no-cache-dir langchain-community==0.3.15
 
 RUN pip install --no-cache-dir firecrawl-py==1.12.0
 
+RUN pip install --no-cache-dir langid==1.1.6
+
 
 # it seems that the version of apache2-utils is not stable
 # fixed version installation breaks from time to time
@@ -90,6 +92,7 @@ COPY . .
 # Install dependencies from requirements.txt
 # most should have been installed above
 RUN pip install -e . \
+    && pybabel compile -d src/leettools/common/i18n/locales \
     && chmod +x scripts/run.sh
 
 # Expose port 8000
