@@ -1,6 +1,5 @@
 from typing import Dict, List, Optional
 
-import babel
 from fastapi import Depends, HTTPException
 
 from leettools.common.i18n.translator import Translator

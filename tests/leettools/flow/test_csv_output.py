@@ -5,16 +5,16 @@ from pydantic import BaseModel
 from leettools.common.logging import logger
 
 
-class TestModel(BaseModel):
+class ReasonModel(BaseModel):
     field1: str
     field2: int
 
 
 def test_csv_output():
-    target_model = TestModel
+    target_model = ReasonModel
 
-    data1 = TestModel(field1="test1", field2=1)
-    data2 = TestModel(field1="test2", field2=2)
+    data1 = ReasonModel(field1="test1", field2=1)
+    data2 = ReasonModel(field1="test2", field2=2)
     extracted_objs_dict = {
         "uri1": [data1],
         "uri2": [data2],
