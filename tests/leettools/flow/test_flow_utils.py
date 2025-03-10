@@ -1,10 +1,12 @@
 from typing import Optional
 
+import pytest
 from pydantic import BaseModel, Field
 
 from leettools.common.logging import logger
 from leettools.core.schemas.chat_query_result import AnswerSource, SourceItem
 from leettools.flow.utils import flow_utils
+from leettools.flow.utils.flow_utils import _replace_think_section_in_result
 
 
 def test_output_util():
@@ -244,3 +246,48 @@ def test_inference_result_to_answer_default():
     assert used_source_items["segment_uuid_1"].index == 1
     assert used_source_items["segment_uuid_3"].source_segment_id == "segment_uuid_3"
     assert used_source_items["segment_uuid_3"].index == 2
+
+
+def test_replace_think_section_in_result():
+    """Test replacing think sections in content with HTML comments."""
+    display_logger = logger()
+
+    # Test case 1: Content with think section at the beginning
+    content_with_think = (
+        "<think>This is a thinking process</think>Here is the actual content"
+    )
+    expected_with_think = (
+        "<!--think>This is a thinking process</think-->Here is the actual content"
+    )
+    result = _replace_think_section_in_result(content_with_think, display_logger)
+    assert result == expected_with_think
+
+    # Test case 2: Content without think section
+    content_without_think = "This is just regular content"
+    result = _replace_think_section_in_result(content_without_think, display_logger)
+    assert result == content_without_think
+
+    # Test case 3: Content with malformed think section (no end tag)
+    content_malformed = "<think>This is incomplete content"
+    result = _replace_think_section_in_result(content_malformed, display_logger)
+    assert result == content_malformed
+
+    # Test case 4: Content with think section not at the beginning
+    content_think_middle = "Some content before <think>thinking</think>content after"
+    result = _replace_think_section_in_result(content_think_middle, display_logger)
+    assert result == content_think_middle
+
+    # Test case 5: Empty content
+    empty_content = ""
+    result = _replace_think_section_in_result(empty_content, display_logger)
+    assert result == empty_content
+
+    # Test case 6: Content with multiple think sections (only first should be replaced)
+    content_multiple_think = (
+        "<think>First think</think>middle<think>Second think</think>"
+    )
+    expected_multiple = (
+        "<!--think>First think</think-->middle<think>Second think</think>"
+    )
+    result = _replace_think_section_in_result(content_multiple_think, display_logger)
+    assert result == expected_multiple

@@ -2,7 +2,6 @@ import hashlib
 import json
 import os
 import uuid
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
@@ -130,9 +129,12 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
     def _get_file_with_default(self, path: str, filename: str) -> str:
         target_file = os.path.join(path, filename)
         if os.path.exists(target_file):
-            logger().noop(f"Found {filename} file.", noop_lvl=1)
+            logger().noop(f"[StrategyStore] Found file: {filename}", noop_lvl=2)
         else:
-            logger().noop(f"No {filename} file found, using the default.", noop_lvl=1)
+            logger().noop(
+                f"[StrategyStore] File not found, using the default: {filename}.",
+                noop_lvl=2,
+            )
             target_file = os.path.join(self.default_path, filename)
         return target_file
 
@@ -208,7 +210,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         strategy_hash = hashlib.sha256(strategy_create_str.encode()).hexdigest()
         logger().noop(
             f"Creating strategy: {strategy_create} with hash {strategy_hash}",
-            noop_lvl=1,
+            noop_lvl=2,
         )
         table_name = self._get_table_name()
         where_clause = (
@@ -345,7 +347,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
                     )
                 )
             except EntityExistsException:
-                logger().noop(f"Intention {intention} already exists.", noop_lvl=1)
+                logger().noop(f"Intention already exists: {intention}.", noop_lvl=2)
                 existing_intention = self.intention_store.get_intention_by_name(
                     intention
                 )
@@ -384,7 +386,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
             else:
                 logger().noop(
                     f"No rewrite_sp_{intention}.txt file found, using default.",
-                    noop_lvl=1,
+                    noop_lvl=2,
                 )
                 chat_strategy_create.rewrite_sp_ids[intention] = (
                     chat_strategy_create.rewrite_sp_ids["default"]
@@ -401,7 +403,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
             else:
                 logger().noop(
                     f"No rewrite_up_{intention}.txt file found, using default.",
-                    noop_lvl=1,
+                    noop_lvl=2,
                 )
                 chat_strategy_create.rewrite_up_ids[intention] = (
                     chat_strategy_create.rewrite_up_ids["default"]
@@ -422,7 +424,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
             else:
                 logger().noop(
                     f"No system_prompt_{intention}.txt file found, using default.",
-                    noop_lvl=1,
+                    noop_lvl=2,
                 )
                 chat_strategy_create.system_prompt_ids[intention] = (
                     chat_strategy_create.system_prompt_ids["default"]
@@ -439,7 +441,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
             else:
                 logger().noop(
                     f"No user_prompt_{intention}.txt file found, using default.",
-                    noop_lvl=1,
+                    noop_lvl=2,
                 )
                 chat_strategy_create.user_prompt_ids[intention] = (
                     chat_strategy_create.user_prompt_ids["default"]

@@ -89,7 +89,7 @@ def create_manager_with_repo_type(
     logger().noop(
         f"Creating manager object with name {manager_name}, repo type {repo_type}, "
         f"and module name {full_module_name}",
-        noop_lvl=1,
+        noop_lvl=3,
     )
 
     return create_object(

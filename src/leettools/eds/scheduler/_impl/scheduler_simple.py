@@ -198,14 +198,14 @@ class SchedulerSimple(AbstractScheduler):
 
         with self.lock:
             self.logger.noop("Inside the lock ...", noop_lvl=3)
-            self.logger.noop("Scan the KB for new tasks ...", noop_lvl=1)
+            self.logger.noop("Scan the KB for new tasks ...", noop_lvl=2)
             todo_tasks = self.task_scanner.scan_kb_for_tasks(
                 target_org=self.target_org,
                 target_kb=self.target_kb,
                 target_docsources=self.target_docsources,
             )
 
-            self.logger.noop("Checking incomplete tasks ...", noop_lvl=1)
+            self.logger.noop("Checking incomplete tasks ...", noop_lvl=2)
             for task in todo_tasks:
                 if task.task_uuid in self.tasks_todo:
                     continue

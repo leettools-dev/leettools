@@ -252,6 +252,10 @@ When interested in a topic, you can generate a digest article:
                 exec_info=exec_info, query_metadata=None
             )
         else:
+            # remove empty lines from the document summaries
+            document_summaries = "\n".join(
+                [line for line in document_summaries.split("\n") if line.strip()]
+            )
             display_logger.debug(f"[Digest] Document summaries: {document_summaries}")
 
         return subflows.SubflowGenEssay.run_subflow(
