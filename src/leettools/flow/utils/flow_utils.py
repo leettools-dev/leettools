@@ -16,7 +16,6 @@ from leettools.core.consts.display_type import DisplayType
 from leettools.core.consts.docsource_status import DocSourceStatus
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.schemas.chat_query_result import (
-    AnswerSource,
     ChatAnswerItem,
     ChatAnswerItemCreate,
     ChatQueryResult,
@@ -36,6 +35,30 @@ from leettools.flow.utils.citation_utils import (
 )
 
 URL_SEPARATOR = ", "
+
+
+def _replace_think_section_in_result(content: str, display_logger: EventLogger) -> str:
+    """
+    Replace <think></think> tags at the beginning of content with HTML comments.
+
+    Args:
+    - content: The content string to process
+    - display_logger: Logger for displaying messages
+
+    Returns:
+    - The content with <think></think> tags replaced with HTML comments
+    """
+    if content.startswith("<think>"):
+        end_tag_pos = content.find("</think>")
+        if end_tag_pos != -1:
+            # Extract the think section content
+            think_content = content[7:end_tag_pos]
+            # Replace with HTML comment version
+            content = f"<!--think>{think_content}</think-->{content[end_tag_pos+8:]}"
+        display_logger.debug(f"Replaced think section in content.")
+    else:
+        display_logger.debug(f"No think section found in content.")
+    return content
 
 
 def get_output_lang(
@@ -262,6 +285,12 @@ def create_chat_result_with_sections(
         display_logger.debug(
             f"Section {section.title} has {len(segment_references)} references."
         )
+
+        content = _replace_think_section_in_result(
+            content=content,
+            display_logger=display_logger,
+        )
+
         full_report += full_report + "\n" + f"# {section.title}\n" + content + "\n"
         caic = ChatAnswerItemCreate(
             chat_id=chat_query_item.chat_id,
@@ -794,7 +823,7 @@ def to_markdown_table(
 
 
 def flatten_results(
-    objs_dict: Dict[str, List[TypeVar_BaseModel]]
+    objs_dict: Dict[str, List[TypeVar_BaseModel]],
 ) -> List[TypeVar_BaseModel]:
     """
     Args:
@@ -816,7 +845,7 @@ def flatten_results(
 
 
 def dedupe_results(
-    objs_dict: Dict[str, List[TypeVar_BaseModel]]
+    objs_dict: Dict[str, List[TypeVar_BaseModel]],
 ) -> Dict[str, TypeVar_BaseModel]:
     """
     Ideally, the process should be:

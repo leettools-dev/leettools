@@ -1,3 +1,8 @@
+from typing import Any
+
+import pytest
+
+from leettools.common import exceptions
 from leettools.common.temp_setup import TempSetup
 from leettools.common.utils.lang_utils import get_language
 from leettools.context_manager import Context
@@ -10,6 +15,8 @@ from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
 from leettools.flow import steps
+from leettools.flow.schemas.article import TopicList
+from leettools.flow.steps.step_plan_topic import _parse_topic_list
 
 
 def test_get_research_topic_list_from_query():
@@ -76,3 +83,90 @@ Designing a website involves several steps, including planning, designing, devel
     for topic in topic_list.topics:
         assert get_language(topic.title) == "zh"
         assert get_language(topic.prompt) == "en"
+
+
+def test_parse_topic_list_valid_list() -> None:
+    """Test parsing a valid list of topics.
+
+    Tests that a list of topic dictionaries is correctly parsed into a TopicList object.
+    """
+    test_str = """[
+        {
+            "title": "Test Topic 1",
+            "prompt": "Test prompt 1"
+        },
+        {
+            "title": "Test Topic 2", 
+            "prompt": "Test prompt 2"
+        }
+    ]"""
+
+    result = _parse_topic_list(test_str)
+    assert isinstance(result, TopicList)
+    assert len(result.topics) == 2
+    assert result.topics[0].title == "Test Topic 1"
+    assert result.topics[0].prompt == "Test prompt 1"
+
+
+def test_parse_topic_list_with_json_tags() -> None:
+    """Test parsing a string with ```json tags.
+
+    Tests that json code block markers are properly stripped before parsing.
+    """
+    test_str = """```json
+    [
+        {
+            "title": "Test Topic",
+            "prompt": "Test prompt"
+        }
+    ]
+    ```"""
+
+    result = _parse_topic_list(test_str)
+    assert isinstance(result, TopicList)
+    assert len(result.topics) == 1
+
+
+def test_parse_topic_list_dict_format() -> None:
+    """Test parsing a dictionary with topics key.
+
+    Tests that a dictionary with a 'topics' key containing the topic list is parsed correctly.
+    """
+    test_str = """{
+        "topics": [
+            {
+                "title": "Test Topic",
+                "prompt": "Test prompt"
+            }
+        ]
+    }"""
+
+    result = _parse_topic_list(test_str)
+    assert isinstance(result, TopicList)
+    assert len(result.topics) == 1
+
+
+def test_parse_topic_list_invalid_format() -> None:
+    """Test parsing an invalid format raises appropriate exception.
+
+    Tests that invalid JSON formats raise LLMInferenceResultException.
+    """
+    test_str = "Not a JSON string"
+
+    with pytest.raises(exceptions.LLMInferenceResultException):
+        _parse_topic_list(test_str)
+
+
+def test_parse_topic_list_missing_fields() -> None:
+    """Test parsing topics with missing required fields raises exception.
+
+    Tests that topic dictionaries missing title or prompt fields raise appropriate errors.
+    """
+    test_str = """[
+        {
+            "title": "Only Title"
+        }
+    ]"""
+
+    with pytest.raises(exceptions.LLMInferenceResultException):
+        _parse_topic_list(test_str)

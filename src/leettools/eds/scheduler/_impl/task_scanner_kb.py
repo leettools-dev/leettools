@@ -583,5 +583,5 @@ class TaskScannerKB(AbstractTaskScanner):
                         )
         end_time = time.perf_counter()
         elapsed_time = end_time - start_time
-        self.logger.debug(f"Task scanning took {elapsed_time:.6f} seconds.")
+        self.logger.noop(f"Task scanning took {elapsed_time:.6f} seconds.", noop_lvl=2)
         return new_tasks

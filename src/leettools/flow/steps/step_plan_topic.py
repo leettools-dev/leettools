@@ -1,3 +1,4 @@
+import json
 from typing import ClassVar, Dict, List, Optional, Type
 
 from leettools.common import exceptions
@@ -225,16 +226,81 @@ def _step_plan_topic_for_style(
 
     user_prompt = template_eval.render_template(user_prompt_template, template_vars)
 
-    response_str, _ = api_caller.run_inference_call(
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        need_json=True,
-        call_target="get_topic_list",
-        override_model_name=planning_model,
+    try_count = 3
+    for i in range(try_count):
+        response_str = None
+        try:
+            response_str, _ = api_caller.run_inference_call(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                need_json=True,
+                call_target="get_topic_list",
+                override_model_name=planning_model,
+            )
+
+            return _parse_topic_list(response_str)
+        except Exception as e:
+            display_logger.error(f"Failed to generate topic list: {e}")
+            if response_str is not None:
+                display_logger.error(f"The response from the model is: {response_str}")
+    raise exceptions.LLMInferenceResultException(
+        f"Failed to generate topic list after {try_count} attempts."
     )
+
+
+def _parse_topic_list(response_str: str) -> TopicList:
+    """Parse a string response into a TopicList object.
+
+    Args:
+        response_str: String containing topic list data in JSON format
+
+    Returns:
+        TopicList object containing the parsed topics
+
+    Raises:
+        LLMInferenceResultException: If response cannot be parsed into valid TopicList
+    """
+    # remove the starting and ending spaces or newlines
+    response_str = response_str.strip()
+    # remove ```json and ending ``` if presents
+    response_str = response_str.removeprefix("```json").removesuffix("```")
+    # if the response string starts with "[" and ends with "]", remove the first and last character
+
+    rtn_obj = None
+    final_obj = None
+
     try:
-        topic_list = TopicList.model_validate_json(response_str)
+        rtn_obj = json.loads(response_str)
     except Exception as e:
-        display_logger.error(f"ModelValidating TopicList failed: {response_str}")
-        raise e
+        raise exceptions.LLMInferenceResultException(
+            f"Model response is not a valid JSON: {response_str}"
+        )
+    if isinstance(rtn_obj, list):
+        obj = rtn_obj[0]
+        if isinstance(obj, dict):
+            if "title" in obj and "prompt" in obj:
+                final_obj = {"topics": rtn_obj}
+            elif "topics" in obj:
+                final_obj = obj
+            else:
+                raise exceptions.LLMInferenceResultException(
+                    f"Model response is a list but not a valid topics: {response_str}"
+                )
+        else:
+            raise exceptions.LLMInferenceResultException(
+                f"Model response is list but the first item is not a valid topic: {response_str}"
+            )
+    elif isinstance(rtn_obj, dict):
+        if "topics" in rtn_obj:
+            final_obj = rtn_obj
+        else:
+            raise exceptions.LLMInferenceResultException(
+                f"Model response is a dict but the key is not 'topics': {response_str}"
+            )
+    else:
+        raise exceptions.LLMInferenceResultException(
+            f"The response from the model is not a list or dict: {response_str}"
+        )
+
+    topic_list = TopicList.model_validate(final_obj)
     return topic_list

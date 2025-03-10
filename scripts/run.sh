@@ -40,7 +40,7 @@ if [ -f "${env_file}" ]; then
       else
         # print a warning message if the two values are different
         if [ "${current_env_value}" != "${value}" ]; then
-          echo "[run.sh warning] $name is set to $current_env_value in the current environment, but the $env_file file has a different value: $value"
+          echo "[run.sh warning] env variable $name = $current_env_value overrides $env_file value: $value"
         fi;
       fi;
     fi;

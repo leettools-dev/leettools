@@ -43,15 +43,19 @@ Right now we have the following embedder implementations:
 
 For the local_svc_client embedder, we can also set the following environment variables:
 
-- EDS_DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME: default is "all-MiniLM-L6-v2"
-- EDS_DEFAULT_DENSE_EMBEDDING_SERVICE_HOST: default 127.0.0.1
-- EDS_DEFAULT_DENSE_EMBEDDING_SERVICE_PORT: default 8001
+```
+EDS_DEFAULT_DENSE_EMBEDDING_LOCAL_MODEL_NAME=all-MiniLM-L6-v2
+EDS_DEFAULT_DENSE_EMBEDDING_SERVICE_HOST=127.0.0.1
+EDS_DEFAULT_DENSE_EMBEDDING_SERVICE_PORT=8001
+```
+
+To start the local embedding service, run the following command:    
 
 ```bash
 # by default this starts the service on http://127.0.0.1:8001
 python src/local/embedding/local_embdedding_service.py >/dev/null 2>&1 &
 
-export EDS_DEFAULT_DENSE_EMBEDDER=local_svc_client
+export EDS_DEFAULT_DENSE_EMBEDDER=dense_embedder_local_svc_client
 
 # now all the requests will be sent to the local embedding service
 ```
