@@ -32,11 +32,13 @@ class ExtractSearch(AbstractIterator):
     @classmethod
     def full_description(cls) -> str:
         return """
-Extract information from all the documents in search results. We use
-the search from find all documents that may contain the information.
-We then extract the information from the whole document. If specified
-to use a backend store, existing data will be checked and returned 
-if exists and the newly extracted data will be saved to the backend storage.
+Extracts structured information from documents returned by search results. The process involves:
+1. Using search to identify relevant documents that may contain target information
+2. Extracting structured data from each document's full content using LLM
+3. If backend storage is enabled:
+   - Checks for and returns any existing extracted data
+   - Saves newly extracted data to the backend store
+4. Returns both new and existing extracted information as structured data
 """
 
     @classmethod
@@ -127,8 +129,9 @@ if exists and the newly extracted data will be saved to the backend storage.
                 )
                 existing_objs_for_doc = extract_store.get_records(filter)
                 if existing_objs_for_doc:
-                    display_logger.debug(
-                        f"Original URI {doc_original_uri} already extracted. Reading existing results."
+                    display_logger.noop(
+                        f"Original URI {doc_original_uri} already extracted. Reading existing results.",
+                        noop_lvl=1,
                     )
                     existing_objs[doc_original_uri] = existing_objs_for_doc
                     continue

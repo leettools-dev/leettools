@@ -1,6 +1,7 @@
 import os
 from typing import Optional, Tuple, Union
 
+import openai
 from openai import OpenAI
 from openai.resources.chat.completions import ChatCompletion
 from pydantic import BaseModel
@@ -361,17 +362,26 @@ class APICallerBase:
             final_model_name = self.model_name
             display_logger.debug(f"Use strategy specified model {final_model_name}")
 
-        return api_utils.run_inference_call_direct(
-            context=self.context,
-            user=self.user,
-            api_client=self.api_client,
-            api_provider_name=self.api_provider_config.api_provider,
-            model_name=final_model_name,
-            model_options=model_options,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            need_json=need_json,
-            call_target=call_target,
-            response_pydantic_model=response_pydantic_model,
-            display_logger=display_logger,
-        )
+        try:
+            result, completion = api_utils.run_inference_call_direct(
+                context=self.context,
+                user=self.user,
+                api_client=self.api_client,
+                api_provider_name=self.api_provider_config.api_provider,
+                model_name=final_model_name,
+                model_options=model_options,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                need_json=need_json,
+                call_target=call_target,
+                response_pydantic_model=response_pydantic_model,
+                display_logger=display_logger,
+            )
+            return result, completion
+        except openai.BadRequestError as e:
+            if e.code == "context_length_exceeded":
+                display_logger.error(
+                    f"Context length exceeded for context {user_prompt}. "
+                    "Most likely token_per_char_ratio is too high."
+                )
+            raise e

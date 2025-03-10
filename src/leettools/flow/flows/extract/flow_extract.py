@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import ClassVar, Dict, List, Optional, Type
 
@@ -338,7 +338,17 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
         for extracted_objs in all_objs_dict.values():
             all_objs_list.extend(extracted_objs)
             for obj in extracted_objs:
-                rows_data.append([str(x) for x in obj.model_dump().values()])
+                if isinstance(obj, list):
+                    if len(obj) > 0:
+                        self.display_logger.debug(
+                            f"type of obj is a list of {type(obj[0])}"
+                        )
+                        for o in obj:
+                            rows_data.append([str(x) for x in o.model_dump().values()])
+                    else:
+                        self.display_logger.debug(f"obj is empty list")
+                else:
+                    rows_data.append([str(x) for x in obj.model_dump().values()])
 
         if output_format.lower() == "csv":
             # convert the extracted objects to a csv table
