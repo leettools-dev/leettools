@@ -1,6 +1,5 @@
 from typing import Any, Dict, List, Optional
 
-from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context
@@ -53,8 +52,6 @@ class LocalSearch(AbstractRetriever):
             settings=context.settings,
             display_logger=display_logger,
         )
-
-        result_dict: Dict[str, str] = {}
 
         # we are reusing the local search code from the RAG searcher
         # this should the only place the web package uses the eds package
@@ -160,12 +157,17 @@ class LocalSearch(AbstractRetriever):
             filter=filter,
         )
 
+        # we need tp combine all results from teh same uri to form a single result
+        result_dict: Dict[str, str] = {}
+        uri_to_docuuid_dict: Dict[str, str] = {}
+
         for result_segement in top_ranked_result_segments:
             uri = result_segement.original_uri
             if uri is None:
                 continue
 
             content = result_segement.content
+            uri_to_docuuid_dict[uri] = result_segement.document_uuid
 
             if uri in result_dict:
                 result_dict[uri] += content
@@ -177,6 +179,10 @@ class LocalSearch(AbstractRetriever):
         result_list: List[SearchResult] = []
 
         for uri, content in result_dict.items():
-            result_list.append(SearchResult(href=uri, snippet=content))
+            result_list.append(
+                SearchResult(
+                    href=uri, snippet=content, doc_uuid=uri_to_docuuid_dict[uri]
+                )
+            )
 
         return result_list

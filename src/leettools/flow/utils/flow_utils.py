@@ -624,7 +624,9 @@ def limit_content(content: str, model_name: str, display_logger: EventLogger) ->
         model_name, display_logger=display_logger
     )
 
+    display_logger.debug(f"content_limit for model {model_name} is : {context_limit}")
     token_per_char = lang_utils.token_per_char_ratio(content)
+    display_logger.debug(f"token_per_char for content: {token_per_char}")
     token_count = int(len(content) * token_per_char)
 
     if context_limit > 4000:
@@ -640,6 +642,7 @@ def limit_content(content: str, model_name: str, display_logger: EventLogger) ->
             f"Only using first {actual_content_len} characters."
         )
         content = content[:actual_content_len]
+    display_logger.info(f"Content length after limiting: {len(content)}")
     return content
 
 

@@ -133,8 +133,9 @@ newly extracted data will be saved to the backend storage.
                     )
                     existing_objs_for_doc = extract_store.get_records(filter)
                     if existing_objs_for_doc:
-                        display_logger.debug(
-                            f"Original URI {doc_original_uri} already extracted. Reading existing results."
+                        display_logger.noop(
+                            f"Original URI {doc_original_uri} already extracted. Reading existing results.",
+                            noop_lvl=1,
                         )
                         existing_objs[doc_original_uri] = existing_objs_for_doc
                         continue
