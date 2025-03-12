@@ -88,12 +88,18 @@ class SystemSettings(BaseModel):
 
     Most of the programs should read the settings only from this class.
     In testing environments, we can set the settings to a specific value.
+
+    Variable with capital letters are constants and should not be changed directly after
+    the system starts. Some of these variables are persisted in the database and can be
+    changed during the system runtime using the API service.
+
+    Variables with lower case letters are configurable and can be changed directly during
+    the system runtime. They will not be persisted in the database for now.
     """
 
     # system settings that should not be changed unless the version of the system changes
     API_V1_STR: ClassVar[str] = "/api/v1"
     PROJECT_NAME: ClassVar[str] = "LeetTools"
-    LEETAPI_PROJECT_NAME: ClassVar[str] = "LeetAPI"
 
     env_file: str = _default_env_file
     is_production: bool = False
@@ -362,6 +368,9 @@ class SystemSettings(BaseModel):
     ##########################################################################
 
     ## 4.1   Default values
+    inference_retry_count: int = Field(
+        3, description="The default number of retries for the inference"
+    )
 
     DEFAULT_FLOW_TYPE: str = Field(
         "answer", description="The default flow type for the system"

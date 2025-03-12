@@ -6,6 +6,7 @@ from openai import OpenAI
 from openai.resources.chat.completions import ChatCompletion
 from pydantic import BaseModel
 
+from leettools.common import exceptions
 from leettools.common.exceptions import UnexpectedCaseException
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
@@ -362,26 +363,34 @@ class APICallerBase:
             final_model_name = self.model_name
             display_logger.debug(f"Use strategy specified model {final_model_name}")
 
-        try:
-            result, completion = api_utils.run_inference_call_direct(
-                context=self.context,
-                user=self.user,
-                api_client=self.api_client,
-                api_provider_name=self.api_provider_config.api_provider,
-                model_name=final_model_name,
-                model_options=model_options,
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
-                need_json=need_json,
-                call_target=call_target,
-                response_pydantic_model=response_pydantic_model,
-                display_logger=display_logger,
-            )
-            return result, completion
-        except openai.BadRequestError as e:
-            if e.code == "context_length_exceeded":
-                display_logger.error(
-                    f"Context length exceeded for context {user_prompt}. "
-                    "Most likely token_per_char_ratio is too high."
+        for i in range(self.settings.inference_retry_count):
+            try:
+                result, completion = api_utils.run_inference_call_direct(
+                    context=self.context,
+                    user=self.user,
+                    api_client=self.api_client,
+                    api_provider_name=self.api_provider_config.api_provider,
+                    model_name=final_model_name,
+                    model_options=model_options,
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    need_json=need_json,
+                    call_target=call_target,
+                    response_pydantic_model=response_pydantic_model,
+                    display_logger=display_logger,
                 )
-            raise e
+                return result, completion
+            except openai.BadRequestError as e:
+                if e.code == "context_length_exceeded":
+                    display_logger.error(
+                        f"Context length exceeded for context {user_prompt}. "
+                        "Most likely token_per_char_ratio is too high."
+                    )
+                    # we will reduce the context length by 20% and try again
+                    user_prompt = user_prompt[: int(len(user_prompt) * 0.8)]
+                else:
+                    display_logger.error(f"Inference call failed attempt {i + 1}: {e}.")
+
+        raise exceptions.LLMInferenceResultException(
+            f"Failed to get a valid response from the model after {self.settings.inference_retry_count} retries."
+        )

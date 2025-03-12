@@ -223,6 +223,7 @@ def _search_max_results(
             "The maximum number of search results for retrievers to return. "
             "Each retriever may have different paging mechanisms. Use the parameter and "
             "the search iteration to control the number of results."
+            "If the retieval is local, -1 here means process all documents."
         ),
         default_value="10",
         value_type="int",
@@ -377,7 +378,9 @@ def _extract_pydantic(
         name=FLOW_OPTION_EXTRACT_PYDANTIC,
         display_name=_("Extract Pydantic Model"),
         description=_(
-            "The schema of the target data as a pydantic model, see https://docs.pydantic.dev"
+            "The schema of the target data as a pydantic model. "
+            "Can be a single line string as the file path to the pydantic model, "
+            "or a multi-line string as the pydantic model definition."
         ),
         default_value=None,
         value_type="str",

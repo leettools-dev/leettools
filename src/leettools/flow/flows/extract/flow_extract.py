@@ -156,9 +156,16 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
 
         # check if pydantic schema has multiple lines
         if "\n" not in pydantic_schema:
+            display_logger.debug(
+                f"Pydantic schema {pydantic_schema} is a single line string. "
+                "Checking if it is a file path..."
+            )
             filepath = Path(pydantic_schema)
             if filepath.is_absolute():
                 if filepath.exists():
+                    display_logger.debug(
+                        f"File {pydantic_schema} found at absolute path {filepath}."
+                    )
                     pydantic_schema = filepath.read_text()
                 else:
                     raise exceptions.ParametersValidationException(
@@ -168,11 +175,26 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                 code_root = exec_info.context.settings.CODE_ROOT_PATH
                 filepath = Path.joinpath(code_root, "..", pydantic_schema).resolve()
                 if filepath.exists():
+                    display_logger.debug(
+                        f"File {pydantic_schema} found at {filepath} under the code root {code_root}."
+                    )
                     pydantic_schema = filepath.read_text()
                 else:
-                    raise exceptions.ParametersValidationException(
-                        f"File {pydantic_schema} not found at [{filepath}]"
+                    display_logger.debug(
+                        f"File {pydantic_schema} not found at {filepath} under the code root. "
+                        "Trying the current directory..."
                     )
+                    # try the current directory
+                    filepath = Path.joinpath(Path.cwd(), pydantic_schema).resolve()
+                    if filepath.exists():
+                        display_logger.debug(
+                            f"File {pydantic_schema} found at {filepath} under the current directory {Path.cwd()}."
+                        )
+                        pydantic_schema = filepath.read_text()
+                    else:
+                        raise exceptions.ParametersValidationException(
+                            f"File {pydantic_schema} not found at [{filepath}]"
+                        )
 
         default_instruction_py_template = self.used_prompt_templates()[
             self.COMPONENT_NAME
