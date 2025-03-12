@@ -66,6 +66,7 @@ Search the web or local KB with the query and answer with source references:
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
         return AbstractFlow.direct_flow_option_items() + [
             flow_option_items.FOI_RETRIEVER(explicit=True),
+            flow_option_items.FOI_CONTENT_INSTRUCTION(explicit=True),
             flow_option_items.FOI_REFERENCE_STYLE(),
             flow_option_items.FOI_REFERENCE_STYLE(),
         ]
@@ -104,6 +105,12 @@ Search the web or local KB with the query and answer with source references:
             display_logger=display_logger,
         )
 
+        content_instruction = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_CONTENT_INSTRUCTION,
+            default_value="",
+            display_logger=display_logger,
+        )
         # flow starts there
         if is_search_engine(retriever_type):
             # query the web first, after this function, the search results

@@ -76,7 +76,8 @@ def get_int_option_value(
             value = int(value_obj)
         except ValueError:
             display_logger.warning(
-                f"Failed to convert the value of the option to int {option_name}: {value_obj}."
+                f"Failed to convert the value of the option to int {option_name}: [{value_obj}]. "
+                f"Using the default value {default_value}."
             )
             value = default_value
     return value
@@ -111,7 +112,8 @@ def get_bool_option_value(
             value = value_to_bool(value_obj)
         except ValueError:
             display_logger.warning(
-                f"Failed to convert the value of the option to bool {option_name}: {value_obj}."
+                f"Failed to convert the value of the option to bool {option_name}: [{value_obj}]. "
+                f"Using the default value {default_value}."
             )
             value = default_value
     return value

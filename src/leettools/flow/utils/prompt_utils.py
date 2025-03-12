@@ -29,10 +29,18 @@ def get_template_vars(
     """
     display_logger = logger()
 
+    content_instruction = config_utils.get_str_option_value(
+        options=flow_options,
+        option_name=flow_option.FLOW_OPTION_CONTENT_INSTRUCTION,
+        default_value="",
+        display_logger=display_logger,
+    )
+
     template_vars = {
         "context": inference_context,
         "rewritten_query": rewritten_query,
         "lang": lang,
+        "content_instruction": content_instruction,
         "lang_instruction": lang_instruction(lang),
         "reference_instruction": reference_instruction(),
         "context_presentation": context_presentation(),

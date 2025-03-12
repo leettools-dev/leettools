@@ -70,7 +70,7 @@ Extra structured data from web or local KB search results:
         instruction_py_template = """
 from typing import List, Dict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 instructions = \"\"\"
 If the article contains the information about {{ query }}, extract the following information:
@@ -78,6 +78,8 @@ If the article contains the information about {{ query }}, extract the following
 {{ schema }}
 
 Use -1 for unknown numeric values and "n/a" for unknown string values.
+
+{{ content_instruction }}
 \"\"\"
 
 {{ schema }}
@@ -90,6 +92,7 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                 prompt_variables={
                     "schema": "The Pydantic schema for the model class to extract.",
                     "query": "The query content.",
+                    "content_instruction": "Extra content instruction for the extraction.",
                 },
             )
         }
@@ -104,6 +107,7 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
         return AbstractFlow.get_flow_option_items() + [
             flow_option_items.FOI_RETRIEVER(explicit=True),
             flow_option_items.FOI_EXTRACT_PYDANTIC(explicit=True, required=True),
+            flow_option_items.FOI_CONTENT_INSTRUCTION(explicit=True),
             flow_option_items.FOI_EXTRACT_SAVE_TO_BACKEND(),
             flow_option_items.FOI_EXTRACT_OUTPUT_FORMAT(),
             flow_option_items.FOI_TARGET_SITE(),
@@ -156,9 +160,16 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
 
         # check if pydantic schema has multiple lines
         if "\n" not in pydantic_schema:
+            display_logger.debug(
+                f"Pydantic schema {pydantic_schema} is a single line string. "
+                "Checking if it is a file path..."
+            )
             filepath = Path(pydantic_schema)
             if filepath.is_absolute():
                 if filepath.exists():
+                    display_logger.debug(
+                        f"File {pydantic_schema} found at absolute path {filepath}."
+                    )
                     pydantic_schema = filepath.read_text()
                 else:
                     raise exceptions.ParametersValidationException(
@@ -168,21 +179,44 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                 code_root = exec_info.context.settings.CODE_ROOT_PATH
                 filepath = Path.joinpath(code_root, "..", pydantic_schema).resolve()
                 if filepath.exists():
+                    display_logger.debug(
+                        f"File {pydantic_schema} found at {filepath} under the code root {code_root}."
+                    )
                     pydantic_schema = filepath.read_text()
                 else:
-                    raise exceptions.ParametersValidationException(
-                        f"File {pydantic_schema} not found at [{filepath}]"
+                    display_logger.debug(
+                        f"File {pydantic_schema} not found at {filepath} under the code root. "
+                        "Trying the current directory..."
                     )
+                    # try the current directory
+                    filepath = Path.joinpath(Path.cwd(), pydantic_schema).resolve()
+                    if filepath.exists():
+                        display_logger.debug(
+                            f"File {pydantic_schema} found at {filepath} under the current directory {Path.cwd()}."
+                        )
+                        pydantic_schema = filepath.read_text()
+                    else:
+                        raise exceptions.ParametersValidationException(
+                            f"File {pydantic_schema} not found at [{filepath}]"
+                        )
 
         default_instruction_py_template = self.used_prompt_templates()[
             self.COMPONENT_NAME
         ].prompt_template
+
+        content_instruction = config_utils.get_str_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_CONTENT_INSTRUCTION,
+            default_value="",
+            display_logger=display_logger,
+        )
 
         schema_code = render_template(
             template_str=default_instruction_py_template,
             variables={
                 "schema": pydantic_schema,
                 "query": chat_query_item.query_content,
+                "content_instruction": content_instruction,
             },
         )
         var_dict, type_dict = execute_pydantic_snippet(schema_code)
