@@ -211,6 +211,57 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
             display_logger=display_logger,
         )
 
+        # Check if content_instruction is a file path
+        try:
+            if content_instruction.endswith((".txt", ".md", ".py")):
+                display_logger.debug(
+                    f"Content instruction {content_instruction} appears to be a file path. "
+                    "Attempting to read file content..."
+                )
+                filepath = Path(content_instruction)
+                if filepath.is_absolute():
+                    if filepath.exists():
+                        display_logger.debug(
+                            f"File {content_instruction} found at absolute path {filepath}."
+                        )
+                        content_instruction = filepath.read_text()
+                    else:
+                        raise exceptions.ParametersValidationException(
+                            f"File {content_instruction} not found."
+                        )
+                else:
+                    code_root = exec_info.context.settings.CODE_ROOT_PATH
+                    filepath = Path.joinpath(
+                        code_root, "..", content_instruction
+                    ).resolve()
+                    if filepath.exists():
+                        display_logger.debug(
+                            f"File {content_instruction} found at {filepath} under the code root {code_root}."
+                        )
+                        content_instruction = filepath.read_text()
+                    else:
+                        display_logger.debug(
+                            f"File {content_instruction} not found at {filepath} under the code root. "
+                            "Trying the current directory..."
+                        )
+                        filepath = Path.joinpath(
+                            Path.cwd(), content_instruction
+                        ).resolve()
+                        if filepath.exists():
+                            display_logger.debug(
+                                f"File {content_instruction} found at {filepath} under the current directory {Path.cwd()}."
+                            )
+                            content_instruction = filepath.read_text()
+                        else:
+                            raise exceptions.ParametersValidationException(
+                                f"File {content_instruction} not found at [{filepath}]"
+                            )
+        except Exception as e:
+            display_logger.error(f"Error reading content instruction file: {e}")
+            display_logger.warning(
+                f"Using the content instruction as is: {content_instruction}"
+            )
+
         schema_code = render_template(
             template_str=default_instruction_py_template,
             variables={
