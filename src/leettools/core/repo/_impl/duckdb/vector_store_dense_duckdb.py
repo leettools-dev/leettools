@@ -153,7 +153,14 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 create_sequence_sql=install_fts_sql,
             )
         else:
-            table_name = self.duckdb_client.get_table(org_db_name, collection_name)
+            # the caller knows that the table is already created
+            table_name = self.duckdb_client.get_table_from_cache(
+                org_db_name, collection_name
+            )
+            if table_name is None:
+                raise exceptions.UnexpectedCaseException(
+                    f"Table {collection_name} not found in cache"
+                )
 
         if self.index_lock.get(table_name) is None:
             self.index_lock[table_name] = threading.Lock()
@@ -215,11 +222,13 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             with ThreadPoolExecutor(max_workers=10) as executor:
                 executor.map(partial_batch_upsert_embeddings, insert_batches)
 
-        self.display_logger.debug(f"Batch upserted {len(segments_with_embeddings)}")
-
         # the index needs to be updated when the vector store is updated
-        self.kb_manager.update_kb_timestamp(
+        kb = self.kb_manager.update_kb_timestamp(
             org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
+        )
+        self.display_logger.debug(
+            f"Batch upserted {len(segments_with_embeddings)} segments into KB {kb.name}. "
+            f"{KnowledgeBase.FIELD_DATA_UPDATED_AT} field updated."
         )
         return True
 
@@ -249,7 +258,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 where_clause=where_clause,
                 value_list=value_list,
             )
-        self.kb_manager.update_kb_timestamp(
+        kb = self.kb_manager.update_kb_timestamp(
             org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
         )
         return True
@@ -270,7 +279,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 where_clause=where_clause,
                 value_list=value_list,
             )
-        self.kb_manager.update_kb_timestamp(
+        kb = self.kb_manager.update_kb_timestamp(
             org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
         )
         return True
@@ -297,7 +306,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                     org, kb, document.document_uuid
                 ):
                     deleted = True
-        self.kb_manager.update_kb_timestamp(
+        kb = self.kb_manager.update_kb_timestamp(
             org, kb, KnowledgeBase.FIELD_CONTENT_UPDATED_AT
         )
         return deleted
@@ -317,7 +326,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 where_clause=where_clause,
                 value_list=value_list,
             )
-        self.kb_manager.update_kb_timestamp(
+        kb = self.kb_manager.update_kb_timestamp(
             org, kb, KnowledgeBase.FIELD_CONTENT_UPDATED_AT
         )
         return True
@@ -442,6 +451,9 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     ) -> List[VectorSearchResult]:
         """Search for segments in the store."""
         if rebuild_full_text_index:
+            # refresh the timestamps
+            kb = self.kb_manager.get_kb_by_id(org, kb.kb_id)
+
             if kb.full_text_indexed_at is None:
                 logger().info(
                     f"kb.full_text_indexed_at is None, building full text index for kb {kb.name}..."
@@ -451,10 +463,10 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 logger().info(
                     f"kb.data_updated_at is None, building full text index for kb {kb.name}..."
                 )
-                self._rebuild_full_text_index(org, kb, user)
-                self.kb_manager.update_kb_timestamp(
+                kb = self.kb_manager.update_kb_timestamp(
                     org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
                 )
+                self._rebuild_full_text_index(org, kb, user)
             elif kb.full_text_indexed_at < kb.data_updated_at:
                 logger().info(
                     f"kb.full_text_indexed_at {kb.full_text_indexed_at} is less than kb.data_updated_at {kb.data_updated_at}, rebuilding full text index for kb {kb.name}..."
@@ -534,7 +546,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             elapsed_time = end_time - start_time
             if success:
                 logger().info(f"Building full text index costs: {elapsed_time} seconds")
-                self.kb_manager.update_kb_timestamp(
+                kb = self.kb_manager.update_kb_timestamp(
                     org, kb, KnowledgeBase.FIELD_FULL_TEXT_INDEXED_AT
                 )
             else:

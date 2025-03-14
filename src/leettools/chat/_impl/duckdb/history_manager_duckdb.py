@@ -1,4 +1,5 @@
 import json
+import time
 import traceback
 import uuid
 from functools import cmp_to_key
@@ -361,7 +362,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
 
     def _update_kb_timestamp(self, org: Org, kb: KnowledgeBase) -> None:
         try:
-            self.kb_manager.update_kb_timestamp(
+            kb = self.kb_manager.update_kb_timestamp(
                 org, kb, KnowledgeBase.FIELD_LAST_RESULT_CREATED_AT
             )
         except Exception as e:
@@ -831,7 +832,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         user: User,
         chat_query_item: ChatQueryItem,
     ) -> ChatQueryResult:
-
+        start_time = time.perf_counter()
         logger_name, query_logger = get_logger_for_chat(
             chat_id=chat_query_item.chat_id,
             query_id=chat_query_item.query_id,
@@ -864,6 +865,9 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 query_logger.info("[Status]Query failed or not completed.")
                 return None
         finally:
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+            query_logger.info(f"[Query Runtime]{elapsed_time} seconds.")
             remove_logger(logger_name)
 
     def update_ch_entry(self, ch_update: CHUpdate) -> Optional[ChatHistory]:
