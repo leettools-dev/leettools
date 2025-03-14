@@ -218,7 +218,7 @@ class SystemSettings(BaseModel):
 
     # 2.3.1. Search
     DEFAULT_SEARCHER_TYPE: str = Field(
-        "simple", description="The default searcher type to use"
+        "bm25_dense", description="The default searcher type to use"
     )
 
     DEFAULT_SEARCH_TOP_K: int = Field(
