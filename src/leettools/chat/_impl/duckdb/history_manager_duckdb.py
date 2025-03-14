@@ -361,7 +361,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
 
     def _update_kb_timestamp(self, org: Org, kb: KnowledgeBase) -> None:
         try:
-            self.kb_manager.update_kb_timestamp(org, kb)
+            self.kb_manager.update_kb_timestamp(org, kb, "last_result_created_at")
         except Exception as e:
             logger().error(f"Error updating KB timestamp: {e}. Exception ignored.")
 

@@ -119,14 +119,18 @@ class AbstractKBManager(ABC, PerformanceConfigurable):
 
     @abstractmethod
     def update_kb_timestamp(
-        self, org: Org, kb: KnowledgeBase
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        timestamp_name: Optional[str] = "updated_at",
     ) -> Optional[KnowledgeBase]:
         """
-        Force updates the timestamp of the knowledge base.
+        Force updates the timestamp of the knowledge base. This function is used to update the timestamp of the knowledge base when the content is updated.
 
         Args:
         -   org: The organization object.
         -   kb: The knowledge base object.
+        -   timestamp_name: The name of the timestamp field to update.
 
         Returns:
         -   Optional[KnowledgeBase]: The updated knowledge base object.

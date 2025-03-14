@@ -8,7 +8,10 @@ from leettools.core.consts.article_type import ArticleType
 from leettools.core.consts.display_type import DisplayType
 from leettools.core.consts.retriever_type import RetrieverType, is_search_engine
 from leettools.core.schemas.chat_query_item import ChatQueryItem
-from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
+from leettools.core.schemas.chat_query_metadata import (
+    DEFAULT_INTENTION,
+    ChatQueryMetadata,
+)
 from leettools.core.schemas.chat_query_result import (
     ChatAnswerItemCreate,
     ChatQueryResultCreate,
@@ -16,7 +19,6 @@ from leettools.core.schemas.chat_query_result import (
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
-from leettools.eds.rag.intention.intention_getter import DEFAULT_INTENTION
 from leettools.flow import flow_option_items, steps
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow

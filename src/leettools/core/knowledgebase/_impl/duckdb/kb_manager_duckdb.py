@@ -301,7 +301,10 @@ class KBManagerDuckDB(AbstractKBManager):
         return self.get_kb_by_id(org, kb_in_db.kb_id)
 
     def update_kb_timestamp(
-        self, org: Org, kb: KnowledgeBase
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        timestamp_name: Optional[str] = "updated_at",
     ) -> Optional[KnowledgeBase]:
         kb_in_db = self.get_kb_by_name(org=org, kb_name=kb.name)
         if kb_in_db is None:
@@ -310,8 +313,30 @@ class KBManagerDuckDB(AbstractKBManager):
             )
 
         table_name = self._get_table_name(org)
-        column_list = [KnowledgeBase.FIELD_UPDATED_AT]
-        value_list = [time_utils.current_datetime()]
+        timestamp = time_utils.current_datetime()
+        if timestamp_name == "updated_at":
+            column_list = [KnowledgeBase.FIELD_UPDATED_AT]
+            value_list = [timestamp]
+        elif timestamp_name == "last_result_created_at":
+            column_list = [
+                KnowledgeBase.FIELD_LAST_RESULT_CREATED_AT,
+                KnowledgeBase.FIELD_UPDATED_AT,
+            ]
+            value_list = [timestamp, timestamp]
+        elif timestamp_name == "data_updated_at":
+            column_list = [
+                KnowledgeBase.FIELD_DATA_UPDATED_AT,
+                KnowledgeBase.FIELD_UPDATED_AT,
+            ]
+            value_list = [timestamp, timestamp]
+        elif timestamp_name == "full_text_indexed_at":
+            column_list = [KnowledgeBase.FIELD_FULL_TEXT_INDEXED_AT]
+            value_list = [timestamp]
+        else:
+            raise exceptions.UnexpectedCaseException(
+                f"Unexpected timestamp name: {timestamp_name}"
+            )
+
         where_clause = f"WHERE {KnowledgeBase.FIELD_KB_ID} = ?"
         value_list = value_list + [kb_in_db.kb_id]
         self.duckdb_client.update_table(

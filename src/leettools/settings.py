@@ -217,6 +217,10 @@ class SystemSettings(BaseModel):
     # 2.3.   Retrieval
 
     # 2.3.1. Search
+    DEFAULT_SEARCHER_TYPE: str = Field(
+        "simple", description="The default searcher type to use"
+    )
+
     DEFAULT_SEARCH_TOP_K: int = Field(
         20, description="The default top k search results to return"
     )
@@ -370,6 +374,15 @@ class SystemSettings(BaseModel):
     ## 4.1   Default values
     inference_retry_count: int = Field(
         3, description="The default number of retries for the inference"
+    )
+
+    embed_batch_size: int = Field(
+        32, description="The default batch size for embedding operations"
+    )
+
+    embed_insert_batch_size: int = Field(
+        100,
+        description="The default batch size for inserting embeddings into the database",
     )
 
     DEFAULT_FLOW_TYPE: str = Field(

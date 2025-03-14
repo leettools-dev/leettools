@@ -10,7 +10,6 @@ from leettools.common import exceptions
 from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.config.performance_configurable import PerfBaseModel
-from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 
 """
 See [README](./README.md) about the usage of different pydantic models.
@@ -107,8 +106,26 @@ class KBUpdate(KBBase):
 
 
 class KBInDB(KBInDBBase):
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: Optional[datetime] = Field(
+        None,
+        description="The timestamp when the KB was created",
+    )
+    updated_at: Optional[datetime] = Field(
+        None,
+        description="The timestamp when the KB was last updated either by a query or a change in the content.",
+    )
+    last_result_created_at: Optional[datetime] = Field(
+        None,
+        description="The timestamp when the last result was created",
+    )
+    data_updated_at: Optional[datetime] = Field(
+        None,
+        description="The timestamp when the data content of the KB was last updated",
+    )
+    full_text_indexed_at: Optional[datetime] = Field(
+        None,
+        description="The timestamp when the full text index of the KB was last updated",
+    )
 
     @classmethod
     def from_kb_create(KBInDB, kb_create: KBCreate) -> "KBInDB":
@@ -208,6 +225,7 @@ class KnowledgeBase(KBInDB):
             kb_id=kb_in_db.kb_id,
             created_at=kb_in_db.created_at,
             updated_at=kb_in_db.updated_at,
+            full_text_index_updated_at=kb_in_db.full_text_index_updated_at,
             owner_id=kb_in_db.owner_id,
             user_uuid=kb_in_db.user_uuid,
             share_to_public=kb_in_db.share_to_public,
@@ -246,6 +264,7 @@ class BaseKBSchema(ABC):
             KnowledgeBase.FIELD_AUTO_SCHEDULE: "BOOLEAN",
             KnowledgeBase.FIELD_CREATED_AT: "TIMESTAMP",
             KnowledgeBase.FIELD_UPDATED_AT: "TIMESTAMP",
+            KnowledgeBase.FIELD_FULL_TEXT_INDEXED_AT: "TIMESTAMP",
             KnowledgeBase.FIELD_OWNER_ID: "VARCHAR",
             KnowledgeBase.FIELD_IS_DELETED: "BOOLEAN",
             KnowledgeBase.FIELD_OWNER: "VARCHAR",

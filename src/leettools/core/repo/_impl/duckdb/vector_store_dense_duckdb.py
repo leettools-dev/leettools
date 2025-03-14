@@ -1,3 +1,5 @@
+import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from typing import Any, Dict, List
@@ -41,6 +43,13 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         self.context = context
         self.settings = context.settings
         self.duckdb_client = DuckDBClient(self.settings)
+        self.kb_manager = context.get_kb_manager()
+        # a table name to lock
+        # need to get the lock before updating the content of the store
+        self.index_lock: Dict[str, threading.Lock] = {}
+
+    def support_full_text_search(self) -> bool:
+        return True
 
     def _batch_get_embedding(
         self, dense_embedder: AbstractDenseEmbedder, segment_batch: List[Segment]
@@ -71,11 +80,12 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         # delete the existing embeddings for the segment_uuids
         where_clause = f"WHERE {Segment.FIELD_SEGMENT_UUID} IN ({','.join(['?'] * len(segment_uuids))})"
         value_list = segment_uuids
-        self.duckdb_client.delete_from_table(
-            table_name=table_name,
-            where_clause=where_clause,
-            value_list=value_list,
-        )
+        with self.index_lock[table_name]:
+            self.duckdb_client.delete_from_table(
+                table_name=table_name,
+                where_clause=where_clause,
+                value_list=value_list,
+            )
 
         # insert the new embeddings for the segment_uuids
         column_list = [
@@ -105,11 +115,12 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 segment.segment_uuid,
             ]
             value_list.append(item_list)
-        self.duckdb_client.batch_insert_into_table(
-            table_name=table_name,
-            column_list=column_list,
-            values=value_list,
-        )
+        with self.index_lock[table_name]:
+            self.duckdb_client.batch_insert_into_table(
+                table_name=table_name,
+                column_list=column_list,
+                values=value_list,
+            )
 
     def _get_embedding(
         self, dense_embedder: AbstractDenseEmbedder, texts: List[str]
@@ -127,16 +138,22 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         """Get the dynamic table name for the org and kb combination."""
         org_db_name = Org.get_org_db_name(org.org_id)
         collection_name = f"kb_{kb.kb_id}{DENSE_VECTOR_COLLECTION_SUFFIX}"
+
         if dense_embedder_dimension is not None:
             install_fts_sql = "INSTALL fts; LOAD fts;"
-            return self.duckdb_client.create_table_if_not_exists(
+            table_name = self.duckdb_client.create_table_if_not_exists(
                 schema_name=org_db_name,
                 table_name=collection_name,
                 columns=VectorDuckDBSchema.get_schema(dense_embedder_dimension),
                 create_sequence_sql=install_fts_sql,
             )
         else:
-            return self.duckdb_client.get_table(org_db_name, collection_name)
+            table_name = self.duckdb_client.get_table(org_db_name, collection_name)
+
+        if self.index_lock.get(table_name) is None:
+            self.index_lock[table_name] = threading.Lock()
+
+        return table_name
 
     def _normalize_vector(self, vector: List[float]) -> List[float]:
         """
@@ -164,8 +181,8 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         dense_embedder: AbstractDenseEmbedder,
     ) -> bool:
         table_name = self._get_table_name(org, kb, dense_embedder.get_dimension())
-        embed_batch_size = 50
-        query_batch_size = 100
+        embed_batch_size = self.settings.embed_batch_size
+        insert_batch_size = self.settings.embed_insert_batch_size
 
         # divide the segments into batches based on the embed_batch_size
         embed_batches = []
@@ -182,15 +199,19 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
 
         # divide the segments into batches based on the query_batch_size
         insert_batches = []
-        for i in range(0, len(segments_with_embeddings), query_batch_size):
-            batch = segments_with_embeddings[i : i + query_batch_size]
+        for i in range(0, len(segments_with_embeddings), insert_batch_size):
+            batch = segments_with_embeddings[i : i + insert_batch_size]
             insert_batches.append(batch)
 
         partial_batch_upsert_embeddings = partial(
             self._batch_upsert_embeddings, table_name
         )
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            executor.map(partial_batch_upsert_embeddings, insert_batches)
+        with self.index_lock[table_name]:
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                executor.map(partial_batch_upsert_embeddings, insert_batches)
+
+        # the index needs to be updated when the vector store is updated
+        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
         return True
 
     def save_segments(
@@ -213,11 +234,13 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             return False
         where_clause = f"WHERE {Segment.FIELD_SEGMENT_UUID} = ?"
         value_list = [segment_uuid]
-        self.duckdb_client.delete_from_table(
-            table_name=table_name,
-            where_clause=where_clause,
-            value_list=value_list,
-        )
+        with self.index_lock[table_name]:
+            self.duckdb_client.delete_from_table(
+                table_name=table_name,
+                where_clause=where_clause,
+                value_list=value_list,
+            )
+        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
         return True
 
     def delete_segment_vectors_by_docsink_uuid(
@@ -230,11 +253,13 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
 
         where_clause = f"WHERE {Segment.FIELD_DOCSINK_UUID} = ?"
         value_list = [docsink_uuid]
-        self.duckdb_client.delete_from_table(
-            table_name=table_name,
-            where_clause=where_clause,
-            value_list=value_list,
-        )
+        with self.index_lock[table_name]:
+            self.duckdb_client.delete_from_table(
+                table_name=table_name,
+                where_clause=where_clause,
+                value_list=value_list,
+            )
+        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
         return True
 
     def delete_segment_vectors_by_docsource_uuid(
@@ -253,11 +278,13 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             org, kb, docsource
         )
         deleted = False
-        for document in documents:
-            if self.delete_segment_vectors_by_document_id(
-                org, kb, document.document_uuid
-            ):
-                deleted = True
+        with self.index_lock[table_name]:
+            for document in documents:
+                if self.delete_segment_vectors_by_document_id(
+                    org, kb, document.document_uuid
+                ):
+                    deleted = True
+        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
         return deleted
 
     def delete_segment_vectors_by_document_id(
@@ -269,11 +296,13 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             return False
         where_clause = f"WHERE {Segment.FIELD_DOCUMENT_UUID} = ?"
         value_list = [document_uuid]
-        self.duckdb_client.delete_from_table(
-            table_name=table_name,
-            where_clause=where_clause,
-            value_list=value_list,
-        )
+        with self.index_lock[table_name]:
+            self.duckdb_client.delete_from_table(
+                table_name=table_name,
+                where_clause=where_clause,
+                value_list=value_list,
+            )
+        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
         return True
 
     def get_segment_vector(
@@ -313,7 +342,21 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         top_k: int,
         search_params: Dict[str, Any] = None,
         filter: Filter = None,
+        full_text_search: bool = False,
+        rebuild_full_text_index: bool = False,
     ) -> List[VectorSearchResult]:
+        if full_text_search:
+            return self._full_text_search_in_kb(
+                org,
+                kb,
+                user,
+                query,
+                top_k,
+                search_params,
+                filter,
+                rebuild_full_text_index,
+            )
+
         """Search for segments in the store."""
         # Implement your search logic here
         dense_embedder = create_dense_embedder_for_kb(org, kb, user, self.context)
@@ -369,7 +412,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         dense_embedder = create_dense_embedder_for_kb(org, kb, user, self.context)
         return self._upsert_embeddings_into_duckdb(org, kb, [segment], dense_embedder)
 
-    def full_text_search_in_kb(
+    def _full_text_search_in_kb(
         self,
         org: Org,
         kb: KnowledgeBase,
@@ -377,17 +420,41 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         query: str,
         top_k: int,
         search_params: Dict[str, Any] = None,
-        filter_expr: str = None,
+        filter: Filter = None,
+        rebuild_full_text_index: bool = False,
     ) -> List[VectorSearchResult]:
         """Search for segments in the store."""
+        if rebuild_full_text_index:
+            if kb.full_text_indexed_at is None:
+                logger().info(
+                    f"kb.full_text_indexed_at is None, building full text index for kb {kb.name}..."
+                )
+                self._rebuild_full_text_index(org, kb, user)
+            elif kb.data_updated_at is None:
+                logger().info(
+                    f"kb.data_updated_at is None, building full text index for kb {kb.name}..."
+                )
+                self._rebuild_full_text_index(org, kb, user)
+                self.kb_manager.update_kb_timestamp(org, kb, "data_updated_at")
+            elif kb.full_text_indexed_at < kb.data_updated_at:
+                logger().info(
+                    f"kb.full_text_indexed_at {kb.full_text_indexed_at} is less than kb.data_updated_at {kb.data_updated_at}, rebuilding full text index for kb {kb.name}..."
+                )
+                self._rebuild_full_text_index(org, kb, user)
+            else:
+                logger().info(
+                    f"kb.full_text_indexed_at {kb.full_text_indexed_at} is greater than kb.data_updated_at {kb.data_updated_at}, skipping full text index for kb {kb.name}..."
+                )
+
         # Implement your search logic here
         dense_embedder = create_dense_embedder_for_kb(org, kb, user, self.context)
         embedding_dimension = dense_embedder.get_dimension()
         table_name = self._get_table_name(org, kb, embedding_dimension)
 
         where_clause = ""
-        if filter_expr is not None:
+        if filter is not None:
             # duckdb does not support double quotes in the where clause
+            filter_expr, fields, values = to_duckdb_filter(filter)
             filter_expr = filter_expr.replace('"', "'")
             where_clause = f"WHERE {filter_expr} and score is not null"
         else:
@@ -403,7 +470,12 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             {where_clause}
             ORDER BY score DESC LIMIT ?;
         """
-        value_list = [query, top_k]
+        logger().info(f"match_bm25 query_statement: {query_statement}")
+        # Add filter values to value_list if filter is present
+        value_list = [query]
+        if filter is not None:
+            value_list.extend(values)
+        value_list.append(top_k)
         results = self.duckdb_client.execute_and_fetch_all(query_statement, value_list)
         return [
             VectorSearchResult(
@@ -414,13 +486,37 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             for result in results
         ]
 
-    def rebuild_full_text_index(self, org: Org, kb: KnowledgeBase, user: User) -> None:
+    def _rebuild_full_text_index(self, org: Org, kb: KnowledgeBase, user: User) -> None:
         dense_embedder = create_dense_embedder_for_kb(org, kb, user, self.context)
         embedding_dimension = dense_embedder.get_dimension()
         table_name = self._get_table_name(org, kb, embedding_dimension)
+        # TODO: support customizable stemmer, stopwords, ignore, strip_accents, lower
         rebuild_fts_index_sql = f"""
-        PRAGMA create_fts_index({table_name}, {Segment.FIELD_SEGMENT_UUID}, {Segment.FIELD_CONTENT}, stemmer = 'porter',
+        PRAGMA create_fts_index({table_name}, {Segment.FIELD_SEGMENT_UUID}, 
+            {Segment.FIELD_CONTENT}, stemmer = 'porter',
             stopwords = 'english', ignore = '(\\.|[^a-z])+',
-            strip_accents = 1, lower = 1, overwrite = 0)        
+            strip_accents = 1, lower = 1, overwrite = 1)        
         """
-        self.duckdb_client.execute_sql(rebuild_fts_index_sql)
+        logger().info(
+            f"Building the full text index for table {table_name}: {rebuild_fts_index_sql}"
+        )
+        # use performance timer to measure the time it takes to rebuild the index
+        start_time = time.perf_counter()
+        success = False
+        try:
+            with self.index_lock[table_name]:
+                self.duckdb_client.execute_sql(rebuild_fts_index_sql)
+                success = True
+        except Exception as e:
+            logger().error(f"Failed to rebuild the full text index: {e}")
+            raise e
+        finally:
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+            if success:
+                logger().info(f"Building full text index costs: {elapsed_time} seconds")
+                self.kb_manager.update_kb_timestamp(org, kb, "full_text_indexed_at")
+            else:
+                logger().error(
+                    f"Failed to rebuild the full text index: {elapsed_time} milliseconds"
+                )

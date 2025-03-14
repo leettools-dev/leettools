@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
+from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.context_manager import Context
 from leettools.core.repo.vector_store import (
@@ -23,10 +24,10 @@ from leettools.eds.rag.search.filter import Filter
 from leettools.eds.rag.search.searcher import AbstractSearcher
 
 
-class SearcherHybrid(AbstractSearcher):
+class SearcherBM25Dense(AbstractSearcher):
     """
-    The hybrid search uses a dense search and a sparse search for the best
-    results. The final result is a fusion of the two lists.
+    This searcher uses one store that supports both dense vector and BM25 search to
+    perform a hybrid search.
     """
 
     nltk_initialized: ClassVar[bool] = False
@@ -77,7 +78,10 @@ class SearcherHybrid(AbstractSearcher):
         repo_manager = context.get_repo_manager()
         self.segmentstore = repo_manager.get_segment_store()
         self.dense_vectorstore = create_vector_store_dense(context)
-        self.sparse_vectorstore = create_vector_store_sparse(context)
+        if not self.dense_vectorstore.support_full_text_search():
+            raise exceptions.UnexpectedCaseException(
+                "Specified dense vector store does not support full text search."
+            )
 
     def _common_hit_fusion(
         self,
@@ -207,31 +211,6 @@ class SearcherHybrid(AbstractSearcher):
             rtn_results.append(result)
         return rtn_results
 
-    def _simple_fusion(
-        self,
-        list1: List[VectorSearchResult],
-        list2: List[VectorSearchResult],
-        default_score=1.0,
-    ) -> List[VectorSearchResult]:
-        """
-        Fuse two lists of VectorSearchResult using simple fusion.
-        """
-        # Create dictionaries from the lists
-        dict1 = {result.segment_uuid: result.search_score for result in list1}
-        dict2 = {result.segment_uuid: result.search_score for result in list2}
-        all_uuids = set(dict1.keys()) | set(dict2.keys())
-        fused_results = [
-            VectorSearchResult(
-                segment_uuid=segment_uuid,
-                search_score=min(
-                    dict1.get(segment_uuid, default_score),
-                    dict2.get(segment_uuid, default_score),
-                ),
-            )
-            for segment_uuid in all_uuids
-        ]
-        return fused_results
-
     def execute_kb_search(
         self,
         org: Org,
@@ -244,19 +223,6 @@ class SearcherHybrid(AbstractSearcher):
         query_meta: ChatQueryMetadata,
         filter: Filter = None,
     ) -> List[SearchResultSegment]:
-        """
-        Search for segments in the knowledge base.
-
-        Args:
-        - org: The organization.
-        - kb: The knowledge base.
-        - user: The User
-        - query: The query.
-        - rewritten_query: The rewritten query.
-        - top_k: The number of results to return.
-        - search_params: The search parameters for dense vector.
-        - filter: The filter used to filter the search results.
-        """
         logger().info(f"The filter is: {filter} for query {query}")
 
         try:
@@ -281,7 +247,6 @@ class SearcherHybrid(AbstractSearcher):
             f"Found {len(results_from_dense_vector)} from dense vector search."
         )
 
-        # keyword_query = self._extract_keywords(query)
         logger().info(f"Extracting keywords from query...")
         if (
             query_meta is not None
@@ -295,16 +260,18 @@ class SearcherHybrid(AbstractSearcher):
             keyword_query = self.extract_keywords(query)
             logger().info(f"keyword_query from original query: {keyword_query}")
 
-        logger().info(f"Searching Sparse Vector...")
+        logger().info(f"Performing BM25 search ...")
         try:
             results_from_sparse_vector: List[VectorSearchResult] = (
-                self.sparse_vectorstore.search_in_kb(
+                self.dense_vectorstore.search_in_kb(
                     org=org,
                     kb=kb,
                     user=user,
                     query=keyword_query,
                     top_k=top_k,
                     filter=filter,
+                    full_text_search=True,
+                    rebuild_full_text_index=True,
                 )
             )
             for result in results_from_sparse_vector:

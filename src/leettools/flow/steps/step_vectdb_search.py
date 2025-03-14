@@ -55,6 +55,7 @@ class StepVectorSearch(AbstractStep):
         search_section = exec_info.strategy.strategy_sections.get(
             StrategySectionName.SEARCH, None
         )
+        default_searcher_type = settings.DEFAULT_SEARCHER_TYPE
 
         if search_section is None:
             display_logger.info(
@@ -62,15 +63,17 @@ class StepVectorSearch(AbstractStep):
             )
             top_k = settings.DEFAULT_SEARCH_TOP_K
             metric_type = "COSINE"
-            searcher_type = SearcherType.SIMPLE
+            searcher_type = SearcherType(default_searcher_type)
         else:
             if search_section.strategy_name is None:
-                searcher_type = SearcherType.SIMPLE
+                searcher_type = SearcherType(default_searcher_type)
             else:
                 if search_section.strategy_name == "simple":
                     searcher_type = SearcherType.SIMPLE
                 elif search_section.strategy_name == "hybrid":
                     searcher_type = SearcherType.HYBRID
+                elif search_section.strategy_name == "bm25_dense":
+                    searcher_type = SearcherType.BM25_DENSE
                 else:
                     display_logger.warning(
                         f"Unknown searcher type: {search_section.strategy_name}. Using SIMPLE searcher."

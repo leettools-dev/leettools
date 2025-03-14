@@ -89,10 +89,6 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
         schema_name: str,
         table_name: str,
     ) -> str:
-        if schema_name is None:
-            raise ValueError("schema_name cannot be None")
-        if table_name is None:
-            raise ValueError("table_name cannot be None")
         table_key = f"{schema_name}.{table_name}"
         with self._get_table_lock(table_name):
             table_name_in_db = self.created_tables.get(table_key)
