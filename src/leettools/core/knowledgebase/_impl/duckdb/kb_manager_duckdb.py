@@ -304,7 +304,7 @@ class KBManagerDuckDB(AbstractKBManager):
         self,
         org: Org,
         kb: KnowledgeBase,
-        timestamp_name: Optional[str] = "updated_at",
+        timestamp_name: Optional[str] = KnowledgeBase.FIELD_UPDATED_AT,
     ) -> Optional[KnowledgeBase]:
         kb_in_db = self.get_kb_by_name(org=org, kb_name=kb.name)
         if kb_in_db is None:
@@ -314,22 +314,24 @@ class KBManagerDuckDB(AbstractKBManager):
 
         table_name = self._get_table_name(org)
         timestamp = time_utils.current_datetime()
-        if timestamp_name == "updated_at":
+        if timestamp_name.upper() == KnowledgeBase.FIELD_UPDATED_AT.upper():
             column_list = [KnowledgeBase.FIELD_UPDATED_AT]
             value_list = [timestamp]
-        elif timestamp_name == "last_result_created_at":
+        elif (
+            timestamp_name.upper() == KnowledgeBase.FIELD_LAST_RESULT_CREATED_AT.upper()
+        ):
             column_list = [
                 KnowledgeBase.FIELD_LAST_RESULT_CREATED_AT,
                 KnowledgeBase.FIELD_UPDATED_AT,
             ]
             value_list = [timestamp, timestamp]
-        elif timestamp_name == "data_updated_at":
+        elif timestamp_name.upper() == KnowledgeBase.FIELD_DATA_UPDATED_AT.upper():
             column_list = [
                 KnowledgeBase.FIELD_DATA_UPDATED_AT,
                 KnowledgeBase.FIELD_UPDATED_AT,
             ]
             value_list = [timestamp, timestamp]
-        elif timestamp_name == "full_text_indexed_at":
+        elif timestamp_name.upper() == KnowledgeBase.FIELD_FULL_TEXT_INDEXED_AT.upper():
             column_list = [KnowledgeBase.FIELD_FULL_TEXT_INDEXED_AT]
             value_list = [timestamp]
         else:

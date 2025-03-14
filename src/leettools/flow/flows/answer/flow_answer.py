@@ -81,7 +81,9 @@ Search the web or local KB with the query and answer with source references:
         chat_query_item: ChatQueryItem,
         display_logger: EventLogger,
     ) -> ChatQueryResultCreate:
-        print("Running here in execute_query")
+        display_logger.debug(
+            f"Execute_query in KB {kb.name} for query: {chat_query_item.query_content}"
+        )
         exec_info = ExecInfo(
             context=self.context,
             org=org,
@@ -100,8 +102,6 @@ Search the web or local KB with the query and answer with source references:
             default_value=exec_info.settings.WEB_RETRIEVER,
             display_logger=display_logger,
         )
-
-        print(f"Running here in execute_query, retriever_type: {retriever_type}")
 
         reference_style = config_utils.get_str_option_value(
             options=flow_options,

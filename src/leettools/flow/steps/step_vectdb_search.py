@@ -1,3 +1,4 @@
+import os
 from typing import ClassVar, List, Type
 
 from leettools.common import exceptions
@@ -55,17 +56,22 @@ class StepVectorSearch(AbstractStep):
         search_section = exec_info.strategy.strategy_sections.get(
             StrategySectionName.SEARCH, None
         )
+
         default_searcher_type = settings.DEFAULT_SEARCHER_TYPE
 
         if search_section is None:
             display_logger.info(
-                "Search section is not provided. Using default settings."
+                f"Search section is not provided. Using default settings {default_searcher_type}."
             )
             top_k = settings.DEFAULT_SEARCH_TOP_K
             metric_type = "COSINE"
             searcher_type = SearcherType(default_searcher_type)
         else:
             if search_section.strategy_name is None:
+                display_logger.info(
+                    f"Search section is provided but no strategy name is provided. "
+                    f"Using default searcher type {default_searcher_type}."
+                )
                 searcher_type = SearcherType(default_searcher_type)
             else:
                 if search_section.strategy_name == "simple":

@@ -566,6 +566,10 @@ class SystemSettings(BaseModel):
             logger().debug(
                 f"The LEET_HOME env var is not set. Using {leet_home} as default. "
             )
+        else:
+            logger().debug(
+                f"The LEET_HOME env var is set to {leet_home}. Using it as the home directory."
+            )
 
         # create the leet_home directory if it does not exist
         if not os.path.exists(leet_home):
@@ -592,6 +596,7 @@ class SystemSettings(BaseModel):
 
             env_var_name = f"{ENV_VAR_PREFIX}{field_name.upper()}"
             env_var = os.environ.get(env_var_name, None)
+            logger().debug(f"Checking env variable: {env_var_name}, value is {env_var}")
 
             if env_var is not None:
 

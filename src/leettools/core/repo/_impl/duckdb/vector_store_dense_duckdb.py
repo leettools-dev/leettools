@@ -39,7 +39,8 @@ SIMILARITY_METRIC_ATTR = "similarity_metric"
 class VectorStoreDuckDBDense(AbstractVectorStore):
     def __init__(self, context: Context) -> None:
         """Initialize DuckDB connection."""
-        logger().debug("Initializing VectorStoreDuckDBDense")
+        self.display_logger = logger()
+        self.display_logger.debug("Initializing VectorStoreDuckDBDense")
         self.context = context
         self.settings = context.settings
         self.duckdb_client = DuckDBClient(self.settings)
@@ -75,17 +76,18 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
     def _batch_upsert_embeddings(
         self, table_name: str, segments: List[Segment]
     ) -> None:
+        # the lock is already acquired in the caller
+
         # get a list of segment_uuids
         segment_uuids = [segment.segment_uuid for segment in segments]
         # delete the existing embeddings for the segment_uuids
         where_clause = f"WHERE {Segment.FIELD_SEGMENT_UUID} IN ({','.join(['?'] * len(segment_uuids))})"
         value_list = segment_uuids
-        with self.index_lock[table_name]:
-            self.duckdb_client.delete_from_table(
-                table_name=table_name,
-                where_clause=where_clause,
-                value_list=value_list,
-            )
+        self.duckdb_client.delete_from_table(
+            table_name=table_name,
+            where_clause=where_clause,
+            value_list=value_list,
+        )
 
         # insert the new embeddings for the segment_uuids
         column_list = [
@@ -115,12 +117,15 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 segment.segment_uuid,
             ]
             value_list.append(item_list)
-        with self.index_lock[table_name]:
-            self.duckdb_client.batch_insert_into_table(
-                table_name=table_name,
-                column_list=column_list,
-                values=value_list,
-            )
+
+        self.duckdb_client.batch_insert_into_table(
+            table_name=table_name,
+            column_list=column_list,
+            values=value_list,
+        )
+        self.display_logger.debug(
+            f"Upserted {len(segments)} embeddings into {table_name}"
+        )
 
     def _get_embedding(
         self, dense_embedder: AbstractDenseEmbedder, texts: List[str]
@@ -210,8 +215,12 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             with ThreadPoolExecutor(max_workers=10) as executor:
                 executor.map(partial_batch_upsert_embeddings, insert_batches)
 
+        self.display_logger.debug(f"Batch upserted {len(segments_with_embeddings)}")
+
         # the index needs to be updated when the vector store is updated
-        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
+        self.kb_manager.update_kb_timestamp(
+            org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
+        )
         return True
 
     def save_segments(
@@ -240,7 +249,9 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 where_clause=where_clause,
                 value_list=value_list,
             )
-        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
+        self.kb_manager.update_kb_timestamp(
+            org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
+        )
         return True
 
     def delete_segment_vectors_by_docsink_uuid(
@@ -259,7 +270,9 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 where_clause=where_clause,
                 value_list=value_list,
             )
-        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
+        self.kb_manager.update_kb_timestamp(
+            org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
+        )
         return True
 
     def delete_segment_vectors_by_docsource_uuid(
@@ -284,7 +297,9 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                     org, kb, document.document_uuid
                 ):
                     deleted = True
-        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
+        self.kb_manager.update_kb_timestamp(
+            org, kb, KnowledgeBase.FIELD_CONTENT_UPDATED_AT
+        )
         return deleted
 
     def delete_segment_vectors_by_document_id(
@@ -302,7 +317,9 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 where_clause=where_clause,
                 value_list=value_list,
             )
-        self.kb_manager.update_kb_timestamp(org, kb, "content_updated_at")
+        self.kb_manager.update_kb_timestamp(
+            org, kb, KnowledgeBase.FIELD_CONTENT_UPDATED_AT
+        )
         return True
 
     def get_segment_vector(
@@ -435,7 +452,9 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                     f"kb.data_updated_at is None, building full text index for kb {kb.name}..."
                 )
                 self._rebuild_full_text_index(org, kb, user)
-                self.kb_manager.update_kb_timestamp(org, kb, "data_updated_at")
+                self.kb_manager.update_kb_timestamp(
+                    org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
+                )
             elif kb.full_text_indexed_at < kb.data_updated_at:
                 logger().info(
                     f"kb.full_text_indexed_at {kb.full_text_indexed_at} is less than kb.data_updated_at {kb.data_updated_at}, rebuilding full text index for kb {kb.name}..."
@@ -497,7 +516,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             stopwords = 'english', ignore = '(\\.|[^a-z])+',
             strip_accents = 1, lower = 1, overwrite = 1)        
         """
-        logger().info(
+        logger().debug(
             f"Building the full text index for table {table_name}: {rebuild_fts_index_sql}"
         )
         # use performance timer to measure the time it takes to rebuild the index
@@ -515,7 +534,9 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             elapsed_time = end_time - start_time
             if success:
                 logger().info(f"Building full text index costs: {elapsed_time} seconds")
-                self.kb_manager.update_kb_timestamp(org, kb, "full_text_indexed_at")
+                self.kb_manager.update_kb_timestamp(
+                    org, kb, KnowledgeBase.FIELD_FULL_TEXT_INDEXED_AT
+                )
             else:
                 logger().error(
                     f"Failed to rebuild the full text index: {elapsed_time} milliseconds"

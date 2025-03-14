@@ -53,7 +53,7 @@ def create_searcher_for_kb(
 
     We need the kb in some cases to determine the embedder type.
     """
-    print(f"Running here in create_searcher_for_kb, searcher_type: {searcher_type}")
+    logger().info(f"Create_searcher_for_kb:searcher_type: {searcher_type}")
 
     if searcher_type is None:
         searcher_type = SearcherType.SIMPLE
