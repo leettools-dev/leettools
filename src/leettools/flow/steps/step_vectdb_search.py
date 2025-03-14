@@ -78,7 +78,7 @@ class StepVectorSearch(AbstractStep):
                     display_logger.warning(
                         f"Unknown searcher type: {search_section.strategy_name}. Using SIMPLE searcher."
                     )
-                    searcher_type = SearcherType.SIMPLE
+                    searcher_type = context.settings.DEFAULT_SEARCHER_TYPE
 
             if search_section.strategy_options is None:
                 top_k = settings.DEFAULT_SEARCH_TOP_K

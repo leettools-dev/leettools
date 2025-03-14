@@ -1,5 +1,4 @@
 import inspect
-import io
 import logging
 import os
 import sys
@@ -37,7 +36,6 @@ class EventLogger:
     def get_thread_local_instance() -> "EventLogger":
         if hasattr(thread_local, "logger"):
             return thread_local.logger
-
         thread_name = f"{threading.current_thread().name}-{threading.get_native_id()}"
         logger = EventLogger.get_instance(name=thread_name)
         thread_local.logger = logger

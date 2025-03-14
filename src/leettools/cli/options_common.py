@@ -15,9 +15,9 @@ def common_options(f):
         "-l",
         "--log-level",
         "log_level",
-        default="WARNING",
+        default=None,
         type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False),
-        help="Set the logging level",
+        help="Set the logging level, if not specified, using env variable EDS_LOG_LEVEL",
         show_default=True,
         callback=_set_log_level,
     )
@@ -65,8 +65,6 @@ def common_options(f):
 def _set_log_level(ctx, param, value: str) -> str:
     if value:
         EventLogger.set_global_default_level(value.upper())
-    else:
-        EventLogger.set_global_default_level("WARNING")
     return value
 
 

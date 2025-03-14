@@ -268,6 +268,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         chat_query_item: ChatQueryItem,
         display_logger: EventLogger,
     ) -> ChatQueryResultCreate:
+        print("Running here in HistoryManagerDuckDB._execute_flow_for_query")
         try:
             display_logger.debug(
                 f"Getting answer for query: {chat_query_item.query_content}"
@@ -830,11 +831,13 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         chat_query_item: ChatQueryItem,
     ) -> ChatQueryResult:
 
+        print("Running here in HistoryManagerDuckDB.1")
+
         logger_name, query_logger = get_logger_for_chat(
             chat_id=chat_query_item.chat_id,
             query_id=chat_query_item.query_id,
         )
-
+        print("Running here in HistoryManagerDuckDB.2")
         try:
             query_logger.info(f"[Status]Query started: {chat_query_item.query_content}")
             chat_query_result_create: ChatQueryResultCreate = (
@@ -846,7 +849,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                     display_logger=query_logger,
                 )
             )
-
+            print("Running here in HistoryManagerDuckDB.3")
             if chat_query_result_create is not None:
                 query_logger.info("[Status]Saving results.")
                 chat_query_result = self._add_answers_to_chat(
@@ -856,7 +859,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                     chat_query_item=chat_query_item,
                     chat_query_result_create=chat_query_result_create,
                 )
-
+                print("Running here in HistoryManagerDuckDB.4")
                 query_logger.info("[Status]Query completed.")
                 self._update_kb_timestamp(org, kb)
                 return chat_query_result

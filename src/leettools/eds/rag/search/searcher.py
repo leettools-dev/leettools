@@ -53,6 +53,8 @@ def create_searcher_for_kb(
 
     We need the kb in some cases to determine the embedder type.
     """
+    print(f"Running here in create_searcher_for_kb, searcher_type: {searcher_type}")
+
     if searcher_type is None:
         searcher_type = SearcherType.SIMPLE
 
@@ -151,7 +153,7 @@ def search(query: str, searcher_type: SearcherType, kb_name: str) -> None:
         rewritten_query=query,
         top_k=top_k,
         search_params=search_params,
-        query_meta=ChatQueryMetadata(intention=DEFAULT_INTENTION),
+        query_meta=ChatQueryMetadata(),
         filter=filter,
     )
     dense_vector = 0

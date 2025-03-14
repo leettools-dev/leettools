@@ -8,9 +8,8 @@ from leettools.chat.history_manager import get_history_manager
 from leettools.cli import cli_utils
 from leettools.cli.cli_utils import DELIM_LINE, load_params_from_file, parse_name_value
 from leettools.cli.options_common import common_options
-from leettools.common.logging import logger
+from leettools.common.logging.event_logger import EventLogger, logger
 from leettools.context_manager import ContextManager
-from leettools.core.knowledgebase.kb_manager import get_kb_name_from_query
 from leettools.flow.flow_manager import FlowManager
 from leettools.flow.flow_type import FlowType
 from leettools.flow.utils import flow_utils
@@ -24,10 +23,10 @@ def _run_flow_cli(
     org_name: str,
     kb_name: str,
     username: str,
+    display_logger: EventLogger,
     **kwargs,
 ) -> str:
-    display_loggger = logger()
-    display_loggger.debug(f"The query is: [{query}]")
+    display_logger.debug(f"The query is: [{query}]")
     # remove the quotes at the beginning and end of the query
     query = query.strip('"').strip("'").strip()
 
@@ -53,7 +52,7 @@ def _run_flow_cli(
         flow_options=flow_options,
         kb_description=kb_description,
         ad_hoc_kb=True,
-        display_logger=display_loggger,
+        display_logger=display_logger,
     )
 
     chat_query_result = history_manager.run_query_item(
@@ -164,11 +163,13 @@ def flow(
     username: str,
     **kwargs,
 ) -> None:
-
+    display_logger = logger()
+    display_logger.noop("Starting flow CLI", noop_lvl=3)
     try:
         context = ContextManager().get_context()
+        display_logger.noop("Getting flow manager", noop_lvl=3)
         flow_manager = FlowManager(context.settings)
-
+        display_logger.noop("Flow manager initialized", noop_lvl=3)
         if list:
             for name, flow_class in flow_manager.flow_classes.items():
                 click.echo(f"{name:<15}: {flow_class.short_description()}")
@@ -282,7 +283,7 @@ def flow(
                 click.echo(f"[Parameter Error  ] {msg}", err=True)
             return
 
-        logger().info(f"Loaded flow_options: {flow_options}")
+        display_logger.info(f"Loaded flow_options: {flow_options}")
 
         result_article = _run_flow_cli(**locals())
 

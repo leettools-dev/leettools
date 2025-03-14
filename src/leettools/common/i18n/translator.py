@@ -28,7 +28,7 @@ class Translator(metaclass=SingletonMetaTranslation):
             lang = self.default_language
 
         if lang in self.translation_cache:
-            logger().noop(f"Translator cache hit for language: {lang}", noop_lvl=3)
+            logger().noop(f"Translator cache hit for language: {lang}", noop_lvl=4)
             return self.translation_cache[lang]
 
         locale_path = os.path.join(self.locales_dir, lang, "LC_MESSAGES", "messages.mo")
