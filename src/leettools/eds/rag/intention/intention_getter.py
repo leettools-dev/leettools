@@ -8,8 +8,6 @@ from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.schemas.user import User
 from leettools.core.strategy.schemas.strategy_section import StrategySection
 
-DEFAULT_INTENTION = "default"
-
 
 class AbstractIntentionGetter(ABC):
 

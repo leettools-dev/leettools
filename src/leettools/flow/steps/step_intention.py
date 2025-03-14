@@ -1,10 +1,12 @@
 from typing import ClassVar, List, Type
 
-from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
+from leettools.core.schemas.chat_query_metadata import (
+    DEFAULT_INTENTION,
+    ChatQueryMetadata,
+)
 from leettools.core.strategy.schemas.strategy_section import StrategySection
 from leettools.core.strategy.schemas.strategy_section_name import StrategySectionName
 from leettools.eds.rag.intention.intention_getter import (
-    DEFAULT_INTENTION,
     get_intention_getter_by_strategy,
 )
 from leettools.flow.exec_info import ExecInfo

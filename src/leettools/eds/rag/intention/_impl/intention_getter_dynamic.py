@@ -8,17 +8,17 @@ from leettools.common.exceptions import UnexpectedCaseException
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils.template_eval import render_template
 from leettools.context_manager import Context, ContextManager
-from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
+from leettools.core.schemas.chat_query_metadata import (
+    DEFAULT_INTENTION,
+    ChatQueryMetadata,
+)
 from leettools.core.schemas.user import User
 from leettools.core.strategy.schemas.strategy_display_settings import (
     StrategySectionName,
 )
 from leettools.core.strategy.schemas.strategy_section import StrategySection
 from leettools.eds.api_caller.api_caller_base import APICallerBase
-from leettools.eds.rag.intention.intention_getter import (
-    DEFAULT_INTENTION,
-    AbstractIntentionGetter,
-)
+from leettools.eds.rag.intention.intention_getter import AbstractIntentionGetter
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -75,7 +75,7 @@ class IntentionGetterDynamic(AbstractIntentionGetter, APICallerBase):
                 trace = traceback.format_exc()
                 self.display_logger.error(f"Failed to get intention: {trace}")
             self.display_logger.info(f"Using default intention: {DEFAULT_INTENTION}")
-            return ChatQueryMetadata(intention=DEFAULT_INTENTION)
+            return ChatQueryMetadata()
 
 
 @click.command()

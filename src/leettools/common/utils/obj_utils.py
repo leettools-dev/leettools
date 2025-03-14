@@ -126,19 +126,19 @@ def assign_properties(source_obj: Any, dest_obj: Any, override: bool = False) ->
         ):
             logger().noop(
                 f"Checking attribute: {attr_name} from source to target",
-                noop_lvl=3,
+                noop_lvl=4,
             )
             source_value = getattr(source_obj, attr_name)
             logger().noop(
                 f"The source type is {type(source_value)}, value is {source_value}",
-                noop_lvl=3,
+                noop_lvl=4,
             )
             if hasattr(dest_obj, attr_name):
                 # runtime object type does not work. None value has type <NoneType>
                 # so the type checking can only be done when the target has the attribute
                 logger().noop(
                     f"The target attribute has type {type(getattr(dest_obj, attr_name))}",
-                    noop_lvl=3,
+                    noop_lvl=4,
                 )
                 if attr_name in dest_obj.__dict__:
                     dest_value = dest_obj.__dict__[attr_name]
@@ -150,7 +150,7 @@ def assign_properties(source_obj: Any, dest_obj: Any, override: bool = False) ->
                     ):
                         logger().noop(
                             f"The value of attribute: {attr_name} is None or empty, assigning",
-                            noop_lvl=3,
+                            noop_lvl=4,
                         )
                         target_value = copy.deepcopy(source_value)
                         setattr(dest_obj, attr_name, target_value)
@@ -161,25 +161,25 @@ def assign_properties(source_obj: Any, dest_obj: Any, override: bool = False) ->
                             ):
                                 logger().noop(
                                     f"The value of attribute: {attr_name} is not None, overriding",
-                                    noop_lvl=3,
+                                    noop_lvl=4,
                                 )
                                 target_value = copy.deepcopy(source_value)
                                 setattr(dest_obj, attr_name, target_value)
                             else:
                                 logger().noop(
                                     f"Target object has attribute: {attr_name} but the type is different",
-                                    noop_lvl=3,
+                                    noop_lvl=4,
                                 )
                         else:
                             # the value is already set and we don't want to override it
                             logger().noop(
                                 f"The value of attribute: {attr_name} is not None, skipping",
-                                noop_lvl=3,
+                                noop_lvl=4,
                             )
                 else:
                     logger().noop(
                         f"The attribute: {attr_name} does not exist in the target object, assigning",
-                        noop_lvl=3,
+                        noop_lvl=4,
                     )
                     target_value = copy.deepcopy(source_value)
                     if attr_name not in [
@@ -193,7 +193,7 @@ def assign_properties(source_obj: Any, dest_obj: Any, override: bool = False) ->
             else:
                 logger().noop(
                     f"Target object does not have attribute: {attr_name} skipping",
-                    noop_lvl=3,
+                    noop_lvl=4,
                 )
     else:
         # the attribute is either internal or a function

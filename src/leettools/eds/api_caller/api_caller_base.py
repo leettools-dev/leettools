@@ -12,13 +12,15 @@ from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils.file_utils import read_template_file
 from leettools.context_manager import Context
-from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
+from leettools.core.schemas.chat_query_metadata import (
+    DEFAULT_INTENTION,
+    ChatQueryMetadata,
+)
 from leettools.core.schemas.user import User
 from leettools.core.strategy.schemas.strategy_section import StrategySection
 from leettools.core.strategy.schemas.strategy_section_name import StrategySectionName
 from leettools.eds.api_caller import api_utils
 from leettools.eds.api_caller.rerank_client import AbstractRerankClient
-from leettools.eds.rag.intention.intention_getter import DEFAULT_INTENTION
 
 
 class APICallerBase:

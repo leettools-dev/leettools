@@ -71,6 +71,12 @@ class AbstractVectorStore(ABC):
         """
         pass
 
+    def support_full_text_search(self) -> bool:
+        """
+        Whether the store supports full text search.
+        """
+        return False
+
     @abstractmethod
     def search_in_kb(
         self,
@@ -81,6 +87,8 @@ class AbstractVectorStore(ABC):
         top_k: int,
         search_params: Dict[str, Any] = None,
         filter: Filter = None,
+        full_text_search: bool = False,
+        rebuild_full_text_index: bool = False,
     ) -> List[VectorSearchResult]:
         """
         Search for segments in the store.
@@ -93,7 +101,8 @@ class AbstractVectorStore(ABC):
         - top_k: The number of results to return.
         - search_params: The parameters to use for the search.
         - filter: The filter expression to use for the search.
-
+        - full_text_search: Whether to use full text search.
+        - rebuild_full_text_index: Whether to rebuild the full text index.
         Returns:
         - A list of segment ids that match the query.
         """

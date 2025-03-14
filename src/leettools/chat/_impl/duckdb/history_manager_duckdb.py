@@ -1,4 +1,5 @@
 import json
+import time
 import traceback
 import uuid
 from functools import cmp_to_key
@@ -361,7 +362,9 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
 
     def _update_kb_timestamp(self, org: Org, kb: KnowledgeBase) -> None:
         try:
-            self.kb_manager.update_kb_timestamp(org, kb)
+            kb = self.kb_manager.update_kb_timestamp(
+                org, kb, KnowledgeBase.FIELD_LAST_RESULT_CREATED_AT
+            )
         except Exception as e:
             logger().error(f"Error updating KB timestamp: {e}. Exception ignored.")
 
@@ -829,12 +832,11 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         user: User,
         chat_query_item: ChatQueryItem,
     ) -> ChatQueryResult:
-
+        start_time = time.perf_counter()
         logger_name, query_logger = get_logger_for_chat(
             chat_id=chat_query_item.chat_id,
             query_id=chat_query_item.query_id,
         )
-
         try:
             query_logger.info(f"[Status]Query started: {chat_query_item.query_content}")
             chat_query_result_create: ChatQueryResultCreate = (
@@ -846,7 +848,6 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                     display_logger=query_logger,
                 )
             )
-
             if chat_query_result_create is not None:
                 query_logger.info("[Status]Saving results.")
                 chat_query_result = self._add_answers_to_chat(
@@ -856,7 +857,6 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                     chat_query_item=chat_query_item,
                     chat_query_result_create=chat_query_result_create,
                 )
-
                 query_logger.info("[Status]Query completed.")
                 self._update_kb_timestamp(org, kb)
                 return chat_query_result
@@ -865,6 +865,9 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 query_logger.info("[Status]Query failed or not completed.")
                 return None
         finally:
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+            query_logger.info(f"[Query Runtime]{elapsed_time} seconds.")
             remove_logger(logger_name)
 
     def update_ch_entry(self, ch_update: CHUpdate) -> Optional[ChatHistory]:

@@ -15,6 +15,7 @@ from leettools.cli.options_common import common_options
 from leettools.cli.parser import parser_cli
 from leettools.cli.query import query_cli
 from leettools.common import exceptions
+from leettools.common.logging import logger
 from leettools.context_manager import Context
 
 
@@ -97,7 +98,11 @@ def main():
     context.is_svc = False
     context.name = context.EDS_CLI_CONTEXT_PREFIX
 
+    display_logger = logger()
+
+    display_logger.noop("Adding extension CLI", noop_lvl=3)
     _add_extension_cli(context)
+    display_logger.noop("Running CLI", noop_lvl=3)
     try:
         run()
     except exceptions.EdsExceptionBase as leettools_exception:

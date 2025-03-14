@@ -256,8 +256,8 @@ def test_search_in_kb(
         assert results[0].segment_uuid == segment.segment_uuid
 
         # test full text search
-        vector_store.rebuild_full_text_index(org, kb, user)
-        results = vector_store.full_text_search_in_kb(org, kb, user, query, top_k)
+        vector_store._rebuild_full_text_index(org, kb, user)
+        results = vector_store._full_text_search_in_kb(org, kb, user, query, top_k)
         assert len(results) > 0
         assert results[0].segment_uuid == segment.segment_uuid
 

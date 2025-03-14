@@ -23,6 +23,7 @@ class AbstractFlow(ABC, FlowComponent):
         self.context = context
         self.settings = context.settings
         self.display_logger = logger()
+        self.display_logger.noop(f"Flow {self.FLOW_TYPE} initialized", noop_lvl=3)
 
     @abstractmethod
     def execute_query(

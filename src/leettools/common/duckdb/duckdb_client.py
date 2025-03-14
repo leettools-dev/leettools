@@ -84,15 +84,11 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             with self._get_table_lock(table_name):
                 cursor.execute(insert_sql, flattened_values)
 
-    def get_table(
+    def get_table_from_cache(
         self,
         schema_name: str,
         table_name: str,
     ) -> str:
-        if schema_name is None:
-            raise ValueError("schema_name cannot be None")
-        if table_name is None:
-            raise ValueError("table_name cannot be None")
         table_key = f"{schema_name}.{table_name}"
         with self._get_table_lock(table_name):
             table_name_in_db = self.created_tables.get(table_key)
@@ -142,15 +138,27 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 new_table_name = "t" + new_table_name
 
             with self.conn.cursor() as cursor:
-                result = cursor.execute(
-                    f"""
-                    SELECT name 
-                    FROM sqlite_master 
-                    WHERE sql like '%{new_schema_name}.{new_table_name}%'
-                    """,
-                ).fetchone()
+                # Check if table exists
+                try:
+                    existing_schema = cursor.execute(
+                        f"""
+                        SELECT name, type 
+                        FROM pragma_table_info('{new_schema_name}.{new_table_name}')
+                        """
+                    ).fetchall()
+                except Exception as e:
+                    existing_schema = None
 
-                if result is None:
+                # result = cursor.execute(
+                #     f"""
+                #     SELECT sql
+                #     FROM sqlite_master
+                #     WHERE type='table' AND sql LIKE '%{new_schema_name}.{new_table_name}%'
+                #     """,
+                # ).fetchone()
+
+                if existing_schema is None or len(existing_schema) == 0:
+                    # Create new table if it doesn't exist
                     if create_sequence_sql is not None:
                         cursor.execute(create_sequence_sql)
 
@@ -162,6 +170,55 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                         noop_lvl=2,
                     )
                     cursor.execute(create_table_sql)
+                else:
+                    logger().info(
+                        f"Table {new_schema_name}.{new_table_name} already exists. "
+                        f"Checking the schema of the table",
+                    )
+                    logger().noop(
+                        f"Existing schema: {existing_schema}",
+                        noop_lvl=3,
+                    )
+                    existing_columns = {col[0]: col[1] for col in existing_schema}
+
+                    # Check for column type mismatches
+                    for col_name, col_type in columns.items():
+                        logger().noop(
+                            f"Checking column {col_name} with type {col_type}",
+                            noop_lvl=3,
+                        )
+                        if col_name in existing_columns:
+                            # Extract base type by taking the first word, ignoring constraints
+                            existing_base_type = (
+                                existing_columns[col_name].upper().split()[0]
+                            )
+                            new_base_type = col_type.upper().split()[0]
+
+                            # Handle TEXT/VARCHAR equivalence
+                            if (
+                                existing_base_type == "VARCHAR"
+                                and new_base_type == "TEXT"
+                            ):
+                                continue
+                            if (
+                                existing_base_type == "TEXT"
+                                and new_base_type == "VARCHAR"
+                            ):
+                                continue
+
+                            if existing_base_type != new_base_type:
+                                raise exceptions.UnexpectedCaseException(
+                                    f"Column base type mismatch for {col_name}: existing {existing_base_type} vs new {new_base_type}"
+                                )
+                        else:
+                            # Add new column
+                            alter_sql = f"""
+                            ALTER TABLE {new_schema_name}.{new_table_name} 
+                            ADD COLUMN {col_name} {col_type}
+                            """
+                            logger().info(f"Adding new column: {alter_sql}")
+                            cursor.execute(alter_sql)
+
                 self.created_tables[table_key] = f"{new_schema_name}.{new_table_name}"
                 return self.created_tables[table_key]
 

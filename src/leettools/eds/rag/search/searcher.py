@@ -9,7 +9,10 @@ from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context, ContextManager
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
-from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
+from leettools.core.schemas.chat_query_metadata import (
+    DEFAULT_INTENTION,
+    ChatQueryMetadata,
+)
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.segment import SearchResultSegment, Segment
@@ -50,6 +53,8 @@ def create_searcher_for_kb(
 
     We need the kb in some cases to determine the embedder type.
     """
+    logger().info(f"Create_searcher_for_kb:searcher_type: {searcher_type}")
+
     if searcher_type is None:
         searcher_type = SearcherType.SIMPLE
 
@@ -71,6 +76,10 @@ def create_searcher_for_kb(
         from ._impl.searcher_hybrid import SearcherHybrid
 
         return SearcherHybrid(context)
+    elif searcher_type == SearcherType.BM25_DENSE:
+        from ._impl.searcher_bm25_dense import SearcherBM25Dense
+
+        return SearcherBM25Dense(context)
     else:
         raise UnexpectedCaseException(f"Unexpected rerank strategy: {searcher_type}")
 
