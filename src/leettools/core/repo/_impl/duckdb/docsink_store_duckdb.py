@@ -28,10 +28,9 @@ _DOCSINK_COLLECTION_SUFFIX = "_docsinks"
 class DocsinkStoreDuckDB(AbstractDocsinkStore):
     """DocSinkStore implementation using DuckDB as the backend."""
 
-    def __init__(self, settings: SystemSettings, is_test: bool = False) -> None:
+    def __init__(self, settings: SystemSettings) -> None:
         """Initialize DuckDB connection."""
         self.settings = settings
-        self.is_test = is_test
         self.duckdb_client = DuckDBClient(settings)
 
     def _clean_up_related_data(self, org: Org, kb: KnowledgeBase, docsink: DocSink):
@@ -234,8 +233,7 @@ class DocsinkStoreDuckDB(AbstractDocsinkStore):
             where_clause=where_clause,
         )
 
-        if not self.is_test:
-            self._clean_up_related_data(org, kb, docsink)
+        self._clean_up_related_data(org, kb, docsink)
         return True
 
     def get_docsink_by_id(

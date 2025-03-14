@@ -2,10 +2,11 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
+from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.context_manager import Context
@@ -139,12 +140,12 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
 
     def _get_table_name(
         self, org: Org, kb: KnowledgeBase, dense_embedder_dimension: int = None
-    ) -> str:
+    ) -> Optional[str]:
         """Get the dynamic table name for the org and kb combination."""
         org_db_name = Org.get_org_db_name(org.org_id)
         collection_name = f"kb_{kb.kb_id}{DENSE_VECTOR_COLLECTION_SUFFIX}"
 
-        if dense_embedder_dimension is not None:
+        if dense_embedder_dimension is not None and dense_embedder_dimension > 0:
             install_fts_sql = "INSTALL fts; LOAD fts;"
             table_name = self.duckdb_client.create_table_if_not_exists(
                 schema_name=org_db_name,
@@ -158,9 +159,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 org_db_name, collection_name
             )
             if table_name is None:
-                raise exceptions.UnexpectedCaseException(
-                    f"Table {collection_name} not found in cache"
-                )
+                return None
 
         if self.index_lock.get(table_name) is None:
             self.index_lock[table_name] = threading.RLock()

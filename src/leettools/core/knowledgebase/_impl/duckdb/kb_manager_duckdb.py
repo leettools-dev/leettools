@@ -166,6 +166,9 @@ class KBManagerDuckDB(AbstractKBManager):
         for docsource in docsource_store.get_docsources_for_kb(org, kb_in_db):
             docsource_store.delete_docsource(org, kb_in_db, docsource)
 
+        logger().info(f"Removed all the docsources for the knowledge base {kb_name}")
+        # TODO: stop all the tasks for the knowledge base
+
         table_name = self._get_table_name(org)
         kb_delete = kb_in_db.model_copy()
         kb_delete.name = kb_name + "_deleted_" + str(time_utils.current_datetime())
@@ -187,7 +190,6 @@ class KBManagerDuckDB(AbstractKBManager):
             where_clause=where_clause,
         )
 
-        # TODO: stop all the tasks for the knowledge base
         return True
 
     def get_all_kbs_for_org(

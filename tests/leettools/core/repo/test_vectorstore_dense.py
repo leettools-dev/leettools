@@ -375,6 +375,8 @@ def _test_get_segment_vector(
     # Verify the vector matches the segment's embeddings
     assert result is not None
     assert len(result) > 0
-    precision = 1000000
     for i in range(len(result)):
-        assert int(result[i] * precision) == int(segment.embeddings[i] * precision)
+        if abs(result[i] - segment.embeddings[i]) > 1e-6:
+            assert (
+                False
+            ), f"result[i]: {result[i]}, segment.embeddings[i]: {segment.embeddings[i]}"

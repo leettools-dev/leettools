@@ -25,7 +25,7 @@ def test_splitter():
         try:
             _test_function(context, org, kb)
         finally:
-            temp_setup.clear_tmp_org_kb_user(org, kb)
+            temp_setup.clear_tmp_org_kb_user(org, kb, user)
 
 
 def _test_function(context: Context, org: Org, kb: KnowledgeBase):
