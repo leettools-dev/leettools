@@ -2,10 +2,11 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
+from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.context_manager import Context
@@ -47,7 +48,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         self.kb_manager = context.get_kb_manager()
         # a table name to lock
         # need to get the lock before updating the content of the store
-        self.index_lock: Dict[str, threading.Lock] = {}
+        self.index_lock: Dict[str, threading.RLock] = {}
 
     def support_full_text_search(self) -> bool:
         return True
@@ -139,12 +140,12 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
 
     def _get_table_name(
         self, org: Org, kb: KnowledgeBase, dense_embedder_dimension: int = None
-    ) -> str:
+    ) -> Optional[str]:
         """Get the dynamic table name for the org and kb combination."""
         org_db_name = Org.get_org_db_name(org.org_id)
         collection_name = f"kb_{kb.kb_id}{DENSE_VECTOR_COLLECTION_SUFFIX}"
 
-        if dense_embedder_dimension is not None:
+        if dense_embedder_dimension is not None and dense_embedder_dimension > 0:
             install_fts_sql = "INSTALL fts; LOAD fts;"
             table_name = self.duckdb_client.create_table_if_not_exists(
                 schema_name=org_db_name,
@@ -158,12 +159,10 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 org_db_name, collection_name
             )
             if table_name is None:
-                raise exceptions.UnexpectedCaseException(
-                    f"Table {collection_name} not found in cache"
-                )
+                return None
 
         if self.index_lock.get(table_name) is None:
-            self.index_lock[table_name] = threading.Lock()
+            self.index_lock[table_name] = threading.RLock()
 
         return table_name
 
@@ -307,7 +306,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 ):
                     deleted = True
         kb = self.kb_manager.update_kb_timestamp(
-            org, kb, KnowledgeBase.FIELD_CONTENT_UPDATED_AT
+            org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
         )
         return deleted
 
@@ -327,7 +326,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 value_list=value_list,
             )
         kb = self.kb_manager.update_kb_timestamp(
-            org, kb, KnowledgeBase.FIELD_CONTENT_UPDATED_AT
+            org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
         )
         return True
 

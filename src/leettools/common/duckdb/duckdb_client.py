@@ -1,6 +1,6 @@
 from pathlib import Path
 from threading import Lock
-from typing import Any, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 
 import duckdb
 
@@ -15,6 +15,30 @@ class SingletonMetaDuckDB(SingletonMeta):
 
 
 class DuckDBClient(metaclass=SingletonMetaDuckDB):
+
+    # mapping from defined schema to existing stored type if different
+    # see [Readme.md](./Readme.md) for more details
+    TYPE_MAP: ClassVar[Dict[str, str]] = {
+        "TEXT": "VARCHAR",
+        "INT": "INTEGER",
+        "CHAR": "VARCHAR",
+        "CHARACTER": "VARCHAR",
+        "STRING": "VARCHAR",
+        "TINYINT": "INTEGER",
+        "SMALLINT": "INTEGER",
+        "INT2": "INTEGER",
+        "INT4": "INTEGER",
+        "BIGINT": "BIGINT",
+        "INT8": "BIGINT",
+        "FLOAT": "REAL",
+        "REAL": "REAL",
+        "DOUBLE": "DOUBLE",
+        "DOUBLE PRECISION": "DOUBLE",
+        "DECIMAL": "DECIMAL",
+        "NUMERIC": "DECIMAL",
+        "DATETIME": "TIMESTAMP",
+    }
+
     def __init__(self, settings: SystemSettings):
         if not hasattr(
             self, "initialized"
@@ -194,19 +218,13 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                             )
                             new_base_type = col_type.upper().split()[0]
 
-                            # Handle TEXT/VARCHAR equivalence
-                            if (
-                                existing_base_type == "VARCHAR"
-                                and new_base_type == "TEXT"
-                            ):
-                                continue
-                            if (
-                                existing_base_type == "TEXT"
-                                and new_base_type == "VARCHAR"
-                            ):
-                                continue
-
                             if existing_base_type != new_base_type:
+                                if (
+                                    self.TYPE_MAP.get(new_base_type)
+                                    == existing_base_type
+                                ):
+                                    continue
+
                                 raise exceptions.UnexpectedCaseException(
                                     f"Column base type mismatch for {col_name}: existing {existing_base_type} vs new {new_base_type}"
                                 )
