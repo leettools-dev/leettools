@@ -47,7 +47,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         self.kb_manager = context.get_kb_manager()
         # a table name to lock
         # need to get the lock before updating the content of the store
-        self.index_lock: Dict[str, threading.Lock] = {}
+        self.index_lock: Dict[str, threading.RLock] = {}
 
     def support_full_text_search(self) -> bool:
         return True
@@ -163,7 +163,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 )
 
         if self.index_lock.get(table_name) is None:
-            self.index_lock[table_name] = threading.Lock()
+            self.index_lock[table_name] = threading.RLock()
 
         return table_name
 
@@ -307,7 +307,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 ):
                     deleted = True
         kb = self.kb_manager.update_kb_timestamp(
-            org, kb, KnowledgeBase.FIELD_CONTENT_UPDATED_AT
+            org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
         )
         return deleted
 
@@ -327,7 +327,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
                 value_list=value_list,
             )
         kb = self.kb_manager.update_kb_timestamp(
-            org, kb, KnowledgeBase.FIELD_CONTENT_UPDATED_AT
+            org, kb, KnowledgeBase.FIELD_DATA_UPDATED_AT
         )
         return True
 
