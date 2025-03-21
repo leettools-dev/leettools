@@ -2,6 +2,8 @@ from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from leettools.chat.schemas.chat_history import ChatHistory, CHCreate, CHUpdate
+from leettools.common.logging import logger
+from leettools.common.logging.event_logger import EventLogger
 from leettools.common.temp_setup import TempSetup
 from leettools.context_manager import Context
 from leettools.core.consts.article_type import ArticleType
@@ -11,24 +13,31 @@ from leettools.core.schemas.chat_query_result import ChatQueryResult
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
+from leettools.settings import preset_store_types_for_tests
 from leettools.svc.api.v1.routers.chat_router import ChatRouter
 from leettools.svc.api.v1.routers.user_router import UserRouter
 
 
 def test_chat_router_dynamic():
-    temp_setup = TempSetup()
-    temp_setup.context.settings.DOC_STORE_TYPE = "duckdb"
-    context = temp_setup.context
 
-    org, kb, user = temp_setup.create_tmp_org_kb_user()
-    router = ChatRouter()
-    client = TestClient(router)
+    for store_types in preset_store_types_for_tests():
 
-    try:
-        _test_router(client, context, org, kb, user)
-        _test_router_async(client, context, org, kb, user)
-    finally:
-        temp_setup.clear_tmp_org_kb_user(org, kb)
+        logger().info(f"Testing vector store dense with {store_types}")
+
+        temp_setup = TempSetup()
+        context = temp_setup.context
+        context.settings.DOC_STORE_TYPE = store_types["doc_store"]
+        EventLogger.set_global_default_level("INFO")
+
+        org, kb, user = temp_setup.create_tmp_org_kb_user()
+        router = ChatRouter()
+        client = TestClient(router)
+
+        try:
+            _test_router(client, context, org, kb, user)
+            _test_router_async(client, context, org, kb, user)
+        finally:
+            temp_setup.clear_tmp_org_kb_user(org, kb)
 
 
 def _test_router(
@@ -347,6 +356,7 @@ def _test_router(
     )
     assert response.status_code == 200
     result = response.read()
+    print(result)
     assert " INFO " in str(result)
 
     # ideally we should use the async set up similar to test_job_router
