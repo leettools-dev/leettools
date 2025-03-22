@@ -4,6 +4,7 @@ from typing import List, Optional
 
 import click
 
+from leettools.chat.history_manager import get_history_manager
 from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
@@ -16,6 +17,7 @@ from leettools.core.repo.vector_store import (
     create_vector_store_dense,
     create_vector_store_sparse,
 )
+from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
@@ -31,6 +33,8 @@ from leettools.eds.rag.rewrite.rewrite import (
 )
 from leettools.eds.rag.schemas.rewrite import Rewrite
 from leettools.eds.rag.search._impl.searcher_hybrid import SearcherHybrid
+from leettools.flow.exec_info import ExecInfo
+from leettools.flow.utils import prompt_utils
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -54,6 +58,10 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
     def _get_context(
         self, org: Org, kb: KnowledgeBase, query: str, query_metadata: ChatQueryMetadata
     ) -> str:
+        """
+        Get the keywords from the query metadata and use them to search the knowledgebase
+        for the related context. Use the retrieved context as the context for the rewrite.
+        """
         if query_metadata.keywords is not None and query_metadata.keywords is not []:
             all_keywords: set[str] = set()
             for keyword in query_metadata.keywords:
@@ -131,15 +139,39 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
         return context
 
     def rewrite(
-        self, org: Org, kb: KnowledgeBase, query: str, query_metadata: ChatQueryMetadata
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        query_item: ChatQueryItem,
+        query_metadata: ChatQueryMetadata,
     ) -> Rewrite:
 
         self.setup_prompts_for_intention(query_metadata)
+        query = query_item.query_content
+
+        ch_manager = get_history_manager(self.context)
+        query_history = ch_manager.get_ch_entry(
+            username=self.user.username,
+            chat_id=query_item.chat_id,
+        )
+        if query_history is not None and query_history != "":
+            query_history_str = query_history.get_history_str(ignore_last=True)
+            query_history_instruction = (
+                "Here is the chat history:\n" + query_history_str
+            )
+        else:
+            query_history_instruction = ""
 
         context = self._get_context(org, kb, query, query_metadata)
 
         user_prompt = render_template(
-            self.user_prompt_template, {"question": query, "context": context}
+            self.user_prompt_template,
+            {
+                "question": query,
+                "context": context,
+                "query_history_instruction": query_history_instruction,
+                "date_instruction": prompt_utils.date_instruction(),
+            },
         )
         logger().debug(f"Final user prompt for rewrite: {user_prompt}")
 

@@ -39,7 +39,7 @@ class StrategyConfBase(BaseModel):
         "intention_list will be passed in the prompt.",
     )
 
-    rewrite: Optional[str] = Field(None, description="The query rewrite strategy")
+    rewrite: Optional[str] = Field("default", description="The query rewrite strategy")
     rewrite_options: Optional[Dict[str, Any]] = Field(
         None,
         description="The options for rewrite, right now support "

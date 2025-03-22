@@ -205,6 +205,9 @@ def run_inference_call_direct(
         display_logger.info(
             f"({completion.usage.total_tokens}) tokens used for ({call_target})."
         )
+    except Exception as e:
+        display_logger.error(f"Error in running inference call: {e}")
+        raise e
     finally:
         end_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
         if completion is not None:

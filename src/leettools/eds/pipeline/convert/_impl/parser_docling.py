@@ -112,8 +112,5 @@ class ParserDocling(AbstractParser):
         return self._convert(pptx_filepath, target_path)
 
     def xlsx2md(self, xlsx_filepath: str, target_path: Optional[Path] = None) -> str:
-        # not supported yet
-        logger().error(
-            f"XLSX to markdown conversion is not supported yet: {xlsx_filepath}"
-        )
-        return ""
+        logger().debug(f"Converting XLSX to markdown: {xlsx_filepath}")
+        return self._convert(xlsx_filepath, target_path)

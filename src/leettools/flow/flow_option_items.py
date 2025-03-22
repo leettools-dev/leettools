@@ -36,6 +36,7 @@ from leettools.core.consts.flow_option import (
     FLOW_OPTION_STRICT_CONTEXT,
     FLOW_OPTION_SUMMARIZING_MODEL,
     FLOW_OPTION_TARGET_SITE,
+    FLOW_OPTION_TIMEZONE,
     FLOW_OPTION_WORD_COUNT,
     FLOW_OPTION_WRITING_MODEL,
 )
@@ -304,6 +305,23 @@ def _num_of_sections(
         ),
         default_value=None,
         value_type="int",
+        explicit=explicit,
+        required=required,
+    )
+
+
+def _timezone(
+    explicit: Optional[bool] = False, required: Optional[bool] = False
+) -> FlowOptionItem:
+    return FlowOptionItem(
+        name=FLOW_OPTION_TIMEZONE,
+        display_name=_("Timezone"),
+        description=_(
+            "The timezone when determining the date. See https://docs.python.org/3/library/zoneinfo.html"
+        ),
+        default_value=None,
+        value_type="str",
+        example_value="UTC",
         explicit=explicit,
         required=required,
     )

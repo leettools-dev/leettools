@@ -1,41 +1,42 @@
-When users ask questions, they often do not provide enough information or 
-clear purposes. However, given a context about the question, we want to rewrite 
-the question so that the LLM can have a more clear goal and path to generate the 
-answer. Here are a few examples:
+[default rewrite user prompt]
 
-Example 1: 
-Context: The user is asking the question on a web site called google.com.
-Question: How can I create an account on the website?
-Rewrite: 
+{{ date_instruction }}
 
+When users ask questions, they often provide limited context or unclear objectives, making
+it challenging for an LLM to generate precise answers. Considering the previous query
+history if provided, rewrite the user's current question into a detailed and structured
+query, clearly stating the intent and outlining specific steps or information needed.
+Additionally, replace any pronouns or vague references (like "it" or "they") with specific
+terms to clarify exactly what is being referred to.
+
+Example:
+
+Original Question:
+How do I reset my password?
+
+Rewritten Question:
 {
-    "rewritten_question": “I want to create an account on the website like google.com, please 
-    show me a sequence of operations on the website and information I need in each step
-    to create an account.”
+    "rewritten_question": "I need to reset my password on the website. Provide a clear
+sequence of steps, including where on the website I should navigate, what information I'll
+need, and any verification steps involved.",
+    "search_keywords": "reset password steps website verification"
 }
 
-Example 2:
-Context: We are working on some C++ code.
-Question: My program is reporting an OOM error, what should I do?
-Rewrite: 
+Rewrite the following question into a clear, structured, and actionable set of 
+instructions to facilitate generating an accurate and useful answer. Be sure to explicitly
+clarify all pronouns or vague references. Additionally, generate a concise string containing
+relevant keywords suitable for performing an internet search to gather further information
+about the query. Using the user query history for context, if provided.
+
+{{ query_history_instruction }}
+
+Question:
+{{ question }}
+
+Output your response strictly in the following JSON format, ensuring the output is 
+formatted as JSON data, and not in a JSON block:
 
 {
-    "rewritten_question": "I am getting an OOM (out of memory) error in my C++ program, 
-    please provide me with a sequence of steps to diagnose and fix the error."
-}
-
-As illustrated by the above example, rewrite the given question, using the same language
-as the original question, as a list of instructions that lead to a clear path to generate
-the answer. Just output the rewritten query itself without any extra information:
-
-Context: {{ context }}
-
-Question: {{ question }}
-
-Please output your answer in the following format, ensuring the output is formatted as 
-JSON data, the rewritten question is in the same language as the input question, and 
-not in a JSON block:
-
-{
-    "rewritten_question": "rewritten_question"
+    "rewritten_question": "rewritten_question",
+    "search_keywords": "search_keywords"
 }

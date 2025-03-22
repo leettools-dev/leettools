@@ -4,10 +4,12 @@ from typing import Optional
 
 import click
 
+from leettools.chat.history_manager import get_history_manager
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils.template_eval import render_template
 from leettools.context_manager import Context, ContextManager
+from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
@@ -22,6 +24,8 @@ from leettools.eds.rag.rewrite.rewrite import (
     get_query_rewriter_by_strategy,
 )
 from leettools.eds.rag.schemas.rewrite import Rewrite
+from leettools.flow.exec_info import ExecInfo
+from leettools.flow.utils import prompt_utils
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -39,12 +43,39 @@ class QueryRewriterDirectDynamic(AbstractQueryRewriter, APICallerBase):
         )
 
     def rewrite(
-        self, org: Org, kb: KnowledgeBase, query: str, query_metadata: ChatQueryMetadata
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        query_item: ChatQueryItem,
+        query_metadata: ChatQueryMetadata,
     ) -> Rewrite:
 
         self.setup_prompts_for_intention(query_metadata)
+        query = query_item.query_content
 
-        user_prompt = render_template(self.user_prompt_template, {"question": query})
+        # add query history
+        query_id = query_item.query_id
+        ch_manager = get_history_manager(self.context)
+        query_history = ch_manager.get_ch_entry(
+            username=self.user.username,
+            chat_id=query_item.chat_id,
+        )
+        if query_history is not None and query_history != "":
+            query_history_str = query_history.get_history_str(ignore_last=True)
+            query_history_instruction = (
+                "Here is the chat history:\n" + query_history_str
+            )
+        else:
+            query_history_instruction = ""
+
+        user_prompt = render_template(
+            self.user_prompt_template,
+            {
+                "question": query,
+                "query_history_instruction": query_history_instruction,
+                "date_instruction": prompt_utils.date_instruction(),
+            },
+        )
         logger().debug(f"Final user prompt for rewrite: {user_prompt}")
 
         system_prompt = render_template(

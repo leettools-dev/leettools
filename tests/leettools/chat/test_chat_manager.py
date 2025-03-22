@@ -156,6 +156,13 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     assert ch4.answers[0].query_id == chat_query_item.query_id
     assert ch4.updated_at >= ai_3.created_at
 
+    # print(f"ch4.get_history_str():\n{ch4.get_history_str()}\n")
+
+    assert (
+        ch4.get_history_str()
+        == f"[query] {chat_query_item.query_content}\n[answer] {answer_create.answer_content}\n"
+    )
+
     test_query_2 = "What is the airspeed velocity of an unladen swallow?"
     chat_query_result = chat_manager.run_query_with_strategy(
         org=org,
