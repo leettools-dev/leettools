@@ -40,7 +40,7 @@ class Translator(metaclass=SingletonMetaTranslation):
             lang = self.default_language
 
         if lang not in self.translation_cache:
-            logger().noop(f"Translator cache miss for language: {lang}", noop_lvl=3)
+            logger().noop(f"Translator cache miss for language: {lang}", noop_lvl=2)
             translator: gettext.NullTranslations = gettext.translation(
                 "messages",
                 localedir=str(self.locales_dir),
@@ -48,7 +48,7 @@ class Translator(metaclass=SingletonMetaTranslation):
                 fallback=True,
             )
             self.translation_cache[lang] = translator.gettext
-            logger().noop(f"Translator cache set for language: {lang}", noop_lvl=3)
+            logger().noop(f"Translator cache set for language: {lang}", noop_lvl=2)
         else:
             logger().noop(f"Translator cache hit for language: {lang}", noop_lvl=3)
 

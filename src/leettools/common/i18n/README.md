@@ -32,8 +32,9 @@ pybabel compile -d locales
 
 5. Run the unit tests to ensure the translations are working.
 
-In the project root, run the following command to run the unit tests.
+Get to the project root, run the following command to run the unit tests.
 ```bash
+cd ../../../..
 pytest -s tests/leettools/common/test_i18n.py
 ```
 
