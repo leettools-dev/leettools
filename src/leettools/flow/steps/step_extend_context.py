@@ -1,6 +1,7 @@
 import re
 from typing import ClassVar, Dict, List, Optional, Tuple, Type
 
+from leettools.chat.history_manager import get_history_manager
 from leettools.common.logging import logger
 from leettools.common.models.model_info import ModelInfoManager
 from leettools.common.utils import config_utils
@@ -91,9 +92,6 @@ class StepExtendContext(AbstractStep):
             display_logger.debug(f"Using the override model {inference_model_name}.")
 
         tokenizer = Tokenizer(settings)
-
-        extended_context = ""
-
         flow_options = exec_info.flow_options
         context_limit = config_utils.get_int_option_value(
             options=flow_options,
@@ -119,7 +117,6 @@ class StepExtendContext(AbstractStep):
         )
         context_limit = context_limit - 1000
 
-        context_token_count = 0
         current_source_items: Dict[str, SourceItem] = {}
         total_source_count = len(accumulated_source_items)
         display_logger.debug(
@@ -127,7 +124,9 @@ class StepExtendContext(AbstractStep):
         )
 
         enable_neighboring_context = False
+        add_chat_history = True
         if context_section is not None:
+            # not sure why we need to check the strategy_name here
             if (
                 context_section.strategy_name == "default"
                 or context_section.strategy_name == "true"
@@ -139,6 +138,26 @@ class StepExtendContext(AbstractStep):
                         default_value=False,
                         display_logger=display_logger,
                     )
+                    add_chat_history = config_utils.get_bool_option_value(
+                        options=context_section.strategy_options,
+                        option_name="add_chat_history",
+                        default_value=True,
+                        display_logger=display_logger,
+                    )
+            else:
+                if context_section.strategy_options is not None:
+                    enable_neighboring_context = config_utils.get_bool_option_value(
+                        options=context_section.strategy_options,
+                        option_name="enable_neighboring_context",
+                        default_value=False,
+                        display_logger=display_logger,
+                    )
+                    add_chat_history = config_utils.get_bool_option_value(
+                        options=context_section.strategy_options,
+                        option_name="add_chat_history",
+                        default_value=True,
+                        display_logger=display_logger,
+                    )
 
         if enable_neighboring_context:
             from leettools.eds.rag.context.neighboring_extension import (
@@ -147,6 +166,36 @@ class StepExtendContext(AbstractStep):
 
             neighboring_extension = NeighboringExtension(context=context)
             display_logger.info("Neighboring context expansion enabled.")
+
+        chat_history_str = ""
+        if add_chat_history:
+            try:
+                ch_manager = get_history_manager(context)
+                chat_history = ch_manager.get_ch_entry(
+                    username=exec_info.user.username,
+                    chat_id=exec_info.target_chat_query_item.chat_id,
+                )
+                if chat_history is not None:
+                    chat_history_str = chat_history.get_history_str(ignore_last=True)
+            except Exception as e:
+                display_logger.error(f"Error getting chat history: {e}")
+                chat_history_str = ""
+
+        context_token_count = 0
+        extended_context = ""
+
+        if chat_history_str is not None and chat_history_str != "":
+            extended_context = f"Here is the chat history:\n{chat_history_str}\n"
+            context_token_count = tokenizer.token_count(extended_context)
+            display_logger.debug(
+                f"Extended context chat_history token count: {context_token_count}"
+            )
+            display_logger.debug(
+                f"Extended context chat_history (first and last 100 chars):\n"
+                f"{extended_context[:100]}\n......\n{extended_context[-100:]}"
+            )
+        else:
+            display_logger.debug("No chat history for the current query.")
 
         for result_segment in reranked_result:
             source_item = None

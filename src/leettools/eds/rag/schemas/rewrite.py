@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -6,4 +6,4 @@ from pydantic import BaseModel
 class Rewrite(BaseModel):
 
     rewritten_question: str
-    rewritten_keywords: Optional[List[str]] = None
+    search_keywords: Optional[str] = None

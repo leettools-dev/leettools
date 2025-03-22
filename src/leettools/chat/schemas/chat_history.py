@@ -126,6 +126,29 @@ class ChatHistory(CHInDB):
         None, description="For adhoc chat, we need to return the kb_name created."
     )
 
+    def get_history_str(self, ignore_last: bool = False) -> str:
+        """
+        Get the history string of the chat history in the format of:
+        [user_query_1]
+        [assistant_answer_1]
+        [user_query_2]
+        [assistant_answer_2]
+        ...
+        """
+        history_str = ""
+        if len(self.queries) == 0:
+            return history_str
+        if ignore_last:
+            total_count = len(self.queries) - 1
+        else:
+            total_count = len(self.queries)
+
+        for i in range(total_count):
+            history_str += f"[query] {self.queries[i].query_content}\n"
+            if i < len(self.answers):
+                history_str += f"[answer] {self.answers[i].answer_content}\n"
+        return history_str
+
     @classmethod
     def from_ch_in_db(ChatHistory, ch_in_db: CHInDB) -> "ChatHistory":
         # we need to assignt attributes with non-None values

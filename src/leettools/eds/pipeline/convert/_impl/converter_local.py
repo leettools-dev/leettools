@@ -1,7 +1,6 @@
 import os
 import traceback
 from pathlib import Path
-from typing import List, Optional
 
 from leettools.common.logging import logger
 from leettools.core.consts.return_code import ReturnCode

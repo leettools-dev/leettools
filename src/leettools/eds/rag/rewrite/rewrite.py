@@ -4,12 +4,14 @@ from typing import Optional
 from leettools.common import exceptions
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context
+from leettools.core.schemas.chat_query_item import ChatQueryItem
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
 from leettools.core.strategy.schemas.strategy_section import StrategySection
 from leettools.eds.rag.schemas.rewrite import Rewrite
+from leettools.flow.exec_info import ExecInfo
 
 
 class AbstractQueryRewriter(ABC):
@@ -19,15 +21,17 @@ class AbstractQueryRewriter(ABC):
         self,
         org: Org,
         kb: KnowledgeBase,
-        query: str,
+        query_item: ChatQueryItem,
         query_metadata: ChatQueryMetadata,
     ) -> Rewrite:
         """
         Rewrites the input query to a more detailed one.
 
         args:
-        query: the input query
-        query_metadata: the metadata of the query
+        - org: the organization
+        - kb: the knowledge base
+        - query_item: the query item
+        - query_metadata: the metadata of the query
         """
         pass
 

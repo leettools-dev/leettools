@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from leettools.common.logging import logger
@@ -36,11 +37,19 @@ def get_template_vars(
         display_logger=display_logger,
     )
 
+    timezone = config_utils.get_str_option_value(
+        options=flow_options,
+        option_name=flow_option.FLOW_OPTION_TIMEZONE,
+        default_value=None,
+        display_logger=display_logger,
+    )
+
     template_vars = {
         "context": inference_context,
         "rewritten_query": rewritten_query,
         "lang": lang,
         "content_instruction": content_instruction,
+        "date_instruction": date_instruction(timezone),
         "lang_instruction": lang_instruction(lang),
         "reference_instruction": reference_instruction(),
         "context_presentation": context_presentation(),
@@ -103,6 +112,16 @@ def get_template_vars(
 def context_presentation() -> str:
     return """Given the context as a sequence of references with a reference id in the 
 format of a leading [x],"""
+
+
+def date_instruction(timezone: Optional[str] = None) -> str:
+    from zoneinfo import ZoneInfo
+
+    if timezone is None:
+        timezone = "UTC"
+    # get the date in the given timezone, do not use pytz
+    date = datetime.now(ZoneInfo(timezone)).strftime("%Y-%m-%d")
+    return f"Today is {date}."
 
 
 def reference_instruction() -> str:

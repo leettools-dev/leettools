@@ -104,6 +104,9 @@ class ChatQueryItem(ChatQueryItemCreate):
             return strategy
 
         if strategy_base is None:
+            display_logger.debug(
+                f"Using strategy id (strategy_base not provided): {strategy_id}"
+            )
             strategy = strategy_store.get_strategy_by_id(strategy_id)
             if strategy is None:
                 raise exceptions.EntityNotFoundException(
@@ -127,5 +130,9 @@ class ChatQueryItem(ChatQueryItemCreate):
                 strategy_version="",
                 strategy_status=StrategyStatus.ACTIVE.value,
                 is_system=True,
+            )
+        else:
+            display_logger.debug(
+                f"Using strategy id (strategy_base provided): {strategy_id}"
             )
         return strategy

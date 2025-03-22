@@ -116,32 +116,36 @@ Search the web or local KB with the query and answer with source references:
             default_value="",
             display_logger=display_logger,
         )
+
         # flow starts there
+        query_metadata = steps.StepIntention.run_step(exec_info=exec_info)
+        rewrite = steps.StepQueryRewrite.run_step(
+            exec_info=exec_info,
+            query_metadata=query_metadata,
+        )
+
         if is_search_engine(retriever_type):
             # query the web first, after this function, the search results
             # are processed and stored in the KB
             # TODO: make this function async
-            docsource = steps.StepSearchToDocsource.run_step(exec_info=exec_info)
+            if rewrite.search_keywords is None:
+                keywords = rewrite.rewritten_question
+            else:
+                keywords = rewrite.search_keywords
+            docsource = steps.StepSearchToDocsource.run_step(
+                exec_info=exec_info, search_keywords=keywords
+            )
             # we will answer using the whole KB
             # right now filter by docsource cannot include re-used docsinks
             # flow_options[DOCSOURCE_UUID_ATTR] = docsource.docsource_uuid
 
-        if retriever_type == RetrieverType.LOCAL.value:
-            query_metadata = steps.StepIntention.run_step(exec_info=exec_info)
-
-            rewritten_query = steps.StepQueryRewrite.run_step(
-                exec_info=exec_info,
-                query=query,
-                query_metadata=query_metadata,
-            )
-        else:
-            query_metadata = ChatQueryMetadata(intention=DEFAULT_INTENTION)
-            rewritten_query = query
+        # TODO Next: add a flow_option to control if include the whole KB in the search
+        # flow_options[DocSource.FIELD_DOCSOURCE_UUID] = docsource.docsource_uuid
 
         top_ranked_result_segments = steps.StepVectorSearch.run_step(
             exec_info=exec_info,
             query_metadata=query_metadata,
-            rewritten_query=rewritten_query,
+            rewritten_query=rewrite.rewritten_question,
         )
         if len(top_ranked_result_segments) == 0:
             return flow_utils.create_chat_result_for_empty_search(
@@ -173,7 +177,7 @@ Search the web or local KB with the query and answer with source references:
         completion: ChatCompletion = steps.StepInference.run_step(
             exec_info=exec_info,
             query_metadata=query_metadata,
-            rewritten_query=rewritten_query,
+            rewritten_query=rewrite.rewritten_question,
             extended_context=extended_context,
         )
 
