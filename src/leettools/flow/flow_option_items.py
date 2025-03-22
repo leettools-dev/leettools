@@ -216,14 +216,12 @@ def _days_limit(
 def _search_max_results(
     explicit: Optional[bool] = False, required: Optional[bool] = False
 ) -> FlowOptionItem:
+    # the description value hits some bug in babel, so we need to use the string in one line
     return FlowOptionItem(
         name=FLOW_OPTION_SEARCH_MAX_RESULTS,
         display_name=_("Max search Results"),
         description=_(
-            "The maximum number of search results for retrievers to return. "
-            "Each retriever may have different paging mechanisms. Use the parameter and "
-            "the search iteration to control the number of results."
-            "If the retieval is local, -1 here means process all documents."
+            "The maximum number of search results for retrievers to return. Each retriever may have different paging mechanisms. Use the parameter and the search iteration to control the number of results.If the retieval is local, -1 here means process all documents."
         ),
         default_value="10",
         value_type="int",

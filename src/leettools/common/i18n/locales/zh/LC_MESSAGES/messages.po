@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-08 17:48-0800\n"
+"POT-Creation-Date: 2025-03-16 23:00-0700\n"
 "PO-Revision-Date: 2025-03-08 15:55-0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -18,59 +18,73 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: ../../settings.py:635
+#: ../../settings.py:731
+#: ../../settings.py:731
 msgid "LLM API Key used in the inference process."
 msgstr "推理过程中使用的LLM API密钥。"
 
-#: ../../settings.py:642
+#: ../../settings.py:738
+#: ../../settings.py:738
 msgid "LLM Base URL used in the inference process."
 msgstr "推理过程中使用的LLM基础URL。"
 
-#: ../../settings.py:649
+#: ../../settings.py:745
+#: ../../settings.py:745
 msgid "Default inference model used in the inference process."
 msgstr "推理过程中使用的默认推理模型。"
 
-#: ../../settings.py:656
+#: ../../settings.py:752
+#: ../../settings.py:752
 msgid "Default dense embedding model used in the embedding process."
 msgstr "嵌入过程中使用的默认密集嵌入模型。"
 
-#: ../../settings.py:665
+#: ../../settings.py:761
+#: ../../settings.py:761
 msgid "Dense embedding model dimension."
 msgstr "密集嵌入模型维度。"
 
-#: ../../settings.py:672
+#: ../../settings.py:768
+#: ../../settings.py:768
 msgid "API Key used for the embedder."
 msgstr "嵌入器使用的API密钥。"
 
-#: ../../settings.py:679
+#: ../../settings.py:775
+#: ../../settings.py:775
 msgid "Base URL for the the embedder service."
 msgstr "嵌入器服务的基础URL。"
 
-#: ../../settings.py:686
+#: ../../settings.py:782
+#: ../../settings.py:782
 msgid "API Key used in the reranking process."
 msgstr "重排序过程中使用的API密钥。"
 
-#: ../../settings.py:693
+#: ../../settings.py:789
+#: ../../settings.py:789
 msgid "Base url used in the reranking process."
 msgstr "重排序过程中使用的基础URL。"
 
-#: ../../settings.py:700
+#: ../../settings.py:796
+#: ../../settings.py:796
 msgid "Default rerank model used in the rerank process."
 msgstr "重排序过程中使用的默认重排序模型。"
 
-#: ../../settings.py:707
+#: ../../settings.py:803
+#: ../../settings.py:803
 msgid "Google API Key used in the search process."
 msgstr "搜索过程中使用的Google API密钥。"
 
-#: ../../settings.py:714
+#: ../../settings.py:810
+#: ../../settings.py:810
 msgid "Google custom search Key used in the search process."
 msgstr "搜索过程中使用的Google自定义搜索密钥。"
 
-#: ../../settings.py:721
+#: ../../settings.py:817
+#: ../../settings.py:817
 msgid "Google custom search Key for patent used in the search process."
 msgstr "搜索过程中使用的Google专利自定义搜索密钥。"
 
-#: ../../settings.py:730
+#: ../../settings.py:826
+#: ../../settings.py:826
 msgid "Tavily API Key used in the search process."
 msgstr "搜索过程中使用的Tavily API密钥。"
 
@@ -213,131 +227,129 @@ msgid ""
 " local KB, filters by the import time."
 msgstr "限制搜索结果的天数。0或空表示无限制。在本地知识库中，按导入时间过滤。"
 
-#: ../../flow/flow_option_items.py:221
+#: ../../flow/flow_option_items.py:222
 msgid "Max search Results"
 msgstr "最大搜索结果"
 
-#: ../../flow/flow_option_items.py:222
-msgid ""
-"The maximum number of search results for retrievers to return. Each "
-"retriever may have different paging mechanisms. Use the parameter and the"
-" search iteration to control the number of results."
-msgstr "检索器返回的最大搜索结果数。每个检索器可能有不同的分页机制。使用参数和搜索迭代来控制结果数量。"
+#: ../../flow/flow_option_items.py:223
+msgid "The maximum number of search results for retrievers to return. Each retriever may have different paging mechanisms. Use the parameter and the search iteration to control the number of results.If the retieval is local, -1 here means process all documents."
+msgstr "检索器返回的最大搜索结果数。每个检索器可能有不同的分页机制。使用参数和搜索迭代来控制结果数量。如果检索是本地的，-1表示处理所有文档。"
 
-#: ../../flow/flow_option_items.py:239
+#: ../../flow/flow_option_items.py:238
 msgid "Rewrite Search Keywords"
 msgstr "重写搜索关键词"
 
-#: ../../flow/flow_option_items.py:240
+#: ../../flow/flow_option_items.py:239
 msgid "Ask the LLM to generate search keywords from the search query."
 msgstr "要求LLM从搜索查询生成搜索关键词。"
 
-#: ../../flow/flow_option_items.py:253
+#: ../../flow/flow_option_items.py:252
 msgid "Search Language"
 msgstr "搜索语言"
 
-#: ../../flow/flow_option_items.py:254
+#: ../../flow/flow_option_items.py:253
 msgid "The language used for keyword search if the search API supports."
 msgstr "如果搜索API支持，用于关键词搜索的语言。"
 
-#: ../../flow/flow_option_items.py:269
+#: ../../flow/flow_option_items.py:268
 msgid "Output Language"
 msgstr "输出语言"
 
-#: ../../flow/flow_option_items.py:270
+#: ../../flow/flow_option_items.py:269
 msgid "Output the result in the language."
 msgstr "用指定语言输出结果。"
 
-#: ../../flow/flow_option_items.py:283
+#: ../../flow/flow_option_items.py:282
 msgid "Output Example"
 msgstr "输出示例"
 
-#: ../../flow/flow_option_items.py:284
+#: ../../flow/flow_option_items.py:283
 msgid ""
 "The example of the expected output content. If left empty, no example "
 "will be provided to LLM."
 msgstr "预期输出内容的示例。如果留空，将不会向LLM提供示例。"
 
-#: ../../flow/flow_option_items.py:301
+#: ../../flow/flow_option_items.py:300
 msgid "Number of Sections"
 msgstr "章节数量"
 
-#: ../../flow/flow_option_items.py:302
+#: ../../flow/flow_option_items.py:301
 msgid ""
 "The number of sections in the output article. If left empty, the planning"
 " agent will decide automatically."
 msgstr "输出文章中的章节数量。如果留空，规划代理将自动决定。"
 
-#: ../../flow/flow_option_items.py:318
+#: ../../flow/flow_option_items.py:317
 msgid "Article Style"
 msgstr "文章风格"
 
-#: ../../flow/flow_option_items.py:319
+#: ../../flow/flow_option_items.py:318
 msgid ""
 "The style of the output article such as analytical research reports, "
 "humorous news articles, or technical blog posts."
 msgstr "输出文章的风格，如分析研究报告、幽默新闻文章或技术博客文章。"
 
-#: ../../flow/flow_option_items.py:336
+#: ../../flow/flow_option_items.py:335
 msgid "Word Count"
 msgstr "字数"
 
-#: ../../flow/flow_option_items.py:337
+#: ../../flow/flow_option_items.py:336
 msgid "The number of words in the output section. Empty means automatics."
 msgstr "输出部分的字数。空表示自动。"
 
-#: ../../flow/flow_option_items.py:352
+#: ../../flow/flow_option_items.py:351
 msgid "Extract Instruction"
 msgstr "提取指令"
 
-#: ../../flow/flow_option_items.py:353
+#: ../../flow/flow_option_items.py:352
 msgid "Describe what information to extract from the content."
 msgstr "描述从内容中提取什么信息。"
 
-#: ../../flow/flow_option_items.py:378
+#: ../../flow/flow_option_items.py:377
 msgid "Extract Pydantic Model"
 msgstr "提取Pydantic模型"
 
-#: ../../flow/flow_option_items.py:379
+#: ../../flow/flow_option_items.py:378
 msgid ""
-"The schema of the target data as a pydantic model, see "
-"https://docs.pydantic.dev"
-msgstr "目标数据的模式作为pydantic模型，参见https://docs.pydantic.dev"
+"The schema of the target data as a pydantic model. Can be a single line "
+"string as the file path to the pydantic model, or a multi-line string as "
+"the pydantic model definition."
+msgstr "目标数据的模式作为pydantic模型。可以作为pydantic模型文件路径的单行字符串，或者作为pydantic模型定义的多行字符串。"
 
-#: ../../flow/flow_option_items.py:401
+#: ../../flow/flow_option_items.py:402
 msgid "Extract Schema as JSON"
 msgstr "将模式提取为JSON"
 
-#: ../../flow/flow_option_items.py:402
+#: ../../flow/flow_option_items.py:403
 msgid "The schema of the extracted information. Should be a JSON string."
 msgstr "提取信息的模式。应该是JSON字符串。"
 
-#: ../../flow/flow_option_items.py:444
+#: ../../flow/flow_option_items.py:445
 msgid "Extraction Instructions in Python"
 msgstr "Python中的提取指令"
 
-#: ../../flow/flow_option_items.py:445
+#: ../../flow/flow_option_items.py:446
 msgid ""
 "The instructions of the extractions in Python code. Right now the "
 "required variables are 'target_model_name' and 'instructions'. Also we "
 "need to specify the key fields and verify fields if needed."
 msgstr "Python代码中的提取指令。目前所需的变量是'target_model_name'和'instructions'。如果需要，我们还需要指定关键字段和验证字段。"
 
-#: ../../flow/flow_option_items.py:482
+#: ../../flow/flow_option_items.py:483
 msgid "Target Pydantic Model Name used in the final list"
 msgstr "最终列表中使用的目标Pydantic模型名称"
 
-#: ../../flow/flow_option_items.py:483
+#: ../../flow/flow_option_items.py:484
 msgid ""
 "There might be multiple Pydantic models in the schema definition. Specify"
 " which model to use for the final list."
 msgstr "模式定义中可能有多个Pydantic模型。指定最终列表使用哪个模型。"
 
-#: ../../flow/flow_option_items.py:501
+#: ../../flow/flow_option_items.py:502
 msgid "Key Fields"
 msgstr "关键字段"
 
-#: ../../flow/flow_option_items.py:502
+#: ../../flow/flow_option_items.py:503
 msgid ""
 "Comma separated field names that identifies an object in the extraction. "
 "Extracted data with the same key fields will be considered of the same "
@@ -347,11 +359,11 @@ msgid ""
 "unique."
 msgstr "用逗号分隔的字段名，用于标识提取中的对象。具有相同关键字段的提取数据将被视为同一对象。同一对象的所有提取版本将基于这些字段进行去重。关键字段应存在于提取信息的模式中。如果留空，每个提取的对象都将被视为唯一。"
 
-#: ../../flow/flow_option_items.py:521
+#: ../../flow/flow_option_items.py:522
 msgid "Save extracted data to backend"
 msgstr "将提取的数据保存到后端"
 
-#: ../../flow/flow_option_items.py:522
+#: ../../flow/flow_option_items.py:523
 msgid ""
 "Save the extracted data to the backend. Default True. If False, the "
 "extracted data will not be saved. The saved data will have the same "
@@ -359,11 +371,11 @@ msgid ""
 "time and the original document URI."
 msgstr "将提取的数据保存到后端。默认为True。如果为False，提取的数据将不会被保存。保存的数据将具有pydantic模型中指定的相同模式，以及导入时间和原始文档URI等元数据。"
 
-#: ../../flow/flow_option_items.py:540
+#: ../../flow/flow_option_items.py:541
 msgid "Verification Fields"
 msgstr "验证字段"
 
-#: ../../flow/flow_option_items.py:541
+#: ../../flow/flow_option_items.py:542
 msgid ""
 "Comma separated field names that need to be verified for the extracted "
 "objects. For example, although the address of a company is not in the key"
@@ -372,111 +384,123 @@ msgid ""
 "no verification will be performed."
 msgstr "需要为提取对象验证的字段名，用逗号分隔。例如，虽然公司地址不在关键字段中，且一个公司可能有多个办公室地址，我们想要验证并去重所有提取的地址。如果留空，将不执行验证。"
 
-#: ../../flow/flow_option_items.py:559
+#: ../../flow/flow_option_items.py:560
 msgid "Output format"
 msgstr "输出格式"
 
-#: ../../flow/flow_option_items.py:560
+#: ../../flow/flow_option_items.py:561
 msgid ""
 "The output of the extracted data. Default is json. Currently also support"
 "  csv, md."
 msgstr "提取数据的输出格式。默认为json。目前还支持csv、md。"
 
-#: ../../flow/flow_option_items.py:576
+#: ../../flow/flow_option_items.py:577
 msgid "Reference Style"
 msgstr "引用样式"
 
-#: ../../flow/flow_option_items.py:577
+#: ../../flow/flow_option_items.py:578
 msgid ""
 "The style of the references in the output article. Right now support "
 "news, default, and full."
 msgstr "输出文章中引用的样式。目前支持新闻、默认和完整样式。"
 
-#: ../../flow/flow_option_items.py:595
+#: ../../flow/flow_option_items.py:596
 msgid "Strict Context"
 msgstr "严格上下文"
 
-#: ../../flow/flow_option_items.py:596
+#: ../../flow/flow_option_items.py:597
 msgid "When generating a section, whether to use strict context or not."
 msgstr "生成章节时是否使用严格上下文。"
 
-#: ../../flow/flow_option_items.py:613
+#: ../../flow/flow_option_items.py:614
 msgid "Target Site"
 msgstr "目标网站"
 
-#: ../../flow/flow_option_items.py:614
+#: ../../flow/flow_option_items.py:615
 msgid ""
 "When searching the web, limit the search to this site. Empty means search"
 " all sites."
 msgstr "在网络搜索时，将搜索限制在此网站。空表示搜索所有网站。"
 
-#: ../../flow/flow_option_items.py:632
+#: ../../flow/flow_option_items.py:633
 msgid "Max iteration when using the web search retriever"
 msgstr "使用网络搜索检索器时的最大迭代次数"
 
-#: ../../flow/flow_option_items.py:633
+#: ../../flow/flow_option_items.py:634
 msgid "If the max result is not reached, how many times we go to the next page."
 msgstr "如果未达到最大结果，我们翻到下一页的次数。"
 
-#: ../../flow/flow_option_items.py:650
+#: ../../flow/flow_option_items.py:651
 msgid "Recursive scrape"
 msgstr "递归抓取"
 
-#: ../../flow/flow_option_items.py:651
+#: ../../flow/flow_option_items.py:652
 msgid "If true, scrape the top urls found in the search results documents."
 msgstr "如果为真，抓取搜索结果文档中找到的顶部URL。"
 
-#: ../../flow/flow_option_items.py:668
+#: ../../flow/flow_option_items.py:669
 msgid "Recursive scrape iteration"
 msgstr "递归抓取迭代"
 
-#: ../../flow/flow_option_items.py:669
+#: ../../flow/flow_option_items.py:670
 msgid ""
 "When we do recursive scraping, we will not stop until we reach the max "
 "number of results or the number of iterations specified here."
 msgstr "当我们进行递归抓取时，我们不会停止，直到达到最大结果数或这里指定的迭代次数。"
 
-#: ../../flow/flow_option_items.py:687
+#: ../../flow/flow_option_items.py:688
 msgid "Recursive scrape max item count"
 msgstr "递归抓取最大项目数"
 
-#: ../../flow/flow_option_items.py:688
+#: ../../flow/flow_option_items.py:689
 msgid ""
 "When we do recursive scraping, we will not stop until we reach the number"
 " of max iterations or the max number of results specified here."
 msgstr "当我们进行递归抓取时，我们不会停止，直到达到最大迭代次数或这里指定的最大结果数。"
 
-#: ../../flow/flow_option_items.py:706
+#: ../../flow/flow_option_items.py:707
 msgid "Image Search"
 msgstr "图片搜索"
 
-#: ../../flow/flow_option_items.py:707
+#: ../../flow/flow_option_items.py:708
 msgid "When searching on the web, limit the search to image search. "
 msgstr "在网络搜索时，将搜索限制为图片搜索。"
 
-#: ../../flow/flow_option_items.py:722
+#: ../../flow/flow_option_items.py:723
 msgid "Excluded Site"
 msgstr "排除网站"
 
-#: ../../flow/flow_option_items.py:723
+#: ../../flow/flow_option_items.py:724
 msgid ""
 "List of sites separated by comma to ignore when search for the "
 "information. Empty means no filter."
 msgstr "搜索信息时要忽略的网站列表，用逗号分隔。空表示无过滤。"
 
-#: ../../flow/flow_option_items.py:741
+#: ../../flow/flow_option_items.py:742
 msgid "Docsource UUID"
 msgstr "文档源UUID"
 
-#: ../../flow/flow_option_items.py:742
+#: ../../flow/flow_option_items.py:743
 msgid "The docsource uuid to run the query on when querying local KB."
 msgstr "在查询本地知识库时运行查询的文档源UUID。"
 
-#: ../../flow/flow_option_items.py:757
+#: ../../flow/flow_option_items.py:758
 msgid "Context Limit"
 msgstr "上下文限制"
 
-#: ../../flow/flow_option_items.py:758
+#: ../../flow/flow_option_items.py:759
 msgid "Override the context limit from the model info."
 msgstr "覆盖模型信息中的上下文限制。"
+
+#~ msgid ""
+#~ "The schema of the target data as"
+#~ " a pydantic model, see "
+#~ "https://docs.pydantic.dev"
+#~ msgstr "目标数据的模式作为pydantic模型，参见https://docs.pydantic.dev"
+
+#~ msgid ""
+#~ "The schema of the target data as"
+#~ " a pydantic model, see "
+#~ "https://docs.pydantic.dev"
+#~ msgstr "目标数据的模式作为pydantic模型，参见https://docs.pydantic.dev"
 

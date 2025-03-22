@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-08 17:48-0800\n"
+"POT-Creation-Date: 2025-03-16 23:00-0700\n"
 "PO-Revision-Date: 2025-03-08 15:55-0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -18,59 +18,73 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: ../../settings.py:635
+#: ../../settings.py:731
+#: ../../settings.py:731
 msgid "LLM API Key used in the inference process."
 msgstr ""
 
-#: ../../settings.py:642
+#: ../../settings.py:738
+#: ../../settings.py:738
 msgid "LLM Base URL used in the inference process."
 msgstr ""
 
-#: ../../settings.py:649
+#: ../../settings.py:745
+#: ../../settings.py:745
 msgid "Default inference model used in the inference process."
 msgstr ""
 
-#: ../../settings.py:656
+#: ../../settings.py:752
+#: ../../settings.py:752
 msgid "Default dense embedding model used in the embedding process."
 msgstr ""
 
-#: ../../settings.py:665
+#: ../../settings.py:761
+#: ../../settings.py:761
 msgid "Dense embedding model dimension."
 msgstr ""
 
-#: ../../settings.py:672
+#: ../../settings.py:768
+#: ../../settings.py:768
 msgid "API Key used for the embedder."
 msgstr ""
 
-#: ../../settings.py:679
+#: ../../settings.py:775
+#: ../../settings.py:775
 msgid "Base URL for the the embedder service."
 msgstr ""
 
-#: ../../settings.py:686
+#: ../../settings.py:782
+#: ../../settings.py:782
 msgid "API Key used in the reranking process."
 msgstr ""
 
-#: ../../settings.py:693
+#: ../../settings.py:789
+#: ../../settings.py:789
 msgid "Base url used in the reranking process."
 msgstr ""
 
-#: ../../settings.py:700
+#: ../../settings.py:796
+#: ../../settings.py:796
 msgid "Default rerank model used in the rerank process."
 msgstr ""
 
-#: ../../settings.py:707
+#: ../../settings.py:803
+#: ../../settings.py:803
 msgid "Google API Key used in the search process."
 msgstr ""
 
-#: ../../settings.py:714
+#: ../../settings.py:810
+#: ../../settings.py:810
 msgid "Google custom search Key used in the search process."
 msgstr ""
 
-#: ../../settings.py:721
+#: ../../settings.py:817
+#: ../../settings.py:817
 msgid "Google custom search Key for patent used in the search process."
 msgstr ""
 
-#: ../../settings.py:730
+#: ../../settings.py:826
+#: ../../settings.py:826
 msgid "Tavily API Key used in the search process."
 msgstr ""
 
@@ -212,131 +226,132 @@ msgid ""
 " local KB, filters by the import time."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:221
+#: ../../flow/flow_option_items.py:222
 msgid "Max search Results"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:222
-msgid ""
-"The maximum number of search results for retrievers to return. Each "
-"retriever may have different paging mechanisms. Use the parameter and the"
-" search iteration to control the number of results."
+#: ../../flow/flow_option_items.py:223
+msgid "The maximum number of search results for retrievers to return. Each retriever may have different paging mechanisms. Use the parameter and the search iteration to control the number of results.If the retieval is local, -1 here means process all documents."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:239
+#: ../../flow/flow_option_items.py:238
 msgid "Rewrite Search Keywords"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:240
+#: ../../flow/flow_option_items.py:239
 msgid "Ask the LLM to generate search keywords from the search query."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:253
+#: ../../flow/flow_option_items.py:252
 msgid "Search Language"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:254
+#: ../../flow/flow_option_items.py:253
 msgid "The language used for keyword search if the search API supports."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:269
+#: ../../flow/flow_option_items.py:268
 msgid "Output Language"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:270
+#: ../../flow/flow_option_items.py:269
 msgid "Output the result in the language."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:283
+#: ../../flow/flow_option_items.py:282
 msgid "Output Example"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:284
+#: ../../flow/flow_option_items.py:283
 msgid ""
 "The example of the expected output content. If left empty, no example "
 "will be provided to LLM."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:301
+#: ../../flow/flow_option_items.py:300
 msgid "Number of Sections"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:302
+#: ../../flow/flow_option_items.py:301
 msgid ""
 "The number of sections in the output article. If left empty, the planning"
 " agent will decide automatically."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:318
+#: ../../flow/flow_option_items.py:317
 msgid "Article Style"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:319
+#: ../../flow/flow_option_items.py:318
 msgid ""
 "The style of the output article such as analytical research reports, "
 "humorous news articles, or technical blog posts."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:336
+#: ../../flow/flow_option_items.py:335
 msgid "Word Count"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:337
+#: ../../flow/flow_option_items.py:336
 msgid "The number of words in the output section. Empty means automatics."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:352
+#: ../../flow/flow_option_items.py:351
 msgid "Extract Instruction"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:353
+#: ../../flow/flow_option_items.py:352
 msgid "Describe what information to extract from the content."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:378
+#: ../../flow/flow_option_items.py:377
 msgid "Extract Pydantic Model"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:379
+#: ../../flow/flow_option_items.py:378
 msgid ""
-"The schema of the target data as a pydantic model, see "
-"https://docs.pydantic.dev"
-msgstr ""
-
-#: ../../flow/flow_option_items.py:401
-msgid "Extract Schema as JSON"
+"The schema of the target data as a pydantic model. Can be a single line "
+"string as the file path to the pydantic model, or a multi-line string as "
+"the pydantic model definition."
+"The schema of the target data as a pydantic model. Can be a single line "
+"string as the file path to the pydantic model, or a multi-line string as "
+"the pydantic model definition."
 msgstr ""
 
 #: ../../flow/flow_option_items.py:402
+msgid "Extract Schema as JSON"
+msgstr ""
+
+#: ../../flow/flow_option_items.py:403
 msgid "The schema of the extracted information. Should be a JSON string."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:444
+#: ../../flow/flow_option_items.py:445
 msgid "Extraction Instructions in Python"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:445
+#: ../../flow/flow_option_items.py:446
 msgid ""
 "The instructions of the extractions in Python code. Right now the "
 "required variables are 'target_model_name' and 'instructions'. Also we "
 "need to specify the key fields and verify fields if needed."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:482
+#: ../../flow/flow_option_items.py:483
 msgid "Target Pydantic Model Name used in the final list"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:483
+#: ../../flow/flow_option_items.py:484
 msgid ""
 "There might be multiple Pydantic models in the schema definition. Specify"
 " which model to use for the final list."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:501
+#: ../../flow/flow_option_items.py:502
 msgid "Key Fields"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:502
+#: ../../flow/flow_option_items.py:503
 msgid ""
 "Comma separated field names that identifies an object in the extraction. "
 "Extracted data with the same key fields will be considered of the same "
@@ -346,11 +361,11 @@ msgid ""
 "unique."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:521
+#: ../../flow/flow_option_items.py:522
 msgid "Save extracted data to backend"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:522
+#: ../../flow/flow_option_items.py:523
 msgid ""
 "Save the extracted data to the backend. Default True. If False, the "
 "extracted data will not be saved. The saved data will have the same "
@@ -358,11 +373,11 @@ msgid ""
 "time and the original document URI."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:540
+#: ../../flow/flow_option_items.py:541
 msgid "Verification Fields"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:541
+#: ../../flow/flow_option_items.py:542
 msgid ""
 "Comma separated field names that need to be verified for the extracted "
 "objects. For example, although the address of a company is not in the key"
@@ -371,111 +386,110 @@ msgid ""
 "no verification will be performed."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:559
+#: ../../flow/flow_option_items.py:560
 msgid "Output format"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:560
+#: ../../flow/flow_option_items.py:561
 msgid ""
 "The output of the extracted data. Default is json. Currently also support"
 "  csv, md."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:576
+#: ../../flow/flow_option_items.py:577
 msgid "Reference Style"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:577
+#: ../../flow/flow_option_items.py:578
 msgid ""
 "The style of the references in the output article. Right now support "
 "news, default, and full."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:595
+#: ../../flow/flow_option_items.py:596
 msgid "Strict Context"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:596
+#: ../../flow/flow_option_items.py:597
 msgid "When generating a section, whether to use strict context or not."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:613
+#: ../../flow/flow_option_items.py:614
 msgid "Target Site"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:614
+#: ../../flow/flow_option_items.py:615
 msgid ""
 "When searching the web, limit the search to this site. Empty means search"
 " all sites."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:632
+#: ../../flow/flow_option_items.py:633
 msgid "Max iteration when using the web search retriever"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:633
+#: ../../flow/flow_option_items.py:634
 msgid "If the max result is not reached, how many times we go to the next page."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:650
+#: ../../flow/flow_option_items.py:651
 msgid "Recursive scrape"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:651
+#: ../../flow/flow_option_items.py:652
 msgid "If true, scrape the top urls found in the search results documents."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:668
+#: ../../flow/flow_option_items.py:669
 msgid "Recursive scrape iteration"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:669
+#: ../../flow/flow_option_items.py:670
 msgid ""
 "When we do recursive scraping, we will not stop until we reach the max "
 "number of results or the number of iterations specified here."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:687
+#: ../../flow/flow_option_items.py:688
 msgid "Recursive scrape max item count"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:688
+#: ../../flow/flow_option_items.py:689
 msgid ""
 "When we do recursive scraping, we will not stop until we reach the number"
 " of max iterations or the max number of results specified here."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:706
+#: ../../flow/flow_option_items.py:707
 msgid "Image Search"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:707
+#: ../../flow/flow_option_items.py:708
 msgid "When searching on the web, limit the search to image search. "
 msgstr ""
 
-#: ../../flow/flow_option_items.py:722
+#: ../../flow/flow_option_items.py:723
 msgid "Excluded Site"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:723
+#: ../../flow/flow_option_items.py:724
 msgid ""
 "List of sites separated by comma to ignore when search for the "
 "information. Empty means no filter."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:741
+#: ../../flow/flow_option_items.py:742
 msgid "Docsource UUID"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:742
+#: ../../flow/flow_option_items.py:743
 msgid "The docsource uuid to run the query on when querying local KB."
 msgstr ""
 
-#: ../../flow/flow_option_items.py:757
+#: ../../flow/flow_option_items.py:758
 msgid "Context Limit"
 msgstr ""
 
-#: ../../flow/flow_option_items.py:758
+#: ../../flow/flow_option_items.py:759
 msgid "Override the context limit from the model info."
 msgstr ""
-
