@@ -166,7 +166,7 @@ class APICallerBase:
 
         if (
             section.strategy_name.lower() == "default"
-            or self.strategy_section.strategy_name.lower() == "true"
+            or section.strategy_name.lower() == "true"
         ):
             if section.llm_system_prompt_id is None:
                 logger().warning(
@@ -189,7 +189,7 @@ class APICallerBase:
 
             if section.llm_user_prompt_id is None:
                 logger().warning(
-                    f"No user prompt id for {section.section_name} provided."
+                    f"No user prompt id for {section.section_name} provided. "
                     "Fallback to the default user prompt."
                 )
                 self.user_prompt_template = None
@@ -205,15 +205,16 @@ class APICallerBase:
                     self.user_prompt_template = user_prompt.prompt_template
 
         if self.user_prompt_template is None:
+            strategy_name = section.strategy_name
             user_prompt_template_file = (
-                f"{self.script_dir}/prompts/default_user_prompt.txt"
+                f"{self.script_dir}/prompts/default_{strategy_name}_user_prompt.txt"
             )
             with open(user_prompt_template_file, "r", encoding="utf-8") as file:
                 self.user_prompt_template = file.read()
 
         if self.system_prompt_template is None:
             system_prompt_template_file = (
-                f"{self.script_dir}/prompts/default_system_prompt.txt"
+                f"{self.script_dir}/prompts/default_{strategy_name}_system_prompt.txt"
             )
             with open(system_prompt_template_file, "r", encoding="utf-8") as file:
                 self.system_prompt_template = file.read()
@@ -233,7 +234,7 @@ class APICallerBase:
 
         if intention_str not in sp_ids:
             self.display_logger.warning(
-                f"No system prompt id for {intention_str} provided to {section_name}."
+                f"No system prompt id for {intention_str} provided to {section_name}. "
                 f"Fallback to the default intention."
             )
             intention_str = DEFAULT_INTENTION
@@ -285,13 +286,21 @@ class APICallerBase:
         if self.script_dir is None:
             raise UnexpectedCaseException("Script directory is not set.")
 
-        user_prompt_file = f"{self.script_dir}/prompts/{intention_str}_user_prompt.txt"
+        strategy_name = self.strategy_section.strategy_name
+        user_prompt_file = (
+            f"{self.script_dir}/prompts/{intention_str}_{strategy_name}_user_prompt.txt"
+        )
         # if the user prompt for the intention is not provided, use the default
         if not os.path.exists(user_prompt_file):
             self.display_logger.warning(
-                f"User prompt for {intention_str} not found. Using default."
+                f"User prompt for {intention_str} not found: {user_prompt_file}"
             )
-            user_prompt_file = f"{self.script_dir}/prompts/default_user_prompt.txt"
+            user_prompt_file = (
+                f"{self.script_dir}/prompts/default_{strategy_name}_user_prompt.txt"
+            )
+            self.display_logger.info(f"Using default user prompt: {user_prompt_file}")
+        else:
+            self.display_logger.debug(f"Using user prompt file: {user_prompt_file}")
         return read_template_file(user_prompt_file)
 
     def get_system_prompt_template_for_intention(self, intention_str: str) -> str:
@@ -301,14 +310,20 @@ class APICallerBase:
         if self.script_dir is None:
             raise UnexpectedCaseException("Script directory is not set.")
 
-        system_prompt_file = (
-            f"{self.script_dir}/prompts/{intention_str}_system_prompt.txt"
-        )
+        strategy_name = self.strategy_section.strategy_name
+        system_prompt_file = f"{self.script_dir}/prompts/{intention_str}_{strategy_name}_system_prompt.txt"
         if not os.path.exists(system_prompt_file):
             self.display_logger.warning(
-                f"System prompt for {intention_str} not found. Using default."
+                f"System prompt for {intention_str} not found: {system_prompt_file}"
             )
-            system_prompt_file = f"{self.script_dir}/prompts/default_system_prompt.txt"
+            system_prompt_file = (
+                f"{self.script_dir}/prompts/default_{strategy_name}_system_prompt.txt"
+            )
+            self.display_logger.info(
+                f"Using default system prompt: {system_prompt_file}"
+            )
+        else:
+            self.display_logger.debug(f"Using system prompt file: {system_prompt_file}")
         return read_template_file(system_prompt_file)
 
     def run_inference_call(

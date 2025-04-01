@@ -30,5 +30,5 @@ class StrategySection(BaseModel):
     llm_system_prompt_id: Optional[str] = None
     llm_user_prompt_id: Optional[str] = None
     # prompts by intention
-    llm_system_prompt_ids_by_intention: Optional[Dict[str, str]] = None
-    llm_user_prompt_ids_by_intention: Optional[Dict[str, str]] = None
+    llm_system_prompt_ids_by_intention: Optional[Dict[str, str]] = {}
+    llm_user_prompt_ids_by_intention: Optional[Dict[str, str]] = {}

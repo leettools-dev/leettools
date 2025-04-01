@@ -19,6 +19,8 @@ from leettools.core.schemas.chat_query_result import (
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
+from leettools.core.strategy.schemas.strategy_section import StrategySection
+from leettools.core.strategy.schemas.strategy_section_name import StrategySectionName
 from leettools.flow import flow_option_items, steps
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
@@ -118,29 +120,46 @@ Search the web or local KB with the query and answer with source references:
         )
 
         # flow starts there
+
         query_metadata = steps.StepIntention.run_step(exec_info=exec_info)
-        rewrite = steps.StepQueryRewrite.run_step(
-            exec_info=exec_info,
-            query_metadata=query_metadata,
-        )
 
         if is_search_engine(retriever_type):
-            # query the web first, after this function, the search results
-            # are processed and stored in the KB
-            # TODO: make this function async
+            rewrite = steps.StepQueryRewrite.run_step(
+                exec_info=exec_info,
+                query_metadata=query_metadata,
+            )
             if rewrite.search_keywords is None:
                 keywords = rewrite.rewritten_question
             else:
                 keywords = rewrite.search_keywords
+
+            # query the web first, after this function, the search results
+            # are processed and stored in the KB
+            # TODO: make this function async
             docsource = steps.StepSearchToDocsource.run_step(
                 exec_info=exec_info, search_keywords=keywords
             )
             # we will answer using the whole KB
             # right now filter by docsource cannot include re-used docsinks
             # flow_options[DOCSOURCE_UUID_ATTR] = docsource.docsource_uuid
-
-        # TODO Next: add a flow_option to control if include the whole KB in the search
-        # flow_options[DocSource.FIELD_DOCSOURCE_UUID] = docsource.docsource_uuid
+            # TODO Next: add a flow_option to control if include the whole KB in the search
+            # flow_options[DocSource.FIELD_DOCSOURCE_UUID] = docsource.docsource_uuid
+        else:
+            # for local KB, we should use local KB data as the rewrite context
+            rewrite_section = StrategySection(
+                section_name=StrategySectionName.REWRITE,
+                strategy_name="keywords",
+            )
+            rewrite = steps.StepQueryRewrite.run_step(
+                exec_info=exec_info,
+                query_metadata=query_metadata,
+                rewrite_section=rewrite_section,
+            )
+            # the keywords actually not used in the local search
+            if rewrite.search_keywords is None:
+                keywords = rewrite.rewritten_question
+            else:
+                keywords = rewrite.search_keywords
 
         top_ranked_result_segments = steps.StepVectorSearch.run_step(
             exec_info=exec_info,

@@ -54,7 +54,6 @@ class QueryRewriterDirectDynamic(AbstractQueryRewriter, APICallerBase):
         query = query_item.query_content
 
         # add query history
-        query_id = query_item.query_id
         ch_manager = get_history_manager(self.context)
         query_history = ch_manager.get_ch_entry(
             username=self.user.username,
