@@ -838,7 +838,9 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             query_id=chat_query_item.query_id,
         )
         try:
-            query_logger.info(f"[Status]Query started: {chat_query_item.query_content}")
+            query_logger.info(
+                f"[Status] Query started: {chat_query_item.query_content}"
+            )
             chat_query_result_create: ChatQueryResultCreate = (
                 self._execute_flow_for_query(
                     org=org,
@@ -849,7 +851,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 )
             )
             if chat_query_result_create is not None:
-                query_logger.info("[Status]Saving results.")
+                query_logger.info("[Status] Saving results.")
                 chat_query_result = self._add_answers_to_chat(
                     org=org,
                     kb=kb,
@@ -857,17 +859,34 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                     chat_query_item=chat_query_item,
                     chat_query_result_create=chat_query_result_create,
                 )
-                query_logger.info("[Status]Query completed.")
+                query_logger.info("[Status] Query completed.")
                 self._update_kb_timestamp(org, kb)
                 return chat_query_result
             else:
                 # chat_query_result_create is None
-                query_logger.info("[Status]Query failed or not completed.")
+                query_logger.info("[Status] Query failed or not completed.")
                 return None
         finally:
             end_time = time.perf_counter()
             elapsed_time = end_time - start_time
-            query_logger.info(f"[Query Runtime]{elapsed_time} seconds.")
+
+            # Convert to minutes, seconds, milliseconds
+            minutes = int(elapsed_time // 60)
+            seconds = int(elapsed_time % 60)
+            milliseconds = int((elapsed_time * 1000) % 1000)
+
+            runtime_parts = []
+            if minutes > 0:
+                runtime_parts.append(f"{minutes} minutes")
+            if seconds > 0:
+                runtime_parts.append(f"{seconds} seconds")
+            if (
+                milliseconds > 0 or not runtime_parts
+            ):  # Show ms if no other units or has ms
+                runtime_parts.append(f"{milliseconds} milliseconds")
+
+            runtime_str = " ".join(runtime_parts)
+            query_logger.info(f"[Runtime] {runtime_str}")
             remove_logger(logger_name)
 
     def update_ch_entry(self, ch_update: CHUpdate) -> Optional[ChatHistory]:

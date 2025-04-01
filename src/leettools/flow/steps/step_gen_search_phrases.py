@@ -83,7 +83,7 @@ Here is the query:
         query = exec_info.target_chat_query_item.query_content
 
         display_logger = exec_info.display_logger
-        display_logger.info("[Status]Generating web search phrases.")
+        display_logger.info("[Status] Generating web search phrases.")
 
         search_lang = flow_utils.get_search_lang(
             exec_info=exec_info, query_metadata=query_metadata

@@ -61,7 +61,7 @@ def _run_rerank(
         display_logger.info(f"Rerank is disabled. Skip reranking.")
         return top_ranked_result_segments
 
-    display_logger.info("[Status]Rerank the search results.")
+    display_logger.info("[Status] Rerank the search results.")
     try:
         original_top_ranked_result_segments = top_ranked_result_segments.copy()
         reranker = create_reranker_by_strategy(

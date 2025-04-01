@@ -136,7 +136,7 @@ processed immediately. The function will return after the document source is pro
             assert len(updated_docsources) == 1
             return updated_docsources[0]
 
-        display_logger.info("[Status]Start the search to docsource pipeline ...")
+        display_logger.info("[Status] Start the search to docsource pipeline ...")
         try:
             # if the kb.auto_schedule is False, we should run the process manually
             success_documents = _run_web_search_pipeline(
@@ -145,7 +145,7 @@ processed immediately. The function will return after the document source is pro
                 search_keywords=search_keywords,
             )
             display_logger.info(
-                f"Successfully ingested {len(success_documents)} documents from search."
+                f"[Update] Successfully ingested {len(success_documents)} documents from search."
             )
             return docsource
         except Exception as e:
@@ -232,7 +232,7 @@ def _create_docsrc_for_search(
         display_logger=display_logger,
     )
 
-    display_logger.info(f"[Status]Searching the web with {retriever_type} ...")
+    display_logger.info(f"[Status] Searching the web with {retriever_type} ...")
 
     # use yyyy-mm-dd-hh-mm-ss to the URI to distinguish different searches
     timestamp = time_utils.current_datetime().strftime("%Y-%m-%d-%H-%M-%S")

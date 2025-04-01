@@ -97,7 +97,7 @@ Below is the provided content:
         """
         display_logger = exec_info.display_logger
         display_logger.info(
-            f"[Status]StepExtractInfo: extract {model_class_name} from content."
+            f"[Status] StepExtractInfo: extract {model_class_name} from content."
         )
         flow_options = exec_info.flow_options
 

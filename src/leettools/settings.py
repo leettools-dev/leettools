@@ -385,6 +385,11 @@ class SystemSettings(BaseModel):
         description="The default batch size for inserting embeddings into the database",
     )
 
+    display_log_status_flag: str = Field(
+        "status,thinking,update,runtime",
+        description="The default log status flag for the system",
+    )
+
     DEFAULT_FLOW_TYPE: str = Field(
         "answer", description="The default flow type for the system"
     )

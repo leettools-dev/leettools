@@ -56,7 +56,7 @@ def _step_gen_intro_section(
 ) -> ArticleSection:
 
     display_logger = exec_info.display_logger
-    display_logger.info("[Status]Generating introduction.")
+    display_logger.info("[Status] Generating introduction.")
 
     query = exec_info.target_chat_query_item.query_content
 

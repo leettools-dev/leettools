@@ -1,11 +1,10 @@
 import json
-import requests
-
-from datetime import datetime, timezone
-
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 from functools import partial
 from typing import ClassVar, Dict, List, Optional, Type
+
+import requests
 
 from leettools.common import exceptions
 from leettools.common.logging import EventLogger, logger
@@ -15,8 +14,8 @@ from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.schemas.medium_article import MediumArticle
 from leettools.flow.step import AbstractStep
-from leettools.web.web_searcher import WebSearcher
 from leettools.web.web_scraper import WebScraper
+from leettools.web.web_searcher import WebSearcher
 
 ID_ATTR = "id"
 SNIPPET_ATTR = "body"
@@ -78,7 +77,7 @@ class StepSearchMedium(AbstractStep):
         if search_keywords is None:
             search_keywords = exec_info.target_chat_query_item.query_content
 
-        display_logger.info("[Status]Start the medium search pipeline ...")
+        display_logger.info("[Status] Start the medium search pipeline ...")
         medium_articles = _run_medium_search_pipeline(exec_info, search_keywords)
         display_logger.info(
             f"Successfully find {len(medium_articles)} "

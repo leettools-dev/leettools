@@ -185,7 +185,9 @@ local storage.
         )
 
         if len(search_results) == 0:
-            display_logger.info(f"No search results found for query {search_keywords}.")
+            display_logger.info(
+                f"[Update] No search results found for query {search_keywords}."
+            )
             return []
 
         new_search_urls = self._get_new_urls(
@@ -201,7 +203,9 @@ local storage.
             display_logger=display_logger,
         )
 
-        display_logger.info(f"Found {len(docsink_create_list)} docsinks to be created.")
+        display_logger.info(
+            f"[Update] Found {len(docsink_create_list)} docsinks to be created."
+        )
 
         return docsink_create_list
 
@@ -234,7 +238,9 @@ local storage.
         scraper = WebScraper(context=self.context, display_logger=display_logger)
         scrape_results = scraper.scrape_urls_to_file(links)
 
-        display_logger.info(f"Scraped {len(scrape_results)} results for {query}")
+        display_logger.info(
+            f"[Update] Scraped {len(scrape_results)} results for {query}"
+        )
 
         docsink_create_list = _get_docsink_create_from_saved_files(
             kb=kb, docsource=docsource, scrape_results=scrape_results

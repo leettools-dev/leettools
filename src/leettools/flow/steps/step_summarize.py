@@ -119,7 +119,7 @@ Here is the content:
         context = exec_info.context
         document_store = context.get_repo_manager().get_document_store()
 
-        display_logger.info(f"[Status]Summarizing document {document.original_uri}.")
+        display_logger.info(f"[Status] Summarizing document {document.original_uri}.")
 
         if document.embed_status != DocSourceStatus.COMPLETED:
             display_logger.info(
