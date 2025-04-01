@@ -33,6 +33,7 @@ class FileRouter(APIRouterBase):
             logger().debug(f"Reading raw document from {uri}")
 
             safe_base_path = Path(self.settings.DATA_ROOT)
+            # TODO: make these configurable and in sync with Docker config
             incoming_file_path = Path("/incoming")
             uploads_file_path = Path("/app/uploads")
 

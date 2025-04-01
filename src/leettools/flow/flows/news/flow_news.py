@@ -6,6 +6,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Type
 from pydantic import BaseModel, ConfigDict, create_model
 
 from leettools.common import exceptions
+from leettools.common.i18n.translator import _
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import config_utils, json_utils, lang_utils, time_utils
 from leettools.common.utils.template_eval import render_template
@@ -108,6 +109,8 @@ Please find the news items in the context about {{ query }} and return
 - The categories of the news
 - The keywords of the news
 - The date of the news item
+
+{{ language_instruction }}
 """
 
     @classmethod
@@ -118,10 +121,9 @@ Please find the news items in the context about {{ query }} and return
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
         foi_news_source_min = FlowOptionItem(
             name=flow_option.FLOW_OPTION_NEWS_SOURCE_MIN,
-            display_name="News item source count threshold",
-            description=(
-                "Number of sources a news item has to have to be included in the result."
-                "Default is 1. Depends on the nature of the knowledge base."
+            display_name=_("News item source count threshold"),
+            description=_(
+                "Number of sources a news item has to have to be included in the result. Default is 1. Depends on the nature of the knowledge base."
             ),
             default_value="1",
             value_type="int",
@@ -131,10 +133,9 @@ Please find the news items in the context about {{ query }} and return
 
         foi_news_include_old = FlowOptionItem(
             name=flow_option.FLOW_OPTION_NEWS_INCLUDE_OLD,
-            display_name="Include previously reported news items",
-            description=(
-                "Include all news items in the result, even if it has been reported before."
-                "Default is False."
+            display_name=_("Include previously reported news items"),
+            description=_(
+                "Include all news items in the result, even if it has been reported before. Default is False."
             ),
             default_value="False",
             value_type="bool",
@@ -144,8 +145,8 @@ Please find the news items in the context about {{ query }} and return
 
         foi_news_output_format = FlowOptionItem(
             name=flow_option.FLOW_OPTION_EXTRACT_OUTPUT_FORMAT,
-            display_name="Output format",
-            description=(
+            display_name=_("Output format"),
+            description=_(
                 "The format of the output: 'md' (default), 'table and 'json'."
             ),
             default_value="md",
@@ -156,10 +157,9 @@ Please find the news items in the context about {{ query }} and return
 
         foi_news_run_search = FlowOptionItem(
             name=flow_option.FLOW_OPTION_NEWS_RUN_SEARCH,
-            display_name="Run search before extracting news data",
-            description=(
-                "Run the search step before extracting the news data."
-                "Default is True."
+            display_name=_("Run search before extracting news data"),
+            description=_(
+                "Run the search step before extracting the news data. Default is True."
             ),
             default_value="True",
             value_type="bool",
@@ -487,6 +487,7 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
                 "query": query,
                 "word_count": news_params.word_count,
                 "article_style": news_params.article_style,
+                "language_instruction": news_params.language_instruction,
             },
         )
 

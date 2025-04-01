@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-16 23:00-0700\n"
+"POT-Creation-Date: 2025-03-24 21:03-0700\n"
 "PO-Revision-Date: 2025-03-08 15:55-0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
@@ -18,73 +18,59 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: ../../settings.py:731
-#: ../../settings.py:731
+#: ../../settings.py:736
 msgid "LLM API Key used in the inference process."
 msgstr "推論プロセスで使用されるLLM APIキー。"
 
-#: ../../settings.py:738
-#: ../../settings.py:738
+#: ../../settings.py:743
 msgid "LLM Base URL used in the inference process."
 msgstr "推論プロセスで使用されるLLMベースURL。"
 
-#: ../../settings.py:745
-#: ../../settings.py:745
+#: ../../settings.py:750
 msgid "Default inference model used in the inference process."
 msgstr "推論プロセスで使用されるデフォルトの推論モデル。"
 
-#: ../../settings.py:752
-#: ../../settings.py:752
+#: ../../settings.py:757
 msgid "Default dense embedding model used in the embedding process."
 msgstr "埋め込みプロセスで使用されるデフォルトの密な埋め込みモデル。"
 
-#: ../../settings.py:761
-#: ../../settings.py:761
+#: ../../settings.py:766
 msgid "Dense embedding model dimension."
 msgstr "密な埋め込みモデルの次元。"
 
-#: ../../settings.py:768
-#: ../../settings.py:768
+#: ../../settings.py:773
 msgid "API Key used for the embedder."
 msgstr "埋め込み器で使用されるAPIキー。"
 
-#: ../../settings.py:775
-#: ../../settings.py:775
+#: ../../settings.py:780
 msgid "Base URL for the the embedder service."
 msgstr "埋め込みサービスのベースURL。"
 
-#: ../../settings.py:782
-#: ../../settings.py:782
+#: ../../settings.py:787
 msgid "API Key used in the reranking process."
 msgstr "再ランク付けプロセスで使用されるAPIキー。"
 
-#: ../../settings.py:789
-#: ../../settings.py:789
+#: ../../settings.py:794
 msgid "Base url used in the reranking process."
 msgstr "再ランク付けプロセスで使用されるベースURL。"
 
-#: ../../settings.py:796
-#: ../../settings.py:796
+#: ../../settings.py:801
 msgid "Default rerank model used in the rerank process."
 msgstr "再ランク付けプロセスで使用されるデフォルトの再ランクモデル。"
 
-#: ../../settings.py:803
-#: ../../settings.py:803
+#: ../../settings.py:808
 msgid "Google API Key used in the search process."
 msgstr "検索プロセスで使用されるGoogle APIキー。"
 
-#: ../../settings.py:810
-#: ../../settings.py:810
+#: ../../settings.py:815
 msgid "Google custom search Key used in the search process."
 msgstr "検索プロセスで使用されるGoogleカスタム検索キー。"
 
-#: ../../settings.py:817
-#: ../../settings.py:817
+#: ../../settings.py:822
 msgid "Google custom search Key for patent used in the search process."
 msgstr "検索プロセスで使用される特許用Googleカスタム検索キー。"
 
-#: ../../settings.py:826
-#: ../../settings.py:826
+#: ../../settings.py:831
 msgid "Tavily API Key used in the search process."
 msgstr "検索プロセスで使用されるTavily APIキー。"
 
@@ -92,15 +78,15 @@ msgstr "検索プロセスで使用されるTavily APIキー。"
 msgid "The section of the settings"
 msgstr "設定のセクション"
 
-#: ../../core/schemas/user_settings.py:17 ../../flow/flow_option_items.py:50
+#: ../../core/schemas/user_settings.py:17 ../../flow/flow_option_items.py:51
 msgid "The name of the variable."
 msgstr "変数の名前。"
 
-#: ../../core/schemas/user_settings.py:19 ../../flow/flow_option_items.py:60
+#: ../../core/schemas/user_settings.py:19 ../../flow/flow_option_items.py:61
 msgid "The description of the variable."
 msgstr "変数の説明。"
 
-#: ../../core/schemas/user_settings.py:22 ../../flow/flow_option_items.py:63
+#: ../../core/schemas/user_settings.py:22 ../../flow/flow_option_items.py:64
 msgid "The default value of the variable."
 msgstr "変数のデフォルト値。"
 
@@ -137,219 +123,233 @@ msgstr "設定が作成された時間。"
 msgid "The time the settings was updated."
 msgstr "設定が更新された時間。"
 
-#: ../../flow/flow_option_items.py:53
+#: ../../flow/flow_option_items.py:54
 msgid "The flow components that use this variable."
 msgstr "この変数を使用するフローコンポーネント。"
 
-#: ../../flow/flow_option_items.py:57
+#: ../../flow/flow_option_items.py:58
 msgid "The display name of the variable."
 msgstr "変数の表示名。"
 
-#: ../../flow/flow_option_items.py:67
+#: ../../flow/flow_option_items.py:68
 msgid "The type of the value,currently support str, int, float, bool."
 msgstr "値の型。現在str、int、float、boolをサポートしています。"
 
-#: ../../flow/flow_option_items.py:73
+#: ../../flow/flow_option_items.py:74
 msgid "Whether the variable is required or not."
 msgstr "変数が必須かどうか。"
 
-#: ../../flow/flow_option_items.py:77
+#: ../../flow/flow_option_items.py:78
 msgid "Whether the variable should be explicitly set by the user or not."
 msgstr "変数をユーザーが明示的に設定する必要があるかどうか。"
 
-#: ../../flow/flow_option_items.py:83
+#: ../../flow/flow_option_items.py:84
 msgid "Whether the variable should be displayed in multiple lines or not."
 msgstr "変数を複数行で表示するかどうか。"
 
-#: ../../flow/flow_option_items.py:89
+#: ../../flow/flow_option_items.py:90
 msgid "The example value of the variable, if no default is provided."
 msgstr "デフォルト値が提供されていない場合の変数の例値。"
 
-#: ../../flow/flow_option_items.py:93
+#: ../../flow/flow_option_items.py:94
 msgid ""
 "If the value should be shown and edited as the specified programming "
 "code, such as Python, Markdown. Default is None."
 msgstr "値をPythonやMarkdownなどの指定されたプログラミングコードとして表示・編集するかどうか。デフォルトはNone。"
 
-#: ../../flow/flow_option_items.py:99
+#: ../../flow/flow_option_items.py:100
 msgid "The variables the code should provide to the backend."
 msgstr "コードがバックエンドに提供すべき変数。"
 
-#: ../../flow/flow_option_items.py:115
+#: ../../flow/flow_option_items.py:116
 msgid "Planning Model"
 msgstr "プランニングモデル"
 
-#: ../../flow/flow_option_items.py:116
+#: ../../flow/flow_option_items.py:117
 msgid "The model used to do the article planning."
 msgstr "記事の計画に使用されるモデル。"
 
-#: ../../flow/flow_option_items.py:135
+#: ../../flow/flow_option_items.py:136
 msgid "Summarizing Model"
 msgstr "要約モデル"
 
-#: ../../flow/flow_option_items.py:136
+#: ../../flow/flow_option_items.py:137
 msgid "The model used to summarize each article."
 msgstr "各記事を要約するために使用されるモデル。"
 
-#: ../../flow/flow_option_items.py:155
+#: ../../flow/flow_option_items.py:156
 msgid "Writing Model"
 msgstr "執筆モデル"
 
-#: ../../flow/flow_option_items.py:156
+#: ../../flow/flow_option_items.py:157
 msgid "The model used to generating each section."
 msgstr "各セクションを生成するために使用されるモデル。"
 
-#: ../../flow/flow_option_items.py:169
+#: ../../flow/flow_option_items.py:170
 msgid "Retriever"
 msgstr "リトリーバー"
 
-#: ../../flow/flow_option_items.py:170
+#: ../../flow/flow_option_items.py:171
 msgid "The type of retriever to use for the web search."
 msgstr "ウェブ検索に使用するリトリーバーの種類。"
 
-#: ../../flow/flow_option_items.py:184
+#: ../../flow/flow_option_items.py:185
 msgid "Content Instruction"
 msgstr "コンテンツ指示"
 
-#: ../../flow/flow_option_items.py:185
+#: ../../flow/flow_option_items.py:186
 msgid ""
 "The relevance of the result documents from keyword search is assessed by "
 "the content instruction if provided. "
 msgstr "キーワード検索結果の文書の関連性は、提供された場合、コンテンツ指示によって評価されます。"
 
-#: ../../flow/flow_option_items.py:203
+#: ../../flow/flow_option_items.py:204
 msgid "Days Limit"
 msgstr "日数制限"
 
-#: ../../flow/flow_option_items.py:204
+#: ../../flow/flow_option_items.py:205
 msgid ""
 "Number of days to limit the search results. 0 or empty means no limit. In"
 " local KB, filters by the import time."
 msgstr "検索結果を制限する日数。0または空は制限なしを意味します。ローカルKBでは、インポート時間でフィルタリングします。"
 
-#: ../../flow/flow_option_items.py:222
+#: ../../flow/flow_option_items.py:223
 msgid "Max search Results"
 msgstr "最大検索結果数"
 
-#: ../../flow/flow_option_items.py:223
-msgid "The maximum number of search results for retrievers to return. Each retriever may have different paging mechanisms. Use the parameter and the search iteration to control the number of results.If the retieval is local, -1 here means process all documents."
+#: ../../flow/flow_option_items.py:224
+msgid ""
+"The maximum number of search results for retrievers to return. Each "
+"retriever may have different paging mechanisms. Use the parameter and the"
+" search iteration to control the number of results.If the retieval is "
+"local, -1 here means process all documents."
 msgstr "リトリーバーが返す検索結果の最大数。各リトリーバーは異なるページング機構を持つ場合があります。パラメータと検索反復を使用して結果の数を制御します。"
 
-#: ../../flow/flow_option_items.py:238
+#: ../../flow/flow_option_items.py:239
 msgid "Rewrite Search Keywords"
 msgstr "検索キーワードの書き換え"
 
-#: ../../flow/flow_option_items.py:239
+#: ../../flow/flow_option_items.py:240
 msgid "Ask the LLM to generate search keywords from the search query."
 msgstr "検索クエリから検索キーワードを生成するようLLMに依頼します。"
 
-#: ../../flow/flow_option_items.py:252
+#: ../../flow/flow_option_items.py:253
 msgid "Search Language"
 msgstr "検索言語"
 
-#: ../../flow/flow_option_items.py:253
+#: ../../flow/flow_option_items.py:254
 msgid "The language used for keyword search if the search API supports."
 msgstr "検索APIがサポートしている場合のキーワード検索に使用される言語。"
 
-#: ../../flow/flow_option_items.py:268
+#: ../../flow/flow_option_items.py:269
 msgid "Output Language"
 msgstr "出力言語"
 
-#: ../../flow/flow_option_items.py:269
+#: ../../flow/flow_option_items.py:270
 msgid "Output the result in the language."
 msgstr "結果をその言語で出力します。"
 
-#: ../../flow/flow_option_items.py:282
+#: ../../flow/flow_option_items.py:283
 msgid "Output Example"
 msgstr "出力例"
 
-#: ../../flow/flow_option_items.py:283
+#: ../../flow/flow_option_items.py:284
 msgid ""
 "The example of the expected output content. If left empty, no example "
 "will be provided to LLM."
 msgstr "期待される出力内容の例。空の場合、LLMに例は提供されません。"
 
-#: ../../flow/flow_option_items.py:300
+#: ../../flow/flow_option_items.py:301
 msgid "Number of Sections"
 msgstr "セクション数"
 
-#: ../../flow/flow_option_items.py:301
+#: ../../flow/flow_option_items.py:302
 msgid ""
 "The number of sections in the output article. If left empty, the planning"
 " agent will decide automatically."
 msgstr "出力記事のセクション数。空の場合、プランニングエージェントが自動的に決定します。"
 
-#: ../../flow/flow_option_items.py:317
+#: ../../flow/flow_option_items.py:318
+msgid "Timezone"
+msgstr "タイムゾーン"
+
+#: ../../flow/flow_option_items.py:319
+msgid ""
+"The timezone when determining the date. See "
+"https://docs.python.org/3/library/zoneinfo.html"
+msgstr "日付を決定する際に使用されるタイムゾーン。https://docs.python.org/3/library/zoneinfo.htmlを参照してください。"
+
+#: ../../flow/flow_option_items.py:335
 msgid "Article Style"
 msgstr "記事スタイル"
 
-#: ../../flow/flow_option_items.py:318
+#: ../../flow/flow_option_items.py:336
 msgid ""
 "The style of the output article such as analytical research reports, "
 "humorous news articles, or technical blog posts."
 msgstr "分析的な研究レポート、ユーモアのあるニュース記事、技術ブログ投稿などの出力記事のスタイル。"
 
-#: ../../flow/flow_option_items.py:335
+#: ../../flow/flow_option_items.py:353
 msgid "Word Count"
 msgstr "単語数"
 
-#: ../../flow/flow_option_items.py:336
+#: ../../flow/flow_option_items.py:354
 msgid "The number of words in the output section. Empty means automatics."
 msgstr "出力セクションの単語数。空は自動を意味します。"
 
-#: ../../flow/flow_option_items.py:351
+#: ../../flow/flow_option_items.py:369
 msgid "Extract Instruction"
 msgstr "抽出指示"
 
-#: ../../flow/flow_option_items.py:352
+#: ../../flow/flow_option_items.py:370
 msgid "Describe what information to extract from the content."
 msgstr "コンテンツから抽出する情報を説明します。"
 
-#: ../../flow/flow_option_items.py:377
+#: ../../flow/flow_option_items.py:395
 msgid "Extract Pydantic Model"
 msgstr "Pydanticモデルの抽出"
 
-#: ../../flow/flow_option_items.py:378
+#: ../../flow/flow_option_items.py:396
 msgid ""
 "The schema of the target data as a pydantic model. Can be a single line "
 "string as the file path to the pydantic model, or a multi-line string as "
 "the pydantic model definition."
 msgstr "ターゲットデータのスキーマをpydanticモデルとして定義します。単一行の文字列としてpydanticモデルのファイルパス、または複数行の文字列としてpydanticモデルの定義を指定できます。"
 
-#: ../../flow/flow_option_items.py:402
+#: ../../flow/flow_option_items.py:420
 msgid "Extract Schema as JSON"
 msgstr "JSONとしてスキーマを抽出"
 
-#: ../../flow/flow_option_items.py:403
+#: ../../flow/flow_option_items.py:421
 msgid "The schema of the extracted information. Should be a JSON string."
 msgstr "抽出された情報のスキーマ。JSON文字列である必要があります。"
 
-#: ../../flow/flow_option_items.py:445
+#: ../../flow/flow_option_items.py:463
 msgid "Extraction Instructions in Python"
 msgstr "Pythonでの抽出指示"
 
-#: ../../flow/flow_option_items.py:446
+#: ../../flow/flow_option_items.py:464
 msgid ""
 "The instructions of the extractions in Python code. Right now the "
 "required variables are 'target_model_name' and 'instructions'. Also we "
 "need to specify the key fields and verify fields if needed."
 msgstr "Pythonコードでの抽出指示。現在、必要な変数は'target_model_name'と'instructions'です。また、必要に応じてキーフィールドと検証フィールドを指定する必要があります。"
 
-#: ../../flow/flow_option_items.py:483
+#: ../../flow/flow_option_items.py:501
 msgid "Target Pydantic Model Name used in the final list"
 msgstr "最終リストで使用されるターゲットPydanticモデル名"
 
-#: ../../flow/flow_option_items.py:484
+#: ../../flow/flow_option_items.py:502
 msgid ""
 "There might be multiple Pydantic models in the schema definition. Specify"
 " which model to use for the final list."
 msgstr "スキーマ定義に複数のPydanticモデルが存在する可能性があります。最終リストに使用するモデルを指定してください。"
 
-#: ../../flow/flow_option_items.py:502
+#: ../../flow/flow_option_items.py:520
 msgid "Key Fields"
 msgstr "キーフィールド"
 
-#: ../../flow/flow_option_items.py:503
+#: ../../flow/flow_option_items.py:521
 msgid ""
 "Comma separated field names that identifies an object in the extraction. "
 "Extracted data with the same key fields will be considered of the same "
@@ -359,11 +359,11 @@ msgid ""
 "unique."
 msgstr "抽出時にオブジェクトを識別するカンマ区切りのフィールド名。同じキーフィールドを持つ抽出データは同じオブジェクトとみなされます。同じオブジェクトの抽出されたすべてのバージョンはそれらに基づいて重複排除されます。キーフィールドは抽出された情報のスキーマに存在する必要があります。空の場合、抽出された各オブジェクトは一意とみなされます。"
 
-#: ../../flow/flow_option_items.py:522
+#: ../../flow/flow_option_items.py:540
 msgid "Save extracted data to backend"
 msgstr "抽出データをバックエンドに保存"
 
-#: ../../flow/flow_option_items.py:523
+#: ../../flow/flow_option_items.py:541
 msgid ""
 "Save the extracted data to the backend. Default True. If False, the "
 "extracted data will not be saved. The saved data will have the same "
@@ -371,11 +371,11 @@ msgid ""
 "time and the original document URI."
 msgstr "抽出データをバックエンドに保存します。デフォルトはTrue。Falseの場合、抽出データは保存されません。保存されたデータはpydanticモデルで指定されたのと同じスキーマを持ち、インポート時間や元のドキュメントURIなどのメタデータも含まれます。"
 
-#: ../../flow/flow_option_items.py:541
+#: ../../flow/flow_option_items.py:559
 msgid "Verification Fields"
 msgstr "検証フィールド"
 
-#: ../../flow/flow_option_items.py:542
+#: ../../flow/flow_option_items.py:560
 msgid ""
 "Comma separated field names that need to be verified for the extracted "
 "objects. For example, although the address of a company is not in the key"
@@ -384,120 +384,145 @@ msgid ""
 "no verification will be performed."
 msgstr "抽出されたオブジェクトに対して検証が必要なカンマ区切りのフィールド名。例えば、会社の住所はキーフィールドにはなく、会社は異なるオフィスに複数の住所を持つ可能性がありますが、抽出されたすべての住所を検証し重複排除したい場合があります。空の場合、検証は実行されません。"
 
-#: ../../flow/flow_option_items.py:560
+#: ../../flow/flow_option_items.py:578 ../../flow/flows/news/flow_news.py:148
 msgid "Output format"
 msgstr "出力形式"
 
-#: ../../flow/flow_option_items.py:561
+#: ../../flow/flow_option_items.py:579
 msgid ""
 "The output of the extracted data. Default is json. Currently also support"
 "  csv, md."
 msgstr "抽出データの出力形式。デフォルトはjsonです。現在、csv、mdもサポートしています。"
 
-#: ../../flow/flow_option_items.py:577
+#: ../../flow/flow_option_items.py:595
 msgid "Reference Style"
 msgstr "参照スタイル"
 
-#: ../../flow/flow_option_items.py:578
+#: ../../flow/flow_option_items.py:596
 msgid ""
 "The style of the references in the output article. Right now support "
 "news, default, and full."
 msgstr "出力記事の参照のスタイル。現在、news、default、fullをサポートしています。"
 
-#: ../../flow/flow_option_items.py:596
+#: ../../flow/flow_option_items.py:614
 msgid "Strict Context"
 msgstr "厳密なコンテキスト"
 
-#: ../../flow/flow_option_items.py:597
+#: ../../flow/flow_option_items.py:615
 msgid "When generating a section, whether to use strict context or not."
 msgstr "セクションを生成する際に、厳密なコンテキストを使用するかどうか。"
 
-#: ../../flow/flow_option_items.py:614
+#: ../../flow/flow_option_items.py:632
 msgid "Target Site"
 msgstr "ターゲットサイト"
 
-#: ../../flow/flow_option_items.py:615
+#: ../../flow/flow_option_items.py:633
 msgid ""
 "When searching the web, limit the search to this site. Empty means search"
 " all sites."
 msgstr "ウェブ検索時に、このサイトに検索を制限します。空はすべてのサイトを検索することを意味します。"
 
-#: ../../flow/flow_option_items.py:633
+#: ../../flow/flow_option_items.py:651
 msgid "Max iteration when using the web search retriever"
 msgstr "ウェブ検索リトリーバー使用時の最大反復回数"
 
-#: ../../flow/flow_option_items.py:634
+#: ../../flow/flow_option_items.py:652
 msgid "If the max result is not reached, how many times we go to the next page."
 msgstr "最大結果に達していない場合、次のページに何回移動するか。"
 
-#: ../../flow/flow_option_items.py:651
+#: ../../flow/flow_option_items.py:669
 msgid "Recursive scrape"
 msgstr "再帰的スクレイピング"
 
-#: ../../flow/flow_option_items.py:652
+#: ../../flow/flow_option_items.py:670
 msgid "If true, scrape the top urls found in the search results documents."
 msgstr "trueの場合、検索結果文書で見つかった上位のURLをスクレイピングします。"
 
-#: ../../flow/flow_option_items.py:669
+#: ../../flow/flow_option_items.py:687
 msgid "Recursive scrape iteration"
 msgstr "再帰的スクレイピングの反復"
 
-#: ../../flow/flow_option_items.py:670
+#: ../../flow/flow_option_items.py:688
 msgid ""
 "When we do recursive scraping, we will not stop until we reach the max "
 "number of results or the number of iterations specified here."
 msgstr "再帰的スクレイピングを行う場合、最大結果数またはここで指定された反復回数に達するまで停止しません。"
 
-#: ../../flow/flow_option_items.py:688
+#: ../../flow/flow_option_items.py:706
 msgid "Recursive scrape max item count"
 msgstr "再帰的スクレイピングの最大項目数"
 
-#: ../../flow/flow_option_items.py:689
+#: ../../flow/flow_option_items.py:707
 msgid ""
 "When we do recursive scraping, we will not stop until we reach the number"
 " of max iterations or the max number of results specified here."
 msgstr "再帰的スクレイピングを行う場合、最大反復回数またはここで指定された最大結果数に達するまで停止しません。"
 
-#: ../../flow/flow_option_items.py:707
+#: ../../flow/flow_option_items.py:725
 msgid "Image Search"
 msgstr "画像検索"
 
-#: ../../flow/flow_option_items.py:708
+#: ../../flow/flow_option_items.py:726
 msgid "When searching on the web, limit the search to image search. "
 msgstr "ウェブ検索時に、検索を画像検索に制限します。"
 
-#: ../../flow/flow_option_items.py:723
+#: ../../flow/flow_option_items.py:741
 msgid "Excluded Site"
 msgstr "除外サイト"
 
-#: ../../flow/flow_option_items.py:724
+#: ../../flow/flow_option_items.py:742
 msgid ""
 "List of sites separated by comma to ignore when search for the "
 "information. Empty means no filter."
 msgstr "情報を検索する際に無視するサイトのカンマ区切りリスト。空はフィルターなしを意味します。"
 
-#: ../../flow/flow_option_items.py:742
+#: ../../flow/flow_option_items.py:760
 msgid "Docsource UUID"
 msgstr "ドキュメントソースUUID"
 
-#: ../../flow/flow_option_items.py:743
+#: ../../flow/flow_option_items.py:761
 msgid "The docsource uuid to run the query on when querying local KB."
 msgstr "ローカルKBを照会する際にクエリを実行するドキュメントソースUUID。"
 
-#: ../../flow/flow_option_items.py:758
+#: ../../flow/flow_option_items.py:776
 msgid "Context Limit"
 msgstr "コンテキスト制限"
 
-#: ../../flow/flow_option_items.py:759
+#: ../../flow/flow_option_items.py:777
 msgid "Override the context limit from the model info."
 msgstr "モデル情報からのコンテキスト制限を上書きします。"
 
-#~ msgid ""
-#~ "The schema of the target data as"
-#~ " a pydantic model, see "
-#~ "https://docs.pydantic.dev"
-#~ msgstr "ターゲットデータのスキーマをpydanticモデルとして定義します。https://docs.pydantic.dev を参照してください。"
+#: ../../flow/flows/news/flow_news.py:124
+msgid "News item source count threshold"
+msgstr "新しいソースの数"
 
+#: ../../flow/flows/news/flow_news.py:125
+msgid ""
+"Number of sources a news item has to have to be included in the result. "
+"Default is 1. Depends on the nature of the knowledge base."
+msgstr "新しいソースの数"
+
+#: ../../flow/flows/news/flow_news.py:136
+msgid "Include previously reported news items"
+msgstr "以前に報告されたニュース項目を含める"
+
+#: ../../flow/flows/news/flow_news.py:137
+msgid ""
+"Include all news items in the result, even if it has been reported "
+"before. Default is False."
+msgstr "結果には、以前に報告されたニュース項目も含める。デフォルトはFalse。"
+
+#: ../../flow/flows/news/flow_news.py:149
+msgid "The format of the output: 'md' (default), 'table and 'json'."
+msgstr "出力形式：'md'（デフォルト）、'table'と'json'。"
+
+#: ../../flow/flows/news/flow_news.py:160
+msgid "Run search before extracting news data"
+msgstr "ニュースデータを抽出する前に検索を実行する"
+
+#: ../../flow/flows/news/flow_news.py:162
+msgid "Run the search step before extracting the news data. Default is True."
+msgstr "ニュースデータを抽出する前に検索ステップを実行する。デフォルトはTrue。"
 
 #~ msgid ""
 #~ "The schema of the target data as"

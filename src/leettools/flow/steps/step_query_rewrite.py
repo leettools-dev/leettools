@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Type
+from typing import ClassVar, List, Optional, Type
 
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.strategy.schemas.strategy_section import StrategySection
@@ -27,17 +27,30 @@ class StepQueryRewrite(AbstractStep):
     def run_step(
         exec_info: ExecInfo,
         query_metadata: ChatQueryMetadata,
+        rewrite_section: Optional[StrategySection] = None,
     ) -> Rewrite:
         """
         Rewrite the query based on the strategy section and the query metadata.
+
+        If rewrite_section is provided, use it directly.
+        If rewrite_section is not provided, get it from the strategy.
+
+        Args:
+        - exec_info: the execution info
+        - query_metadata: the query metadata
+        - rewrite_section: the rewrite section
+
+        Returns:
+        - rewrite: the rewrite result
         """
         display_logger = exec_info.display_logger
         display_logger.info(
             f"[Status] Rewrite query: {exec_info.target_chat_query_item.query_content}"
         )
-        rewrite_section = exec_info.strategy.strategy_sections.get(
-            StrategySectionName.REWRITE, None
-        )
+        if rewrite_section is None:
+            rewrite_section = exec_info.strategy.strategy_sections.get(
+                StrategySectionName.REWRITE, None
+            )
         return _step_run_rewriter(
             exec_info=exec_info,
             rewrite_section=rewrite_section,
