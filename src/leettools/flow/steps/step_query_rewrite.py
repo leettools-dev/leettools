@@ -33,7 +33,7 @@ class StepQueryRewrite(AbstractStep):
         """
         display_logger = exec_info.display_logger
         display_logger.info(
-            f"[Status]Rewrite query: {exec_info.target_chat_query_item.query_content}"
+            f"[Status] Rewrite query: {exec_info.target_chat_query_item.query_content}"
         )
         rewrite_section = exec_info.strategy.strategy_sections.get(
             StrategySectionName.REWRITE, None
@@ -69,7 +69,7 @@ def _step_run_rewriter(
         display_logger.info("Rewrite strategy is disabled. Skip rewriting.")
         return Rewrite(rewritten_question=rewritten_query)
 
-    display_logger.info("[Status]Rewriting the query.")
+    display_logger.info("[Status] Rewriting the query.")
 
     query_rewriter = get_query_rewriter_by_strategy(
         context=context,
@@ -83,5 +83,5 @@ def _step_run_rewriter(
         query_item=query_item,
         query_metadata=query_metadata,
     )
-    display_logger.info(f"Rewritten result is: {rewrite}")
+    display_logger.info(f"[Update] Rewritten result is: {rewrite}")
     return rewrite

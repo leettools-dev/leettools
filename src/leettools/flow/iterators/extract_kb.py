@@ -96,7 +96,7 @@ newly extracted data will be saved to the backend storage.
         display_logger = exec_info.display_logger
 
         display_logger.info(
-            "[Status]Extracting information from documents in the knowledgebase ..."
+            "[Status] Extracting information from documents in the knowledgebase ..."
         )
 
         if save_to_backend:
@@ -145,7 +145,7 @@ newly extracted data will be saved to the backend storage.
                         )
 
                 display_logger.info(
-                    f"[Status]ExtractKB from document {document.original_uri} ..."
+                    f"[Status] ExtractKB from document {document.original_uri} ..."
                 )
                 extracted_obj_list = steps.StepExtractInfo.run_step(
                     exec_info=exec_info,

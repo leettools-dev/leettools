@@ -1,5 +1,6 @@
 import os
-from typing import List, Optional, Tuple
+import re
+from typing import List, Optional, Set, Tuple
 
 import aiofiles
 from fastapi import Depends, HTTPException
@@ -142,18 +143,41 @@ class ChatRouter(APIRouterBase):
         self.user_settings_store = context.get_user_settings_store()
         self.flow_manager = FlowManager(context.settings)
 
-        async def read_log_file(file_path: str):
-            async with aiofiles.open(file_path, mode="rb") as file:
-                while True:
-                    chunk = await file.read(4096)  # Read in chunks of 4KB
-                    if not chunk:
-                        break
-                    yield chunk
+        # Status types to filter log messages
+        if self.settings.display_log_status_flag:
+            # convert the comma separated string to a set
+            status_filter: Set[str] = set(
+                self.settings.display_log_status_flag.split(",")
+            )
+        else:
+            status_filter: Set[str] = {
+                "status",
+                "thinking",
+            }
+
+        async def read_log_file(file_path: str, full_log: bool):
+            async with aiofiles.open(file_path, mode="r") as file:
+                async for line in file:
+                    if full_log:
+                        yield line.encode()
+                    else:
+                        # Make the regex more flexible
+                        match = re.match(
+                            r"^\[(\d{2}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\]\s+(\S+)\s+\[(.*?)\]\s+(.*)$",
+                            line,
+                        )
+                        if match:
+                            log_level = match.group(2)
+                            status_type = match.group(3)
+                            message = match.group(4)
+                            if status_type.lower() in status_filter:
+                                yield line.encode()
 
         @self.get("/stream_logs/{chat_id}/{query_id}")
         async def stream_log(
             chat_id: str,
             query_id: str,
+            full_log: Optional[bool] = False,
             calling_user: User = Depends(self.auth.get_user_from_request),
         ) -> StreamingResponse:
             log_location = LogLocator.get_log_dir_for_query(
@@ -164,7 +188,7 @@ class ChatRouter(APIRouterBase):
                 if not os.path.isfile(log_path):
                     raise FileNotFoundError(f"Log file {log_path} not found.")
                 return StreamingResponse(
-                    read_log_file(log_path), media_type="text/plain"
+                    read_log_file(log_path, full_log), media_type="text/plain"
                 )
             except FileNotFoundError:
                 raise HTTPException(

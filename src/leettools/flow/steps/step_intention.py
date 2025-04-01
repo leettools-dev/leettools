@@ -48,7 +48,7 @@ def _run_intention(
     query_metadata = ChatQueryMetadata(intention=DEFAULT_INTENTION)
     if intention_section is None:
         display_logger.info(
-            "Intention section is not provided. Using the default intention."
+            "[Update] Intention section is not provided. Using the default intention."
         )
         return query_metadata
 
@@ -62,7 +62,7 @@ def _run_intention(
         )
         return query_metadata
 
-    display_logger.info("[Status]Getting intention for the query.")
+    display_logger.info("[Status] Getting intention for the query.")
 
     intention_getter = get_intention_getter_by_strategy(
         context=context,
@@ -71,5 +71,7 @@ def _run_intention(
         display_logger=display_logger,
     )
     query_metadata = intention_getter.get_intention(query)
-    display_logger.info(f"The intention for original query is: {query_metadata}")
+    display_logger.info(
+        f"[Update] The intention for original query is: {query_metadata}"
+    )
     return query_metadata

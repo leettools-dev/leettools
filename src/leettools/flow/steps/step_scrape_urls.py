@@ -67,7 +67,7 @@ and save them as a list of DocSinks in the DocSource.
         kb = exec_info.kb
         query = exec_info.target_chat_query_item.query_content
 
-        display_logger.info(f"[Status]Scraping {len(links)} URLs.")
+        display_logger.info(f"[Status] Scraping {len(links)} URLs.")
 
         docsink_create_list = web_searcher.scrape_urls_to_docsinks(
             query=query,

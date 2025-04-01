@@ -59,7 +59,7 @@ class StepInference(AbstractStep):
         if inference_section is None:
             raise UnexpectedCaseException("Inference section is None.")
 
-        display_logger.info(f"[Status]Running inference for query {query}.")
+        display_logger.info(f"[Status] Running inference for query {query}.")
 
         inference = get_inference_by_strategy(
             context, user, inference_section, display_logger

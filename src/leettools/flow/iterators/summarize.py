@@ -59,7 +59,7 @@ links, content, authors, etc. and save them to the database.
              url.
         """
         display_logger = exec_info.display_logger
-        display_logger.info("[Status]Summarizing documents for metadata ...")
+        display_logger.info("[Status] Summarizing documents for metadata ...")
 
         successful_documents: Dict[str, Document] = {}
 

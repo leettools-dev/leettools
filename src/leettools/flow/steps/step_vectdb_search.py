@@ -51,7 +51,7 @@ class StepVectorSearch(AbstractStep):
         flow_options = query_options.flow_options
         query = exec_info.target_chat_query_item.query_content
 
-        display_logger.info(f"[Status]Search in KB {kb.name} for related segments.")
+        display_logger.info(f"[Status] Search in KB {kb.name} for related segments.")
 
         search_section = exec_info.strategy.strategy_sections.get(
             StrategySectionName.SEARCH, None

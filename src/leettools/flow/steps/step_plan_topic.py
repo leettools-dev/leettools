@@ -2,6 +2,7 @@ import json
 from typing import ClassVar, Dict, List, Optional, Type
 
 from leettools.common import exceptions
+from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import config_utils, template_eval
 from leettools.core.consts import flow_option
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
@@ -148,7 +149,7 @@ def _step_plan_topic_for_style(
     - The list of topics.
     """
     display_logger = exec_info.display_logger
-    display_logger.info("[Status]Planning topics for research article.")
+    display_logger.info("[Status] Planning topics for research article.")
 
     if num_of_sections is None or num_of_sections == 0:
         num_of_section_instruction = "generate a list of most relevant topics"
@@ -238,7 +239,7 @@ def _step_plan_topic_for_style(
                 override_model_name=planning_model,
             )
 
-            return _parse_topic_list(response_str)
+            return _parse_topic_list(response_str, display_logger)
         except Exception as e:
             display_logger.error(f"Failed to generate topic list: {e}")
             if response_str is not None:
@@ -248,7 +249,7 @@ def _step_plan_topic_for_style(
     )
 
 
-def _parse_topic_list(response_str: str) -> TopicList:
+def _parse_topic_list(response_str: str, display_logger: EventLogger) -> TopicList:
     """Parse a string response into a TopicList object.
 
     Args:
@@ -303,4 +304,7 @@ def _parse_topic_list(response_str: str) -> TopicList:
         )
 
     topic_list = TopicList.model_validate(final_obj)
+    display_logger.info(
+        f"[Update] The topic list is:\n{json.dumps(final_obj, indent=2)}"
+    )
     return topic_list

@@ -68,7 +68,7 @@ options set in the query such as style, words, language, etc.
         - The generated section.
         """
         display_logger = exec_info.display_logger
-        display_logger.info(f"[Status]Generating section {section_plan.title}.")
+        display_logger.info(f"[Status] Generating section {section_plan.title}.")
 
         api_caller = exec_info.get_inference_caller()
 

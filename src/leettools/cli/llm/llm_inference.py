@@ -82,7 +82,7 @@ def inference_func(
     if inference_section is None:
         raise exceptions.UnexpectedCaseException("Inference section is None.")
 
-    display_logger.info(f"[Status]Running inference for query {query}.")
+    display_logger.info(f"[Status] Running inference for query {query}.")
 
     llm_cli_tool = LLMCliTool(context, user, inference_section, display_logger)
 
