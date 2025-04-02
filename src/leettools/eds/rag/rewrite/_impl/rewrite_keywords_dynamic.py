@@ -126,7 +126,7 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
                     "segment store, maybe from a deleted document."
                 )
                 continue
-            segment_token_count = self.tokenizer.token_count(segment.content)
+            segment_token_count = self.tokenizer.est_token_count(segment.content)
             if (context_token_count + segment_token_count) > context_limit:
                 self.display_logger.info(
                     f"Rewrite: Context token count exceeds {context_limit}. "

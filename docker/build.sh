@@ -25,6 +25,8 @@ cd "$BASE_DIR"
 cp "$DIR"/dockerignore.template "$BASE_DIR"/.dockerignore
 cat "$BASE_DIR"/.gitignore >> "$BASE_DIR"/.dockerignore
 
+export GIT_SHA=$(git rev-parse HEAD)
+
 docker build -t "${org_name}/${app_name}":"${version}" -f "$DIR"/Dockerfile "$BASE_DIR"
 
 # tag the image with the latest version

@@ -234,7 +234,7 @@ class Splitter:
         """
         if self.kb.enable_contextual_retrieval:
             if (
-                self.tokenizer.token_count(doc.content)
+                self.tokenizer.est_token_count(doc.content)
                 < self.settings.DEFAULT_CONTEXT_LIMIT
             ):
                 logger().info(
@@ -246,7 +246,7 @@ class Splitter:
                 context_token_count = 0
                 logger().info("Combining chunks for contextual retrieval")
                 for chunk in chunks:
-                    chunk_token_count = self.tokenizer.token_count(chunk.content)
+                    chunk_token_count = self.tokenizer.est_token_count(chunk.content)
                     if (
                         context_token_count + chunk_token_count
                         < self.settings.DEFAULT_CONTEXT_LIMIT
