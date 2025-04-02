@@ -2,7 +2,7 @@ import json
 from typing import ClassVar, Dict, List, Optional, Type
 
 from leettools.common import exceptions
-from leettools.common.logging.event_logger import EventLogger
+from leettools.common.logging.event_logger import EventLogger, logger
 from leettools.common.utils import config_utils, template_eval
 from leettools.core.consts import flow_option
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
@@ -249,7 +249,9 @@ def _step_plan_topic_for_style(
     )
 
 
-def _parse_topic_list(response_str: str, display_logger: EventLogger) -> TopicList:
+def _parse_topic_list(
+    response_str: str, display_logger: Optional[EventLogger] = None
+) -> TopicList:
     """Parse a string response into a TopicList object.
 
     Args:
@@ -261,6 +263,8 @@ def _parse_topic_list(response_str: str, display_logger: EventLogger) -> TopicLi
     Raises:
         LLMInferenceResultException: If response cannot be parsed into valid TopicList
     """
+    if display_logger is None:
+        display_logger = logger()
     # remove the starting and ending spaces or newlines
     response_str = response_str.strip()
     # remove ```json and ending ``` if presents
