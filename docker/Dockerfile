@@ -64,17 +64,21 @@ RUN pip install --no-cache-dir tiktoken==0.8.0
 
 RUN pip install --no-cache-dir duckdb==1.1.3
 
-RUN pip install --no-cache-dir docling==2.25.2
+RUN pip install --no-cache-dir docling==2.26.0
 
-RUN pip install --no-cache-dir docling_core==2.21.1
+RUN pip install --no-cache-dir docling_core==2.23.0
 
 RUN pip install --no-cache-dir chonkie==0.5.1
 
 RUN pip install --no-cache-dir langchain-community==0.3.15
 
+RUN pip install --no-cache-dir langid==1.1.6
+
+RUN pip install --no-cache-dir nest-asyncio==1.6.0
+
 RUN pip install --no-cache-dir firecrawl-py==1.12.0
 
-RUN pip install --no-cache-dir langid==1.1.6
+RUN pip install --no-cache-dir lxml==5.3.0
 
 
 # it seems that the version of apache2-utils is not stable
@@ -99,5 +103,6 @@ RUN pip install -e . \
 EXPOSE ${EDS_API_SERVICE_PORT}
 
 ENV LOG_OUTPUT="console"
+ENV GIT_SHA=$GIT_SHA
 
 CMD ["./scripts/run.sh"]

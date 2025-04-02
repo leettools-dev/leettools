@@ -79,7 +79,7 @@ class ChunkerSimple(AbstractChunker):
         state.start_offset = state.end_offset
 
     def _get_chunk_size(self, text: str) -> int:
-        return self.tokenizer.token_count(text)
+        return self.tokenizer.est_token_count(text)
 
     def _check_chunk_size(self, state: _ChunkState, line: str) -> None:
         combined_content = state.chunk_content + line

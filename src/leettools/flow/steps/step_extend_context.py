@@ -186,7 +186,7 @@ class StepExtendContext(AbstractStep):
 
         if chat_history_str is not None and chat_history_str != "":
             extended_context = f"Here is the chat history:\n{chat_history_str}\n"
-            context_token_count = tokenizer.token_count(extended_context)
+            context_token_count = tokenizer.est_token_count(extended_context)
             display_logger.debug(
                 f"Extended context chat_history token count: {context_token_count}"
             )
@@ -223,7 +223,7 @@ class StepExtendContext(AbstractStep):
                     segments_set=segments_set,
                 )
 
-            segment_token_count = tokenizer.token_count(segment_content)
+            segment_token_count = tokenizer.est_token_count(segment_content)
             if (context_token_count + segment_token_count) > context_limit:
                 display_logger.info(
                     f"Reference token count exceeds {context_limit}. "

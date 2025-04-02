@@ -1,0 +1,8 @@
+# Video News
+api.video==1.4.1
+edge-tts==6.1.12
+google-cloud-texttospeech==2.16.3
+moviepy==1.0.3
+pillow==10.4.0
+replicate==0.32.0
+PyVimeo==1.1.2
