@@ -29,6 +29,7 @@ from leettools.core.consts.flow_option import (
     FLOW_OPTION_RECURSIVE_SCRAPE_MAX_COUNT,
     FLOW_OPTION_REFERENCE_STYLE,
     FLOW_OPTION_RETRIEVER_TYPE,
+    FLOW_OPTION_SEARCH_INCLUDE_LOCAL,
     FLOW_OPTION_SEARCH_ITERATION,
     FLOW_OPTION_SEARCH_LANGUAGE,
     FLOW_OPTION_SEARCH_MAX_RESULTS,
@@ -752,6 +753,24 @@ def _search_excluded_sites(
     )
 
 
+def _search_include_local_data(
+    explicit: Optional[bool] = False, required: Optional[bool] = False
+) -> FlowOptionItem:
+    return FlowOptionItem(
+        name=FLOW_OPTION_SEARCH_INCLUDE_LOCAL,
+        display_name=_("Include Local Data in Web Search"),
+        description=_(
+            "If true, include local data even using web search. Default is False."
+        ),
+        default_value="False",
+        value_type="bool",
+        example_value="False",
+        multiline=False,
+        explicit=explicit,
+        required=required,
+    )
+
+
 def _query_docsource_uuid(
     explicit: Optional[bool] = False, required: Optional[bool] = False
 ) -> FlowOptionItem:
@@ -812,6 +831,7 @@ FOI_SEARCH_MAX_RESULTS = _search_max_results
 FOI_SEARCH_RECURSIVE_SCRAPE = _recursive_scrape
 FOI_SEARCH_RECURSIVE_SCRAPE_ITERATION = _recursive_scrape_iteration
 FOI_SEARCH_RECURSIVE_SCRAPE_MAX_COUNT = _recursive_scrape_max_count
+FOI_SEARCH_INCLUDE_LOCAL = _search_include_local_data
 FOI_SEARCH_REWRITE = _search_rewrite
 FOI_STRICT_CONTEXT = _strict_context
 FOI_SUMMARY_MODEL = _summary_model

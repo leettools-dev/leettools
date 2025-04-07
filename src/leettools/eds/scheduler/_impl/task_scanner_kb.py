@@ -545,13 +545,13 @@ class TaskScannerKB(AbstractTaskScanner):
                         else:
                             self.logger.noop(
                                 f"Ignore finished docsource with no unfinished tasks: {dssig}",
-                                noop_lvl=1,
+                                noop_lvl=3,
                             )
                         return False
 
                     if _need_to_check_docsource() == False:
                         self.logger.noop(
-                            f"No need to check the docsource: {dssig}", noop_lvl=1
+                            f"No need to check the docsource: {dssig}", noop_lvl=3
                         )
                         continue
 

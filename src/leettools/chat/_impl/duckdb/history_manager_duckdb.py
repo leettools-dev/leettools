@@ -18,6 +18,7 @@ from leettools.chat.schemas.chat_history import (
 )
 from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
+from leettools.common.i18n.translator import _
 from leettools.common.logging import logger, remove_logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.logging.logger_for_query import get_logger_for_chat
@@ -100,7 +101,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 query_item.finished_at = timestamp_now
                 break
 
-        ch_in_db.metadata = self._get_ch_metadata(
+        ch_in_db.metadata = self._gen_ch_metadata(
             chat_query_item=chat_query_item, answers=chat_answer_item_list
         )
         query_dict = self._chat_history_to_dict(ch_in_db)
@@ -130,45 +131,48 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             kb_id=kb.kb_id,
         )
 
-    def _chat_history_to_dict(self, chat_history: ChatHistory) -> Dict[str, Any]:
-        data = chat_history.model_dump()
-        if (
-            data.get(ChatHistory.FIELD_METADATA)
-            and data[ChatHistory.FIELD_METADATA] != None
-        ):
-            data[ChatHistory.FIELD_METADATA] = CHMetadata.model_validate(
-                data[ChatHistory.FIELD_METADATA]
-            ).model_dump_json()
-        else:
-            data[ChatHistory.FIELD_METADATA] = "{}"
-        if (
-            data.get(ChatHistory.FIELD_QUERIES)
-            and len(data[ChatHistory.FIELD_QUERIES]) > 0
-        ):
-            data[ChatHistory.FIELD_QUERIES] = (
-                "["
-                + ",".join(
-                    ChatQueryItem.model_validate(q).model_dump_json()
-                    for q in data[ChatHistory.FIELD_QUERIES]
-                )
-                + "]"
-            )
-        else:
-            data[ChatHistory.FIELD_QUERIES] = "[]"
-        if (
-            data.get(ChatHistory.FIELD_ANSWERS)
-            and len(data[ChatHistory.FIELD_ANSWERS]) > 0
-        ):
-            data[ChatHistory.FIELD_ANSWERS] = (
-                "["
-                + ",".join(
-                    ChatAnswerItem.model_validate(a).model_dump_json()
-                    for a in data[ChatHistory.FIELD_ANSWERS]
-                )
-                + "]"
-            )
-        else:
-            data[ChatHistory.FIELD_ANSWERS] = "[]"
+    def _metadata_to_str(self, metadata: Optional[CHMetadata]) -> str:
+        if metadata is None:
+            return "{}"
+        return metadata.model_dump_json()
+
+    def _str_to_metadata(self, metadata_str: str) -> Optional[CHMetadata]:
+        if metadata_str == "{}":
+            return None
+        return CHMetadata.model_validate_json(metadata_str)
+
+    def _queries_to_str(self, queries: List[ChatQueryItem]) -> str:
+        if queries is None or len(queries) == 0:
+            return "[]"
+
+        return "[" + ",".join(q.model_dump_json() for q in queries) + "]"
+
+    def _str_to_queries(self, queries_str: str) -> List[ChatQueryItem]:
+        if queries_str == "[]":
+            return []
+        return [
+            ChatQueryItem.model_validate_json(json.dumps(q))
+            for q in json.loads(queries_str)
+        ]
+
+    def _answers_to_str(self, answers: List[ChatAnswerItem]) -> str:
+        if answers is None or len(answers) == 0:
+            return "[]"
+        return "[" + ",".join(a.model_dump_json() for a in answers) + "]"
+
+    def _str_to_answers(self, answers_str: str) -> List[ChatAnswerItem]:
+        if answers_str == "[]":
+            return []
+        return [
+            ChatAnswerItem.model_validate_json(json.dumps(a))
+            for a in json.loads(answers_str)
+        ]
+
+    def _chat_history_to_dict(self, ch: ChatHistory) -> Dict[str, Any]:
+        data = ch.model_dump()
+        data[ChatHistory.FIELD_METADATA] = self._metadata_to_str(ch.metadata)
+        data[ChatHistory.FIELD_QUERIES] = self._queries_to_str(ch.queries)
+        data[ChatHistory.FIELD_ANSWERS] = self._answers_to_str(ch.answers)
         return data
 
     def _create_answer_for_exception(
@@ -194,11 +198,12 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             display_trace = trace.replace("\n", "<br>")
         chat_answer_item_create_list = []
 
-        # TODO: use a central place to handle i18n strings
         answer_content = (
-            "Sorry, I am unable to answer the question because of a "
-            f"backend error:\n\n{errmsg}\n\nPlease report to admin@leettools.com and "
-            f"try again later. Error details:\n\n{display_trace}\n"
+            _("Sorry, I am unable to answer the question because of a backend error:")
+            + f"\n\n{errmsg}\n\n"
+            + _("Please report to admin@leettools.com and try again later. ")
+            + _("Error details:\n\n")
+            + display_trace
         )
 
         chat_answer_item_create = ChatAnswerItemCreate(
@@ -214,51 +219,34 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
         )
 
     def _dict_to_chat_history(self, chat_dict: Dict[str, Any]) -> ChatHistory:
-        metadata = None
-        """Convert a dictionary to a ChatHistory object."""
-        if (
-            ChatHistory.FIELD_METADATA in chat_dict
-            and chat_dict[ChatHistory.FIELD_METADATA] != "{}"
-        ):
-            metadata = CHMetadata.model_validate_json(
-                chat_dict[ChatHistory.FIELD_METADATA]
-            )
-        queries = []
-        if (
-            ChatHistory.FIELD_QUERIES in chat_dict
-            and chat_dict[ChatHistory.FIELD_QUERIES] != "[]"
-        ):
-            json_str = '{ "queries": ' + chat_dict[ChatHistory.FIELD_QUERIES] + "}"
-            json_obj = json.loads(json_str)
-            for query_dict in json_obj["queries"]:
-                queries.append(ChatQueryItem.model_validate(query_dict))
-        answers = []
-        if (
-            ChatHistory.FIELD_ANSWERS in chat_dict
-            and chat_dict[ChatHistory.FIELD_ANSWERS] != "[]"
-        ):
-            json_str = '{ "answers": ' + chat_dict[ChatHistory.FIELD_ANSWERS] + "}"
-            json_obj = json.loads(json_str)
-            for answer_dict in json_obj["answers"]:
-                answers.append(ChatAnswerItem.model_validate(answer_dict))
+        try:
+            metadata = self._str_to_metadata(chat_dict[ChatHistory.FIELD_METADATA])
+            queries = self._str_to_queries(chat_dict[ChatHistory.FIELD_QUERIES])
+            answers = self._str_to_answers(chat_dict[ChatHistory.FIELD_ANSWERS])
 
-        chat_history = ChatHistory(
-            chat_id=chat_dict[ChatHistory.FIELD_CHAT_ID],
-            name=chat_dict[ChatHistory.FIELD_NAME],
-            kb_id=chat_dict[ChatHistory.FIELD_KB_ID],
-            creator_id=chat_dict[ChatHistory.FIELD_CREATOR_ID],
-            article_type=ArticleType(chat_dict[ChatHistory.FIELD_ARTICLE_TYPE]),
-            description=chat_dict[ChatHistory.FIELD_DESCRIPTION],
-            share_to_public=chat_dict[ChatHistory.FIELD_SHARE_TO_PUBLIC],
-            org_id=chat_dict[ChatHistory.FIELD_ORG_ID],
-            owner_id=chat_dict[ChatHistory.FIELD_OWNER_ID],
-            created_at=chat_dict[ChatHistory.FIELD_CREATED_AT],
-            updated_at=chat_dict[ChatHistory.FIELD_UPDATED_AT],
-            metadata=metadata,
-            queries=queries,
-            answers=answers,
-            kb_name=chat_dict[ChatHistory.FIELD_KB_NAME],
-        )
+            chat_history = ChatHistory(
+                chat_id=chat_dict[ChatHistory.FIELD_CHAT_ID],
+                name=chat_dict[ChatHistory.FIELD_NAME],
+                kb_id=chat_dict[ChatHistory.FIELD_KB_ID],
+                creator_id=chat_dict[ChatHistory.FIELD_CREATOR_ID],
+                article_type=ArticleType(chat_dict[ChatHistory.FIELD_ARTICLE_TYPE]),
+                description=chat_dict[ChatHistory.FIELD_DESCRIPTION],
+                share_to_public=chat_dict[ChatHistory.FIELD_SHARE_TO_PUBLIC],
+                org_id=chat_dict[ChatHistory.FIELD_ORG_ID],
+                owner_id=chat_dict[ChatHistory.FIELD_OWNER_ID],
+                created_at=chat_dict[ChatHistory.FIELD_CREATED_AT],
+                updated_at=chat_dict[ChatHistory.FIELD_UPDATED_AT],
+                metadata=metadata,
+                queries=queries,
+                answers=answers,
+                kb_name=chat_dict[ChatHistory.FIELD_KB_NAME],
+            )
+        except Exception as e:
+            logger().error(
+                f"Error in converting chat history dictionary to ChatHistory object: {e}"
+            )
+            logger().error(f"Chat history dictionary: {chat_dict}")
+            chat_history = None
         return chat_history
 
     def _execute_flow_for_query(
@@ -328,29 +316,6 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 trace=trace,
             )
 
-    def _get_ch_metadata(
-        self, chat_query_item: ChatQueryItem, answers: List[ChatAnswerItem]
-    ) -> CHMetadata:
-        result_snippet = ""
-        img_link = None
-
-        for answer in answers:
-            if answer.position_in_answer == "1":
-                result_snippet = answer.answer_content[:200]
-            if answer.position_in_answer == "all":
-                if result_snippet == "":
-                    result_snippet = answer.answer_content[:200]
-
-            if img_link is None:
-                img_link = content_utils.get_image_url(answer.answer_content)
-
-        metadata = CHMetadata(
-            flow_type=chat_query_item.flow_type,
-            result_snippet=result_snippet,
-            img_link=img_link,
-        )
-        return metadata
-
     def _get_table_name_for_user(self, username: str) -> str:
         user = self.user_store.get_user_by_name(username)
         db_name = User.get_user_db_name(user.user_uuid)
@@ -415,9 +380,8 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             cai.position_in_answer = str(cur_index)
             cur_index += 1
 
-        update_dict = {"answers": [answer.model_dump() for answer in sorted_answers]}
-        column_list = list(update_dict.keys())
-        value_list = list(update_dict.values())
+        column_list = ["answers"]
+        value_list = [self._answers_to_str(sorted_answers)]
         where_clause = f"WHERE {ChatHistory.FIELD_CHAT_ID} = ? AND {ChatHistory.FIELD_CREATOR_ID} = ?"
         value_list = value_list + [chat_id, username]
         table_name = self._get_table_name_for_user(username)
@@ -591,7 +555,15 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             where_clause=where_clause,
             value_list=value_list,
         )
-        return [self._dict_to_chat_history(rtn_dict) for rtn_dict in rtn_dicts]
+        rtn_ch_list: List[ChatHistory] = []
+        for rtn_dict in rtn_dicts:
+            if rtn_dict is None:
+                continue
+            ch = self._dict_to_chat_history(rtn_dict)
+            if ch is None:
+                continue
+            rtn_ch_list.append(ch)
+        return rtn_ch_list
 
     def get_ch_entries_by_username_with_type(
         self, username: str, article_type: str
@@ -608,7 +580,15 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             where_clause=where_clause,
             value_list=value_list,
         )
-        return [self._dict_to_chat_history(rtn_dict) for rtn_dict in rtn_dicts]
+        rtn_ch_list: List[ChatHistory] = []
+        for rtn_dict in rtn_dicts:
+            if rtn_dict is None:
+                continue
+            ch = self._dict_to_chat_history(rtn_dict)
+            if ch is None:
+                continue
+            rtn_ch_list.append(ch)
+        return rtn_ch_list
 
     def get_ch_entries_by_username_with_type_in_kb(
         self,
@@ -632,7 +612,15 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             where_clause=where_clause,
             value_list=value_list,
         )
-        return [self._dict_to_chat_history(rtn_dict) for rtn_dict in rtn_dicts]
+        rtn_ch_list: List[ChatHistory] = []
+        for rtn_dict in rtn_dicts:
+            if rtn_dict is None:
+                continue
+            ch = self._dict_to_chat_history(rtn_dict)
+            if ch is None:
+                continue
+            rtn_ch_list.append(ch)
+        return rtn_ch_list
 
     def get_kb_owner_ch_entries_by_type(
         self, org: Org, kb: KnowledgeBase, article_type: Optional[ArticleType] = None
@@ -662,7 +650,15 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             where_clause=where_clause,
             value_list=value_list,
         )
-        return [self._dict_to_chat_history(rtn_dict) for rtn_dict in rtn_dicts]
+        rtn_ch_list: List[ChatHistory] = []
+        for rtn_dict in rtn_dicts:
+            if rtn_dict is None:
+                continue
+            ch = self._dict_to_chat_history(rtn_dict)
+            if ch is None:
+                continue
+            rtn_ch_list.append(ch)
+        return rtn_ch_list
 
     def get_shared_samples_by_flow_type(
         self, org: Org, flow_type: str
@@ -757,12 +753,10 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 cai.position_in_answer = str(cur_index)
                 cur_index += 1
 
-            update_dict = {
-                "answers": [answer.model_dump() for answer in updated_answers]
-            }
-            column_list = [k for k in update_dict.keys()]
-            value_list = [v for v in update_dict.values()]
+            column_list = ["answers"]
+            value_list = [self._answers_to_str(updated_answers)]
             table_name = self._get_table_name_for_user(username)
+
             where_clause = f"WHERE {ChatHistory.FIELD_CHAT_ID} = ? AND {ChatHistory.FIELD_CREATOR_ID} = ?"
             value_list = value_list + [chat_id, username]
             self.duckdb_client.update_table(
@@ -891,6 +885,10 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
 
     def update_ch_entry(self, ch_update: CHUpdate) -> Optional[ChatHistory]:
         """Update an existing chat history entry."""
+
+        """
+        Currently we only allow to update name, description, and share_to_public
+        """
         update_dict = {}
         if ch_update.name is not None:
             update_dict[ChatHistory.FIELD_NAME] = ch_update.name
@@ -946,52 +944,52 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 updated = True
                 break
 
-        if updated:
-            # sort the answers by their position_in_answer
-            # make sure the order is like
-            # 1, 1.1, 1.2, 2, 2.1, 2.2, 3, 3.1, 3.2
-            updated_answers: List[ChatAnswerItem] = sorted(
-                chat.answers,
-                key=cmp_to_key(position_util.is_answer_item_before),
-            )
-
-            cur_index = 1
-            for cai in updated_answers:
-                if cai.query_id != query_id:
-                    continue
-                if cai.position_in_answer == "all":
-                    continue
-                if cai.answer_score < 0:
-                    continue
-                cai.position_in_answer = str(cur_index)
-                cur_index += 1
-
-            # we will just use the first ChatQueryItem to get the metadata
-            # for QA_Chat, it is the firt query
-            # for all the other types, there shoul be only one ChatQueryItem
-            metadata = self._get_ch_metadata(
-                chat_query_item=chat.queries[0], answers=updated_answers
-            )
-
-            update_dict = {
-                "answers": [answer.model_dump() for answer in updated_answers],
-                "metadata": metadata.model_dump(),
-            }
-            column_list = [k for k in update_dict.keys()]
-            value_list = [v for v in update_dict.values()]
-            table_name = self._get_table_name_for_user(username)
-            where_clause = f"WHERE {ChatHistory.FIELD_CHAT_ID} = ? AND {ChatHistory.FIELD_CREATOR_ID} = ?"
-            value_list = value_list + [chat_id, username]
-            self.duckdb_client.update_table(
-                table_name=table_name,
-                column_list=column_list,
-                value_list=value_list,
-                where_clause=where_clause,
-            )
-            return self.get_ch_entry(username, chat_id)
-        else:
+        if not updated:
             logger().warning(
                 f"No answer at position {position_in_answer} found to update "
                 f"for query {query_id} in chat {chat_id} for user {username}"
             )
             return None
+
+        # sort the answers by their position_in_answer
+        # make sure the order is like
+        # 1, 1.1, 1.2, 2, 2.1, 2.2, 3, 3.1, 3.2
+        updated_answers: List[ChatAnswerItem] = sorted(
+            chat.answers,
+            key=cmp_to_key(position_util.is_answer_item_before),
+        )
+
+        cur_index = 1
+        for cai in updated_answers:
+            if cai.query_id != query_id:
+                continue
+            if cai.position_in_answer == "all":
+                continue
+            if cai.answer_score < 0:
+                continue
+            cai.position_in_answer = str(cur_index)
+            cur_index += 1
+
+        # we will just use the first ChatQueryItem to get the metadata
+        # for QA_Chat, it is the firt query
+        # for all the other types, there should be only one ChatQueryItem
+        metadata = self._gen_ch_metadata(
+            chat_query_item=chat.queries[0], answers=updated_answers
+        )
+
+        column_list = ["answers", "metadata"]
+        value_list = [
+            self._answers_to_str(updated_answers),
+            self._metadata_to_str(metadata),
+        ]
+
+        table_name = self._get_table_name_for_user(username)
+        where_clause = f"WHERE {ChatHistory.FIELD_CHAT_ID} = ? AND {ChatHistory.FIELD_CREATOR_ID} = ?"
+        value_list = value_list + [chat_id, username]
+        self.duckdb_client.update_table(
+            table_name=table_name,
+            column_list=column_list,
+            value_list=value_list,
+            where_clause=where_clause,
+        )
+        return self.get_ch_entry(username, chat_id)

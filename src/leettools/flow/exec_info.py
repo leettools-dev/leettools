@@ -74,6 +74,8 @@ class ExecInfo(ExecInfoBase):
         self.flow_options = self.chat_query_options.flow_options
         if self.flow_options is None:
             self.flow_options = {}
+        if self.display_logger is None:
+            self.display_logger = logger()
 
     def get_inference_caller(
         self, strategy: Optional[Strategy] = None

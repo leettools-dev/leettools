@@ -29,6 +29,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
         "INT2": "INTEGER",
         "INT4": "INTEGER",
         "BIGINT": "BIGINT",
+        "UINT64": "UBIGINT",
         "INT8": "BIGINT",
         "FLOAT": "REAL",
         "REAL": "REAL",
@@ -226,7 +227,8 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                                     continue
 
                                 raise exceptions.UnexpectedCaseException(
-                                    f"Column base type mismatch for {col_name}: existing {existing_base_type} vs new {new_base_type}"
+                                    f"Column base type mismatch for {col_name}: existing {existing_base_type} vs new {new_base_type}. "
+                                    f"Please check the TYPE_MAP to see if the types are correctly mapped."
                                 )
                         else:
                             # Add new column
@@ -377,5 +379,6 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
             if where_clause is not None:
                 update_sql += f"{where_clause}"
             logger().noop(f"SQL Statement update_sql: {update_sql}", noop_lvl=2)
+            logger().noop(f"SQL Statement value_list: {value_list}", noop_lvl=2)
             with self._get_table_lock(table_name):
                 cursor.execute(update_sql, value_list)

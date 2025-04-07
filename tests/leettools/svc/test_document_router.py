@@ -130,6 +130,39 @@ def _test_router(
     returned_document = Document.model_validate(doc_json)
     assert returned_document.content == "content"
 
+    response = client.get(f"/{org.name}/{kb.name}/docsource_type", headers=headers)
+    assert response.status_code == 200
+    assert isinstance(response.json(), dict)
+    assert len(response.json()) == 1
+    ds_type = list(response.json().keys())[0]
+    assert ds_type == DocSourceType.FILE.value
+
+    doc_list = response.json()[ds_type]
+    assert isinstance(doc_list, list)
+    assert len(doc_list) == 1
+    doc = doc_list[0]
+    returned_document = Document.model_validate(doc)
+    assert returned_document.document_uuid == document.document_uuid
+    assert returned_document.docsource_type == DocSourceType.FILE
+
+    response = client.get(
+        f"/{org.name}/{kb.name}/docsource_type?docsource_type={DocSourceType.FILE.value}",
+        headers=headers,
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), dict)
+    assert len(response.json()) == 1
+    ds_type = list(response.json().keys())[0]
+    assert ds_type == DocSourceType.FILE.value
+
+    doc_list = response.json()[ds_type]
+    assert isinstance(doc_list, list)
+    assert len(doc_list) == 1
+    doc = doc_list[0]
+    returned_document = Document.model_validate(doc)
+    assert returned_document.document_uuid == document.document_uuid
+    assert returned_document.docsource_type == DocSourceType.FILE
+
     response = client.delete(
         f"/{org.name}/{kb.name}/{document.document_uuid}", headers=headers
     )

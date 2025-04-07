@@ -2,14 +2,21 @@ import threading
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
-from leettools.chat.schemas.chat_history import ChatHistory, CHCreate, CHUpdate
+from leettools.chat.schemas.chat_history import (
+    ChatHistory,
+    CHCreate,
+    CHMetadata,
+    CHUpdate,
+)
 from leettools.common.logging import EventLogger
 from leettools.common.singleton_meta import SingletonMeta
+from leettools.common.utils import content_utils
 from leettools.context_manager import Context
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.schemas.chat_query_item import ChatQueryItem, ChatQueryItemCreate
 from leettools.core.schemas.chat_query_options import ChatQueryOptions
 from leettools.core.schemas.chat_query_result import (
+    ChatAnswerItem,
     ChatAnswerItemCreate,
     ChatQueryResult,
 )
@@ -302,6 +309,35 @@ class AbstractHistoryManager(ABC):
         - The result of the query.
         """
         pass
+
+    def _gen_ch_metadata(
+        self, chat_query_item: ChatQueryItem, answers: List[ChatAnswerItem]
+    ) -> CHMetadata:
+        result_snippet = ""
+        img_link = None
+
+        for answer in answers:
+            if answer.position_in_answer == "1":
+                result_snippet = answer.answer_content[:200]
+
+            # TBF: this logic should deprecated now since we do not use
+            # position_in_answer == "all" to store the combined answer anymore
+            if answer.position_in_answer == "all":
+                if result_snippet == "":
+                    result_snippet = answer.answer_content[:200]
+
+            if img_link is None:
+                img_link = content_utils.get_image_url(answer.answer_content)
+
+            if result_snippet and img_link:
+                break
+
+        metadata = CHMetadata(
+            flow_type=chat_query_item.flow_type,
+            result_snippet=result_snippet,
+            img_link=img_link,
+        )
+        return metadata
 
 
 class _SingletonMetaHM(SingletonMeta):

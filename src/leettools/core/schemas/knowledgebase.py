@@ -72,9 +72,7 @@ class KBCreate(KBBase, KBPerfConfig):
     user_uuid: Optional[str] = Field(None, description="The creator uuid of the KB")
     auto_schedule: Optional[bool] = Field(
         True,
-        description=(
-            "Whether to add the KB to the scheduler. Adhoc KBs should set this to False",
-        ),
+        description="Whether to add the KB to the scheduler. Adhoc KBs should set this to False",
     )
 
 

@@ -109,6 +109,27 @@ When interested in a topic, you can generate a digest article:
             display_logger=display_logger,
         )
 
+        recursive_scrape = config_utils.get_bool_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_RECURSIVE_SCRAPE,
+            default_value=False,
+            display_logger=display_logger,
+        )
+
+        recur_max_count = config_utils.get_int_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_RECURSIVE_SCRAPE_MAX_COUNT,
+            default_value=10,
+            display_logger=display_logger,
+        )
+
+        recur_iterations = config_utils.get_int_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_RECURSIVE_SCRAPE_ITERATION,
+            default_value=3,
+            display_logger=display_logger,
+        )
+
         # the agent flow starts here
         if search_language or search_rewrite:
             search_keywords = steps.StepGenSearchPhrases.run_step(exec_info=exec_info)
@@ -123,27 +144,6 @@ When interested in a topic, you can generate a digest article:
             for search_result in search_results:
                 document_summaries += search_result.snippet
         else:
-            recursive_scrape = config_utils.get_bool_option_value(
-                options=flow_options,
-                option_name=flow_option.FLOW_OPTION_RECURSIVE_SCRAPE,
-                default_value=False,
-                display_logger=display_logger,
-            )
-
-            recur_max_count = config_utils.get_int_option_value(
-                options=flow_options,
-                option_name=flow_option.FLOW_OPTION_RECURSIVE_SCRAPE_MAX_COUNT,
-                default_value=10,
-                display_logger=display_logger,
-            )
-
-            recur_iterations = config_utils.get_int_option_value(
-                options=flow_options,
-                option_name=flow_option.FLOW_OPTION_RECURSIVE_SCRAPE_ITERATION,
-                default_value=3,
-                display_logger=display_logger,
-            )
-
             # accumulated states (including web_searcher, which will cache the visited urls)
             web_searcher = WebSearcher(context=self.context)
             # all the documents that have been summarized

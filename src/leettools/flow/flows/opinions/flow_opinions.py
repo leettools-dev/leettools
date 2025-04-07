@@ -252,9 +252,7 @@ facts_instructions = \"\"\"
         opinion_instruction = flow_option_items.FlowOptionItem(
             name=cls.FLOW_OPTION_OPINIONS_INSTRUCTION,
             display_name="Opinions Extraction Instruction",
-            description=(
-                "The backend will execute the Python code to get required settings and variables."
-            ),
+            description="The backend will execute the Python code to get required settings and variables.",
             default_value=None,
             example_value=example_value,
             explicit=False,

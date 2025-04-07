@@ -89,9 +89,7 @@ class SegmentInDBBase(SegmentBase):
     # The id of the graph node that represents the segment
     graph_node_id: Optional[int] = Field(
         None,
-        description=(
-            "The id of the graph node that represents the segment if we have a document graph"
-        ),
+        description="The id of the graph node that represents the segment if we have a document graph",
     )
 
 
