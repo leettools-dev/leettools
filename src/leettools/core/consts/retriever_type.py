@@ -42,7 +42,7 @@ def supported_retriever(region: Optional[str] = "all") -> List[str]:
 
     if region.lower() == "cn":
         return [
-            RetrieverType.BAIDU.value,
+            RetrieverType.GOOGLE.value,
             RetrieverType.BING.value,
             RetrieverType.LOCAL.value,
         ]

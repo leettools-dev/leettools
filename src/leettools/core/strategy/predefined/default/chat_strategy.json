@@ -1,6 +1,4 @@
 {
     "strategy_name": "default",
-    "strategy_description": "Default strategy using system default settings",
-    "rewrite": "default",
-    "rewrite_options": {"model_name": "gpt-4o-mini"}
+    "strategy_description": "Default strategy using system default settings"
 }

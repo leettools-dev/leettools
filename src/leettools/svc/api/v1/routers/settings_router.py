@@ -44,6 +44,8 @@ class SettingsRouter(APIRouterBase):
                 "gpt-4": "OpenAI GPT-4",
                 "gpt-4o": "OpenAI GPT-4o",
                 "gpt-4o-mini": "OpenAI GPT-4o Mini",
+                "deepseek-chat": "DeepSeek Chat",
+                "deepseek-reasoner": "DeepSeek Reasoner",
             }
 
         @self.get("/supported_web_retriever", response_model=List[str])
