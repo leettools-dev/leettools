@@ -126,7 +126,7 @@ def _test_router(
             f"/shared/{username}/{chat_history.chat_id}", headers=headers
         )
     except HTTPException as e:
-        print(e.detail)
+        print(f"Expected error: {e.detail}")
         assert e.status_code == 403
 
     response = client.get(f"/history", headers=headers)
@@ -182,9 +182,16 @@ def _test_router(
     assert ch.name == ch_update.name
     assert ch.description == ch_update.description
 
-    response = client.get(f"/articles?article_type=chat", headers=headers)
+    response = client.get(f"/articles", headers=headers)
     assert response.status_code == 200
     assert isinstance(response.json(), list)
+
+    response = client.get(
+        f"/articles?article_type={ArticleType.CHAT.value}", headers=headers
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
     ch = ChatHistory.model_validate(response.json()[0])
     assert ch.creator_id == username
     assert ch.chat_id == chat_history.chat_id
@@ -194,7 +201,8 @@ def _test_router(
     assert len(ch.answers) > 0
 
     response = client.get(
-        f"/articles?article_type=chat&list_only=True", headers=headers
+        f"/articles?article_type={ArticleType.CHAT.value}&list_only=True",
+        headers=headers,
     )
     assert response.status_code == 200
     assert isinstance(response.json(), list)

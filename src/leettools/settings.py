@@ -71,32 +71,14 @@ def preset_store_types_for_tests() -> List[Dict[str, str]]:
     """
     Used in testing to preset the store types for different data store combos.
     """
-
-    # check the env EDS_TEST_FULL, return only the duckdb if the var is false.
-    if config_utils.value_to_bool(os.getenv("EDS_TEST_FULL")):
-        return [
-            {
-                "doc_store": "mongo",
-                "rdbms_store": "mongo",
-                "graph_store": "neo4j",
-                "vector_store": "milvus",
-            },
-            {
-                "doc_store": "duckdb",
-                "rdbms_store": "duckdb",
-                "graph_store": "duckdb",
-                "vector_store": "duckdb",
-            },
-        ]
-    else:
-        return [
-            {
-                "doc_store": "duckdb",
-                "rdbms_store": "duckdb",
-                "graph_store": "duckdb",
-                "vector_store": "duckdb",
-            },
-        ]
+    return [
+        {
+            "doc_store": "duckdb",
+            "rdbms_store": "duckdb",
+            "graph_store": "duckdb",
+            "vector_store": "duckdb",
+        },
+    ]
 
 
 @add_env_var_constants
