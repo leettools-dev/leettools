@@ -168,6 +168,7 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
         else:
             cur = self._dict_to_user_settings(result)
 
+            # first update the settings with the default values
             for key, item in default.items():
                 if key not in cur.settings:
                     if key not in update.settings:
@@ -181,6 +182,13 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
                     else:
                         # the key already exists and the update does not contain the key
                         pass
+
+            # Now update the settings with the new values
+            for key, item in update.settings.items():
+                if key not in cur.settings:
+                    cur.settings[key] = item
+                else:
+                    cur.settings[key].value = item.value
 
             return self._update_user_settings(cur)
 

@@ -31,6 +31,7 @@ class CHBase(BaseModel):
     share_to_public: Optional[bool] = Field(
         False, description="Whether the chat is shared to the public."
     )
+    flow_type: Optional[str] = Field(None, description="The flow type used in the chat")
 
 
 class CHCreate(CHBase):
@@ -94,6 +95,7 @@ class CHInDB(CHInDBBase):
             kb_id=ch_create.kb_id,
             description=ch_create.description,
             article_type=ch_create.article_type,
+            flow_type=ch_create.flow_type,
             chat_id=str(uuid.uuid4()),
             created_at=ct,
             updated_at=ct,
@@ -118,7 +120,6 @@ class ChatHistory(CHInDB):
     and etc.
     """
 
-    #
     kb_name: Optional[str] = Field(
         None, description="For adhoc chat, we need to return the kb_name created."
     )
@@ -150,6 +151,13 @@ class ChatHistory(CHInDB):
     def from_ch_in_db(ChatHistory, ch_in_db: CHInDB) -> "ChatHistory":
         # we need to assignt attributes with non-None values
         # also complext objects that we do not want to deep-copy
+        if ch_in_db.flow_type is None:
+            if ch_in_db.metadata is not None:
+                flow_type = ch_in_db.metadata.flow_type
+            else:
+                flow_type = None
+        else:
+            flow_type = ch_in_db.flow_type
         ch = ChatHistory(
             name=ch_in_db.name,
             org_id=ch_in_db.org_id,
@@ -157,6 +165,7 @@ class ChatHistory(CHInDB):
             creator_id=ch_in_db.creator_id,
             article_type=ch_in_db.article_type,
             share_to_public=ch_in_db.share_to_public,
+            flow_type=flow_type,
             queryies=ch_in_db.queries,
             answers=ch_in_db.answers,
             metadata=ch_in_db.metadata,
@@ -186,6 +195,7 @@ class BaseChatHistorySchema(ABC):
             ChatHistory.FIELD_KB_ID: "VARCHAR",
             ChatHistory.FIELD_CREATOR_ID: "VARCHAR",
             ChatHistory.FIELD_ARTICLE_TYPE: "VARCHAR",
+            ChatHistory.FIELD_FLOW_TYPE: "VARCHAR",
             ChatHistory.FIELD_DESCRIPTION: "TEXT",
             ChatHistory.FIELD_SHARE_TO_PUBLIC: "BOOLEAN DEFAULT FALSE",
             ChatHistory.FIELD_ORG_ID: "VARCHAR",

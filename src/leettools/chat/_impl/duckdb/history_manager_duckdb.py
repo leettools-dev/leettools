@@ -230,6 +230,7 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
                 kb_id=chat_dict[ChatHistory.FIELD_KB_ID],
                 creator_id=chat_dict[ChatHistory.FIELD_CREATOR_ID],
                 article_type=ArticleType(chat_dict[ChatHistory.FIELD_ARTICLE_TYPE]),
+                flow_type=chat_dict[ChatHistory.FIELD_FLOW_TYPE],
                 description=chat_dict[ChatHistory.FIELD_DESCRIPTION],
                 share_to_public=chat_dict[ChatHistory.FIELD_SHARE_TO_PUBLIC],
                 org_id=chat_dict[ChatHistory.FIELD_ORG_ID],
@@ -545,16 +546,53 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             return None
         return self._dict_to_chat_history(rtn_dict)
 
-    def get_ch_entries_by_username(self, username: str) -> List[ChatHistory]:
+    def get_ch_entries_by_username(
+        self,
+        username: str,
+        org: Optional[Org] = None,
+        kb: Optional[KnowledgeBase] = None,
+        article_type: Optional[ArticleType] = None,
+        flow_type: Optional[str] = None,
+    ) -> List[ChatHistory]:
         """Get all chat history entries for a user."""
         table_name = self._get_table_name_for_user(username)
-        where_clause = f"WHERE {ChatHistory.FIELD_CREATOR_ID} = ? ORDER BY {ChatHistory.FIELD_UPDATED_AT} DESC"
-        value_list = [username]
+        query = {ChatHistory.FIELD_CREATOR_ID: username}
+        if org is not None:
+            query[ChatHistory.FIELD_ORG_ID] = org.org_id
+        if kb is not None:
+            query[ChatHistory.FIELD_KB_ID] = kb.kb_id
+        if article_type is not None:
+            query[ChatHistory.FIELD_ARTICLE_TYPE] = article_type.value
+        if flow_type is not None:
+            query[ChatHistory.FIELD_FLOW_TYPE] = flow_type
+
+        condition_clause = " AND ".join([f"{k} = ?" for k in query.keys()])
+        where_clause = (
+            f"WHERE {condition_clause} ORDER BY {ChatHistory.FIELD_UPDATED_AT} DESC"
+        )
+        value_list = list(query.values())
+
         rtn_dicts = self.duckdb_client.fetch_all_from_table(
             table_name=table_name,
             where_clause=where_clause,
             value_list=value_list,
         )
+
+        handle_legacy_date = False
+        if flow_type is not None and rtn_dicts == []:
+            query.pop(ChatHistory.FIELD_FLOW_TYPE)
+            condition_clause = " AND ".join([f"{k} = ?" for k in query.keys()])
+            where_clause = (
+                f"WHERE {condition_clause} ORDER BY {ChatHistory.FIELD_UPDATED_AT} DESC"
+            )
+            value_list = list(query.values())
+            rtn_dicts = self.duckdb_client.fetch_all_from_table(
+                table_name=table_name,
+                where_clause=where_clause,
+                value_list=value_list,
+            )
+            handle_legacy_date = True
+
         rtn_ch_list: List[ChatHistory] = []
         for rtn_dict in rtn_dicts:
             if rtn_dict is None:
@@ -562,6 +600,12 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
             ch = self._dict_to_chat_history(rtn_dict)
             if ch is None:
                 continue
+            if handle_legacy_date:
+                if ch.flow_type is None:
+                    if ch.metadata is not None:
+                        ch.flow_type = ch.metadata.flow_type
+                if ch.flow_type != flow_type:
+                    continue
             rtn_ch_list.append(ch)
         return rtn_ch_list
 

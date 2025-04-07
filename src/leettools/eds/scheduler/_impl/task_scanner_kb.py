@@ -157,7 +157,7 @@ class TaskScannerKB(AbstractTaskScanner):
                 f"Found new doc source tasks {len(new_doc_source_tasks)}: {dssig}"
             )
         else:
-            self.logger.debug(f"No new doc source tasks: {dssig}")
+            self.logger.noop(f"No new doc source tasks: {dssig}", noop_lvl=3)
 
         new_docsink_tasks = []
         docsinks = self.docsink_store.get_docsinks_for_docsource(org, kb, docsource)
@@ -176,7 +176,7 @@ class TaskScannerKB(AbstractTaskScanner):
                 f"Found new docsink tasks {len(new_docsink_tasks)}: {dssig}"
             )
         else:
-            self.logger.debug(f"No new docsink tasks: {dssig}")
+            self.logger.noop(f"No new docsink tasks: {dssig}", noop_lvl=3)
 
         new_split_tasks = []
         documents = self.document_store.get_documents_for_docsource(org, kb, docsource)
@@ -192,7 +192,7 @@ class TaskScannerKB(AbstractTaskScanner):
         if new_split_tasks:
             self.logger.debug(f"Found new split tasks {len(new_split_tasks)}: {dssig}")
         else:
-            self.logger.debug(f"No new split tasks: {dssig}")
+            self.logger.noop(f"No new split tasks: {dssig}", noop_lvl=3)
 
         new_embed_tasks = []
         for doc in documents:
@@ -209,7 +209,7 @@ class TaskScannerKB(AbstractTaskScanner):
         if new_embed_tasks:
             self.logger.debug(f"Found new embed tasks {len(new_embed_tasks)}: {dssig}")
         else:
-            self.logger.debug(f"No new embed tasks: {dssig}")
+            self.logger.noop(f"No new embed tasks: {dssig}", noop_lvl=3)
 
         all_new_tasks = (
             new_doc_source_tasks + new_docsink_tasks + new_split_tasks + new_embed_tasks
@@ -538,8 +538,9 @@ class TaskScannerKB(AbstractTaskScanner):
 
                         # now the docsource is finished
                         if _docsource_in_cur_tasks(org, kb, docsource):
-                            self.logger.debug(
-                                f"Found finished docsource with unfinished tasks: {dssig}"
+                            self.logger.noop(
+                                f"Found finished docsource with unfinished tasks: {dssig}",
+                                noop_lvl=1,
                             )
                             return True
                         else:
@@ -557,8 +558,9 @@ class TaskScannerKB(AbstractTaskScanner):
 
                     try:
                         all_new_tasks = self._process_docsource(org, kb, docsource)
-                        self.logger.debug(
-                            f"{len(all_new_tasks)} new tasks for docsource: {dssig}"
+                        self.logger.noop(
+                            f"{len(all_new_tasks)} new tasks for docsource: {dssig}",
+                            noop_lvl=2,
                         )
                         if len(all_new_tasks) > 0:
                             new_tasks += all_new_tasks
@@ -568,8 +570,9 @@ class TaskScannerKB(AbstractTaskScanner):
                             if not docsource.is_finished():
                                 self._update_docsource_status(org, kb, docsource)
                             else:
-                                self.logger.debug(
-                                    f"DocSource is already marked as {docsource.docsource_status}: {dssig}"
+                                self.logger.noop(
+                                    f"DocSource is already marked as {docsource.docsource_status}: {dssig}",
+                                    noop_lvl=2,
                                 )
                         # last_scan_time is intended to compare the updated_at time of the docsource
                         # but right now the updated_at time is not updated when the status is changed
@@ -583,5 +586,5 @@ class TaskScannerKB(AbstractTaskScanner):
                         )
         end_time = time.perf_counter()
         elapsed_time = end_time - start_time
-        self.logger.noop(f"Task scanning took {elapsed_time:.6f} seconds.", noop_lvl=2)
+        self.logger.noop(f"Task scanning took {elapsed_time:.6f} seconds.", noop_lvl=1)
         return new_tasks
