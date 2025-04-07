@@ -311,7 +311,7 @@ class ChatRouter(APIRouterBase):
             """
 
             if org_name is None or org_name == "":
-                org = self.org_manager.get_default_org()
+                org = None
             else:
                 org = self.org_manager.get_org_by_name(org_name)
                 if org is None:
@@ -327,7 +327,10 @@ class ChatRouter(APIRouterBase):
                     raise exceptions.EntityNotFoundException(
                         entity_name=kb_name, entity_type="KnowledgeBase"
                     )
-
+            if org is None and kb is not None:
+                raise exceptions.UnexpectedCaseException(
+                    f"kb_name is set to {kb_name} but org_name is not set."
+                )
             if kb is not None and org is not None:
                 if self.auth.can_read_kb(org=org, kb=kb, user=calling_user) is False:
                     raise HTTPException(

@@ -305,7 +305,13 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 SELECT {column_str} FROM {table_name} 
                 {where_clause}
                 """
-            logger().noop(f"SQL Statement select_sql: {select_sql}", noop_lvl=3)
+            logger().noop(
+                f"SQL Statement fetch_all_from_table: {select_sql}", noop_lvl=3
+            )
+            logger().noop(
+                f"SQL Statement fetch_all_from_table value_list: {value_list}",
+                noop_lvl=3,
+            )
             with self._get_table_lock(table_name):
                 if value_list is not None:
                     results = cursor.execute(select_sql, value_list).fetchall()
