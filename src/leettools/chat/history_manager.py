@@ -11,6 +11,7 @@ from leettools.chat.schemas.chat_history import (
 from leettools.common.logging import EventLogger
 from leettools.common.singleton_meta import SingletonMeta
 from leettools.common.utils import content_utils
+from leettools.common.utils.deprecatied import deprecated
 from leettools.context_manager import Context
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.schemas.chat_query_item import ChatQueryItem, ChatQueryItemCreate
@@ -168,17 +169,34 @@ class AbstractHistoryManager(ABC):
     @abstractmethod
     def get_ch_entry(self, username: str, chat_id: str) -> Optional[ChatHistory]:
         """
-        Gets a knowledge base entry by its ID.
+        Gets a chat history entry by its ID.
         """
         pass
 
     @abstractmethod
-    def get_ch_entries_by_username(self, username: str) -> List[ChatHistory]:
+    def get_ch_entries_by_username(
+        self,
+        username: str,
+        org: Optional[Org] = None,
+        kb: Optional[KnowledgeBase] = None,
+        article_type: Optional[ArticleType] = None,
+        flow_type: Optional[str] = None,
+    ) -> List[ChatHistory]:
         """
-        Gets all knowledge base entries given a username
+        Gets all knowledge base entries given a username.
+
+        - username: The username to get the chat history entries from.
+        - org: The organization to get the chat history entries from, None means default org.
+        - kb: The knowledge base to get the chat history entries from, None if all kbs.
+        - article_type: The article type to filter by. If None, all article types are returned.
+        - flow_type: The flow type to filter by. If None, all flow types are returned.
+
+        Returns:
+        A list of chat history entries.
         """
         pass
 
+    @deprecated(reason="Use get_ch_entries_by_username instead")
     @abstractmethod
     def get_ch_entries_by_username_with_type(
         self, username: str, article_type: str
@@ -188,6 +206,7 @@ class AbstractHistoryManager(ABC):
         """
         pass
 
+    @deprecated(reason="Use get_ch_entries_by_username instead")
     @abstractmethod
     def get_ch_entries_by_username_with_type_in_kb(
         self,

@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 from typing import List, Optional, Set, Tuple
@@ -13,6 +14,7 @@ from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.log_location import LogLocator
 from leettools.core.consts import flow_option
+from leettools.core.consts.article_type import ArticleType
 from leettools.core.knowledgebase.kb_manager import get_kb_name_from_query
 from leettools.core.schemas.chat_query_item import ChatQueryItemCreate
 from leettools.core.schemas.chat_query_options import ChatQueryOptions
@@ -127,6 +129,7 @@ class ChatRouter(APIRouterBase):
                     kb_id=kb.kb_id,
                     creator_id=user.username,
                     article_type=flow.get_article_type(),
+                    flow_type=flow_type,
                 )
             )
             chat_query_item_create.chat_id = chat_history.chat_id
@@ -156,22 +159,66 @@ class ChatRouter(APIRouterBase):
             }
 
         async def read_log_file(file_path: str, full_log: bool):
-            async with aiofiles.open(file_path, mode="r") as file:
-                async for line in file:
-                    if full_log:
-                        yield line.encode()
-                    else:
-                        # Make the regex more flexible
-                        match = re.match(
-                            r"^\[(\d{2}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\]\s+(\S+)\s+\[(.*?)\]\s+(.*)$",
-                            line,
-                        )
-                        if match:
-                            log_level = match.group(2)
-                            status_type = match.group(3)
-                            message = match.group(4)
-                            if status_type.lower() in status_filter:
-                                yield line.encode()
+            """
+            Read and stream log file contents until an end marker is encountered or timeout occurs.
+
+            Args:
+                file_path (str): Path to the log file to read
+                full_log (bool): Whether to stream the entire log or filter by status
+
+            Yields:
+                bytes: Encoded log lines
+
+            Notes:
+                The stream will terminate if either:
+                - The end marker is encountered
+                - No updates have been detected for 30 seconds
+            """
+            END_MARKER = "[Status] Query completed"
+            last_position = 0
+            last_update_time = asyncio.get_event_loop().time()
+            TIMEOUT_SECONDS = 30.0
+
+            while True:
+                current_time = asyncio.get_event_loop().time()
+                if current_time - last_update_time > TIMEOUT_SECONDS:
+                    logger().info(
+                        f"Log streaming timed out after {TIMEOUT_SECONDS} seconds of no updates"
+                    )
+                    return
+
+                async with aiofiles.open(file_path, mode="r") as file:
+                    await file.seek(last_position)
+                    has_new_content = False
+                    async for line in file:
+                        has_new_content = True
+                        if END_MARKER in line:
+                            return
+
+                        if full_log:
+                            yield line.encode()
+                        else:
+                            # Make the regex more flexible
+                            match = re.match(
+                                r"^\[(\d{2}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\]\s+(\S+)\s+\[(.*?)\]\s+(.*)$",
+                                line,
+                            )
+                            if match:
+                                log_level = match.group(2)
+                                status_type = match.group(3)
+                                message = match.group(4)
+                                if status_type.lower() in status_filter:
+                                    yield line.encode()
+
+                    # Remember where we left off
+                    last_position = await file.tell()
+
+                    # Update the last update time if we found new content
+                    if has_new_content:
+                        last_update_time = asyncio.get_event_loop().time()
+
+                # Wait a bit before checking for new content
+                await asyncio.sleep(0.1)
 
         @self.get("/stream_logs/{chat_id}/{query_id}")
         async def stream_log(
@@ -239,6 +286,7 @@ class ChatRouter(APIRouterBase):
         @self.get("/articles", response_model=List[ChatHistory])
         async def list_articles(
             article_type: Optional[str] = None,
+            flow_type: Optional[str] = None,
             org_name: Optional[str] = None,
             kb_name: Optional[str] = None,
             list_only: Optional[bool] = False,
@@ -250,6 +298,8 @@ class ChatRouter(APIRouterBase):
             Args:
             - article_type: The type of article to retrieve. If not set of set to ""
                 or "all", all types of articles are retrieved.
+            - flow_type: The type of flow to retrieve. If not set of set to "" or "all",
+                all types of flows are retrieved.
             - org_name: The name of the organization to retrieve articles from.
             - kb_name: The name of the knowledge base to retrieve articles from.
             - list_only: If True, only return the list of articles without the queries
@@ -285,18 +335,26 @@ class ChatRouter(APIRouterBase):
                         detail=f"User {calling_user.username} does not have access to KB {kb_name}",
                     )
 
-            if article_type is None or article_type == "" or article_type == "all":
+            if (
+                article_type is None
+                or article_type == ""
+                or article_type.lower() == "all"
+            ):
                 target_article_type = None
             else:
-                target_article_type = article_type
+                target_article_type = ArticleType(article_type)
 
-            chat_history_list = (
-                self.chat_manager.get_ch_entries_by_username_with_type_in_kb(
-                    username=calling_user.username,
-                    article_type=target_article_type,
-                    org=org,
-                    kb=kb,
-                )
+            if flow_type is None or flow_type == "" or flow_type.lower() == "all":
+                target_flow_type = None
+            else:
+                target_flow_type = flow_type
+
+            chat_history_list = self.chat_manager.get_ch_entries_by_username(
+                org=org,
+                kb=kb,
+                username=calling_user.username,
+                article_type=target_article_type,
+                flow_type=target_flow_type,
             )
             if list_only == True:
                 for ch in chat_history_list:

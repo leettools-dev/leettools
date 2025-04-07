@@ -24,6 +24,7 @@ def test_chat_manager():
     from leettools.settings import preset_store_types_for_tests
 
     for store_types in preset_store_types_for_tests():
+        logger().info(f"Testing with store_types: {store_types}")
 
         temp_setup = TempSetup()
         context = temp_setup.context
@@ -68,6 +69,7 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
         kb_id=kb_id,
         description=test_desc,
         creator_id=test_user.username,
+        flow_type="dummy",
     )
     ch1 = chat_manager.add_ch_entry(ch_create)
 
@@ -245,3 +247,58 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
             break
     assert found_query == False
     assert found_answer == False
+
+    # test get_ch_entries_by_username
+    ch_entries = chat_manager.get_ch_entries_by_username(test_username)
+    assert len(ch_entries) == 1
+    assert ch_entries[0].chat_id == ch1.chat_id
+    assert ch_entries[0].creator_id == test_user.username
+    assert ch_entries[0].name == "new_name"
+    assert ch_entries[0].description == "new_desc"
+    assert ch_entries[0].org_id == org.org_id
+    assert ch_entries[0].kb_id == kb_id
+    assert ch_entries[0].created_at is not None
+    assert ch_entries[0].updated_at is not None
+    assert ch_entries[0].flow_type == "dummy"
+    assert ch_entries[0].article_type == ArticleType.CHAT.value
+
+    ch_entries_by_username_with_type = chat_manager.get_ch_entries_by_username(
+        test_username, article_type=ArticleType.CHAT
+    )
+    assert len(ch_entries_by_username_with_type) == 1
+    assert ch_entries_by_username_with_type[0].chat_id == ch1.chat_id
+    assert ch_entries_by_username_with_type[0].creator_id == test_user.username
+    assert ch_entries_by_username_with_type[0].name == "new_name"
+    assert ch_entries_by_username_with_type[0].description == "new_desc"
+
+    ch_entries_by_username_with_type_in_kb = chat_manager.get_ch_entries_by_username(
+        test_username, kb=kb
+    )
+    assert len(ch_entries_by_username_with_type_in_kb) == 1
+    assert ch_entries_by_username_with_type_in_kb[0].chat_id == ch1.chat_id
+    assert ch_entries_by_username_with_type_in_kb[0].creator_id == test_user.username
+    assert ch_entries_by_username_with_type_in_kb[0].name == "new_name"
+    assert ch_entries_by_username_with_type_in_kb[0].description == "new_desc"
+    assert ch_entries_by_username_with_type_in_kb[0].org_id == org.org_id
+    assert ch_entries_by_username_with_type_in_kb[0].kb_id == kb_id
+
+    ch_entries_by_username_with_type_in_kb_with_org = (
+        chat_manager.get_ch_entries_by_username(test_username, org=org, kb=kb)
+    )
+    assert len(ch_entries_by_username_with_type_in_kb_with_org) == 1
+    assert ch_entries_by_username_with_type_in_kb_with_org[0].chat_id == ch1.chat_id
+    assert (
+        ch_entries_by_username_with_type_in_kb_with_org[0].creator_id
+        == test_user.username
+    )
+    assert ch_entries_by_username_with_type_in_kb_with_org[0].name == "new_name"
+    assert ch_entries_by_username_with_type_in_kb_with_org[0].description == "new_desc"
+    assert ch_entries_by_username_with_type_in_kb_with_org[0].org_id == org.org_id
+    assert ch_entries_by_username_with_type_in_kb_with_org[0].kb_id == kb_id
+
+    ch_entries_by_username_with_flow_type = chat_manager.get_ch_entries_by_username(
+        test_username, flow_type="dummy"
+    )
+    assert len(ch_entries_by_username_with_flow_type) == 1
+    assert ch_entries_by_username_with_flow_type[0].chat_id == ch1.chat_id
+    assert ch_entries_by_username_with_flow_type[0].creator_id == test_user.username

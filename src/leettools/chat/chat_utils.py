@@ -158,6 +158,7 @@ def setup_exec_info(
             creator_id=user.username,
             description=f"Created by CLI command for query {query}",
             article_type=flow.get_article_type(),
+            flow_type=flow_type,
         )
     )
 

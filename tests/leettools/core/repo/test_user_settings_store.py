@@ -1,3 +1,4 @@
+from leettools.common.logging import logger
 from leettools.common.temp_setup import TempSetup
 from leettools.context_manager import Context
 from leettools.core.schemas.api_provider_config import APIFunction, APIProviderConfig
@@ -18,6 +19,8 @@ def test_user_settings_store():
 
     for store_types in preset_store_types_for_tests():
 
+        logger().info(f"Testing with store_types: {store_types}")
+
         temp_setup = TempSetup()
         context = temp_setup.context
         context.settings.DOC_STORE_TYPE = store_types["doc_store"]
@@ -30,6 +33,7 @@ def test_user_settings_store():
             _test_api_config_provider(context, org, kb, user)
         finally:
             temp_setup.clear_tmp_org_kb_user(org, kb, user)
+            logger().info(f"Cleared temp org, kb, user for store_types: {store_types}")
 
 
 def _test_settings_store(context: Context, org: Org, kb: KnowledgeBase, user: User):

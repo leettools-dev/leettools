@@ -133,6 +133,7 @@ def _test_function(tmp_path, context: Context, org: Org, kb: KnowledgeBase):
     docsink_update = DocSinkUpdate(
         docsink_uuid=docsink1.docsink_uuid,
         docsource_uuids=[docsource_uuid],
+        docsource_type=DocSourceType.URL,
         org_id=org.org_id,
         kb_id=kb_id,
         original_doc_uri="http://www.example.com/",

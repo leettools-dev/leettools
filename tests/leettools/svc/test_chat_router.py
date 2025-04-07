@@ -61,6 +61,7 @@ def _test_router(
         kb_id=kb.kb_id,
         creator_id=username,
         org_id=org.org_id,
+        flow_type="dummy",
     )
     response = client.post("/", json=chat_create.model_dump(), headers=headers)
     assert response.status_code == 200
@@ -217,6 +218,7 @@ def _test_router(
         kb_id=kb.kb_id,
         creator_id=username,
         article_type=ArticleType.RESEARCH,
+        flow_type="dummy",
         org_id=org.org_id,
     )
     response = client.post("/", json=chat_create2.model_dump(), headers=headers)
