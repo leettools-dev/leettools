@@ -71,14 +71,32 @@ def preset_store_types_for_tests() -> List[Dict[str, str]]:
     """
     Used in testing to preset the store types for different data store combos.
     """
-    return [
-        {
-            "doc_store": "duckdb",
-            "rdbms_store": "duckdb",
-            "graph_store": "duckdb",
-            "vector_store": "duckdb",
-        },
-    ]
+
+    # check the env EDS_TEST_FULL, return only the duckdb if the var is false.
+    if config_utils.value_to_bool(os.getenv("EDS_TEST_FULL")):
+        return [
+            {
+                "doc_store": "mongo",
+                "rdbms_store": "mongo",
+                "graph_store": "neo4j",
+                "vector_store": "milvus",
+            },
+            {
+                "doc_store": "duckdb",
+                "rdbms_store": "duckdb",
+                "graph_store": "duckdb",
+                "vector_store": "duckdb",
+            },
+        ]
+    else:
+        return [
+            {
+                "doc_store": "duckdb",
+                "rdbms_store": "duckdb",
+                "graph_store": "duckdb",
+                "vector_store": "duckdb",
+            },
+        ]
 
 
 @add_env_var_constants
@@ -662,28 +680,28 @@ class SystemSettings(BaseModel):
         """
         return {
             "LLM_API_KEY": UserSettingsItem(
-                section="RAG",
+                section="LLM",
                 name="LLM_API_KEY",
                 description=_("LLM API Key used in the inference process."),
                 default_value=None,
                 value_type="str",
             ),
             "DEFAULT_LLM_BASE_URL": UserSettingsItem(
-                section="RAG",
+                section="LLM",
                 name="DEFAULT_LLM_BASE_URL",
                 description=_("LLM Base URL used in the inference process."),
                 default_value=self.DEFAULT_LLM_BASE_URL,
                 value_type="str",
             ),
             "DEFAULT_INFERENCE_MODEL": UserSettingsItem(
-                section="RAG",
+                section="LLM",
                 name="DEFAULT_INFERENCE_MODEL",
                 description=_("Default inference model used in the inference process."),
                 default_value=self.DEFAULT_INFERENCE_MODEL,
                 value_type="str",
             ),
             "DEFAULT_EMBEDDING_MODEL": UserSettingsItem(
-                section="RAG",
+                section="EMBEDDING",
                 name="DEFAULT_EMBEDDING_MODEL",
                 description=_(
                     "Default dense embedding model used in the embedding process."
@@ -692,63 +710,63 @@ class SystemSettings(BaseModel):
                 value_type="str",
             ),
             "EMBEDDING_MODEL_DIMENSION": UserSettingsItem(
-                section="RAG",
+                section="EMBEDDING",
                 name="EMBEDDING_MODEL_DIMENSION",
                 description=_("Dense embedding model dimension."),
                 default_value=str(self.EMBEDDING_MODEL_DIMENSION),
                 value_type="int",
             ),
             "EMBEDDING_API_KEY": UserSettingsItem(
-                section="RAG",
+                section="EMBEDDING",
                 name="EMBEDDING_API_KEY",
                 description=_("API Key used for the embedder."),
                 default_value=self.EMBEDDING_API_KEY,
                 value_type="str",
             ),
             "DEFAULT_EMBEDDING_BASE_URL": UserSettingsItem(
-                section="RAG",
+                section="EMBEDDING",
                 name="DEFAULT_EMBEDDING_BASE_URL",
                 description=_("Base URL for the the embedder service."),
                 default_value=self.DEFAULT_EMBEDDING_BASE_URL,
                 value_type="str",
             ),
             "RERANK_API_KEY": UserSettingsItem(
-                section="RAG",
+                section="RERANK",
                 name="RERANK_API_KEY",
                 description=_("API Key used in the reranking process."),
                 default_value=None,
                 value_type="str",
             ),
             "DEFAULT_RERANK_BASE_URL": UserSettingsItem(
-                section="RAG",
+                section="RERANK",
                 name="DEFAULT_RERANK_BASE_URL",
                 description=_("Base url used in the reranking process."),
                 default_value=None,
                 value_type="str",
             ),
             "DEFAULT_RERANK_MODEL": UserSettingsItem(
-                section="RAG",
+                section="RERANK",
                 name="DEFAULT_RERANK_MODEL",
                 description=_("Default rerank model used in the rerank process."),
                 default_value=self.DEFAULT_RERANK_MODEL,
                 value_type="str",
             ),
             "GOOGLE_API_KEY": UserSettingsItem(
-                section="RAG",
+                section="SEARCH",
                 name="GOOGLE_API_KEY",
                 description=_("Google API Key used in the search process."),
                 default_value=None,
                 value_type="str",
             ),
             "GOOGLE_CX_KEY": UserSettingsItem(
-                section="RAG",
+                section="SEARCH",
                 name="GOOGLE_CX_KEY",
                 description=_("Google custom search Key used in the search process."),
                 default_value=None,
                 value_type="str",
             ),
             "GOOGLE_PATENT_CX_KEY": UserSettingsItem(
-                section="RAG",
+                section="SEARCH",
                 name="GOOGLE_PATENT_CX_KEY",
                 description=_(
                     "Google custom search Key for patent used in the search process."
@@ -757,7 +775,7 @@ class SystemSettings(BaseModel):
                 value_type="str",
             ),
             "TAVILY_API_KEY": UserSettingsItem(
-                section="RAG",
+                section="SEARCH",
                 name="TAVILY_API_KEY",
                 description=_("Tavily API Key used in the search process."),
                 default_value=None,

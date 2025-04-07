@@ -6,12 +6,8 @@ from leettools.common.utils import config_utils
 from leettools.core.consts import flow_option
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.consts.display_type import DisplayType
-from leettools.core.consts.retriever_type import RetrieverType, is_search_engine
+from leettools.core.consts.retriever_type import is_search_engine
 from leettools.core.schemas.chat_query_item import ChatQueryItem
-from leettools.core.schemas.chat_query_metadata import (
-    DEFAULT_INTENTION,
-    ChatQueryMetadata,
-)
 from leettools.core.schemas.chat_query_result import (
     ChatAnswerItemCreate,
     ChatQueryResultCreate,
@@ -71,7 +67,6 @@ Search the web or local KB with the query and answer with source references:
         return AbstractFlow.direct_flow_option_items() + [
             flow_option_items.FOI_RETRIEVER(explicit=True),
             flow_option_items.FOI_CONTENT_INSTRUCTION(explicit=True),
-            flow_option_items.FOI_REFERENCE_STYLE(),
             flow_option_items.FOI_REFERENCE_STYLE(),
         ]
 
@@ -141,9 +136,12 @@ Search the web or local KB with the query and answer with source references:
             )
             # we will answer using the whole KB
             # right now filter by docsource cannot include re-used docsinks
-            # flow_options[DOCSOURCE_UUID_ATTR] = docsource.docsource_uuid
-            # TODO Next: add a flow_option to control if include the whole KB in the search
-            # flow_options[DocSource.FIELD_DOCSOURCE_UUID] = docsource.docsource_uuid
+            # the following process is in step_search_to_docsource
+            # if not include_local_data:
+            #     display_logger.info("Using only the search results data in the answer.")
+            #     flow_options[DocSource.FIELD_DOCSOURCE_UUID] = docsource.docsource_uuid
+            # else:
+            #     display_logger.info("Include local data in the answer.")
         else:
             # for local KB, we should use local KB data as the rewrite context
             rewrite_section = StrategySection(

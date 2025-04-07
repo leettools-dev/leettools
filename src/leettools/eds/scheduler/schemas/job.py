@@ -25,10 +25,7 @@ class JobBase(BaseModel):
     task_uuid: str = Field(..., description="The UUID of the task.")
     program_spec: ProgramSpec = Field(
         ...,
-        description=(
-            "The parameters needed to run the task. A new job will created based on the "
-            "task_uuid and the spec."
-        ),
+        description="The parameters needed to run the task. A new job will created based on the task_uuid and the spec.",
     )
 
 

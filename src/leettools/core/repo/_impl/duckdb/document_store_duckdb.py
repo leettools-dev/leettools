@@ -1,10 +1,11 @@
 import json
 import uuid
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.common.utils import time_utils
+from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.repo._impl.duckdb.document_store_duckdb_schema import (
     DocumentDuckDBSchema,
@@ -38,7 +39,14 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         self.duckdb_client = DuckDBClient(self.settings)
 
     def _clean_up_related_data(self, org: Org, kb: KnowledgeBase, document: Document):
-        """Clean up related data for a document."""
+        """
+        Clean up related data for a document.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+        - document: The document to clean up related data for.
+        """
         # Clean up related data
         from leettools.context_manager import ContextManager
 
@@ -78,7 +86,15 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
 
     # Private helper methods
     def _dict_to_document(self, data: dict) -> Document:
-        """Convert stored dictionary to Document."""
+        """
+        Convert stored dictionary to Document.
+
+        Args:
+        - data: The dictionary to convert.
+
+        Returns:
+        - The converted Document.
+        """
         if data.get(Document.FIELD_DOCSOURCE_UUIDS):
             uuids = data[Document.FIELD_DOCSOURCE_UUIDS]
             data[Document.FIELD_DOCSOURCE_UUIDS] = uuids.split(",")
@@ -93,7 +109,15 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         return Document.from_document_in_db(DocumentInDB.model_validate(data))
 
     def _document_to_dict(self, document: DocumentInDB) -> dict:
-        """Convert DocumentInDB to dictionary for storage."""
+        """
+        Convert DocumentInDB to dictionary for storage.
+
+        Args:
+        - document: The DocumentInDB to convert.
+
+        Returns:
+        - The converted dictionary.
+        """
         data = document.model_dump()
         if data.get(Document.FIELD_DOCSOURCE_UUIDS):
             data[Document.FIELD_DOCSOURCE_UUIDS] = ",".join(
@@ -110,7 +134,15 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         return data
 
     def _document_update_to_dict(self, document_update: DocumentUpdate) -> dict:
-        """Convert DocumentUpdate to dictionary for query."""
+        """
+        Convert DocumentUpdate to dictionary for query.
+
+        Args:
+        - document_update: The DocumentUpdate to convert.
+
+        Returns:
+        - The converted dictionary.
+        """
         data = document_update.model_dump()
         if data.get(Document.FIELD_DOCSOURCE_UUIDS):
             data[Document.FIELD_DOCSOURCE_UUIDS] = ",".join(
@@ -129,7 +161,17 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
     def _get_documents_in_kb(
         self, org: Org, kb: KnowledgeBase, query: str
     ) -> List[Document]:
-        """Get documents matching the query."""
+        """
+        Get documents matching the query.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+        - query: The query to match the documents.
+
+        Returns:
+        - A list of documents matching the query.
+        """
         table_name = self._get_table_name(org, kb)
 
         if query:
@@ -145,7 +187,16 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         return [self._dict_to_document(row) for row in results]
 
     def _get_table_name(self, org: Org, kb: KnowledgeBase) -> str:
-        """Get the dynamic table name for the org and kb combination."""
+        """
+        Get the dynamic table name for the org and kb combination.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+
+        Returns:
+        - The dynamic table name.
+        """
         org_db_name = Org.get_org_db_name(org.org_id)
         collection_name = f"{kb.kb_id}{DOCUMENT_COLLECTION_SUFFIX}"
         return self.duckdb_client.create_table_if_not_exists(
@@ -157,7 +208,17 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
     def create_document(
         self, org: Org, kb: KnowledgeBase, document_create: DocumentCreate
     ) -> Optional[Document]:
-        """Create a new document."""
+        """
+        Create a new document.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+        - document_create: The document to create.
+
+        Returns:
+        - The created document.
+        """
         table_name = self._get_table_name(org, kb)
         document_in_store = DocumentInDB.from_document_create(document_create)
         document_in_store.document_uuid = str(uuid.uuid4())
@@ -195,7 +256,17 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         return self.get_document_by_id(org, kb, document_in_store.document_uuid)
 
     def delete_document(self, org: Org, kb: KnowledgeBase, document: Document) -> bool:
-        """Mark a document as deleted and clean up related data."""
+        """
+        Mark a document as deleted and clean up related data.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+        - document: The document to delete.
+
+        Returns:
+        - True if the document was deleted, False otherwise.
+        """
         table_name = self._get_table_name(org, kb)
         doc_in_store = self.get_document_by_id(org, kb, document.document_uuid)
 
@@ -222,7 +293,17 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
     def get_document_by_id(
         self, org: Org, kb: KnowledgeBase, document_uuid: str
     ) -> Optional[Document]:
-        """Get a document by its UUID."""
+        """
+        Get a document by its UUID.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+        - document_uuid: The UUID of the document.
+
+        Returns:
+        - The document with the given UUID.
+        """
         documents = self._get_documents_in_kb(
             org, kb, f"{Document.FIELD_DOCUMENT_UUID} = '{document_uuid}'"
         )
@@ -236,14 +317,30 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
     def get_document_ids_for_docsource(
         self, org: Org, kb: KnowledgeBase, docsource: DocSource
     ) -> List[str]:
-        """Get document IDs for a docsource."""
+        """
+        Get document IDs for a docsource.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+        """
         documents = self.get_documents_for_docsource(org, kb, docsource)
         return [doc.document_uuid for doc in documents]
 
     def get_documents_for_docsink(
         self, org: Org, kb: KnowledgeBase, docsink: DocSink
     ) -> List[Document]:
-        """Get all non-deleted documents for a docsink."""
+        """
+        Get all non-deleted documents for a docsink.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+        - docsink: The docsink.
+
+        Returns:
+        - A list of documents for the docsink.
+        """
         return self._get_documents_in_kb(
             org,
             kb,
@@ -256,7 +353,17 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
     def get_documents_for_docsource(
         self, org: Org, kb: KnowledgeBase, docsource: DocSource
     ) -> List[Document]:
-        """Get all non-deleted documents for a docsource."""
+        """
+        Get all non-deleted documents for a docsource.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+        - docsource: The docsource.
+
+        Returns:
+        - A list of documents for the docsource.
+        """
         from leettools.context_manager import ContextManager
 
         context = ContextManager().get_context()
@@ -273,10 +380,73 @@ class DocumentStoreDuckDB(AbstractDocumentStore):
         return documents
 
     def get_documents_for_kb(self, org: Org, kb: KnowledgeBase) -> List[Document]:
-        """Get all non-deleted documents for a knowledge base."""
+        """
+        Get all non-deleted documents for a knowledge base.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledge base.
+
+        Returns:
+        - A list of documents for the knowledge base.
+        """
         return self._get_documents_in_kb(
             org, kb, f"{Document.FIELD_IS_DELETED} = False"
         )
+
+    def get_documents_by_docsourcetype(
+        self,
+        org: Org,
+        kb: KnowledgeBase,
+        docsource_type: Optional[DocSourceType] = None,
+    ) -> Dict[DocSourceType, List[Document]]:
+        """
+        Get all documents from the store grouped by docsource type.
+
+        Args:
+        - org: The organization.
+        - kb: The knowledgebase.
+        - docsource_type: Optional filter for a specific docsource type.
+
+        Returns:
+        - A dictionary mapping DocSourceType to a list of documents.
+        - If docsource_type is specified, only documents of that type are included.
+        """
+        from leettools.context_manager import ContextManager
+
+        context = ContextManager().get_context()
+        docsource_store = context.get_repo_manager().get_docsource_store()
+
+        # Get all non-deleted documents
+        query = f"{Document.FIELD_IS_DELETED} = False"
+        if docsource_type:
+            query += f" AND {Document.FIELD_DOCSOURCE_TYPE} = '{docsource_type.value}'"
+        documents = self._get_documents_in_kb(org, kb, query)
+        result: Dict[DocSourceType, List[Document]] = {}
+
+        # Process each document
+        for document in documents:
+            ds_type = document.docsource_type
+            if ds_type is None:
+                # backfill the old data if needed
+                logger().debug("Found document with null docsource_type, backfilling.")
+                try:
+                    docsource = docsource_store.get_docsource(
+                        org, kb, document.docsource_uuids[0]
+                    )
+                    ds_type = docsource.source_type
+                    document.docsource_type = ds_type
+                    self.update_document(org, kb, document)
+                except Exception as e:
+                    logger().warning(
+                        f"Failed to get docsource for document {document.document_uuid}: {e}"
+                    )
+                    continue
+
+            if ds_type not in result:
+                result[ds_type] = []
+            result[ds_type].append(document)
+        return result
 
     def update_document(
         self, org: Org, kb: KnowledgeBase, document_update: DocumentUpdate

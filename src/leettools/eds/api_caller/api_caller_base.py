@@ -106,6 +106,7 @@ class APICallerBase:
                 context=context,
                 user=self.user,
                 api_provider_config=self.api_provider_config,
+                display_logger=self.display_logger,
             )
             if self.model_name is None:
                 self.model_name = api_utils.get_default_inference_model_for_user(
@@ -226,7 +227,10 @@ class APICallerBase:
         self.system_prompt_template = None
         self.user_prompt_template = None
 
-        intention_str = query_metadata.intention
+        if query_metadata is None:
+            intention_str = DEFAULT_INTENTION
+        else:
+            intention_str = query_metadata.intention
         section_name = self.strategy_section.section_name
 
         sp_ids = self.strategy_section.llm_system_prompt_ids_by_intention

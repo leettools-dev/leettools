@@ -16,10 +16,7 @@ from leettools.core.schemas.chat_query_result import ChatAnswerItem
 class CHBase(BaseModel):
     name: str = Field(
         ...,
-        description=(
-            "The name of the chat history, if not set, the first x characters of the "
-            "first query in the chat will be used"
-        ),
+        description="The name of the chat history, if not set, the first x characters of the first query in the chat will be used",
     )
     org_id: str = Field(..., description="The organization ID.")
     kb_id: str = Field(..., description="The knowledge base ID")

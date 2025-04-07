@@ -84,6 +84,15 @@ processed immediately. The function will return after the document source is pro
         context = exec_info.context
         org = exec_info.org
         kb = exec_info.kb
+        flow_options = exec_info.chat_query_options.flow_options
+
+        search_include_local = config_utils.get_bool_option_value(
+            options=flow_options,
+            option_name=flow_option.FLOW_OPTION_SEARCH_INCLUDE_LOCAL,
+            default_value=False,
+            display_logger=exec_info.display_logger,
+        )
+
         docsource_store = context.get_repo_manager().get_docsource_store()
 
         display_logger = exec_info.display_logger
@@ -147,6 +156,12 @@ processed immediately. The function will return after the document source is pro
             display_logger.info(
                 f"[Update] Successfully ingested {len(success_documents)} documents from search."
             )
+            if not search_include_local:
+                display_logger.info("Using only the web search results in the flow.")
+                flow_options[DocSource.FIELD_DOCSOURCE_UUID] = docsource.docsource_uuid
+            else:
+                display_logger.info("Including local data in the flow.")
+
             return docsource
         except Exception as e:
             display_logger.error(f"Failed to run the web search pipeline: {e}")

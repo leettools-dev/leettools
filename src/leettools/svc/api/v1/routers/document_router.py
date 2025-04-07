@@ -6,6 +6,7 @@ from leettools.chat import chat_utils
 from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
+from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.document import Document
 from leettools.core.schemas.document_metadata import DocumentSummary
 from leettools.core.schemas.knowledgebase import KnowledgeBase
@@ -143,6 +144,53 @@ class DocumentRouter(APIRouterBase):
             return self._remove_content_from_docs(
                 self.document_store.get_documents_for_docsource(org, kb, docsource)
             )
+
+        @self.get(
+            "/{org_name}/{kb_name}/docsource_type",
+            response_model=Dict[str, List[Document]],
+        )
+        async def get_documents_for_docsource_type(
+            org_name: str,
+            kb_name: str,
+            docsource_type_str: Optional[str] = None,
+            calling_user: User = Depends(self.auth.get_user_from_request),
+        ) -> Dict[str, List[Document]]:
+            """
+            Return all documents for a docsource type
+
+            - org_name (str): The name of the organization.
+            - kb_name (str): The name of the knowledge base.
+            - docsource_type (Optional[str]): The type of the docsource.
+            - calling_user: The calling user by dependency injection.
+
+            Returns:
+            - A dictionary of docsource type to documents.
+            """
+
+            org = self.org_manager.get_org_by_name(org_name)
+            if org is None:
+                raise exceptions.EntityNotFoundException(
+                    entity_name=org_name, entity_type="Organization"
+                )
+
+            kb = self.kb_manager.get_kb_by_name(org, kb_name)
+            if kb is None:
+                raise exceptions.EntityNotFoundException(
+                    entity_name=kb_name, entity_type="KnowledgeBase"
+                )
+
+            if docsource_type_str is None:
+                results = self.document_store.get_documents_by_docsourcetype(org, kb)
+            else:
+                ds_type = DocSourceType(docsource_type_str)
+                results = self.document_store.get_documents_by_docsourcetype(
+                    org, kb, ds_type
+                )
+
+            for ds_type, docs in results.items():
+                results[ds_type] = self._remove_content_from_docs(docs)
+
+            return results
 
         @self.post(
             "/update_metadata/{org_name}/{kb_name}/{document_uuid}",

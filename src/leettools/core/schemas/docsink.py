@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
 from leettools.core.consts.docsink_status import DocSinkStatus
+from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSource
 
 """
@@ -37,7 +38,11 @@ class DocSinkInDBBase(DocSinkBase):
     # information copied from the DocSource
     org_id: str = Field(..., description="The organization ID of the document.")
     kb_id: str = Field(..., description="The knowledge base ID of the document source.")
+
     docsource_uuids: List[str] = Field(..., description="The UUID of the docsources.")
+    docsource_type: Optional[DocSourceType] = Field(
+        None, description="The type of the docsources, only one type stored."
+    )
 
     # DocSink status
     is_deleted: Optional[bool] = Field(False, description="The deletion flag.")
@@ -63,6 +68,7 @@ class DocSinkInDB(DocSinkInDBBase):
         docsink_in_store = cls(
             docsink_uuid="",
             docsource_uuids=[docsource.docsource_uuid],
+            docsource_type=docsource.source_type,
             org_id=docsource.org_id,
             kb_id=docsource.kb_id,
             original_doc_uri=docsink_create.original_doc_uri,
@@ -138,6 +144,7 @@ class BaseDocsinkSchema(ABC):
         return {
             DocSink.FIELD_DOCSINK_UUID: "VARCHAR PRIMARY KEY",
             DocSink.FIELD_DOCSOURCE_UUIDS: "VARCHAR",
+            DocSink.FIELD_DOCSOURCE_TYPE: "VARCHAR",
             DocSink.FIELD_ORG_ID: "VARCHAR",
             DocSink.FIELD_KB_ID: "VARCHAR",
             DocSink.FIELD_ORIGINAL_DOC_URI: "VARCHAR",

@@ -137,9 +137,13 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
         return self._dict_to_user_settings(user_settings_dict)
 
     def _update_settings_for_user(
-        self, user: User, settings_update: UserSettingsUpdate
+        self, user: User, update: UserSettingsUpdate
     ) -> UserSettings:
         table_name = self._get_user_settings_table_for_user(user.user_uuid)
+
+        default: Dict[str, UserSettingsItem] = (
+            self.settings.get_user_configurable_settings()
+        )
 
         result = self.duckdb_client.fetch_one_from_table(
             table_name=table_name,
@@ -147,33 +151,38 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
             value_list=[user.user_uuid],
         )
         if result is None:
-            default_setting_items: Dict[str, UserSettingsItem] = (
-                self.settings.get_user_configurable_settings()
-            )
+            # we will create a new user settings for the user
             # the only thing we should update is the value
-            for key, item in settings_update.settings.items():
-                if key not in default_setting_items:
-                    default_setting_items[key] = item
+            for key, item in update.settings.items():
+                if key not in default:
+                    default[key] = item
                 else:
-                    default_setting_items[key].value = item.value
+                    default[key].value = item.value
 
             user_settings = UserSettingsCreate(
                 user_uuid=user.user_uuid,
                 username=user.username,
-                settings=default_setting_items,
+                settings=default,
             )
             return self._save_new_user_settings(user_settings)
         else:
-            existing_settings = self._dict_to_user_settings(result)
+            cur = self._dict_to_user_settings(result)
 
-            # the only thing we should update is the value
-            for key, item in settings_update.settings.items():
-                if key not in existing_settings.settings:
-                    existing_settings.settings[key] = item
+            for key, item in default.items():
+                if key not in cur.settings:
+                    if key not in update.settings:
+                        cur.settings[key] = item
+                    else:
+                        cur.settings[key] = item
+                        cur.settings[key].value = update.settings[key].value
                 else:
-                    existing_settings.settings[key].value = item.value
+                    if key in update.settings:
+                        cur.settings[key].value = update.settings[key].value
+                    else:
+                        # the key already exists and the update does not contain the key
+                        pass
 
-            return self._update_user_settings(existing_settings)
+            return self._update_user_settings(cur)
 
     def _user_settings_to_dict(self, user_settings: UserSettings) -> Dict[str, Any]:
         user_settings_dict = user_settings.model_dump()
@@ -258,27 +267,30 @@ class UserSettingsStoreDuckDB(AbstractUserSettingsStore):
             value_list=[user.user_uuid],
         )
         if result is None:
-            default_setting_items = self.settings.get_user_configurable_settings()
+            default = self.settings.get_user_configurable_settings()
             user_settings_create = UserSettingsCreate(
                 user_uuid=user.user_uuid,
                 username=user.username,
-                settings=default_setting_items,
+                settings=default,
             )
             return self._save_new_user_settings(user_settings_create)
         else:
             # Update the fields if the default settings have changed.
-            default_setting_items = self.settings.get_user_configurable_settings()
-            cur_user_settings = self._dict_to_user_settings(result)
+            default = self.settings.get_user_configurable_settings()
+            cur = self._dict_to_user_settings(result)
 
             need_update = False
-            for key, value in default_setting_items.items():
-                if key not in cur_user_settings.settings:
-                    cur_user_settings.settings[key] = value
+            for key, item in default.items():
+                if key not in cur.settings:
+                    cur.settings[key] = item
                     need_update = True
+                else:
+                    item.value = cur.settings[key].value
+                    cur.settings[key] = item
 
             if need_update:
-                return self._update_user_settings(cur_user_settings)
-            return cur_user_settings
+                return self._update_user_settings(cur)
+            return cur
 
     def update_settings_for_user(
         self, user: User, settings_update: UserSettingsUpdate

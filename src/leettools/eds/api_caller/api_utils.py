@@ -535,11 +535,17 @@ def get_default_rerank_api_provider_config(
 
 
 def get_openai_client_for_user(
-    context: Context, user: User, api_provider_config: APIProviderConfig
+    context: Context,
+    user: User,
+    api_provider_config: Optional[APIProviderConfig] = None,
+    display_logger: Optional[EventLogger] = None,
 ) -> OpenAI:
 
+    if display_logger is None:
+        display_logger = logger()
+
     if api_provider_config is None:
-        logger().info(
+        display_logger.info(
             f"No API provider config provided. Checking user settings of {user.username} "
         )
         api_provider_config = get_default_inference_api_provider_config(context, user)
@@ -548,11 +554,11 @@ def get_openai_client_for_user(
     base_url = api_provider_config.base_url
 
     trace = traceback.format_stack()
-    logger().debug(
+    display_logger.debug(
         f"Creating OpenAI-compatible client with base_url: {base_url} "
         f"and api_key: {api_key[:5]}******{api_key[-5:]}"
     )
-    logger().noop(f"Calling Trace: {trace}", noop_lvl=2)
+    display_logger.noop(f"Calling Trace: {trace}", noop_lvl=3)
     return OpenAI(base_url=base_url, api_key=api_key)
 
 

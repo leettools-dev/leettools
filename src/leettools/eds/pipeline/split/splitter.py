@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 from urllib.parse import unquote
 
 from leettools.common.logging import logger
+from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import time_utils
 from leettools.common.utils.tokenizer import Tokenizer
 from leettools.context_manager import Context
@@ -104,6 +105,7 @@ class Splitter:
         context: Context,
         org: Org,
         kb: KnowledgeBase,
+        display_logger: Optional[EventLogger] = None,
     ) -> None:
         self.org = org
         self.kb = kb
@@ -113,6 +115,10 @@ class Splitter:
         self.segstore = repo_manager.get_segment_store()
         self.graphstore = repo_manager.get_docgraph_store()
         self.user_store = context.get_user_store()
+        if display_logger is None:
+            self.display_logger = logger()
+        else:
+            self.display_logger = display_logger
 
         if kb.user_uuid is not None:
             self.user = self.user_store.get_user_by_uuid(kb.user_uuid)
@@ -145,6 +151,7 @@ class Splitter:
             context=self.context,
             user=self.user,
             api_provider_config=api_provider_config,
+            display_logger=self.display_logger,
         )
         model_options = {}
         model_name = api_utils.get_default_inference_model_for_user(
@@ -163,10 +170,10 @@ class Splitter:
                 need_json=True,
                 call_target="CONTEXTUAL RETRIEVAL",
                 response_pydantic_model=None,
-                display_logger=logger(),
+                display_logger=self.display_logger,
             )
         except Exception as e:
-            logger().error(f"Error adding context to chunk: {e}")
+            self.display_logger.error(f"Error adding context to chunk: {e}")
             return chunk_content
         return f"\n<context>\n{context_summary}\n</context>\n{chunk_content}"
 
@@ -220,7 +227,7 @@ class Splitter:
         for ext in supported_file_extensions():
             doc_uri_unqoted = doc_uri_unqoted.replace(ext, "")
 
-        logger().debug(f"Splitting document: {doc_uri} to KB {self.kb.name}")
+        self.display_logger.debug(f"Splitting document: {doc_uri} to KB {self.kb.name}")
         chunker = create_chunker(settings=self.settings)
         chunks = chunker.chunk(doc.content)
 
@@ -237,14 +244,14 @@ class Splitter:
                 self.tokenizer.est_token_count(doc.content)
                 < self.settings.DEFAULT_CONTEXT_LIMIT
             ):
-                logger().info(
+                self.display_logger.info(
                     "Using the whole document content for contextual retrieval"
                 )
                 document_for_contextual_retrieval = doc.content
             else:
                 chunk_list_for_contextual_retrieval = []
                 context_token_count = 0
-                logger().info("Combining chunks for contextual retrieval")
+                self.display_logger.info("Combining chunks for contextual retrieval")
                 for chunk in chunks:
                     chunk_token_count = self.tokenizer.est_token_count(chunk.content)
                     if (
@@ -314,7 +321,7 @@ class Splitter:
         self, doc: Document, log_file_location: Optional[str] = None
     ) -> ReturnCode:
         if log_file_location:
-            log_handler = logger().log_to_file(log_file_location)
+            log_handler = self.display_logger.log_to_file(log_file_location)
         else:
             log_handler = None
         try:
@@ -324,12 +331,12 @@ class Splitter:
             trace = traceback.format_exc()
             err_str = f"{trace}"
             if "Number of parts exceeds the number of words in the text" in err_str:
-                logger().error(
+                self.display_logger.error(
                     f"Error splitting document [possible binary data]: {trace}"
                 )
                 return ReturnCode.FAILURE_ABORT
-            logger().error(f"Error splitting document: {trace}")
+            self.display_logger.error(f"Error splitting document: {trace}")
             return ReturnCode.FAILURE
         finally:
             if log_handler:
-                logger().remove_file_handler()
+                self.display_logger.remove_file_handler()

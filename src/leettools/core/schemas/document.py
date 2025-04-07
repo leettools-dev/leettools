@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from leettools.common.utils import time_utils
 from leettools.common.utils.obj_utils import add_fieldname_constants, assign_properties
+from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.consts.document_status import DocumentStatus
 from leettools.core.schemas.docsink import DocSink
 from leettools.core.schemas.document_metadata import DocumentSummary
@@ -42,6 +43,9 @@ class DocumentInDBBase(DocumentBase):
         None, description="The original URI of the document"
     )
     docsource_uuids: List[str] = Field(..., description="The UUID of the docsources")
+    docsource_type: Optional[DocSourceType] = Field(
+        None, description="The type of the docsources, only one type stored."
+    )
     expired_at: Optional[datetime] = Field(None, description="Expiration timestamp.")
 
     # status of the document
@@ -56,17 +60,11 @@ class DocumentInDBBase(DocumentBase):
     # metdata for the document
     auto_summary: Optional[DocumentSummary] = Field(
         None,
-        description=(
-            "Auto-generated summary of the document, will be used if no manual summary "
-            "is provided.",
-        ),
+        description="Auto-generated summary of the document, will be used if no manual summary is provided.",
     )
     manual_summary: Optional[DocumentSummary] = Field(
         None,
-        description=(
-            "Manually edited summary of the document, will take precedence over the "
-            "auto-generated summary directly stored in the document.",
-        ),
+        description="Manually edited summary of the document, will take precedence over the auto-generated summary directly stored in the document.",
     )
 
 
@@ -97,6 +95,7 @@ class DocumentInDB(DocumentInDBBase):
             docsink_uuid=docsink.docsink_uuid,
             original_uri=docsink.original_doc_uri,
             docsource_uuids=docsink.docsource_uuids,
+            docsource_type=docsink.docsource_type,
             expired_at=docsink.expired_at,
             split_status=DocumentStatus.CREATED,
             embed_status=DocumentStatus.CREATED,
@@ -185,6 +184,7 @@ class BaseDocumentSchema(ABC):
             Document.FIELD_DOCUMENT_UUID: "VARCHAR PRIMARY KEY",
             Document.FIELD_DOCSINK_UUID: "VARCHAR",
             Document.FIELD_DOCSOURCE_UUIDS: "VARCHAR",
+            Document.FIELD_DOCSOURCE_TYPE: "VARCHAR",
             Document.FIELD_ORG_ID: "VARCHAR",
             Document.FIELD_KB_ID: "VARCHAR",
             Document.FIELD_DOC_URI: "VARCHAR",

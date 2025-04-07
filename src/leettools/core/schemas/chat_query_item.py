@@ -28,10 +28,7 @@ class ChatQueryItemCreate(BaseModel):
     )
     chat_id: Optional[str] = Field(
         None,
-        description=(
-            "The chat id of the chat history that the query belongs to. It can "
-            "be None for new chats.",
-        ),
+        description="The chat id of the chat history that the query belongs to. It can be None for new chats.",
     )
 
 

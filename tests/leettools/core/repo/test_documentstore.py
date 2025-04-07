@@ -1,4 +1,4 @@
-""" Tests for the DocumentStore class. """
+"""Tests for the DocumentStore class."""
 
 from leettools.common.logging import logger
 from leettools.common.temp_setup import TempSetup
@@ -67,6 +67,7 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
         doc_uri="uri1",
     )
     document = doc_store.create_document(org, kb, document_create)
+    assert document.docsource_type == DocSourceType.URL
 
     assert document.document_uuid is not None
     logger().info(f"Created document with UUID: {document.document_uuid}")
@@ -76,12 +77,13 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     logger().info("Successfully created the document again.")
     assert document2 is not None
     assert document2.document_uuid != document.document_uuid
-
+    assert document2.docsource_type == DocSourceType.URL
     # Test get_document
     document_uuid = document2.document_uuid
     document1 = doc_store.get_document_by_id(org, kb, document_uuid)
     assert document1 is not None
     assert document1.document_uuid == document_uuid
+    assert document1.docsource_type == DocSourceType.URL
     logger().info(f"Retrieved document with UUID: {document1.document_uuid}")
 
     # Test update_document
@@ -91,11 +93,13 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
         content="updated content",
         docsink_uuid=docsink_uuid,
         docsource_uuids=[docsource_uuid],
+        docsource_type=DocSourceType.URL,
         org_id=org_id,
         kb_id=kb_id,
     )
     document3 = doc_store.update_document(org, kb, document_update)
     assert document3 is not None and document3.content == document_update.content
+    assert document3.docsource_type == DocSourceType.URL
     logger().info(f"Updated document with UUID: {document3.document_uuid}")
 
     # Test get_documents_for_kb
@@ -109,6 +113,15 @@ def _test_function(context: Context, org: Org, kb: KnowledgeBase):
     # Test get_documents_for_docsink
     documents = doc_store.get_documents_for_docsink(org, kb, docsink)
     assert len(documents) == 1
+
+    # Test get_documents_for_docsource_type
+    documents = doc_store.get_documents_by_docsourcetype(org, kb)
+    assert len(documents) == 1
+    assert documents[DocSourceType.URL][0] == document3
+
+    documents = doc_store.get_documents_by_docsourcetype(org, kb, DocSourceType.URL)
+    assert len(documents) == 1
+    assert documents[DocSourceType.URL][0] == document3
 
     # Test delete_document
     result = doc_store.delete_document(org, kb, document3)
