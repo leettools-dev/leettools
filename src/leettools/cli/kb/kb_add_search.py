@@ -129,8 +129,8 @@ def add_search(
             flow_option.FLOW_OPTION_SEARCH_MAX_RESULTS: max_results,
             flow_option.FLOW_OPTION_OUTPUT_LANGUAGE: output_language,
             flow_option.FLOW_OPTION_SEARCH_LANGUAGE: search_language,
-            flow_option.FLOW_OPTION_SUMMARIZING_MODEL: "gpt-4o-mini",
-            flow_option.FLOW_OPTION_WRITING_MODEL: "gpt-4o-mini",
+            flow_option.FLOW_OPTION_SUMMARIZING_MODEL: None,
+            flow_option.FLOW_OPTION_WRITING_MODEL: None,
         },
         display_logger=None,
     )

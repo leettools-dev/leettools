@@ -14,6 +14,7 @@ from leettools.cli.llm import llm_cli
 from leettools.cli.options_common import common_options
 from leettools.cli.parser import parser_cli
 from leettools.cli.query import query_cli
+from leettools.cli.strategy import strat_cli
 from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.context_manager import Context
@@ -71,6 +72,7 @@ run.add_command(llm_cli.llm)
 run.add_command(parser_cli.parser)
 run.add_command(chunker_cli.chunker)
 run.add_command(flow_cli.flow)
+run.add_command(strat_cli.strategy)
 
 
 def _add_extension_cli(context: Context):
