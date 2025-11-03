@@ -9,7 +9,6 @@ from leettools.settings import SystemSettings
 def get_common_search_paras(
     flow_options: Dict[str, Any], settings: SystemSettings, display_logger: EventLogger
 ) -> Tuple[int, int]:
-
     days_limit = config_utils.get_int_option_value(
         options=flow_options,
         option_name=flow_option.FLOW_OPTION_DAYS_LIMIT,
@@ -33,8 +32,8 @@ def get_common_search_paras(
 
     if search_max_results == 0:
         display_logger.warning(
-            f"Max results is set to 0, which means no search will be performed."
-            f"Setting it to default value 10."
+            "Max results is set to 0, which means no search will be performed."
+            "Setting it to default value 10."
         )
         search_max_results = 10
     if search_max_results > settings.SEARCH_MAX_RESULTS_FROM_RETRIEVER:

@@ -12,7 +12,6 @@ from leettools.core.schemas.organization import Org
 
 
 class AbstractConnector(ABC):
-
     @abstractmethod
     def __init__(
         self,

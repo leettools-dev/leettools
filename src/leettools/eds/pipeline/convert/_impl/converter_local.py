@@ -214,7 +214,7 @@ class ConverterLocal(AbstractConverter):
             else:
                 return rtn_code
             return rtn_code
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             logger().error(f"Error converting document: {trace}")
             return ReturnCode.FAILURE

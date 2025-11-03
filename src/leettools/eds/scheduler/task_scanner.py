@@ -8,7 +8,6 @@ from leettools.eds.scheduler.schemas.task import Task
 
 
 class AbstractTaskScanner(ABC):
-
     @abstractmethod
     def scan_kb_for_tasks(
         self,

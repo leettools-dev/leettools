@@ -6,7 +6,6 @@ from leettools.settings import SystemSettings
 
 
 class TokenConverterBasic(AbstractTokenConverter):
-
     def __init__(self, settings: SystemSettings) -> None:
         self.settings = settings
         self.token_map = ModelInfoManager().get_token_map()

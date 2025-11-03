@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 from typing import List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
@@ -24,9 +23,7 @@ USAGE_API_CALL = "api_call"
 
 
 class UsageStoreDuckDB(AbstractUsageStore):
-
     def __init__(self, settings: SystemSettings, user_store: AbstractUserStore) -> None:
-
         self.settings = settings
         self.token_converter = create_token_converter(settings)
         self.user_store = user_store
@@ -108,10 +105,10 @@ class UsageStoreDuckDB(AbstractUsageStore):
         )
         value_list = [user_uuid, start_time_in_ms, end_time_in_ms]
         if limit > 0 and start > 0:
-            where_clause += f" LIMIT ? OFFSET ?"
+            where_clause += " LIMIT ? OFFSET ?"
             value_list += [limit, start]
         elif start > 0:
-            where_clause += f" OFFSET ?"
+            where_clause += " OFFSET ?"
             value_list += [start]
 
         rtn_dicts = self.duckdb_client.fetch_all_from_table(
@@ -235,10 +232,10 @@ class UsageStoreDuckDB(AbstractUsageStore):
         )
         value_list = [user_uuid, start_time_in_ms, end_time_in_ms]
         if limit > 0 and start >= 0:
-            where_clause += f" LIMIT ? OFFSET ?"
+            where_clause += " LIMIT ? OFFSET ?"
             value_list += [limit, start]
         elif start > 0:
-            where_clause += f" OFFSET ?"
+            where_clause += " OFFSET ?"
             value_list += [start]
 
         rtn_dicts = self.duckdb_client.fetch_all_from_table(

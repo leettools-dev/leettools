@@ -71,9 +71,9 @@ class SchedulerSimple(AbstractScheduler):
 
     def _clear_tasks(self) -> None:
         self.logger.info("Clearing tasks in the queue.")
-        assert (
-            self.status != SchedulerStatus.RUNNING
-        ), f"Scheduler status is {self.status} while trying to clear tasks."
+        assert self.status != SchedulerStatus.RUNNING, (
+            f"Scheduler status is {self.status} while trying to clear tasks."
+        )
         with self.lock:
             self.logger.noop("Inside the lock ...", noop_lvl=3)
             if self.task_queue.qsize() > 0:
@@ -148,9 +148,9 @@ class SchedulerSimple(AbstractScheduler):
         """
         This function is called when the scheduler is started or resumed.
         """
-        assert (
-            self.status != SchedulerStatus.RUNNING
-        ), f"Scheduler status is {self.status} while trying to reload tasks."
+        assert self.status != SchedulerStatus.RUNNING, (
+            f"Scheduler status is {self.status} while trying to reload tasks."
+        )
         with self.lock:
             self.logger.noop("Inside the lock ...", noop_lvl=3)
             todo_tasks = self.task_scanner.scan_kb_for_tasks(
@@ -192,9 +192,9 @@ class SchedulerSimple(AbstractScheduler):
         This function is called with a specified interval to update the tasks.
         Logging inside this function should be very careful.
         """
-        assert (
-            self.status == SchedulerStatus.RUNNING
-        ), f"Scheduler status is {self.status} while trying to load tasks."
+        assert self.status == SchedulerStatus.RUNNING, (
+            f"Scheduler status is {self.status} while trying to load tasks."
+        )
 
         with self.lock:
             self.logger.noop("Inside the lock ...", noop_lvl=3)
@@ -237,9 +237,9 @@ class SchedulerSimple(AbstractScheduler):
         self.logger.info(
             f"Starting the task loader thread with interval {interval} seconds."
         )
-        assert (
-            self.status == SchedulerStatus.RUNNING
-        ), f"Scheduler status is {self.status} while trying to load tasks."
+        assert self.status == SchedulerStatus.RUNNING, (
+            f"Scheduler status is {self.status} while trying to load tasks."
+        )
         # we only print out log once every 1 minute
         logging_count = int(60 / interval)
         while self.status == SchedulerStatus.RUNNING:
@@ -261,7 +261,7 @@ class SchedulerSimple(AbstractScheduler):
                 self.logger.error(f"Error in the task loader: {tb_str}")
                 raise e
 
-        self.logger.info(f"The task loader thread is finished.")
+        self.logger.info("The task loader thread is finished.")
 
     def _check_cooldown_queue(self) -> None:
         base_delay = self.context.settings.scheduler_base_delay_in_seconds
@@ -274,9 +274,9 @@ class SchedulerSimple(AbstractScheduler):
             f"There are {self.cooldown_queue.qsize()} jobs in cooldown queue."
         )
         job = self.cooldown_queue.get()
-        assert (
-            job.job_status == JobStatus.FAILED
-        ), f"Checking the delay time for a failed task {job.task_uuid}."
+        assert job.job_status == JobStatus.FAILED, (
+            f"Checking the delay time for a failed task {job.task_uuid}."
+        )
         if job.retry_count > max_retries:
             self.logger.warning(
                 f"Job {job.job_uuid} has reached the max retry count {max_retries}."
@@ -478,7 +478,7 @@ class SchedulerSimple(AbstractScheduler):
                 self.logger.debug(f"Executing job_uuid {job.job_uuid} ...")
                 if job_is_executable:
                     self._worker_executes_job(id, job)
-            except Exception as e:
+            except Exception:
                 tb_str = traceback.format_exc()
                 self.logger.error(f"[{id}]Critical error in the worker: {tb_str}")
             finally:
@@ -494,12 +494,12 @@ class SchedulerSimple(AbstractScheduler):
     def _start_workers(self) -> None:
         self.logger.info("Starting the task loader and workers in the scheduler.")
 
-        assert (
-            self.status == SchedulerStatus.RUNNING
-        ), f"Scheduler status is {self.status} while trying to start workers."
-        assert (
-            self.task_loader == None
-        ), f"The task loader is not None while trying to start workers."
+        assert self.status == SchedulerStatus.RUNNING, (
+            f"Scheduler status is {self.status} while trying to start workers."
+        )
+        assert self.task_loader == None, (
+            "The task loader is not None while trying to start workers."
+        )
         self.task_loader = self.threadpool.submit(self._task_loader, interval=3)
         for id in range(self.num_of_workers):
             self.workers[id] = self.threadpool.submit(self._worker, id)
@@ -510,9 +510,9 @@ class SchedulerSimple(AbstractScheduler):
     def _stop_workers(self, force: bool = False) -> None:
         self.logger.info("Stopping the task loader and workers in the scheduler.")
 
-        assert (
-            self.status != SchedulerStatus.RUNNING
-        ), f"Scheduler status is {self.status} while trying to stop workers."
+        assert self.status != SchedulerStatus.RUNNING, (
+            f"Scheduler status is {self.status} while trying to stop workers."
+        )
         if self.task_loader is not None:
             if self.task_loader.running():
                 self.task_loader.result()
@@ -536,12 +536,12 @@ class SchedulerSimple(AbstractScheduler):
                 self.task_queue.put(None)
 
     def _check_workers_done(self) -> bool:
-        assert (
-            self.status != SchedulerStatus.RUNNING
-        ), f"Scheduler status is {self.status} while trying to check workers done."
+        assert self.status != SchedulerStatus.RUNNING, (
+            f"Scheduler status is {self.status} while trying to check workers done."
+        )
         done = True
         if self.task_loader is not None and self.task_loader.running():
-            self.logger.info(f"Task loader is running.")
+            self.logger.info("Task loader is running.")
             done = False
 
         for id in range(self.num_of_workers):

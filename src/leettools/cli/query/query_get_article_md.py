@@ -40,7 +40,7 @@ def get_article_md(
     """
     Command line interface to get answers for a query in the format of a MD file.
     """
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()
     chat_manager = get_history_manager(context)

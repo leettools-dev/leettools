@@ -123,7 +123,6 @@ class SingletonMetaSchedule(SingletonMeta):
 
 
 class SchedulerManager(metaclass=SingletonMetaSchedule):
-
     # right now passing in different context will not create a new instance
     def __init__(self, context: Context):
         if not hasattr(
@@ -192,10 +191,10 @@ def run_scheduler(
     logger().info("[run_scheduler]Getting the scheduler from SchedulerManager.")
     try:
         scheduler_manager = SchedulerManager(context)  # type: SchedulerManager
-    except UnexpectedCaseException as e:
+    except UnexpectedCaseException:
         # this is possible in the manual run case
         # basically another scheduler is already running
-        logger().info(f"Another scheduler is already running. No need to run.")
+        logger().info("Another scheduler is already running. No need to run.")
         return False
 
     scheduler = scheduler_manager.get_scheduler()

@@ -41,7 +41,7 @@ def summarize_all(
     force: bool,
     **kwargs,
 ) -> None:
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()  # type: Context
     document_store = context.get_repo_manager().get_document_store()

@@ -5,7 +5,6 @@ import click
 from leettools.chat.history_manager import get_history_manager
 from leettools.cli.options_common import common_options
 from leettools.common import exceptions
-from leettools.core.schemas.chat_query_result import ChatAnswerItemCreate
 from leettools.core.schemas.user import User
 
 

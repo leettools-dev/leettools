@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
@@ -104,7 +104,6 @@ class TaskInDB(TaskInDBBase):
 
 @add_fieldname_constants
 class Task(TaskInDBBase):
-
     @classmethod
     def get_task_status_descriptions(cls) -> list[TaskStatusDescription]:
         task_status_descriptions = [

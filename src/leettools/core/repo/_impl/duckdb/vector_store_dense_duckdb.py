@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.context_manager import Context
@@ -491,7 +490,7 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
             where_clause = "WHERE score is not null"
 
         query_statement = f"""
-            SELECT *, fts_{table_name.replace('.', '_')}.match_bm25(
+            SELECT *, fts_{table_name.replace(".", "_")}.match_bm25(
                 {Segment.FIELD_SEGMENT_UUID},
                 ?,
                 fields := '{Segment.FIELD_CONTENT}'
@@ -522,10 +521,10 @@ class VectorStoreDuckDBDense(AbstractVectorStore):
         table_name = self._get_table_name(org, kb, embedding_dimension)
         # TODO: support customizable stemmer, stopwords, ignore, strip_accents, lower
         rebuild_fts_index_sql = f"""
-        PRAGMA create_fts_index({table_name}, {Segment.FIELD_SEGMENT_UUID}, 
+        PRAGMA create_fts_index({table_name}, {Segment.FIELD_SEGMENT_UUID},
             {Segment.FIELD_CONTENT}, stemmer = 'porter',
             stopwords = 'english', ignore = '(\\.|[^a-z])+',
-            strip_accents = 1, lower = 1, overwrite = 1)        
+            strip_accents = 1, lower = 1, overwrite = 1)
         """
         logger().debug(
             f"Building the full text index for table {table_name}: {rebuild_fts_index_sql}"

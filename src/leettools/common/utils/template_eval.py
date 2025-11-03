@@ -77,13 +77,13 @@ if __name__ == "__main__":
     {% block header %}
     Hello {{ name }}!
     {% endblock %}
-    
+
     {% block list %}
     {% for item in items %}
     - {{ item }}
     {% endfor %}
     {% endblock %}
-    
+
     Undefined: {{ undefined_variable }}
     """
     variables = {"name": "John Doe", "items": ["Apple", "Banana", "Cherry"]}

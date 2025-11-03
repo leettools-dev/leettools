@@ -18,7 +18,6 @@ from leettools.flow.step import AbstractStep
 
 
 class StepExtendContext(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "extend_context"
 
     @classmethod

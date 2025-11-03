@@ -3,10 +3,10 @@
 This service provides a local embedding service that can be used to embed text into vectors
 (called dense embeddings comparing to sparse embeddings such as SPLADE). The service is
 based on the SentenceTransformer library, which provides a simple interface to embed text
-into vectors. It can be used for local dev and testing purposes since using a 
+into vectors. It can be used for local dev and testing purposes since using a
 SentenceTransformer model can be slow to start up.
 
-All string dense embedding operations should use the factor method to create the 
+All string dense embedding operations should use the factor method to create the
 embedder object as follows:
 
 ```python
@@ -49,7 +49,7 @@ EDS_DEFAULT_DENSE_EMBEDDING_SERVICE_HOST=127.0.0.1
 EDS_DEFAULT_DENSE_EMBEDDING_SERVICE_PORT=8001
 ```
 
-To start the local embedding service, run the following command:    
+To start the local embedding service, run the following command:
 
 ```bash
 # by default this starts the service on http://127.0.0.1:8001

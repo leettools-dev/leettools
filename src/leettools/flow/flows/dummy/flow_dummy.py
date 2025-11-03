@@ -21,7 +21,6 @@ from leettools.flow.flow_type import FlowType
 
 
 class FlowDummy(AbstractFlow):
-
     ARTICLE_TYPE: ClassVar[str] = ArticleType.CHAT.value
     FLOW_TYPE: ClassVar[str] = FlowType.DUMMY.value
     COMPONENT_NAME: ClassVar[str] = FlowType.DUMMY.value
@@ -65,7 +64,6 @@ Dummy workflow used for testing.
         chat_query_item: ChatQueryItem,
         display_logger: EventLogger,
     ) -> ChatQueryResultCreate:
-
         exec_info = ExecInfo(
             context=self.context,
             org=org,

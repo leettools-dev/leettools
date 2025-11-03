@@ -25,7 +25,6 @@ class VectorSearchResult(BaseModel):
 
 
 class AbstractVectorStore(ABC):
-
     @abstractmethod
     def __init__(self, context: Context):
         pass

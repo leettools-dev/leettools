@@ -15,7 +15,6 @@ _script_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class FlowManager(metaclass=SingletonMeta):
-
     def __init__(self, settings: SystemSettings):
         if not hasattr(
             self, "initialized"
@@ -40,7 +39,6 @@ class FlowManager(metaclass=SingletonMeta):
         return flow_class(context=ContextManager().get_context())
 
     def _scan_all_flows(self):
-
         # the extension path is under the {project_root}/extensions
         # the current script is under the {project_root}/src/leettools/flow
 
@@ -93,7 +91,6 @@ class FlowManager(metaclass=SingletonMeta):
 
 
 if __name__ == "__main__":
-
     from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()

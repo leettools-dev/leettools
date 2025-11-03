@@ -89,7 +89,6 @@ def _subflow_answer_with_web_search(
     multi_items: bool = False,
     save_to_db: bool = True,
 ) -> List[TypeVar_BaseModel]:
-
     display_logger = exec_info.display_logger
     strategy = exec_info.strategy
     accumulated_source_items: Dict[str, SourceItem] = {}
@@ -113,12 +112,14 @@ def _subflow_answer_with_web_search(
         display_logger.warning("No top ranked result found.")
         return []
 
-    extended_context, context_token_count, source_items = (
-        steps.StepExtendContext.run_step(
-            exec_info=exec_info,
-            reranked_result=top_ranked_result_segments,
-            accumulated_source_items=accumulated_source_items,
-        )
+    (
+        extended_context,
+        context_token_count,
+        source_items,
+    ) = steps.StepExtendContext.run_step(
+        exec_info=exec_info,
+        reranked_result=top_ranked_result_segments,
+        accumulated_source_items=accumulated_source_items,
     )
 
     extracted_obj_list = steps.StepExtractInfo.run_step(
@@ -196,7 +197,6 @@ def get_answer_from_web(
     username: str,
     log_level: str,
 ) -> None:
-
     EventLogger.set_global_default_level(log_level.upper())
 
     from leettools.context_manager import ContextManager

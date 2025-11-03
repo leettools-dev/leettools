@@ -1,12 +1,10 @@
 import uuid
-from datetime import datetime
 from typing import List, Optional
 
 from leettools.common import exceptions
 from leettools.common.duckdb.duckdb_client import DuckDBClient
 from leettools.common.logging import logger
 from leettools.common.utils import time_utils
-from leettools.context_manager import Context
 from leettools.core.schemas.user import User, UserCreate, UserInDB, UserUpdate
 from leettools.core.user._impl.duckdb.user_store_duckdb_schema import UserDuckDBSchema
 from leettools.core.user.user_store import AbstractUserStore
@@ -54,7 +52,7 @@ class UserStoreDuckDB(AbstractUserStore):
         return self.get_user_by_uuid(user_uuid)
 
     def create_user(self, user_create: UserCreate) -> Optional[User]:
-        from leettools.context_manager import Context, ContextManager
+        from leettools.context_manager import ContextManager
 
         context = ContextManager().get_context()  # type: Context
         if context.is_test:

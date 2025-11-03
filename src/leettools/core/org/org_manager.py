@@ -6,7 +6,6 @@ from leettools.settings import SystemSettings
 
 
 class AbstractOrgManager(ABC):
-
     @abstractmethod
     def get_default_org(self) -> Org:
         """

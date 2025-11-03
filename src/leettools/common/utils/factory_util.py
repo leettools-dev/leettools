@@ -29,7 +29,7 @@ def get_subclass_from_module(module_name: str, base_class: Type[T]) -> List[Type
             if issubclass(cls, base_class) and cls is not base_class
         ]
         return subclasses
-    except ModuleNotFoundError as e:
+    except ModuleNotFoundError:
         raise exceptions.EntityNotFoundException(
             entity_name=module_name, entity_type="module"
         )

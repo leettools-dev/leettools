@@ -4,7 +4,6 @@ import click
 
 from leettools.cli.options_common import common_options
 from leettools.common import exceptions
-from leettools.context_manager import Context
 from leettools.flow.metadata.extract_metadata_manager import (
     create_extraction_metadata_manager,
 )
@@ -80,7 +79,7 @@ def list_db(
                 )
 
     if not json_output:
-        click.echo(f"KnowledgeBase\tExtractDBName\tType\tItems\tUpdated")
+        click.echo("KnowledgeBase\tExtractDBName\tType\tItems\tUpdated")
 
     if kb_name is None:
         for kb in kb_manager.get_all_kbs_for_org(org):

@@ -17,7 +17,6 @@ from leettools.web.schemas.search_result import SearchResult
 
 
 class ExtractSearch(AbstractIterator):
-
     from typing import ClassVar
 
     from leettools.flow.flow_component import FlowComponent
@@ -180,6 +179,6 @@ Extracts structured information from documents returned by search results. The p
                 continue
 
         display_logger.info(
-            f"Finished extracting information from local search result."
+            "Finished extracting information from local search result."
         )
         return new_objs, existing_objs

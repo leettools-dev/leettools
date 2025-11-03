@@ -4,7 +4,6 @@ from leettools.core.schemas.segment import Segment
 
 
 class VectorDuckDBSchema:
-
     @classmethod
     def get_schema(cls, dense_embedder_dimension: int) -> Dict[str, str]:
         return {

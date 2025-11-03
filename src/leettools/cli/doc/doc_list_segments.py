@@ -44,7 +44,7 @@ def list_segments_for_doc(
     indent: Optional[int] = None,
     **kwargs,
 ) -> None:
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()  # type: Context
     segment_store = context.get_repo_manager().get_segment_store()

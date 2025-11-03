@@ -17,7 +17,6 @@ from leettools.eds.str_embedder.sparse_embedder import (
 
 
 class SparseStrEmbedderSplade(AbstractSparseEmbedder):
-
     def __init__(
         self,
         context: Context,

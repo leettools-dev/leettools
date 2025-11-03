@@ -9,7 +9,6 @@ from leettools.common.logging import EventLogger, logger
 from leettools.common.utils import config_utils, file_utils
 from leettools.context_manager import Context
 from leettools.core.consts import flow_option
-from leettools.core.consts.retriever_type import RetrieverType
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
@@ -34,7 +33,6 @@ class ImageSearcher:
         kb: Optional[KnowledgeBase] = None,
         user: Optional[User] = None,
     ):
-
         self.context = context
         self.org = org
         self.kb = kb
@@ -73,7 +71,6 @@ class ImageSearcher:
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[ImageSearchResult]:
-
         # visited_urls stores the url to path mapping
         visited_urls: Dict[str, str] = {}
 

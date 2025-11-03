@@ -31,7 +31,6 @@ class IntentionGetterDynamic(AbstractIntentionGetter, APICallerBase):
         intention_section: StrategySection,
         event_logger: Optional[EventLogger] = None,
     ) -> None:
-
         self.setup_with_strategy(
             context, user, intention_section, _script_dir, event_logger
         )
@@ -66,7 +65,7 @@ class IntentionGetterDynamic(AbstractIntentionGetter, APICallerBase):
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
             return ChatQueryMetadata.model_validate_json(response_str)
-        except Exception as e:
+        except Exception:
             if response_str is not None:
                 self.display_logger.error(
                     f"ModelValidating ChatQueryMetadata failed: {response_str}"

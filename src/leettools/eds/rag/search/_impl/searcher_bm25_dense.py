@@ -13,7 +13,6 @@ from leettools.core.repo.vector_store import (
     VectorSearchResult,
     VectorType,
     create_vector_store_dense,
-    create_vector_store_sparse,
 )
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.schemas.knowledgebase import KnowledgeBase
@@ -53,7 +52,6 @@ class SearcherBM25Dense(AbstractSearcher):
 
     @classmethod
     def extract_keywords(cls, sentence: str) -> str:
-
         cls.initialize_nltk()
 
         # Tokenize the sentence
@@ -247,11 +245,11 @@ class SearcherBM25Dense(AbstractSearcher):
             f"Found {len(results_from_dense_vector)} from dense vector search."
         )
 
-        logger().info(f"Extracting keywords from query...")
+        logger().info("Extracting keywords from query...")
         if (
             query_meta is not None
             and query_meta.keywords is not None
-            and query_meta.keywords is not []
+            and query_meta.keywords != []
         ):
             keyword_query = "|".join(query_meta.keywords)
             logger().info(f"keyword_query from metadata: {keyword_query}")
@@ -260,7 +258,7 @@ class SearcherBM25Dense(AbstractSearcher):
             keyword_query = self.extract_keywords(query)
             logger().info(f"keyword_query from original query: {keyword_query}")
 
-        logger().info(f"Performing BM25 search ...")
+        logger().info("Performing BM25 search ...")
         try:
             results_from_sparse_vector: List[VectorSearchResult] = (
                 self.dense_vectorstore.search_in_kb(

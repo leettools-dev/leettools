@@ -15,7 +15,6 @@ from leettools.web.scrapers.scraper import AbstractScraper
 
 
 class Crawler4aiScraper(AbstractScraper):
-
     def __init__(
         self,
         session: requests.Session = None,

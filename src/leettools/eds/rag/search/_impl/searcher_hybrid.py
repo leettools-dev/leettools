@@ -52,7 +52,6 @@ class SearcherHybrid(AbstractSearcher):
 
     @classmethod
     def extract_keywords(cls, sentence: str) -> str:
-
         cls.initialize_nltk()
 
         # Tokenize the sentence
@@ -282,11 +281,11 @@ class SearcherHybrid(AbstractSearcher):
         )
 
         # keyword_query = self._extract_keywords(query)
-        logger().info(f"Extracting keywords from query...")
+        logger().info("Extracting keywords from query...")
         if (
             query_meta is not None
             and query_meta.keywords is not None
-            and query_meta.keywords is not []
+            and query_meta.keywords != []
         ):
             keyword_query = "|".join(query_meta.keywords)
             logger().info(f"keyword_query from metadata: {keyword_query}")
@@ -295,7 +294,7 @@ class SearcherHybrid(AbstractSearcher):
             keyword_query = self.extract_keywords(query)
             logger().info(f"keyword_query from original query: {keyword_query}")
 
-        logger().info(f"Searching Sparse Vector...")
+        logger().info("Searching Sparse Vector...")
         try:
             results_from_sparse_vector: List[VectorSearchResult] = (
                 self.sparse_vectorstore.search_in_kb(

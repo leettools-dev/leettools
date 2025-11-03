@@ -24,7 +24,6 @@ class APIEndpointInfo(BaseModel):
 
 @add_fieldname_constants
 class APIProviderConfig(BaseModel):
-
     api_provider: str = Field(
         ...,
         description="The name for the API provider. Although we only use OpenAI-compatible "

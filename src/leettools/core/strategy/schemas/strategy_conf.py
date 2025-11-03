@@ -93,7 +93,6 @@ class StrategyConfBase(BaseModel):
 
 
 class StrategyConfCreate(StrategyConfBase):
-
     strategy_name: str = Field(
         ..., description="The strategy name, required to be unique for a user."
     )

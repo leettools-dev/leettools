@@ -19,7 +19,6 @@ from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepGenSearchPhrases(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "gen_search_phrases"
 
     @classmethod
@@ -36,12 +35,12 @@ if set, otherwise using the original language.
     def used_prompt_templates(cls) -> Dict[str, PromptBase]:
         # See [src/leettools/flow/README.md] for how to use template varaibles
         search_phrase_template_str = """
-Given the following query, create a web search query 
+Given the following query, create a web search query
 {{ lang_instruction }}
 that will return most relavant information about the query from the the web search engine.
 
 Return the result as a string without quotes, do not include the title in the result.
-                
+
 Here is the query:
 {{ query }}
 """

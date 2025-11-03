@@ -16,4 +16,3 @@ logger().log_to_file(path=current_dir, filename='test.log', level='DEBUG')
 my_logger = EventLogger.get_instance('my_logger')
 my_logger.info('test')
 ```
-

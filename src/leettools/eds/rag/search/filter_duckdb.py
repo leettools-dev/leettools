@@ -4,7 +4,7 @@ from leettools.eds.rag.search.filter import BaseCondition, Filter
 
 
 def _convert_condition_to_duckdb(
-    condition: Union[BaseCondition, Filter]
+    condition: Union[BaseCondition, Filter],
 ) -> Tuple[str, List[str], List[Any]]:
     if isinstance(condition, Filter):
         return to_duckdb_filter(condition)
@@ -28,7 +28,7 @@ def _convert_condition_to_duckdb(
 
 
 def to_duckdb_filter(
-    filter: Union[Filter, BaseCondition]
+    filter: Union[Filter, BaseCondition],
 ) -> Tuple[str, List[str], List[Any]]:
     """
     Convert a Filter to a DuckDB filter expression.

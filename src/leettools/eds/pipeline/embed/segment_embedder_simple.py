@@ -33,7 +33,7 @@ class SegmentEmbedderSimple(AbstractSegmentEmbedder):
         display_logger: EventLogger,
     ) -> ReturnCode:
         if len(segments) == 0:
-            display_logger.info(f"No segments to embed for this run.")
+            display_logger.info("No segments to embed for this run.")
             return ReturnCode.SUCCESS
 
         doc_id = segments[0].document_uuid
@@ -56,13 +56,13 @@ class SegmentEmbedderSimple(AbstractSegmentEmbedder):
             display_logger = logger()
 
         if segments is None or len(segments) == 0:
-            display_logger.info(f"No segments to embed for this run.")
+            display_logger.info("No segments to embed for this run.")
             return ReturnCode.SUCCESS
 
         try:
             rtn_code = self._embed(segments, display_logger)
             return rtn_code
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             display_logger.error(f"Error embedding document: {trace}")
             return ReturnCode.FAILURE

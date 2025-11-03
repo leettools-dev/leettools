@@ -10,7 +10,7 @@ if __name__ == "__main__":
     os.environ[f"{ENV_VAR_PREFIX}LOG_ROOT"] = "dummy"
 
     # put the imports after the dummy environment variables
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
     from leettools.eds.str_embedder._impl.sparse_embedder_splade import (
         SparseStrEmbedderSplade,
     )

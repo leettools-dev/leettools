@@ -6,7 +6,6 @@ from leettools.core.strategy.schemas.strategy_section_name import StrategySectio
 
 
 class StrategySection(BaseModel):
-
     # the name of the section, should correspond to a step name
     section_name: StrategySectionName
 

@@ -128,12 +128,12 @@ def _section_plan_for_research(topic: TopicSpec, query: str):
         title=topic.title,
         search_query=query + " " + topic.title,
         system_prompt_template="""
-You are an expert research writer, you can write a detailed section about the topic 
+You are an expert research writer, you can write a detailed section about the topic
 using the provided context and the specified style shown in the example.
 """,
         user_prompt_template=f"""
-{{{{ context_presentation }}}} please write the section {{{{ lang_instruction }}}} 
-following the instructions below. 
+{{{{ context_presentation }}}} please write the section {{{{ lang_instruction }}}}
+following the instructions below.
 
 {topic.prompt}
 {{{{ reference_instruction }}}}
@@ -214,7 +214,6 @@ def report_for_docsource(
     docsource_uuid: str,
     log_level: str,
 ) -> None:
-
     EventLogger.set_global_default_level(log_level.upper())
 
     from leettools.context_manager import ContextManager
@@ -251,11 +250,13 @@ def report_for_docsource(
             entity_name=docsource_uuid, entity_type="DocSource"
         )
 
-    document_summaries, all_docs, all_keywords = (
-        flow_utils.get_doc_summaries_for_docsource(
-            docsource=docsource,
-            exec_info=exec_info,
-        )
+    (
+        document_summaries,
+        all_docs,
+        all_keywords,
+    ) = flow_utils.get_doc_summaries_for_docsource(
+        docsource=docsource,
+        exec_info=exec_info,
     )
 
     chat_query_result_create = SubflowGenEssay.run_subflow(

@@ -10,7 +10,6 @@ from leettools.eds.rag.schemas.rerank import RerankResult
 
 
 class AbstractReranker(ABC):
-
     @abstractmethod
     def __init__(
         self,
@@ -41,7 +40,6 @@ def create_reranker_by_strategy(
     rerank_section: StrategySection,
     display_logger: EventLogger,
 ) -> AbstractReranker:
-
     from leettools.common.utils import factory_util
 
     settings = context.settings

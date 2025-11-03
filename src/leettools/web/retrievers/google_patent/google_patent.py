@@ -57,7 +57,6 @@ class GooglePatentSearch(GoogleSearch):
         flow_options: Dict[str, Any],
         display_logger: EventLogger,
     ) -> List[SearchResult]:
-
         display_logger.info(f"Searching with query {query}...")
 
         days_limit, max_results = search_utils.get_common_search_paras(
@@ -89,7 +88,7 @@ class GooglePatentSearch(GoogleSearch):
         while len(search_results) < max_results and last_iteration_filled:
             iteration += 1
 
-            url_paras = f"&safe=active" f"&start={start}" f"{date_restrict}"
+            url_paras = f"&safe=active&start={start}{date_restrict}"
 
             url = f"{url_base}{url_paras}"
             redacted_url = f"{redacted_url_base}{url_paras}"

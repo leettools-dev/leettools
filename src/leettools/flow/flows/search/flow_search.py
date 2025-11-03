@@ -26,7 +26,6 @@ from leettools.flow.utils import flow_utils
 
 
 class FlowSearch(AbstractFlow):
-
     FLOW_TYPE: ClassVar[str] = FlowType.SEARCH.value
     ARTICLE_TYPE: ClassVar[str] = ArticleType.SEARCH.value
     COMPONENT_NAME: ClassVar[str] = FlowType.SEARCH.value
@@ -40,11 +39,11 @@ class FlowSearch(AbstractFlow):
         return """
 Return top segements that match the query with links to the original documents.
 - Perform the search with retriever: "local" for local KB, a search engine (e.g., Google)
-  fetches top documents from the web. If no KB is specified, create an adhoc KB; 
+  fetches top documents from the web. If no KB is specified, create an adhoc KB;
   otherwise, save and process results in the KB.
-- New web search results are processed through the document pipeline: conversion, 
+- New web search results are processed through the document pipeline: conversion,
   chunking, and indexing.
-- Now the query is executed on the local KB using hybrid search, e.g., full text and 
+- Now the query is executed on the local KB using hybrid search, e.g., full text and
   vector;
 - The top matched segments, with the ranking score and the original document links;
 - Right now SPLADE and Vector Cosine similarity are used in the hybried search.

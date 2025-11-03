@@ -139,7 +139,6 @@ def _search_searx_advanced(
 
 # Example usage
 if __name__ == "__main__":
-
     context = ContextManager().get_context()
     ss = SearxSearch(context=context)
     query = "AI advancements"

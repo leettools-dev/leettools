@@ -95,7 +95,7 @@ def setup_org_kb_user(
                 org=org,
                 kb_create=KBCreate(
                     name=kb_name,
-                    description=f"Created automatically by CLI command",
+                    description="Created automatically by CLI command",
                     user_uuid=user.user_uuid,
                     auto_schedule=False,
                     enable_contextual_retrieval=context.settings.ENABLE_CONTEXTUAL_RETRIEVAL,
@@ -111,7 +111,7 @@ def setup_org_kb_user(
                 org,
                 KBCreate(
                     name=kb_name,
-                    description=f"Created automatically by CLI command",
+                    description="Created automatically by CLI command",
                     user_uuid=user.user_uuid,
                     auto_schedule=True,
                     enable_contextual_retrieval=context.settings.ENABLE_CONTEXTUAL_RETRIEVAL,

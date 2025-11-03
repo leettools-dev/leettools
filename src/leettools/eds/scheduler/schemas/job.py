@@ -58,7 +58,6 @@ class JobUpdate(JobInDBBase):
 
 # Properties properties stored in DB
 class JobInDB(JobInDBBase):
-
     created_at: Optional[datetime] = Field(None, description="The creation time.")
     updated_at: Optional[datetime] = Field(None, description="The update time.")
 
@@ -112,7 +111,6 @@ class JobInDB(JobInDBBase):
 # Properties to return to client
 @add_fieldname_constants
 class Job(JobInDB):
-
     @classmethod
     def from_job_in_db(Job, job_in_db: JobInDB) -> "Job":
         # Note: we need to assign all the required properties and

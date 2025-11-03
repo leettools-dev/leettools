@@ -13,7 +13,6 @@ from leettools.web.web_searcher import WebSearcher
 
 
 class StepScrpaeUrlsToDocSource(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "scrape_urls_to_docsource"
 
     @classmethod
@@ -111,7 +110,7 @@ and save them as a list of DocSinks in the DocSource.
                         )
                         continue
                     successful_documents[document.original_uri] = document
-                except Exception as e:
+                except Exception:
                     pass
 
         else:

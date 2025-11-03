@@ -92,7 +92,7 @@ class FlowNews(AbstractFlow):
     @classmethod
     def full_description(cls) -> str:
         return """
-This flow generates a list of news items from the updated items in the KB: 
+This flow generates a list of news items from the updated items in the KB:
 1. check the KB for recently updated documents and find news items in them.
 2. combine all the similar items into one.
 3. remove items that have been reported before.
@@ -100,9 +100,7 @@ This flow generates a list of news items from the updated items in the KB:
 5. generate a list of news items with references.
 """
 
-    default_news_instructions: ClassVar[
-        str
-    ] = """
+    default_news_instructions: ClassVar[str] = """
 Please find the news items in the context about {{ query }} and return
 - The title of the news item
 - The detailed description of the news in the style of {{ article_style }}, up to {{ word_count }} words
@@ -268,7 +266,6 @@ Please find the news items in the context about {{ query }} and return
     def _llm_dedupe(
         self, exec_info: ExecInfo, news_params: _NewsParams, news_results_md: str
     ) -> List[CombinedNewsItems]:
-
         display_logger = exec_info.display_logger
         query = exec_info.query
         word_count = news_params.word_count
@@ -455,7 +452,6 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
         chat_query_item: ChatQueryItem,
         display_logger: Optional[EventLogger] = None,
     ) -> ChatQueryResultCreate:
-
         # common setup
         exec_info = ExecInfo(
             context=self.context,
@@ -641,7 +637,7 @@ Here are the news items to combine, dedupe, remove, and rank by the number of so
         )
         combined_news_store.save_records(final_news_items, metadata={})
 
-        display_logger.info(f"Generating results for the final answer.")
+        display_logger.info("Generating results for the final answer.")
 
         if len(final_news_items) == 0:
             return flow_utils.create_chat_result_with_manual_msg(

@@ -14,7 +14,6 @@ from leettools.core.strategy.schemas.strategy_section import StrategySection
 
 
 class AbstractInference(ABC):
-
     @abstractmethod
     def inference(
         self,

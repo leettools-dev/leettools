@@ -14,7 +14,6 @@ from leettools.settings import SystemSettings
 
 
 class AbstractSegmentStore(ABC):
-
     @abstractmethod
     def create_segment(
         self, org: Org, kb: KnowledgeBase, segment_create: SegmentCreate

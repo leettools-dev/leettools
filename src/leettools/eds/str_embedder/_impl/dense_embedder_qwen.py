@@ -6,7 +6,7 @@ import dashscope
 
 from leettools.common.exceptions import ConfigValueException
 from leettools.common.logging import logger
-from leettools.common.utils import config_utils, time_utils
+from leettools.common.utils import time_utils
 from leettools.context_manager import Context
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
@@ -24,7 +24,6 @@ from leettools.eds.usage.schemas.usage_api_call import (
     API_CALL_ENDPOINT_EMBED,
     UsageAPICallCreate,
 )
-from leettools.settings import SystemSettings
 
 EMBEDDER_MODEL_MAPPNG = {
     "text-embedding-v1": dashscope.TextEmbedding.Models.text_embedding_v1,
@@ -33,7 +32,6 @@ EMBEDDER_MODEL_MAPPNG = {
 
 
 class DenseEmbedderQwen(AbstractDenseEmbedder):
-
     def __init__(
         self,
         context: Context,
@@ -41,7 +39,6 @@ class DenseEmbedderQwen(AbstractDenseEmbedder):
         kb: Optional[KnowledgeBase] = None,
         user: Optional[User] = None,
     ) -> None:
-
         self.org = org
         self.kb = kb
         self.user = user

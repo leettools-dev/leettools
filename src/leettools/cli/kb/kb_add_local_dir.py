@@ -88,7 +88,7 @@ def add_local_dir(
     if doc_source is None:
         doc_source = path.as_uri()
 
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False

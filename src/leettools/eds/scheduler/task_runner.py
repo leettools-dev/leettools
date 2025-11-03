@@ -4,7 +4,6 @@ from leettools.eds.scheduler.schemas.job import Job
 
 
 class AbstractTaskRunner(ABC):
-
     @abstractmethod
     def run_job(self, job: Job) -> Job:
         """

@@ -4,7 +4,6 @@ from leettools.core.schemas.chat_query_metadata import (
     DEFAULT_INTENTION,
     ChatQueryMetadata,
 )
-from leettools.core.strategy.schemas.strategy_section import StrategySection
 from leettools.core.strategy.schemas.strategy_section_name import StrategySectionName
 from leettools.eds.rag.intention.intention_getter import (
     get_intention_getter_by_strategy,
@@ -16,7 +15,6 @@ from leettools.flow.step import AbstractStep
 
 
 class StepIntention(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "intention"
 
     @classmethod
@@ -35,7 +33,6 @@ class StepIntention(AbstractStep):
 def _run_intention(
     exec_info: ExecInfo,
 ) -> ChatQueryMetadata:
-
     context = exec_info.context
     display_logger = exec_info.display_logger
     user = exec_info.user

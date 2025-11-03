@@ -14,7 +14,6 @@ from leettools.svc.util.svc_utils import get_user_with_auth
 
 
 class UserRouter(APIRouterBase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         context = self.context

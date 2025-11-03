@@ -248,7 +248,6 @@ def run_inference_call_direct(
     if use_parsed:
         response_str = completion.choices[0].message.parsed.model_dump_json()
     else:
-
         response_str = completion.choices[0].message.content
         display_logger.debug(f"Response from inference call\n: {response_str}")
         if need_json:
@@ -289,7 +288,7 @@ def run_inference_call_direct(
                 if match:
                     response_str = match.group(0)
                 else:
-                    display_logger.debug(f"No items found in response.")
+                    display_logger.debug("No items found in response.")
 
             display_logger.debug(f"Clean up: {response_str}")
 
@@ -375,7 +374,6 @@ def get_openai_embedder_client_for_user(
 def get_default_inference_api_provider_config(
     context: Context, user: Optional[User] = None
 ) -> APIProviderConfig:
-
     if user is None:
         user = User.get_admin_user()
 
@@ -422,7 +420,6 @@ def get_default_inference_api_provider_config(
 def get_default_embed_api_provider_config(
     context: Context, user: Optional[User] = None
 ) -> APIProviderConfig:
-
     if user is None:
         user = User.get_admin_user()
 
@@ -488,7 +485,6 @@ def get_default_embed_api_provider_config(
 def get_default_rerank_api_provider_config(
     context: Context, user: Optional[User] = None
 ) -> APIProviderConfig:
-
     if user is None:
         user = User.get_admin_user()
 
@@ -540,7 +536,6 @@ def get_openai_client_for_user(
     api_provider_config: Optional[APIProviderConfig] = None,
     display_logger: Optional[EventLogger] = None,
 ) -> OpenAI:
-
     if display_logger is None:
         display_logger = logger()
 

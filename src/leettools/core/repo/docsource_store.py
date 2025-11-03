@@ -9,7 +9,6 @@ from leettools.settings import SystemSettings
 
 
 class AbstractDocsourceStore(ABC):
-
     @abstractmethod
     def create_docsource(
         self,

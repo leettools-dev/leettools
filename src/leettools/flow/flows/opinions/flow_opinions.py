@@ -124,7 +124,6 @@ def dedupe_items(
     dedupe_step: Dict[str, str],
     display_logger: EventLogger,
 ) -> List[type]:
-
     input_md_table = flow_utils.to_markdown_table(input_items, skip_fields=skip_fields)
 
     model_class = type_dict[target_model_name]
@@ -156,11 +155,11 @@ def dedupe_items(
             )
 
     if hasattr(message, "parsed"):
-        display_logger.debug(f"Returning list of objects using message.parsed.")
+        display_logger.debug("Returning list of objects using message.parsed.")
         extract_result = message.parsed
         return extract_result.items
     else:
-        display_logger.debug(f"Returning list of objects using model_validate_json.")
+        display_logger.debug("Returning list of objects using model_validate_json.")
         response_str = json_utils.ensure_json_item_list(response_str)
         try:
             items = response_pydantic_model.model_validate_json(response_str)
@@ -198,18 +197,14 @@ Enter a topic for analysis,
 
     FLOW_OPTION_OPINIONS_INSTRUCTION: ClassVar[str] = "opinions_instruction"
 
-    default_opinions_instructions: ClassVar[
-        str
-    ] = """
+    default_opinions_instructions: ClassVar[str] = """
 Please find the opinions about {{ query }} in the context and return
 - The keywords about the opinion
 - The description of the opinion
 - the sentiment of the opinion (positive, negative, neutral)
 """
 
-    default_facts_instructions: ClassVar[
-        str
-    ] = """
+    default_facts_instructions: ClassVar[str] = """
 Please list interesting facts about {{ query }} in the context and return
 - The keywords about the fact
 - The description of the fact
@@ -282,7 +277,6 @@ facts_instructions = \"\"\"
         chat_query_item: ChatQueryItem,
         display_logger: Optional[EventLogger] = None,
     ) -> ChatQueryResultCreate:
-
         # common setup
         exec_info = ExecInfo(
             context=self.context,
@@ -431,14 +425,14 @@ facts_instructions = \"\"\"
         opinion_dedupe_step = {
             "system_prompt_template": "You are an expert of deduplicate items.",
             "user_prompt_template": f"""
-Given the following {item_type}s in a table where the left most column is the description, 
-the second column is the key words of the {item_type}, and the the right most column is 
+Given the following {item_type}s in a table where the left most column is the description,
+the second column is the key words of the {item_type}, and the the right most column is
 the source url of the {item_type}:
 
 {{{{ results }}}}
 
 Please combine {item_type}s with similar descriptions and key words into one {item_type},
-limit the length of the combined description to 100 words, adding all source urls in a 
+limit the length of the combined description to 100 words, adding all source urls in a
 list for the combined {item_type}, and return the combine {item_type}s as the schema provided.
 """,
         }
@@ -553,8 +547,8 @@ of the fact, and the the right most column is the source url of the fact:
 
 {{ results }}
 
-Please combine facts with similar descriptions and key words into one fact, limit the 
-length of the combined description to 100 words, adding all source urls in a list for 
+Please combine facts with similar descriptions and key words into one fact, limit the
+length of the combined description to 100 words, adding all source urls in a list for
 the combined fact, and return the combine facts as the schema provided.
 """,
         }

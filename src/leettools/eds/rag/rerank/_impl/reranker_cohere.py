@@ -16,7 +16,6 @@ _script_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class RerankerCohere(AbstractReranker, APICallerBase):
-
     def __init__(
         self,
         context: Context,
@@ -43,7 +42,6 @@ class RerankerCohere(AbstractReranker, APICallerBase):
         top_k: int,
         rerank_options: Dict[str, Any] = None,
     ) -> RerankResult:
-
         import cohere
 
         logger().info(f"Calling cohere reranker for query {query}")

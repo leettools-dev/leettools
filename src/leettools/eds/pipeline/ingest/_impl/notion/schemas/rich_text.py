@@ -2,14 +2,18 @@ from pydantic import BaseModel
 from typing import Any, Dict, Optional, Union
 from .mention import MentionObject
 
+
 class EquationObject(BaseModel):
     expression: str
+
 
 class TextObject(BaseModel):
     content: str
     link: Optional[Dict[str, str]] = None
 
+
 AnyRichText = Union[TextObject, MentionObject, EquationObject]
+
 
 class Annotations(BaseModel):
     bold: bool = False
@@ -18,6 +22,7 @@ class Annotations(BaseModel):
     underline: bool = False
     code: bool = False
     color: Optional[str] = None
+
 
 class RichTextObject(BaseModel):
     type: str = "text"

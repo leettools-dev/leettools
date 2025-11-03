@@ -1,4 +1,3 @@
-import os
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 
@@ -385,7 +384,6 @@ CHILDREN_FIELD = "children"
 
 
 class Block(BaseModel):
-
     object: str = "block"
     id: str
     parent: AnyParent

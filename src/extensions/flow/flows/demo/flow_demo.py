@@ -2,7 +2,6 @@ from typing import ClassVar, List, Type
 
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import config_utils
-from leettools.core.consts import flow_option
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.consts.display_type import DisplayType
 from leettools.core.schemas.chat_query_item import ChatQueryItem
@@ -18,7 +17,6 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_component import FlowComponent
 from leettools.flow.flow_option_items import FlowOptionItem
-from leettools.flow.flow_type import FlowType
 from leettools.flow.utils import flow_utils
 
 
@@ -144,12 +142,14 @@ Generate a poem based on web search results:
             )
 
         # Extend context with relevant information
-        extended_context, context_token_count, source_items = (
-            steps.StepExtendContext.run_step(
-                exec_info=exec_info,
-                reranked_result=top_ranked_result_segments,
-                accumulated_source_items={},
-            )
+        (
+            extended_context,
+            context_token_count,
+            source_items,
+        ) = steps.StepExtendContext.run_step(
+            exec_info=exec_info,
+            reranked_result=top_ranked_result_segments,
+            accumulated_source_items={},
         )
 
         display_logger.debug(

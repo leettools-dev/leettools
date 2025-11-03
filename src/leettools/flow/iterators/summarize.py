@@ -11,7 +11,6 @@ from leettools.flow.steps.step_summarize import StepSummarize
 
 
 class Summarize(AbstractIterator):
-
     from typing import ClassVar
 
     from leettools.flow.flow_component import FlowComponent

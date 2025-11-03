@@ -1,4 +1,3 @@
-from datetime import timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -7,7 +6,7 @@ from bs4 import BeautifulSoup
 
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
-from leettools.common.utils import file_utils, time_utils, url_utils
+from leettools.common.utils import file_utils
 from leettools.core.consts.return_code import ReturnCode
 from leettools.web.schemas.scrape_result import ScrapeResult
 from leettools.web.scrapers.scraper import AbstractScraper
@@ -18,7 +17,6 @@ from leettools.web.scrapers.scraper_utils import (
 
 
 class BeautifulSoupSimpleScraper(AbstractScraper):
-
     def __init__(
         self,
         session: requests.Session = None,
@@ -39,7 +37,7 @@ class BeautifulSoupSimpleScraper(AbstractScraper):
         context = ContextManager().get_context()
         if context.is_test:
             self.display_logger.info(
-                f"In the test mode. Ignoring the content length check."
+                "In the test mode. Ignoring the content length check."
             )
         else:
             if len(content) < 300:

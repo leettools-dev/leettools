@@ -164,7 +164,7 @@ class FirecrawlSearch(AbstractRetriever):
             )
             if api_url is None or api_url == "":
                 api_url = "https://api.firecrawl.dev"
-        except Exception as e:
+        except Exception:
             self.logger.debug(
                 "Failed to get FireCrawl API URL. Using the default URL. "
             )

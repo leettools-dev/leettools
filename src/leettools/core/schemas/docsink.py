@@ -17,7 +17,6 @@ See [README](./README.md) about the usage of different pydantic models.
 
 
 class DocSinkBase(BaseModel):
-
     original_doc_uri: str = Field(..., description="The original URI of the document.")
     raw_doc_uri: str = Field(
         ..., description="The URI of the raw document (the docsink)."

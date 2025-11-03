@@ -21,11 +21,9 @@ from leettools.eds.usage.schemas.usage_api_call import (
     API_CALL_ENDPOINT_EMBED,
     UsageAPICallCreate,
 )
-from leettools.settings import SystemSettings
 
 
 class DenseEmbedderOpenAI(AbstractDenseEmbedder):
-
     def __init__(
         self,
         context: Context,
@@ -33,7 +31,6 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
         kb: Optional[KnowledgeBase] = None,
         user: Optional[User] = None,
     ) -> None:
-
         self.org = org
         self.kb = kb
         self.user = user
@@ -65,7 +62,7 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
         else:
             user_store = self.context.get_user_store()
             if self.kb is None:
-                logger().debug(f"No KB specified. Using admin user.")
+                logger().debug("No KB specified. Using admin user.")
                 user = user_store.get_user_by_name(User.ADMIN_USERNAME)
             else:
                 if self.kb.user_uuid is None:
@@ -86,7 +83,6 @@ class DenseEmbedderOpenAI(AbstractDenseEmbedder):
         )
 
     def embed(self, embed_requests: DenseEmbeddingRequest) -> DenseEmbeddings:
-
         response = None
         start_timestamp_in_ms = time_utils.cur_timestamp_in_ms()
         try:

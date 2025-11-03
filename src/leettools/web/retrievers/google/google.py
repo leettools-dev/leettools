@@ -67,13 +67,9 @@ class GoogleSearch(AbstractRetriever):
         flow_options: Dict[str, Any],
         display_logger: EventLogger,
     ) -> List[SearchResult]:
-
         from leettools.common.utils import config_utils
         from leettools.core.consts.flow_option import (
             FLOW_OPTION_EXCLUDED_SITES,
-            FLOW_OPTION_IMAGE_SEARCH,
-            FLOW_OPTION_SEARCH_ITERATION,
-            FLOW_OPTION_TARGET_SITE,
         )
 
         display_logger.info(f"Google search with query: {query}...")
@@ -147,8 +143,8 @@ class GoogleSearch(AbstractRetriever):
 
         if max_iteration == 0:
             display_logger.warning(
-                f"Max iteration is set to 0, which means no search will be performed."
-                f"Setting it to default value 3."
+                "Max iteration is set to 0, which means no search will be performed."
+                "Setting it to default value 3."
             )
             max_iteration = 3
 
@@ -286,13 +282,13 @@ class GoogleSearch(AbstractRetriever):
             return None
         if search_results_dict is None or len(search_results_dict) == 0:
             display_logger.warning(
-                f"search_results_dict is None or empty, which should not happen."
+                "search_results_dict is None or empty, which should not happen."
             )
             return None
 
         results = search_results_dict.get("items", [])
         if results is None or len(results) == 0:
-            display_logger.warning(f"No 'items' field in resp.text.")
+            display_logger.warning("No 'items' field in resp.text.")
             return None
         return results
 

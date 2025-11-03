@@ -11,7 +11,7 @@ The following are the different components of the flow:
 - iterator: iterates over a docource, a KB, or a list of them to perform a task.
 - flow: sequence of steps that performs a task and return a result as the
   ChatQueryResultCreate data structure.
-- executuor: implements the AbstractExcutor interface, mainly the execute_for_query 
+- executuor: implements the AbstractExcutor interface, mainly the execute_for_query
   fucntion so that it can be served through the EDS API.
 
 # Flow and Strategy
@@ -19,13 +19,11 @@ Each flow will be a python program that hooks up different types of steps to per
 specific task. For each kind of step, it takes a specific kind of configuration (which
 is the current strategy section) for the task.
 
-The strategy specifies the configuration the steps use, such as the API or model 
-parameters. Each strategy is separated into different sections, each section serving a 
+The strategy specifies the configuration the steps use, such as the API or model
+parameters. Each strategy is separated into different sections, each section serving a
 specific purpose such as intention detecion, query rewrite, rerank, inference, and etc.
 For some of the steps, they will multiple sections configuration. For example, the
 section planning step can use the configuration for the inference step.
-
-
 # Prompt templates
 
 When defining the prompt templates, there are different types of variables that can be
@@ -76,9 +74,9 @@ prompt = template_eval.render_template(prompt_template, template_vars)
 ```
 
 ## Create a prompt template with variables with f-string format
- 
+
 In this case, we need to use the f-string format in the template to get variables in the
-current context, and some other variables that will be provided at runtime. 
+current context, and some other variables that will be provided at runtime.
 
 - {{{{ lang_instruction }}}} : these will be replaced at runtime using the variables
   provided by the prompt_util module.

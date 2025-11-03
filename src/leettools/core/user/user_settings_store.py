@@ -8,7 +8,6 @@ from leettools.settings import SystemSettings
 
 
 class AbstractUserSettingsStore(ABC):
-
     @abstractmethod
     def get_settings_for_user(self, user: User) -> UserSettings:
         """

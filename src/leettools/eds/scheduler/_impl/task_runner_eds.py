@@ -185,7 +185,6 @@ class TaskRunnerEDS(AbstractTaskRunner):
         return rnt_code
 
     def run_job(self, job: Job) -> Job:
-
         job.job_status = JobStatus.RUNNING
         job = self.jobstore.update_job_status(job.job_uuid, job.job_status)
 

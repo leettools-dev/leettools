@@ -13,7 +13,6 @@ from leettools.svc.api_router_base import APIRouterBase
 
 
 class JobRouter(APIRouterBase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         context = self.context

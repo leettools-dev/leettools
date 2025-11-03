@@ -22,7 +22,6 @@ SNIPPET_ATTR = "body"
 
 
 class StepSearchMedium(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "search_medium"
 
     @classmethod
@@ -80,8 +79,7 @@ class StepSearchMedium(AbstractStep):
         display_logger.info("[Status] Start the medium search pipeline ...")
         medium_articles = _run_medium_search_pipeline(exec_info, search_keywords)
         display_logger.info(
-            f"Successfully find {len(medium_articles)} "
-            "Medium.com articles from search."
+            f"Successfully find {len(medium_articles)} Medium.com articles from search."
         )
         return medium_articles
 
@@ -210,5 +208,5 @@ def _get_page_content(url: str) -> Optional[str]:
         response = requests.get(url, headers=headers)
         response.raise_for_status()  # raise an HTTPError for bad responses
         return response.text
-    except requests.RequestException as e:
+    except requests.RequestException:
         return None

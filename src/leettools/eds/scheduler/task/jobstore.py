@@ -8,7 +8,6 @@ from leettools.settings import SystemSettings
 
 
 class AbstractJobStore(ABC):
-
     @abstractmethod
     def create_job(self, job_create: JobCreate) -> Optional[Job]:
         pass

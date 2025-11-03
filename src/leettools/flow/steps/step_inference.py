@@ -15,7 +15,6 @@ from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepInference(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "inference"
 
     @classmethod

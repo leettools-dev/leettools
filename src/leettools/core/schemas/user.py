@@ -33,7 +33,6 @@ class UserUpdate(UserBase):
 
 
 class UserInDB(UserCreate):
-
     user_uuid: str = Field(..., description="The uuid of the user.")
     # balance will be updated through specific API
     balance: Optional[int] = Field(None, description="The balance of the user.")
@@ -77,7 +76,7 @@ class User(UserInDB):
 
     @classmethod
     def get_admin_user(cls) -> "User":
-        from leettools.context_manager import Context, ContextManager
+        from leettools.context_manager import ContextManager
 
         context = ContextManager().get_context()  # type: Context
         user_store = context.get_user_store()
@@ -86,7 +85,7 @@ class User(UserInDB):
 
     @classmethod
     def get_user_db_name(cls, user_uuid: str) -> str:
-        from leettools.context_manager import Context, ContextManager
+        from leettools.context_manager import ContextManager
 
         context = ContextManager().get_context()  # type: Context
         if context.is_test:

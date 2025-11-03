@@ -18,7 +18,6 @@ _script_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class InferenceDynamic(AbstractInference, APICallerBase):
-
     def __init__(
         self,
         context: Context,
@@ -38,7 +37,6 @@ class InferenceDynamic(AbstractInference, APICallerBase):
         query_metadata: ChatQueryMetadata,
         template_vars: Dict[str, str],
     ) -> Tuple[str, ChatCompletion]:
-
         # we allow different prompts for different intentions
         self.setup_prompts_for_intention(query_metadata)
 
@@ -81,10 +79,10 @@ class InferenceDynamic(AbstractInference, APICallerBase):
         if user_prompt_template is None:
             # should be in sync with src/leettools/strategy/default/inference_up_default.txt
             user_prompt_template = """
-{{ context_presentation }}, please answer the following question 
+{{ context_presentation }}, please answer the following question
 {{ lang_instruction }}. {{ word_count_instruction }}.
 {{ reference_instruction }}
-If the context does not provide enough information to answer the question, please answer 
+If the context does not provide enough information to answer the question, please answer
 {{ out_of_context_instruction }}
 {{ lang_instruction }}.
 

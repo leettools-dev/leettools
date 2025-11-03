@@ -1,6 +1,5 @@
 import json
 import time
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import leettools.common.utils.url_utils
@@ -25,7 +24,6 @@ class KBMetadataManagerDuckDB(AbstractKBMetadataManager):
     """
 
     def __init__(self, context: Context):
-
         self.logger = get_logger(name="scheduler")
 
         self.settings = context.settings

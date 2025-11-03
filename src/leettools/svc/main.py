@@ -66,7 +66,6 @@ def start_service(
 
 
 if __name__ == "__main__":
-
     # set the env variable INIT_STRATEGY_STORE to True
     environ["INIT_STRATEGY_STORE"] = "true"
     start_service()

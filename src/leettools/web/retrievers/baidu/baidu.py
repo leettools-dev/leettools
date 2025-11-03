@@ -9,7 +9,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context
 from leettools.core.schemas.knowledgebase import KnowledgeBase
@@ -36,7 +35,7 @@ class BaiduSearch(AbstractRetriever):
         Initializes the Baidu Search object
         """
         super().__init__(context, org, kb, user)
-        self.logger.info(f"Installing Chrome Driver...")
+        self.logger.info("Installing Chrome Driver...")
 
         # Configure Chrome options to run in headless mode
         chrome_options = Options()
@@ -72,7 +71,6 @@ class BaiduSearch(AbstractRetriever):
         flow_options: Dict[str, Any],
         display_logger: EventLogger,
     ) -> List[SearchResult]:
-
         days_limit, max_results = search_utils.get_common_search_paras(
             flow_options=flow_options,
             settings=self.context.settings,

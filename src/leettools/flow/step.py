@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar
+from typing import Any
 
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent

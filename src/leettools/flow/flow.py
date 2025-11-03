@@ -14,7 +14,6 @@ from leettools.flow.flow_component_type import FlowComponentType
 
 
 class AbstractFlow(ABC, FlowComponent):
-
     FLOW_TYPE: ClassVar[str] = None
     ARTICLE_TYPE: ClassVar[str] = None
     COMPONENT_TYPE: ClassVar[FlowComponentType] = FlowComponentType.FLOW

@@ -10,7 +10,6 @@ from leettools.core.strategy.schemas.strategy_section import StrategySection
 
 
 class AbstractIntentionGetter(ABC):
-
     @abstractmethod
     def get_intention(self, query: str) -> ChatQueryMetadata:
         """

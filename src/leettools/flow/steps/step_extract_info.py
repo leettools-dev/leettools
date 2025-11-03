@@ -20,7 +20,6 @@ from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepExtractInfo(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "extract_info"
 
     @classmethod
@@ -29,8 +28,8 @@ class StepExtractInfo(AbstractStep):
 
     @classmethod
     def full_description(cls) -> str:
-        return """Extract information from the document. The function will always 
-return a list of the model class. If the instruction says to only extract one object, 
+        return """Extract information from the document. The function will always
+return a list of the model class. If the instruction says to only extract one object,
 the caller should take the first object from the list.
 """
 
@@ -39,7 +38,7 @@ the caller should take the first object from the list.
         # See [src/leettools/flow/README.md] for how to use template varaibles
         extract_info_template_str = """
 Given the provided content, please follow the instructions and return the results
-{{ lang_instruction }}: 
+{{ lang_instruction }}:
 {{ extraction_instructions }}
 
 Below is the provided content:
@@ -172,7 +171,7 @@ Below is the provided content:
                 )
 
         if hasattr(message, "parsed"):
-            display_logger.debug(f"Returning list of objects using message.parsed.")
+            display_logger.debug("Returning list of objects using message.parsed.")
             extract_result = message.parsed
             if multiple_items:
                 return extract_result.items
@@ -180,7 +179,7 @@ Below is the provided content:
                 return [extract_result]
         else:
             display_logger.debug(
-                f"Returning list of objects using model_validate_json."
+                "Returning list of objects using model_validate_json."
             )
             response_str = json_utils.ensure_json_item_list(response_str)
             try:

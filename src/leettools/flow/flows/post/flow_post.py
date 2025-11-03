@@ -24,7 +24,6 @@ from leettools.flow.utils import flow_utils
 
 
 def _section_plan_for_posts(query: str, search_phrases: str) -> ArticleSectionPlan:
-
     user_prompt_template = FlowPosts.used_prompt_templates()[
         FlowPosts.COMPONENT_NAME
     ].prompt_template
@@ -41,7 +40,7 @@ def _section_plan_for_posts(query: str, search_phrases: str) -> ArticleSectionPl
         title=query,
         search_query=search_phrases + " " + query,
         system_prompt_template="""
-    You are an expert news writer, you can write a brief news report about the topic 
+    You are an expert news writer, you can write a brief news report about the topic
     using the provided context and the specified style shown in the example.
     """,
         user_prompt_template=user_prompt_template,
@@ -67,7 +66,7 @@ class FlowPosts(AbstractFlow):
     def full_description(cls) -> str:
         return """
 Specify the topic of the post,
-- Specify the number of days to search for the content (right now only Google search is 
+- Specify the number of days to search for the content (right now only Google search is
   supported for this option);
 - Crawl the web with the keywords in the topic and save the top documents to the KB;
 - Summarize the saved documents;
@@ -96,7 +95,7 @@ following the instructions below.
 {{ style_instruction }}
 {{ word_count_instruction }}
 {{ ouput_example }}
-                    
+
 Here is the query: {{ query }}
 Here is the context: {{ context }}
 """
@@ -176,11 +175,13 @@ Here is the context: {{ context }}
             docsource=docsource,
         )
 
-        document_summaries, all_docs, all_keywords = (
-            flow_utils.get_doc_summaries_for_docsource(
-                docsource=docsource,
-                exec_info=exec_info,
-            )
+        (
+            document_summaries,
+            all_docs,
+            all_keywords,
+        ) = flow_utils.get_doc_summaries_for_docsource(
+            docsource=docsource,
+            exec_info=exec_info,
         )
 
         sections: List[ArticleSection] = []

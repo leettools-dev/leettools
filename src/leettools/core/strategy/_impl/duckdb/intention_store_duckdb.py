@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 from typing import List, Optional
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
@@ -20,7 +19,6 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 
 
 class IntentionStoreDuckDB(AbstractIntentionStore):
-
     def __init__(
         self,
         settings: SystemSettings,

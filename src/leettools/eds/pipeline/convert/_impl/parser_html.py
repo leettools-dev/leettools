@@ -1,4 +1,4 @@
-""" Module to convert HTML to Markdown. """
+"""Module to convert HTML to Markdown."""
 
 import click
 import markdownify
@@ -70,8 +70,7 @@ class ParserHTML(BaseModel):
         for line in lines:
             if (
                 # TODO: This logic needs to be improved
-                len(line.split())
-                > 3
+                len(line.split()) > 3
             ):  # Consider lines with more than 3 words as meaningful
                 current_paragraph.append(line)
             elif current_paragraph:
@@ -83,9 +82,7 @@ class ParserHTML(BaseModel):
                 else:  # Numbered headings for subsequent paragraphs
                     paragraphs.append(f"{joined_paragraph}")
                 paragraph_number += 1
-                current_paragraph = (
-                    []
-                )  # Start a new paragraph for the next set of meaningful lines
+                current_paragraph = []  # Start a new paragraph for the next set of meaningful lines
 
         # Ensure the last paragraph is added if it wasn't ended by a short line
         if current_paragraph:

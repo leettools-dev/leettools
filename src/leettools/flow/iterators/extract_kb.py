@@ -20,7 +20,6 @@ from leettools.flow.iterators.document_iterator import document_iterator
 
 
 class ExtractKB(AbstractIterator):
-
     from typing import ClassVar
 
     from leettools.flow.flow_component import FlowComponent
@@ -36,7 +35,7 @@ class ExtractKB(AbstractIterator):
     def full_description(cls) -> str:
         return """
 Given a pydantic model, extract structured information from the documents. If specified
-to use a backend store, existing data will be checked and returned if exists and the 
+to use a backend store, existing data will be checked and returned if exists and the
 newly extracted data will be saved to the backend storage.
 """
 

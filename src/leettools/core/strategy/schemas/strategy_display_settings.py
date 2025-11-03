@@ -23,7 +23,7 @@ class StrategyOptionItemDisplay(BaseModel):
     )
     value_type: Optional[str] = Field(
         "str",
-        description="The type of the value," "currently support str, int, float, bool.",
+        description="The type of the value,currently support str, int, float, bool.",
     )
     default_value: Optional[str] = Field(
         None, description="The default value of the variable."

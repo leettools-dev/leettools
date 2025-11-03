@@ -64,7 +64,7 @@ def setup_exec_info_base(
     # we will create the kb if it does not exist
     if kb == None:
         if kb_description is None:
-            kb_description = f"Created by auto setup."
+            kb_description = "Created by auto setup."
         if ad_hoc_kb:
             auto_schedule = False
         else:

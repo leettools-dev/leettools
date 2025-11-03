@@ -66,9 +66,7 @@ class FlowOptionItem(BaseModel):
     )
     value_type: Optional[str] = Field(
         "str",
-        description=_(
-            "The type of the value," "currently support str, int, float, bool."
-        ),
+        description=_("The type of the value,currently support str, int, float, bool."),
     )
     required: Optional[bool] = Field(
         False,

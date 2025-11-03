@@ -72,7 +72,7 @@ class WebSearcher(FlowComponent):
 
     @classmethod
     def full_description(cls) -> str:
-        return """Given a query, search the web, scrape the results, and save them to 
+        return """Given a query, search the web, scrape the results, and save them to
 local storage.
 """
 
@@ -94,7 +94,6 @@ local storage.
         ]
 
     def __init__(self, context: Context):
-
         self.context = context
         self.settings = context.settings
         repo_manager = context.get_repo_manager()

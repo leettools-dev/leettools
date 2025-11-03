@@ -12,7 +12,7 @@ Here is the main idea of using different pydantic models for different APIs:
              the primary key and update all other fields specified in the XUpdate. Some
              special derived fields need to be updated through special APIs.
 - XInDB:     (parent XInDBBase) the fields that are actually stored in the database
-- X:         (parent XInDB or XBase) the fields that are returned by the API and used 
+- X:         (parent XInDB or XBase) the fields that are returned by the API and used
              by the applications.
 
 So for the CRUD APIs, we use different Pydantic models for different purposes:

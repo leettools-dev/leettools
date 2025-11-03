@@ -2,14 +2,12 @@ import re
 from pathlib import Path
 from typing import Optional
 
-import click
 from unstructured.partition.docx import partition_docx
 from unstructured.partition.pdf import partition_pdf
 from unstructured.partition.pptx import partition_pptx
 from unstructured.partition.xlsx import partition_xlsx
 
 from leettools.common.logging import logger
-from leettools.context_manager import Context, ContextManager
 from leettools.eds.pipeline.convert._impl import converter_utils
 from leettools.settings import SystemSettings
 
@@ -46,7 +44,6 @@ class ParserUnstructured(AbstractParser):
         return "#" * level
 
     def docx2md(self, docx_filepath: str, target_path: Optional[Path] = None) -> str:
-
         logger().debug(f"Converting DOCX to markdown: {docx_filepath}")
         try:
             elements = partition_docx(filename=docx_filepath)
@@ -59,7 +56,6 @@ class ParserUnstructured(AbstractParser):
             return ""
 
     def pdf2md(self, pdf_filepath: str, target_path: Optional[Path] = None) -> str:
-
         rtn_text = ""
         elements = partition_pdf(
             filename=pdf_filepath, strategy="hi_res", check_extractable=False
@@ -92,7 +88,6 @@ class ParserUnstructured(AbstractParser):
         return return_text
 
     def pptx2md(self, pptx_filepath: str, target_path: Optional[Path] = None) -> str:
-
         logger().debug(f"Converting PPTX to markdown: {pptx_filepath}")
         try:
             elements = partition_pptx(filename=pptx_filepath)
@@ -106,7 +101,6 @@ class ParserUnstructured(AbstractParser):
             return ""
 
     def xlsx2md(self, xlsx_filepath: str, target_path: Optional[Path] = None) -> str:
-
         logger().debug(f"Converting XLSX to markdown: {xlsx_filepath}")
         rtn_text = ""
         try:

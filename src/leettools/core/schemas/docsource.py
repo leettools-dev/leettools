@@ -22,7 +22,7 @@ See [README](./README.md) about the usage of different pydantic models.
 """
 
 """
-Each DocSource may be ingest many times if the schedule config is set. 
+Each DocSource may be ingest many times if the schedule config is set.
 
     MANUAL = "manual"  # manual run, no retry, no schedule
     ONCE = "once"  # run once until success or retry limit reached
@@ -36,7 +36,7 @@ or an API call.
 ## Once
 
 When created, this type of docsource will be triggered once. If it fails, it will be
-retried until the retry limit is reached. However, we can also trigger to run the 
+retried until the retry limit is reached. However, we can also trigger to run the
 docsource again manually.
 
 ## Recurring
@@ -46,9 +46,9 @@ determine how often the docsource will be triggered.
 
 # Different versions of the same DocSink
 
-For each URI determined by the DocSource in each ingest operations, we will try create a 
-DocSink in the system whose key is the URI and the creation timestamp. 
-- If the raw document for the DocSink has the same hash with an existing DocSink, or 
+For each URI determined by the DocSource in each ingest operations, we will try create a
+DocSink in the system whose key is the URI and the creation timestamp.
+- If the raw document for the DocSink has the same hash with an existing DocSink, or
 the DocSource can tell the ingestion job that the document has not been updated, we will
 not ingest the document again and no new DocSink is created.
 - If the raw document for the DocSink has a different hash with an existing DocSink, we
@@ -58,7 +58,7 @@ new DocSink.
 
 DocSink has a one-to-one relation with the Document object. The Document object is the
 converted markdown document. The Document object should have the same "expired_timestamp"
-field as the DocSink object. 
+field as the DocSink object.
 
 In the segment store and embedding store, all the segments and embeddings should have the
 same "expired_timestamp" field as the DocSink object. It is not ideal to have to set
@@ -70,7 +70,6 @@ to support multiple versions of the same document.
 
 
 class DocSourceBase(BaseModel):
-
     org_id: str = Field(..., description="Organization ID")
     kb_id: str = Field(..., description="Knowledge base ID")
     source_type: DocSourceType = Field(..., description="Type of document source")

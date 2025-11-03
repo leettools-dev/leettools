@@ -20,7 +20,7 @@ Position_in_answer
 2.2.1    -> layer 3, index 9
 3        -> layer 1, index 10
 
-We may have pictures, tables, text blocks as sections in the chat history, therefore, 
+We may have pictures, tables, text blocks as sections in the chat history, therefore,
 the position_in_answer may not be the section_id shown. Only the sections that have
 position_heading=True will be shown with a new heading in the chat history. Note that
 we also have the title field in the answer_item, but it may be the title of the picture
@@ -33,7 +33,6 @@ The main operations are:
 - Add: add a section in the chat history and all the positions after it will be moved down.
 """
 
-from functools import cmp_to_key
 
 from leettools.common import exceptions
 from leettools.core.schemas.chat_query_result import ChatAnswerItem
@@ -78,7 +77,7 @@ def shift_down(pos: str, insertion_layer: int, insertion_index: int) -> str:
     """
     if pos == "all":
         raise exceptions.UnexpectedCaseException(
-            f"pos 'all' is not expected to be shifted down"
+            "pos 'all' is not expected to be shifted down"
         )
     cur_index = int(pos)
     if cur_index < insertion_index:

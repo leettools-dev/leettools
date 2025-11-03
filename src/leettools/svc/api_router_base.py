@@ -6,7 +6,6 @@ from leettools.core.auth.authorizer import AbstractAuthorizer
 
 
 class APIRouterBase(APIRouter):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         context = ContextManager().get_context()

@@ -82,7 +82,6 @@ class KBInDBBase(KBCreate):
 
 @add_fieldname_constants
 class KBUpdate(KBBase):
-
     # we use kb_name as the key to update the kb
     # so we need a new name to update the kb name
     # set to non-null value if we want to rename the kb

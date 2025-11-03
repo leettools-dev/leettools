@@ -4,7 +4,6 @@ from tavily import TavilyClient
 
 from leettools.common import exceptions
 from leettools.common.logging.event_logger import EventLogger
-from leettools.common.utils.obj_utils import ENV_VAR_PREFIX
 from leettools.context_manager import Context
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org

@@ -1,7 +1,6 @@
 import traceback
 from typing import List, Optional
 
-from leettools.common import exceptions
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context
@@ -42,7 +41,7 @@ class SegmentEmbedderHybrid(AbstractSegmentEmbedder):
     ) -> ReturnCode:
         rtn_code = ReturnCode.SUCCESS
         if len(segments) == 0:
-            display_logger.debug(f"No segments to embed for this run.")
+            display_logger.debug("No segments to embed for this run.")
             return rtn_code
         dense_embed_successful = self.dense_vectorstore.save_segments(
             self.org, self.kb, self.user, segments
@@ -67,13 +66,13 @@ class SegmentEmbedderHybrid(AbstractSegmentEmbedder):
             display_logger = logger()
 
         if segments is None or len(segments) == 0:
-            display_logger.info(f"No segments to embed for this run.")
+            display_logger.info("No segments to embed for this run.")
             return ReturnCode.SUCCESS
 
         try:
             rtn_code = self._embed(segments, display_logger)
             return rtn_code
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             err_str = f"{trace}"
             if "Please reduce your prompt; or completion length." in err_str:

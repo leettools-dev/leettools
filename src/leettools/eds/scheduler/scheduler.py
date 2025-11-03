@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from leettools.context_manager import Context
 from leettools.core.schemas.docsource import DocSource

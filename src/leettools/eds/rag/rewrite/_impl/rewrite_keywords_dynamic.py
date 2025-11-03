@@ -33,7 +33,6 @@ from leettools.eds.rag.rewrite.rewrite import (
 )
 from leettools.eds.rag.schemas.rewrite import Rewrite
 from leettools.eds.rag.search._impl.searcher_hybrid import SearcherHybrid
-from leettools.flow.exec_info import ExecInfo
 from leettools.flow.utils import prompt_utils
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -62,13 +61,13 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
         Get the keywords from the query metadata and use them to search the knowledgebase
         for the related context. Use the retrieved context as the context for the rewrite.
         """
-        if query_metadata.keywords is not None and query_metadata.keywords is not []:
+        if query_metadata.keywords is not None and query_metadata.keywords != []:
             all_keywords: set[str] = set()
             for keyword in query_metadata.keywords:
                 all_keywords.add(keyword)
             if (
                 query_metadata.entities is not None
-                and query_metadata.entities is not []
+                and query_metadata.entities != []
             ):
                 for entity in query_metadata.entities:
                     all_keywords.add(entity)
@@ -145,7 +144,6 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
         query_item: ChatQueryItem,
         query_metadata: ChatQueryMetadata,
     ) -> Rewrite:
-
         self.setup_prompts_for_intention(query_metadata)
         query = query_item.query_content
 
@@ -186,7 +184,7 @@ class QueryRewriterKeywordsDynamic(AbstractQueryRewriter, APICallerBase):
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
             return Rewrite.model_validate_json(response_str)
-        except Exception as e:
+        except Exception:
             if response_str is not None:
                 self.display_logger.error(
                     f"ModelValidating Rewrite failed: {response_str}"

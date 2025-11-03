@@ -2,15 +2,15 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 
 from leettools.common.utils.obj_utils import add_fieldname_constants
 
 """
-A prompt that user can use to inference with the model. It is defined as a string 
-template with a list of optional variables. The prompt is immutable after creation. 
+A prompt that user can use to inference with the model. It is defined as a string
+template with a list of optional variables. The prompt is immutable after creation.
 The user can override the default value of the variables when using the prompt.
 """
 

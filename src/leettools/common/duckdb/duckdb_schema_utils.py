@@ -147,7 +147,6 @@ def duckdb_data_to_pydantic_obj(
 
 
 if __name__ == "__main__":
-
     # Example Pydantic model
     class ExampleModel(BaseModel):
         name: str = Field(..., json_schema_extra={"primary_key": True})

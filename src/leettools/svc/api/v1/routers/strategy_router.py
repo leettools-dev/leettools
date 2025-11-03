@@ -21,7 +21,6 @@ from leettools.svc.api_router_base import APIRouterBase
 
 
 class StrategyRouter(APIRouterBase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         context = self.context
@@ -67,7 +66,7 @@ class StrategyRouter(APIRouterBase):
             flow: AbstractFlow = None
             try:
                 flow = self.flow_manager.get_flow_by_type(flow_type)
-            except Exception as e:
+            except Exception:
                 raise HTTPException(
                     status_code=400,
                     detail=f"Invalid flow type {flow_type}",

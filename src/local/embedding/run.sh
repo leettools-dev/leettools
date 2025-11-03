@@ -12,10 +12,10 @@ if [ ! -f "$BASE_DIR/.env" ]; then
     exit 1
 fi
 
-while IFS='=' read -r name value; do 
-    if [[ ! $name =~ ^\# ]] && [[ -n $name ]]; then 
-        export "$name=$value"; 
-    fi; 
+while IFS='=' read -r name value; do
+    if [[ ! $name =~ ^\# ]] && [[ -n $name ]]; then
+        export "$name=$value";
+    fi;
 done < "$BASE_DIR/.env"
 
 if [ -z "${LEET_HOME-}" ]; then

@@ -1,7 +1,6 @@
 import os
 import re
 import traceback
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import unquote
@@ -64,17 +63,17 @@ You are a helpful assistant that can help to add the context to the chunk conten
 """
 
 CONTEXTUAL_RETRIEVAL_USER_PROMPT = """
-<document> 
-{document_content} 
-</document> 
-Here is the chunk we want to situate within the whole document 
-<chunk> 
-{chunk_content} 
-</chunk> 
-Please give a short succinct context to situate this chunk within the overall document 
-for the purposes of improving search retrieval of the chunk. Answer only with the 
-succinct context and nothing else. 
-The response should be in the following json format (Make sure the "document", "paragraph_id", "summary" 
+<document>
+{document_content}
+</document>
+Here is the chunk we want to situate within the whole document
+<chunk>
+{chunk_content}
+</chunk>
+Please give a short succinct context to situate this chunk within the overall document
+for the purposes of improving search retrieval of the chunk. Answer only with the
+succinct context and nothing else.
+The response should be in the following json format (Make sure the "document", "paragraph_id", "summary"
 and "other_info" are in the same language as the chunk itself):
 {{
     "document": "the document name",
@@ -327,7 +326,7 @@ class Splitter:
         try:
             rtn_code = self._split(doc)
             return rtn_code
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             err_str = f"{trace}"
             if "Number of parts exceeds the number of words in the text" in err_str:

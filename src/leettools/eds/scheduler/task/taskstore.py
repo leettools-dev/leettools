@@ -9,7 +9,6 @@ from leettools.settings import SystemSettings
 
 
 class AbstractTaskStore(ABC):
-
     @abstractmethod
     def create_task(self, task_create: TaskCreate) -> Task:
         """

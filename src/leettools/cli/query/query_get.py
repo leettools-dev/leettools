@@ -41,7 +41,7 @@ def get(
     Command line interface to get answers for a query in the format of a MD file.
     """
 
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()
     chat_manager = get_history_manager(context)
@@ -68,7 +68,7 @@ def get(
         if answer.query_id == query_id:
             if answer.position_in_answer == "all":
                 click.echo(f"{answer.answer_content}\n")
-                click.echo(f"# References:\n")
+                click.echo("# References:\n")
                 for _, source_item in answer.answer_source_items.items():
                     click.echo(f"{source_item.answer_source.source_content}\n")
             break

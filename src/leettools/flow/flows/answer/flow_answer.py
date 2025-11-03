@@ -27,7 +27,6 @@ from leettools.flow.utils import flow_utils
 
 
 class FlowAnswer(AbstractFlow):
-
     FLOW_TYPE: ClassVar[str] = FlowType.ANSWER.value
     ARTICLE_TYPE: ClassVar[str] = ArticleType.CHAT.value
     COMPONENT_NAME: ClassVar[str] = FlowType.ANSWER.value
@@ -41,7 +40,7 @@ class FlowAnswer(AbstractFlow):
         return """
 Search the web or local KB with the query and answer with source references:
 - Perform the search with retriever: "local" for local KB, a search engine
-  (e.g., google) fetches top documents from the web. If no KB is specified, 
+  (e.g., google) fetches top documents from the web. If no KB is specified,
   create an adhoc KB; otherwise, save and process results in the KB.
 - New web search results are processed by the document pipeline: conversion,
   chunking, and indexing.
@@ -175,12 +174,14 @@ Search the web or local KB with the query and answer with source references:
             top_ranked_result_segments=top_ranked_result_segments,
         )
 
-        extended_context, context_token_count, source_items = (
-            steps.StepExtendContext.run_step(
-                exec_info=exec_info,
-                reranked_result=reranked_result,
-                accumulated_source_items={},
-            )
+        (
+            extended_context,
+            context_token_count,
+            source_items,
+        ) = steps.StepExtendContext.run_step(
+            exec_info=exec_info,
+            reranked_result=reranked_result,
+            accumulated_source_items={},
         )
 
         display_logger.debug(
@@ -202,13 +203,14 @@ Search the web or local KB with the query and answer with source references:
 
         result_content = completion.choices[0].message.content
 
-        answer_content, reorder_cited_source_items = (
-            flow_utils.inference_result_to_answer(
-                result_content=result_content,
-                source_items=source_items,
-                reference_style=reference_style,
-                display_logger=display_logger,
-            )
+        (
+            answer_content,
+            reorder_cited_source_items,
+        ) = flow_utils.inference_result_to_answer(
+            result_content=result_content,
+            source_items=source_items,
+            reference_style=reference_style,
+            display_logger=display_logger,
         )
 
         caic_list = []

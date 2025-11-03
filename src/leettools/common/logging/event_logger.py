@@ -116,7 +116,7 @@ class EventLogger:
             # )
             try:
                 # enable utf-8 encoding for stdout and stderr
-                if os.getenv(f"EDS_LOGGING_ENABLE_RICH"):
+                if os.getenv("EDS_LOGGING_ENABLE_RICH"):
                     from rich.logging import Console, RichHandler
 
                     formatter = logging.Formatter("%(message)s")
@@ -134,7 +134,7 @@ class EventLogger:
                     else:
                         handler = logging.StreamHandler(stream=stdout_wrapper)
                     handler.setFormatter(self.get_default_formatter())
-            except Exception as e:
+            except Exception:
                 if os.getenv("EDS_LOGGING_TO_STDERR"):
                     handler = logging.StreamHandler(stream=stderr_wrapper)
                 else:
@@ -214,9 +214,9 @@ class EventLogger:
             level (str): Can only be INFO, DEBUG, WARNING and ERROR. If None, use current logger level.
             mode (str): The mode to write log into the file.
         """
-        assert isinstance(
-            file, (str, Path)
-        ), f"expected argument path to be type str or Path, but got {type(file)}"
+        assert isinstance(file, (str, Path)), (
+            f"expected argument path to be type str or Path, but got {type(file)}"
+        )
         if isinstance(file, str):
             file = Path(file)
         return self.log_to_dir(file.parent, level, mode, file.name)
@@ -236,9 +236,9 @@ class EventLogger:
         - level (str): Can only be INFO, DEBUG, WARNING and ERROR. If None, use current logger level.
         - filename (str): a log filename, default is 'events.log'.
         """
-        assert isinstance(
-            dir, (str, Path)
-        ), f"expected argument path to be type str or Path, but got {type(dir)}"
+        assert isinstance(dir, (str, Path)), (
+            f"expected argument path to be type str or Path, but got {type(dir)}"
+        )
         if level is None:
             log_level = self.level
         else:

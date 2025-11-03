@@ -18,7 +18,6 @@ from leettools.flow.utils import pipeline_utils
 
 
 class TempSetup:
-
     def __init__(self):
         from leettools.context_manager import ContextManager
 

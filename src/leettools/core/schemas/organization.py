@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -72,7 +72,7 @@ class Org(OrgInDB):
         Although the org name is unique, we use org_id as the DB name
         avoid DB rename and allow wider range of DB name chars.
         """
-        from leettools.context_manager import Context, ContextManager
+        from leettools.context_manager import ContextManager
 
         context = ContextManager().get_context()  # type: Context
         if context.is_test:

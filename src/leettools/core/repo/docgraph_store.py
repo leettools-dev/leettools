@@ -78,7 +78,6 @@ class AbstractDocGraphStore(ABC):
 
 
 def create_docgraph_store(settings: SystemSettings) -> AbstractDocGraphStore:
-
     from leettools.common.utils import factory_util
 
     return factory_util.create_manager_with_repo_type(

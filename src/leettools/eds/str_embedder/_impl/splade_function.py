@@ -2,14 +2,14 @@ from pymilvus import model
 
 from leettools.common.logging import logger
 from leettools.common.singleton_meta import SingletonMeta
-from leettools.context_manager import Context, ContextManager
+from leettools.context_manager import ContextManager
 
 """
 Right now the reranker and embedder are using the system-wide settings and shared
 by all the usres. Only the intention detection, query rewriting, and final inference
 are using the customizable user settings through the api-provider-config.
 
-One consideration is that the reranker and embedder are too technical to expose to 
+One consideration is that the reranker and embedder are too technical to expose to
 the users, and the choices should be determined before querying time. Especially for
 embedders, we can't switch embedders after the documents are processed.
 """

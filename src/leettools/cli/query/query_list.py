@@ -25,7 +25,7 @@ def list(
     Command line interface to list all queries for a KB and user.
     """
 
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()
     userstore = context.get_user_store()

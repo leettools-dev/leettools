@@ -21,7 +21,6 @@ from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepPlanTopic(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "plan_topic"
 
     @classmethod
@@ -31,14 +30,14 @@ class StepPlanTopic(AbstractStep):
     @classmethod
     def full_description(cls) -> str:
         return """Read the content provided, usually a list of summaries of the related
-documents, and generate a list of topics that are discussed in theese documents and 
+documents, and generate a list of topics that are discussed in theese documents and
 the instructions to write detailed sections about these topics.
 """
 
     @classmethod
     def used_prompt_templates(cls) -> Dict[str, PromptBase]:
         topic_plan_template_str = """
-{{ context_presentation }}, {{ num_of_section_instruction }} 
+{{ context_presentation }}, {{ num_of_section_instruction }}
 from the content as the outline for {{ article_style }} for this subject:
 
 {{ query }}
@@ -48,7 +47,7 @@ from the content as the outline for {{ article_style }} for this subject:
 Please create the title for each topic {{ output_lang_instruction }}
 For each topic, also generate a prompt {{ search_lang_instruction }}
 that can guide the LLM to find the most relevant information and write a detailed section
-about it. 
+about it.
 
 {{ json_format_instruction }}
 
@@ -276,7 +275,7 @@ def _parse_topic_list(
 
     try:
         rtn_obj = json.loads(response_str)
-    except Exception as e:
+    except Exception:
         raise exceptions.LLMInferenceResultException(
             f"Model response is not a valid JSON: {response_str}"
         )

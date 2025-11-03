@@ -2,9 +2,8 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
-from leettools.context_manager import Context, ContextManager
+from leettools.context_manager import Context
 from leettools.core.schemas.knowledgebase import KnowledgeBase
 from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User

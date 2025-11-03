@@ -11,7 +11,6 @@ from leettools.svc.api_router_base import APIRouterBase
 
 
 class SegmentRouter(APIRouterBase):
-
     def _get_org(self, org_name: str) -> Org:
         org = self.org_manager.get_org_by_name(org_name)
         if org is None:

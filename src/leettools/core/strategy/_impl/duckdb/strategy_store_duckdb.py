@@ -510,7 +510,7 @@ class StrategyStoreDuckDB(AbstractStrategyStore):
         # Get all the active strategies for the user and the admin user
         table_name = self._get_table_name()
         where_clause = (
-            f"WHERE {Strategy.FIELD_USER_UUID} IN ({', '.join([f'?' for _ in user_ids])}) "
+            f"WHERE {Strategy.FIELD_USER_UUID} IN ({', '.join(['?' for _ in user_ids])}) "
             f"AND {Strategy.FIELD_STRATEGY_STATUS} = '{StrategyStatus.ACTIVE.value}'"
         )
         value_list = [user_id for user_id in user_ids]

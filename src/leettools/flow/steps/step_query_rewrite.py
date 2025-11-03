@@ -12,7 +12,6 @@ from leettools.flow.step import AbstractStep
 
 
 class StepQueryRewrite(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "query_rewrite"
 
     @classmethod

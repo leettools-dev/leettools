@@ -54,10 +54,10 @@ def _replace_think_section_in_result(content: str, display_logger: EventLogger) 
             # Extract the think section content
             think_content = content[7:end_tag_pos]
             # Replace with HTML comment version
-            content = f"<!--think>{think_content}</think-->{content[end_tag_pos+8:]}"
-        display_logger.debug(f"Replaced think section in content.")
+            content = f"<!--think>{think_content}</think-->{content[end_tag_pos + 8 :]}"
+        display_logger.debug("Replaced think section in content.")
     else:
-        display_logger.debug(f"No think section found in content.")
+        display_logger.debug("No think section found in content.")
     return content
 
 
@@ -149,7 +149,7 @@ def get_search_lang(
         logger().info(f"Using search language specified in exec_info: {lang}")
         return normalize_lang_name(exec_info.output_lang)
 
-    logger().info(f"No language specified for search.")
+    logger().info("No language specified for search.")
     return None
 
 

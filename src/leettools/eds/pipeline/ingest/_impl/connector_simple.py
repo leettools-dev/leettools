@@ -362,7 +362,7 @@ class ConnectorSimple(AbstractConnector):
         # check if the URL is a valid http or https URL
         if not url_str.startswith("http://") and not url_str.startswith("https://"):
             self.display_logger.warning(
-                f"URL not starting with http:// or https://, adding https:// as default."
+                "URL not starting with http:// or https://, adding https:// as default."
             )
             url_str = f"https://{url_str}"
 
@@ -688,7 +688,7 @@ class ConnectorSimple(AbstractConnector):
         try:
             rtn_code = self._ingest()
             return rtn_code
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             self.display_logger.error(f"Error ingesting docsource: {trace}")
             return ReturnCode.FAILURE

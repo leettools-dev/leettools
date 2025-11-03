@@ -22,7 +22,7 @@ from leettools.common.i18n.translator import _
 from leettools.common.logging import logger, remove_logger
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.logging.logger_for_query import get_logger_for_chat
-from leettools.common.utils import content_utils, time_utils
+from leettools.common.utils import time_utils
 from leettools.context_manager import Context
 from leettools.core.consts.article_type import ArticleType
 from leettools.core.schemas.chat_query_item import ChatQueryItem, ChatQueryItemCreate
@@ -44,7 +44,6 @@ class HistoryManagerDuckDB(AbstractHistoryManager):
     """DuckDB implementation of the chat manager."""
 
     def __init__(self, context: Context):
-
         self.initialized = True
         self.context = context
         self.settings = context.settings

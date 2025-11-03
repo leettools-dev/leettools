@@ -18,7 +18,7 @@ from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow import AbstractFlow
 from leettools.flow.flow_option_items import FlowOptionItem
 from leettools.flow.flow_type import FlowType
-from leettools.flow.flows.medium.prompts import QUERY_PROMPT, SUMMARY_PROMPT
+from leettools.flow.flows.medium.prompts import SUMMARY_PROMPT
 from leettools.flow.schemas.medium_article import MediumArticle
 
 MAX_ARTICLE_NUMBER = 10
@@ -63,7 +63,6 @@ claps and pick the top 10 articles as the learning target.
         chat_query_item: ChatQueryItem,
         display_logger: EventLogger,
     ) -> ChatQueryResultCreate:
-
         exec_info = ExecInfo(
             context=self.context,
             org=org,
@@ -127,7 +126,7 @@ claps and pick the top 10 articles as the learning target.
         # Start constructing the collected data section
         collected_data = ""
         if articles:
-            collected_data += f"\n\n"
+            collected_data += "\n\n"
             for idx, article in enumerate(articles, start=1):
                 if idx > MAX_ARTICLE_NUMBER:
                     display_logger.debug(

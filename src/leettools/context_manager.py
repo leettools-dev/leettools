@@ -37,7 +37,6 @@ class ContextStatus(str, Enum):
 
 
 class Context:
-
     EDS_CLI_CONTEXT_PREFIX: ClassVar[str] = "eds_cli"
 
     def __init__(self, settings: SystemSettings):
@@ -172,7 +171,6 @@ class Context:
             return self._task_manager
 
     def reset(self, is_test: bool = False, new_env_file: str = None):
-
         self.is_test = is_test
         settings = self.initial_settings.model_copy()
 

@@ -26,7 +26,6 @@ def list(
     indent: int = None,
     **kwargs,
 ) -> None:
-
     from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()

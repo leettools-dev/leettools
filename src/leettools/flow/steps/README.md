@@ -13,8 +13,6 @@
 - [Class Name: `StepScrapeUrlsToDocSource`](#class-name-stepscrapeurlstodocsource)
 - [Class Name: `StepSearchMedium`](#class-name-stepsearchmedium)
 - [Class Name: `StepSearchToDocsource`](#class-name-stepsearchtodocsource)
-
-
 # Class Name: `StepExtendContext`
 - **Component Name**: `"extend_context"`
 - **Dependencies**: None
@@ -154,7 +152,7 @@
   - If no strategy is provided or if it is disabled, it uses the default intention.
   - Uses the strategy to determine the intention of the query.
   - Returns the intention as part of the `ChatQueryMetadata`.
-  
+
 # Class Name: `StepLocalKBSearch`
 - **Component Name**: `"local_kb_search"`
 - **Dependencies**: None

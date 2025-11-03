@@ -19,7 +19,6 @@ from leettools.svc.api_router_base import APIRouterBase
 
 
 class DocumentRouter(APIRouterBase):
-
     def _get_org(self, org_name: str) -> Org:
         org = self.org_manager.get_org_by_name(org_name)
         if org is None:
@@ -280,7 +279,6 @@ class DocumentRouter(APIRouterBase):
             document_uuid: str,
             calling_user: User = Depends(self.auth.get_user_from_request),
         ):
-
             org = self._get_org(org_name)
             kb = self._get_kb(org_name, kb_name)
             if not self.auth.can_write_kb(org=org, kb=kb, user=calling_user):

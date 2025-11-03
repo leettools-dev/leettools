@@ -11,11 +11,9 @@ from leettools.core.schemas.organization import Org
 from leettools.core.schemas.user import User
 from leettools.core.strategy.schemas.strategy_section import StrategySection
 from leettools.eds.rag.schemas.rewrite import Rewrite
-from leettools.flow.exec_info import ExecInfo
 
 
 class AbstractQueryRewriter(ABC):
-
     @abstractmethod
     def rewrite(
         self,

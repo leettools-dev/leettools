@@ -16,7 +16,6 @@ from leettools.eds.str_embedder.schemas.schema_dense_embedder import (
     DenseEmbeddingRequest,
     DenseEmbeddings,
 )
-from leettools.settings import SystemSettings
 
 
 class DenseEmbedderLocalSvcClient(AbstractDenseEmbedder):

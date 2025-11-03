@@ -12,4 +12,3 @@
         chat_query_item: ChatQueryItem,
         display_logger: Optional[EventLogger] = None,
     And shoudl return a ChatQueryResultCreate object which will be added to the chat result.
-

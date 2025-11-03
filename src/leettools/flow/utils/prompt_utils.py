@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from leettools.common.logging import logger
@@ -110,7 +110,7 @@ def get_template_vars(
 
 
 def context_presentation() -> str:
-    return """Given the context as a sequence of references with a reference id in the 
+    return """Given the context as a sequence of references with a reference id in the
 format of a leading [x],"""
 
 
@@ -126,8 +126,8 @@ def date_instruction(timezone: Optional[str] = None) -> str:
 
 def reference_instruction() -> str:
     return """
-In the answer, use format [1], [2], ..., [n] in line where the reference is used. 
-For example, "According to the research from Google[3], ...". 
+In the answer, use format [1], [2], ..., [n] in line where the reference is used.
+For example, "According to the research from Google[3], ...".
 DO NOT add References section at the end of the output.
 """
 
@@ -141,10 +141,9 @@ def lang_instruction(lang: Optional[str] = None) -> str:
 
 
 def json_format_instruction() -> str:
-
     # TODO: change all steps using this instruction to use the new API parameter
     return """
-Return the result in the following JSON format, ensuring the output is formatted as 
+Return the result in the following JSON format, ensuring the output is formatted as
 JSON data, and not in a JSON block:
 """
 

@@ -12,7 +12,6 @@ from leettools.common.utils.obj_utils import add_fieldname_constants
 
 
 class UserSettingsItem(BaseModel):
-
     section: str = Field(..., description=_("The section of the settings"))
     name: str = Field(..., description=_("The name of the variable."))
     description: Optional[str] = Field(

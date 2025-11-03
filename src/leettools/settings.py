@@ -604,7 +604,6 @@ class SystemSettings(BaseModel):
             logger().debug(f"Checking env variable: {env_var_name}, value is {env_var}")
 
             if env_var is not None:
-
                 field_info = self.model_fields[field_name]
                 # set the values based on the field type
                 if field_info.annotation == bool:
@@ -625,17 +624,17 @@ class SystemSettings(BaseModel):
 
         if self.is_production:
             logger().info(
-                f"Current system is running in production mode per EDS_IS_PRODUCTION."
+                "Current system is running in production mode per EDS_IS_PRODUCTION."
             )
         else:
-            logger().info(f"Current system is running in development mode.")
+            logger().info("Current system is running in development mode.")
 
         if self.SINGLE_USER_MODE:
             logger().info(
-                f"Current system is running in single user mode per EDS_SINGLE_USER_MODE."
+                "Current system is running in single user mode per EDS_SINGLE_USER_MODE."
             )
         else:
-            logger().info(f"Current system is running in multi user mode.")
+            logger().info("Current system is running in multi user mode.")
 
         # set derived values that have not been set by env variables
 

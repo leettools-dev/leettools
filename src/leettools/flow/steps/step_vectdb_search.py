@@ -1,7 +1,5 @@
-import os
 from typing import ClassVar, List, Type
 
-from leettools.common import exceptions
 from leettools.common.utils import config_utils
 from leettools.core.schemas.chat_query_metadata import ChatQueryMetadata
 from leettools.core.schemas.docsink import DocSink
@@ -24,7 +22,6 @@ from leettools.web import search_utils
 
 
 class StepVectorSearch(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "vector_search"
 
     @classmethod

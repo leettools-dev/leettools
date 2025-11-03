@@ -12,7 +12,6 @@ from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepGenIntro(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "gen_intro"
 
     @classmethod
@@ -54,7 +53,6 @@ def _step_gen_intro_section(
     content: str,
     query_metadata: Optional[ChatQueryMetadata] = None,
 ) -> ArticleSection:
-
     display_logger = exec_info.display_logger
     display_logger.info("[Status] Generating introduction.")
 
@@ -90,11 +88,11 @@ def _step_gen_intro_section(
 
     user_prompt_template = f"""
 {{{{ context_presentation }}}}, please generate an introduction section for a research report
-about { query }  {{{{ lang_instruction }}}}
-{ content_instruction }
+about {query}  {{{{ lang_instruction }}}}
+{content_instruction}
 
 Return the result as a string, do not include the title in the result.
-            
+
 Here is the query:
 {{{{ rewritten_query }}}}
 

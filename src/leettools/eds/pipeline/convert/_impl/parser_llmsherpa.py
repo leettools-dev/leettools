@@ -6,7 +6,6 @@ from pathlib import Path
 from re import Match
 from typing import Optional
 
-import click
 import urllib3
 from llmsherpa.readers import (
     Block,
@@ -19,7 +18,6 @@ from llmsherpa.readers import (
 )
 
 from leettools.common.logging import logger
-from leettools.context_manager import Context, ContextManager
 from leettools.eds.pipeline.convert._impl import converter_utils
 from leettools.eds.pipeline.convert.parser import AbstractParser
 from leettools.settings import SystemSettings
@@ -188,7 +186,7 @@ class ParserLLMSherpa(AbstractParser):
         """
         try:
             doc = self.pdf_reader.read_pdf(pdf_filepath)
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             logger().error(f"Failed to parsePDF file {pdf_filepath}, error: {trace}")
             return ""
@@ -212,7 +210,7 @@ class ParserLLMSherpa(AbstractParser):
                 response_json = json.loads(parser_response.data.decode("utf-8"))
                 blocks = response_json["return_dict"]["result"]["blocks"]
                 return self._traversal_doc(Document(blocks).root_node, target_path)
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             logger().error(f"Failed to parse file {docx_filepath}, error: {trace}")
             return ""
@@ -228,7 +226,7 @@ class ParserLLMSherpa(AbstractParser):
                 response_json = json.loads(parser_response.data.decode("utf-8"))
                 blocks = response_json["return_dict"]["result"]["blocks"]
                 return self._traversal_doc(Document(blocks).root_node, target_path)
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             logger().error(f"Failed to parse file {pptx_path}, error: {trace}")
             return ""
@@ -244,7 +242,7 @@ class ParserLLMSherpa(AbstractParser):
                 response_json = json.loads(parser_response.data.decode("utf-8"))
                 blocks = response_json["return_dict"]["result"]["blocks"]
                 return self._traversal_doc(Document(blocks).root_node, target_path)
-        except Exception as e:
+        except Exception:
             trace = traceback.format_exc()
             logger().error(f"Failed to parse file {xlsx_path}, error: {trace}")
             return ""

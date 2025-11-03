@@ -57,9 +57,9 @@ class FlowExtract(AbstractFlow):
         return """
 Extra structured data from web or local KB search results:
 - Perform the search with retriever: "local" for local KB, a search engine (e.g., Google)
-  fetches top documents from the web. If no KB is specified, create an adhoc KB; 
+  fetches top documents from the web. If no KB is specified, create an adhoc KB;
   otherwise, save and process results in the KB.
-- New web search results are processed through the document pipeline: conversion, 
+- New web search results are processed through the document pipeline: conversion,
   chunking, and indexing.
 - Extract structured data from matched documents based on the specified model.
 - Display the extracted data as a table in the output.
@@ -103,7 +103,6 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
 
     @classmethod
     def direct_flow_option_items(cls) -> List[FlowOptionItem]:
-
         return AbstractFlow.get_flow_option_items() + [
             flow_option_items.FOI_RETRIEVER(explicit=True),
             flow_option_items.FOI_EXTRACT_PYDANTIC(explicit=True, required=True),
@@ -125,7 +124,6 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
         chat_query_item: ChatQueryItem,
         display_logger: Optional[EventLogger] = None,
     ) -> ChatQueryResultCreate:
-
         # common setup
         exec_info = ExecInfo(
             context=self.context,
@@ -281,7 +279,7 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
         if "target_model_name" not in var_dict:
             if len(type_dict) > 1:
                 err_msgs.append(
-                    f"Specified more than one model but target_model not specfied."
+                    "Specified more than one model but target_model not specfied."
                 )
                 target_model_name = None
             else:
@@ -431,7 +429,7 @@ Use -1 for unknown numeric values and "n/a" for unknown string values.
                         for o in obj:
                             rows_data.append([str(x) for x in o.model_dump().values()])
                     else:
-                        self.display_logger.debug(f"obj is empty list")
+                        self.display_logger.debug("obj is empty list")
                 else:
                     rows_data.append([str(x) for x in obj.model_dump().values()])
 

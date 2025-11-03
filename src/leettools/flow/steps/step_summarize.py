@@ -20,7 +20,6 @@ from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepSummarize(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "summarize"
 
     @classmethod
@@ -29,7 +28,7 @@ class StepSummarize(AbstractStep):
 
     @classmethod
     def full_description(cls) -> str:
-        return """Given a document content as a string, summarize the content using 
+        return """Given a document content as a string, summarize the content using
 the model specified as the summarization model in the flow option.
 """
 
@@ -41,10 +40,10 @@ If the following content is relevant to the subject '{{ subject }}',
 {{ content_instruction }}
 please do the following tasks:
 - write a concise summary of the document less than 100 words {{ lang_instruction }},
-- get up to 10 keywords that the document is about {{ lang_instruction }}, 
+- get up to 10 keywords that the document is about {{ lang_instruction }},
 - find up to 10 URL links in the document
 - get the authors of the document if possible
-- if there is an explicit publishing date in the document, get the content_date for document. 
+- if there is an explicit publishing date in the document, get the content_date for document.
 - generate a relevance score between 1 and 100, 100 means 100% fit the content instruction above.
 {{ json_format_instruction }}
 {
@@ -246,7 +245,7 @@ Here is the content:
 
         try:
             doc_summary = DocumentSummary.model_validate_json(response_str)
-        except Exception as e:
+        except Exception:
             display_logger.error(
                 f"ModelValidating DocumentSummary failed: {response_str}"
             )

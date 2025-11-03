@@ -11,7 +11,6 @@ from leettools.web.scrapers.scraper import AbstractScraper
 
 
 class ArxivScraper(AbstractScraper):
-
     def __init__(
         self,
         session: requests.Session = None,

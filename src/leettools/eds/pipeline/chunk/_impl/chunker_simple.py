@@ -3,7 +3,6 @@ import re
 from typing import List
 
 from leettools.common import exceptions
-from leettools.common.logging import logger
 from leettools.common.utils.tokenizer import Tokenizer
 from leettools.core.schemas.chunk import Chunk
 from leettools.eds.pipeline.chunk.chunker import AbstractChunker

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Any, Dict, List, Optional, Type, Union
 
 from leettools.common.duckdb.duckdb_client import DuckDBClient
@@ -28,7 +27,6 @@ from leettools.flow.schemas.extract_metadata import ExtractMetadata
 
 
 class ExtractStoreDuckdb(AbstractExtractStore):
-
     def __init__(
         self,
         context: Context,

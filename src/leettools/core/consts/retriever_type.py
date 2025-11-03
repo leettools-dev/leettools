@@ -28,7 +28,6 @@ def is_search_engine(retriever_type: str) -> bool:
 
 
 def supported_retriever(region: Optional[str] = "all") -> List[str]:
-
     # we only show supported web retriever in the web UI
     if region is None:
         return [

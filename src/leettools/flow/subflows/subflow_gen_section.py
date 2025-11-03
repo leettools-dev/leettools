@@ -3,9 +3,6 @@ from typing import ClassVar, Dict, List, Type
 from leettools.common.utils import config_utils
 from leettools.core.consts import flow_option
 from leettools.core.schemas.chat_query_result import SourceItem
-from leettools.core.strategy.schemas.strategy_display_settings import (
-    StrategySectionName,
-)
 from leettools.flow import steps
 from leettools.flow.exec_info import ExecInfo
 from leettools.flow.flow_component import FlowComponent
@@ -100,13 +97,15 @@ class SubflowGenSection(AbstractSubflow):
         )
         display_logger.info(f"Using {section_model} to compute the context.")
 
-        extended_context, context_token_count, section_source_items = (
-            steps.StepExtendContext.run_step(
-                exec_info=exec_info,
-                reranked_result=reranked_result,
-                accumulated_source_items=accumulated_source_items,
-                override_model_name=section_model,
-            )
+        (
+            extended_context,
+            context_token_count,
+            section_source_items,
+        ) = steps.StepExtendContext.run_step(
+            exec_info=exec_info,
+            reranked_result=reranked_result,
+            accumulated_source_items=accumulated_source_items,
+            override_model_name=section_model,
         )
 
         display_logger.info(

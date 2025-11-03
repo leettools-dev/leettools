@@ -38,7 +38,6 @@ class TaskScannerKB(AbstractTaskScanner):
     """
 
     def __init__(self, context: Context):
-
         self.logger = get_logger(name="scheduler")
 
         self.repo_manager = context.get_repo_manager()
@@ -240,7 +239,6 @@ class TaskScannerKB(AbstractTaskScanner):
         current_tasks = self.taskstore.get_tasks_for_docsource(docsource.docsource_uuid)
 
         for program_type, program_spec in program_dict.items():
-
             task = None
             for t in current_tasks:
                 if t.program_spec.program_type == program_type:
@@ -517,7 +515,6 @@ class TaskScannerKB(AbstractTaskScanner):
                             continue
 
                     def _need_to_check_docsource() -> bool:
-
                         if schedule_config.schedule_type == ScheduleType.RECURRING:
                             self.logger.debug(
                                 f"Found recurring docsource to be scanned: {dssig}"

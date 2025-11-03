@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import Any
 
-import requests
 
 from leettools.common.logging.event_logger import EventLogger
 from leettools.common.utils import file_utils, time_utils, url_utils
@@ -50,7 +49,7 @@ def is_content_length_ok(content: str, display_logger: EventLogger) -> bool:
 
     context = ContextManager().get_context()
     if context.is_test:
-        display_logger.info(f"In the test mode. Ignoring the content length check.")
+        display_logger.info("In the test mode. Ignoring the content length check.")
     else:
         if len(content) < 300:
             display_logger.info(

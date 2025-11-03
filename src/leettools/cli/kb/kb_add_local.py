@@ -8,7 +8,6 @@ from leettools.cli.options_common import common_options
 from leettools.common.logging import logger
 from leettools.core.consts.docsource_type import DocSourceType
 from leettools.core.schemas.docsource import DocSourceCreate
-from leettools.core.schemas.schedule_config import ScheduleConfig
 from leettools.flow.utils import pipeline_utils
 
 
@@ -89,7 +88,7 @@ def add_local(
     if doc_source is None:
         doc_source = path.as_uri()
 
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False

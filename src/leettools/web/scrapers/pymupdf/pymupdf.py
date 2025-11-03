@@ -11,7 +11,6 @@ from leettools.web.scrapers.scraper import AbstractScraper
 
 
 class PyMuPDFScraper(AbstractScraper):
-
     def __init__(
         self,
         session: requests.Session = None,

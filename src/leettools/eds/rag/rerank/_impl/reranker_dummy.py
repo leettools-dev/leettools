@@ -11,7 +11,6 @@ from leettools.eds.rag.schemas.rerank import RerankResult, RerankResultItem
 
 
 class RerankerDummy(AbstractReranker):
-
     def __init__(
         self,
         context: Context,

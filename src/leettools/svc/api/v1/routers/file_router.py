@@ -8,7 +8,6 @@ from leettools.svc.api_router_base import APIRouterBase
 
 
 class FileRouter(APIRouterBase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         context = self.context
@@ -55,9 +54,9 @@ class FileRouter(APIRouterBase):
                 # This security check assumes files are served from a subdirectory `safe_dir`.
                 parents = absolute_file_path.resolve().parents
                 if (
-                    not safe_base_path.resolve() in parents
-                    and not incoming_file_path.resolve() in parents
-                    and not uploads_file_path.resolve() in parents
+                    safe_base_path.resolve() not in parents
+                    and incoming_file_path.resolve() not in parents
+                    and uploads_file_path.resolve() not in parents
                 ):
                     raise HTTPException(
                         status_code=400,

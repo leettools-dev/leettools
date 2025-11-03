@@ -24,7 +24,6 @@ from leettools.eds.rag.rewrite.rewrite import (
     get_query_rewriter_by_strategy,
 )
 from leettools.eds.rag.schemas.rewrite import Rewrite
-from leettools.flow.exec_info import ExecInfo
 from leettools.flow.utils import prompt_utils
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -49,7 +48,6 @@ class QueryRewriterDirectDynamic(AbstractQueryRewriter, APICallerBase):
         query_item: ChatQueryItem,
         query_metadata: ChatQueryMetadata,
     ) -> Rewrite:
-
         self.setup_prompts_for_intention(query_metadata)
         query = query_item.query_content
 
@@ -88,7 +86,7 @@ class QueryRewriterDirectDynamic(AbstractQueryRewriter, APICallerBase):
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
             return Rewrite.model_validate_json(response_str)
-        except Exception as e:
+        except Exception:
             if response_str is not None:
                 self.display_logger.error(
                     f"ModelValidating Rewrite failed: {response_str}"

@@ -74,7 +74,7 @@ def add_url(
     indent: Optional[int] = 2,
     **kwargs,
 ) -> None:
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False

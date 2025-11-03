@@ -28,7 +28,6 @@ from leettools.svc.api_router_base import APIRouterBase
 
 
 class QueryProgress(BaseModel):
-
     org_name: Optional[str] = None
     kb_name: Optional[str] = None
     user_name: Optional[str] = None
@@ -432,7 +431,6 @@ class ChatRouter(APIRouterBase):
             ch_update: CHUpdate,
             calling_user: User = Depends(self.auth.get_user_from_request),
         ) -> ChatHistory:
-
             if ch_update.chat_id != chat_id:
                 raise HTTPException(
                     status_code=400,
@@ -453,7 +451,6 @@ class ChatRouter(APIRouterBase):
             chat_id: str,
             calling_user: User = Depends(self.auth.get_user_from_request),
         ) -> Optional[ChatHistory]:
-
             ch = self.chat_manager.get_ch_entry(calling_user.username, chat_id)
             if ch is None:
                 logger().warning(
@@ -475,7 +472,6 @@ class ChatRouter(APIRouterBase):
             chat_id: str,
             calling_user: User = Depends(self.auth.get_user_from_request),
         ) -> Optional[ChatHistory]:
-
             ch = self.chat_manager.get_ch_entry(calling_user.username, chat_id)
             if ch is None:
                 logger().warning(

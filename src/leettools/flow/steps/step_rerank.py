@@ -12,7 +12,6 @@ from leettools.flow.step import AbstractStep
 
 
 class StepRerank(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "rerank"
 
     @classmethod
@@ -38,7 +37,6 @@ def _run_rerank(
     exec_info: ExecInfo,
     top_ranked_result_segments: List[SearchResultSegment],
 ) -> List[SearchResultSegment]:
-
     context = exec_info.context
     settings = exec_info.settings
     display_logger = exec_info.display_logger
@@ -58,7 +56,7 @@ def _run_rerank(
         or rerank_section.strategy_name == ""
         or rerank_section.strategy_name == "disabled"
     ):
-        display_logger.info(f"Rerank is disabled. Skip reranking.")
+        display_logger.info("Rerank is disabled. Skip reranking.")
         return top_ranked_result_segments
 
     display_logger.info("[Status] Rerank the search results.")

@@ -1,11 +1,11 @@
 from leettools.settings import SystemSettings
 
 TABLE_PROMPT = """
-Given the following piece of text obtained from a PDF file, which represents a table, 
+Given the following piece of text obtained from a PDF file, which represents a table,
 please return a table in markdown format without changing its content.
 If it is not a table, then return the text as is. Don't return anything else.
 
-If the first line of this text starts with something like this: "| 1.1.1 introduction column | ...", 
+If the first line of this text starts with something like this: "| 1.1.1 introduction column | ...",
 please extract "1.1.1 introduction" as a heading in the markdown format and put
 it at the beginning of the table. The "column" should be treated as part of the table header.
 So "| 1.1.1 introduction column | ..." will be converted to:
@@ -21,8 +21,8 @@ The extracted text from PDF you need to process is:
 """
 
 TITLE_PROMPT = """
-Given the following first few lines of text obtained from a PDF file. 
-Please extract the title and return it in markdown format, 
+Given the following first few lines of text obtained from a PDF file.
+Please extract the title and return it in markdown format,
 remembering to add only one # in front of the title text:
 # Some Title
 
@@ -67,7 +67,7 @@ White Paper
 
 Some introduction text
 ```
-If the first line is something like "White Paper", or "User Manual", or "Product Manual", 
+If the first line is something like "White Paper", or "User Manual", or "Product Manual",
 then the title to be extracted is just this first line: "White Paper" or "User Manual" or "Product Manual.
 It means in this case, you only need to look into the first line to get the purpose of this article.
 ----------------
@@ -79,7 +79,7 @@ A leading company in the xxx industry
 
 At company A, we are committed to providing the best products and services to our customers...
 ```
-In this case, the title to be extracted is "Company A:  A leading company in the xxx industry", 
+In this case, the title to be extracted is "Company A:  A leading company in the xxx industry",
 which means you need to look into the company name and the followed description of this company.
 ----------------
 

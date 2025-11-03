@@ -95,7 +95,7 @@ class ChatQueryItem(ChatQueryItemCreate):
                     "Strategy base must be provided for dynamic strategy."
                 )
 
-            display_logger.debug(f"Using dynamic strategy.")
+            display_logger.debug("Using dynamic strategy.")
 
             strategy = Strategy.get_dynamic_strategy(strategy_base)
             return strategy

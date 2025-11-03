@@ -2,7 +2,7 @@ from typing import Optional
 
 import leettools.common.exceptions as exceptions
 from leettools.common.logging.event_logger import EventLogger
-from leettools.context_manager import Context, ContextManager
+from leettools.context_manager import ContextManager
 
 
 class LogLocator:

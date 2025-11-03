@@ -32,7 +32,7 @@ class ServiceAPIRouter(APIRouter):
         super().include_router(self.user_router, prefix="/users", tags=["Users"])
 
         self.kb_router = kb_router.KnowledgeBaseRouter()
-        super().include_router(self.kb_router, prefix=f"/kbs", tags=["KnowledgeBase"])
+        super().include_router(self.kb_router, prefix="/kbs", tags=["KnowledgeBase"])
 
         self.chat_router = chat_router.ChatRouter()
         super().include_router(self.chat_router, prefix="/chat", tags=["ChatHistory"])

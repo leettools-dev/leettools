@@ -9,7 +9,6 @@ from leettools.web.scrapers.scraper import AbstractScraper
 
 
 class WebBaseLoaderScraper(AbstractScraper):
-
     def __init__(
         self,
         session: requests.Session = None,

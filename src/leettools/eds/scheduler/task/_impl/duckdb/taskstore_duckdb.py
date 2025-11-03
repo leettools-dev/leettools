@@ -35,7 +35,7 @@ class TaskStoreDuckDB(AbstractTaskStore):
         """
         Initialize the DuckDB Taskstore.
         """
-        logger().info(f"TaskStoreDuckDB: initializing")
+        logger().info("TaskStoreDuckDB: initializing")
         self.settings = settings
         self.duckdb_client = DuckDBClient(self.settings)
         self.table_name = self._get_table_name()
@@ -79,7 +79,6 @@ class TaskStoreDuckDB(AbstractTaskStore):
         return self.update_task(task_in_db)
 
     def delete_task(self, task_uuid: str) -> bool:
-
         task = self.get_task_by_uuid(task_uuid)
         if task is None:
             raise EntityNotFoundException(entity_name=task_uuid, entity_type="Task")
@@ -98,7 +97,7 @@ class TaskStoreDuckDB(AbstractTaskStore):
             where_clause=f"WHERE {Task.FIELD_TASK_UUID} = ?",
         )
 
-        from leettools.context_manager import Context, ContextManager
+        from leettools.context_manager import ContextManager
 
         context = ContextManager().get_context()  # type: Context
         job_store = context.get_task_manager().get_jobstore()

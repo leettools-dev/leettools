@@ -7,7 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from leettools.common.logging import logger
 from leettools.common.logging.event_logger import EventLogger
-from leettools.context_manager import Context, ContextManager
+from leettools.context_manager import ContextManager
 from leettools.eds.str_embedder._impl.dense_embedder_sentence_transformer import (
     DenseEmbedderSentenceTransformer,
 )

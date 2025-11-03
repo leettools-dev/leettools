@@ -80,7 +80,7 @@ class KBManagerDuckDB(AbstractKBManager):
 
     def _get_user_store(self) -> AbstractUserStore:
         # this is kind of hacky to avoid circular import
-        from leettools.context_manager import Context, ContextManager
+        from leettools.context_manager import ContextManager
 
         context = ContextManager().get_context()  # type: Context
 
@@ -88,7 +88,7 @@ class KBManagerDuckDB(AbstractKBManager):
 
     def _get_repo_manager(self) -> RepoManager:
         # this is kind of hacky to avoid circular import
-        from leettools.context_manager import Context, ContextManager
+        from leettools.context_manager import ContextManager
 
         context = ContextManager().get_context()
         return context.get_repo_manager()

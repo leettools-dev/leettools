@@ -6,7 +6,6 @@ from leettools.core.schemas.knowledgebase import BaseKBSchema
 
 @dataclass
 class KBDuckDBSchema(BaseKBSchema):
-
     @classmethod
     def get_schema(cls) -> Dict[str, Any]:
         """

@@ -22,7 +22,6 @@ from leettools.web.web_searcher import WebSearcher
 
 
 class FlowDigest(AbstractFlow):
-
     FLOW_TYPE: ClassVar[str] = FlowType.DIGEST.value
     ARTICLE_TYPE: ClassVar[str] = ArticleType.RESEARCH.value
     COMPONENT_NAME: ClassVar[str] = FlowType.DIGEST.value
@@ -37,9 +36,9 @@ class FlowDigest(AbstractFlow):
 When interested in a topic, you can generate a digest article:
 - Define search keywords and optional content instructions for relevance filtering.
 - Perform the search with retriever: "local" for local KB, a search engine (e.g., Google)
-  fetches top documents from the web. If no KB is specified, create an adhoc KB; 
+  fetches top documents from the web. If no KB is specified, create an adhoc KB;
   otherwise, save and process results in the KB.
-- New web search results are processed through the document pipeline: conversion, 
+- New web search results are processed through the document pipeline: conversion,
   chunking, and indexing.
 - Each result document is summarized using a LLM API call.
 - Generate a topic plan for the digest from the document summaries.
@@ -75,7 +74,6 @@ When interested in a topic, you can generate a digest article:
         chat_query_item: ChatQueryItem,
         display_logger: Optional[EventLogger] = None,
     ) -> ChatQueryResultCreate:
-
         # common setup
         exec_info = ExecInfo(
             context=self.context,
@@ -247,7 +245,7 @@ When interested in a topic, you can generate a digest article:
 
         # now we have the document summaries from either local or web search
         if document_summaries == "" or document_summaries is None:
-            display_logger.debug(f"[Digest] Document summaries is empty")
+            display_logger.debug("[Digest] Document summaries is empty")
             return flow_utils.create_chat_result_for_empty_search(
                 exec_info=exec_info, query_metadata=None
             )

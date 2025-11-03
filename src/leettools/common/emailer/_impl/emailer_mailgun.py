@@ -24,7 +24,6 @@ class EmailerMailgun(AbstractEmailer):
         variables["body"] = body
         variables_json_string = json.dumps(variables)
         try:
-
             response = requests.post(
                 mailgun_uri,
                 auth=("api", mailgun_api_key),

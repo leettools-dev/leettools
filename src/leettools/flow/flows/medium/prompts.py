@@ -1,7 +1,7 @@
 QUERY_PROMPT = """
-Given the topic description {topic} input by user, generate a search query for google to search 
+Given the topic description {topic} input by user, generate a search query for google to search
 for Medium articles about this topic. The result should be a query string that can be used to search.
-The query string should always in English no matter what language the topic is. 
+The query string should always in English no matter what language the topic is.
 
 Don't include the following words in the return search query:
 articles
@@ -17,7 +17,7 @@ Provide the output as a JSON object with the following structure and keys:
 """
 
 SUMMARY_PROMPT = """
-You are an assistant that creates structured writing suggestions for Medium articles in Markdown format. 
+You are an assistant that creates structured writing suggestions for Medium articles in Markdown format.
 The following is the topic that a user is interested in:
 {topic}
 
@@ -25,9 +25,9 @@ The following is the topic that a user is interested in:
 Using the collected popular Medium articles, generate a new writing idea based on the topic and the collected data:
 1. Generate a blog title that is catchy, engaging, and SEO friendly.
 2. Generate a blog outline that is detailed and well-structured.
-3. For each section of the outline, provide specific strategies and techniques to enhance reader engagement and differentiate the content from other popular articles on the same topic. 
+3. For each section of the outline, provide specific strategies and techniques to enhance reader engagement and differentiate the content from other popular articles on the same topic.
 Include actionable tips on style, unique perspectives, and value-added information that can make each section stand out.
-4. Use **MarkDown** format to organize the writing idea. 
+4. Use **MarkDown** format to organize the writing idea.
 
 **Output Format:**
 Provide the output as a organized text with *MarkDown* format by following the structure below:

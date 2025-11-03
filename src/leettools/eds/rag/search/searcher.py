@@ -10,7 +10,6 @@ from leettools.common.logging.event_logger import EventLogger
 from leettools.context_manager import Context, ContextManager
 from leettools.core.consts.segment_embedder_type import SegmentEmbedderType
 from leettools.core.schemas.chat_query_metadata import (
-    DEFAULT_INTENTION,
     ChatQueryMetadata,
 )
 from leettools.core.schemas.knowledgebase import KnowledgeBase
@@ -22,7 +21,6 @@ from leettools.eds.rag.search.searcher_type import SearcherType
 
 
 class AbstractSearcher(ABC):
-
     @abstractmethod
     def execute_kb_search(
         self,

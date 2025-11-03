@@ -11,7 +11,6 @@ from leettools.web.schemas.search_result import SearchResult
 
 
 class StepLocalKBSearch(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "local_kb_search"
 
     @classmethod

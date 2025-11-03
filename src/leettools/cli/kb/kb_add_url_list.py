@@ -81,7 +81,7 @@ def add_url_list(
         logger().error(f"The filename path {file_path} does not exist.")
         return
 
-    from leettools.context_manager import Context, ContextManager
+    from leettools.context_manager import ContextManager
 
     context = ContextManager().get_context()  # type: Context
     context.is_svc = False

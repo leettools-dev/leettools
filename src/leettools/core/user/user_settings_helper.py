@@ -117,7 +117,7 @@ def _get_value_from_settings_for_svc(
     if value is not None and value != "":
         return value
 
-    logger().noop(f"Checking admin settings ...", noop_lvl=1)
+    logger().noop("Checking admin settings ...", noop_lvl=1)
     admin_user = context.get_user_store().get_user_by_name(User.ADMIN_USERNAME)
     admin_user_settings = context.get_user_settings_store().get_settings_for_user(
         admin_user
@@ -162,7 +162,6 @@ def _get_value_from_settings_for_cli(
     second_key: Optional[str] = None,
     allow_empty: Optional[bool] = False,
 ) -> str:
-
     env_var_name = f"{ENV_VAR_PREFIX}{default_env.upper()}"
 
     value = os.environ.get(env_var_name, None)
@@ -187,7 +186,7 @@ def _get_value_from_settings_for_cli(
     if value is not None and value != "":
         return value
 
-    logger().noop(f"Checking admin settings ...", noop_lvl=1)
+    logger().noop("Checking admin settings ...", noop_lvl=1)
     admin_user = context.get_user_store().get_user_by_name(User.ADMIN_USERNAME)
     admin_user_settings = context.get_user_settings_store().get_settings_for_user(
         admin_user

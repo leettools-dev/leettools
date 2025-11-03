@@ -35,7 +35,6 @@ class LocalSearch(AbstractRetriever):
         flow_options: Optional[Dict[str, Any]] = {},
         display_logger: Optional[EventLogger] = None,
     ) -> List[SearchResult]:
-
         if display_logger is None:
             display_logger = logger()
         context = self.context

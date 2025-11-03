@@ -14,7 +14,7 @@ from leettools.core.strategy.schemas.strategy_status import StrategyStatus
 
 """
 The Strategy class contains all the dynamic configurations for a Flow, required by
-the Executor that runs the flow. A Flow is a program of Steps, each of which is an LLM 
+the Executor that runs the flow. A Flow is a program of Steps, each of which is an LLM
 API call or similar tool execution function.
 
 Each Strategy object contains a dictionary of StrategySection objects, the key is
@@ -30,7 +30,6 @@ will be stored in the database for future verification and usage.
 
 
 class StrategyBase(BaseModel):
-
     # The key is the step name, for example, "intention", "rewrite", "search", "rerank"
     # The value is the StrategySection object that has the information needed for the step.
     # When we add a new step, we need to add a new StrategySection object to the dictionary.
@@ -55,7 +54,6 @@ class StrategyCreate(StrategyBase):
 
 @add_fieldname_constants
 class Strategy(StrategyCreate):
-
     DYNAMIC_STRATEGY_ID: ClassVar[str] = "-1"
 
     @classmethod
@@ -95,7 +93,7 @@ class Strategy(StrategyCreate):
 
 
 """
-Originally the strategy was created from a single JSON file and loaded into the 
+Originally the strategy was created from a single JSON file and loaded into the
 StrategyConfCreate object. After we create the Strategy object, we reused the JSON file
 format and convert that into the Strategy object here.
 """
@@ -104,7 +102,6 @@ format and convert that into the Strategy object here.
 def convert_strategy_conf_create(
     strategy_conf_create: StrategyConfCreate,
 ) -> StrategyCreate:
-
     if strategy_conf_create.intention_options is not None:
         intention_model_name = strategy_conf_create.intention_options.get(
             "model_name", None

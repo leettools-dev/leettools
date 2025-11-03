@@ -15,7 +15,6 @@ class SingletonMetaDuckDB(SingletonMeta):
 
 
 class DuckDBClient(metaclass=SingletonMetaDuckDB):
-
     # mapping from defined schema to existing stored type if different
     # see [Readme.md](./Readme.md) for more details
     TYPE_MAP: ClassVar[Dict[str, str]] = {
@@ -167,11 +166,11 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                 try:
                     existing_schema = cursor.execute(
                         f"""
-                        SELECT name, type 
+                        SELECT name, type
                         FROM pragma_table_info('{new_schema_name}.{new_table_name}')
                         """
                     ).fetchall()
-                except Exception as e:
+                except Exception:
                     existing_schema = None
 
                 # result = cursor.execute(
@@ -233,7 +232,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
                         else:
                             # Add new column
                             alter_sql = f"""
-                            ALTER TABLE {new_schema_name}.{new_table_name} 
+                            ALTER TABLE {new_schema_name}.{new_table_name}
                             ADD COLUMN {col_name} {col_type}
                             """
                             logger().info(f"Adding new column: {alter_sql}")
@@ -263,7 +262,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
         columns = [f"{name} {type_}" for name, type_ in columns.items()]
         return f"""
             {create_table_sql}
-            CREATE TABLE IF NOT EXISTS {schema_name}.{table_name} ({','.join(columns)})
+            CREATE TABLE IF NOT EXISTS {schema_name}.{table_name} ({",".join(columns)})
         """
 
     def execute_sql(self, sql: str, value_list: List[Any] = None) -> None:
@@ -302,7 +301,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
 
         with self.conn.cursor() as cursor:
             select_sql = f"""
-                SELECT {column_str} FROM {table_name} 
+                SELECT {column_str} FROM {table_name}
                 {where_clause}
                 """
             logger().noop(
@@ -329,7 +328,6 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
         value_list: List[Any] = None,
         where_clause: str = None,
     ) -> Optional[Dict[str, Any]]:
-
         if column_list is None:
             column_str = "*"
         else:
@@ -340,7 +338,7 @@ class DuckDBClient(metaclass=SingletonMetaDuckDB):
 
         with self.conn.cursor() as cursor:
             select_sql = f"""
-                SELECT {column_str} FROM {table_name} 
+                SELECT {column_str} FROM {table_name}
                 {where_clause}
                 """
             with self._get_table_lock(table_name):

@@ -15,7 +15,6 @@ from leettools.flow.utils import flow_utils, prompt_utils
 
 
 class StepGenSection(AbstractStep):
-
     COMPONENT_NAME: ClassVar[str] = "gen_section"
 
     @classmethod
@@ -25,7 +24,7 @@ class StepGenSection(AbstractStep):
     @classmethod
     def full_description(cls) -> str:
         return """Based on the article section plan, search the local KB for related
-information and generate the section following the instructions in the plan and the 
+information and generate the section following the instructions in the plan and the
 options set in the query such as style, words, language, etc.
 """
 
