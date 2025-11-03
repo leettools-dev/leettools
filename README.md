@@ -50,6 +50,9 @@ Currently LeetTools provides the following workflows:
 * extract : Extract and store structured data for given schema. [📖](https://leettools-dev.github.io/Flow/extract)
 * opinions: Generate sentiment analysis and facts from the search results.  [📖](https://leettools-dev.github.io/Flow/opinions)
 
+We are in the process of implementing a full-automated flow generation pipeline that allows
+users to generate their own customized flows with natural language prompts. Stay tuned for more updates!
+
 # Quick Start
 
 **Before you start**
