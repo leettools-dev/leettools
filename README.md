@@ -1,3 +1,7 @@
+> [!NOTE]
+> This repository is now archived. LeetTools will be expanded into a new agentic
+> application platform.
+
 <p align="center">
   <img src="docs/assets/LTC-Logo-leettools-normal.png" alt="Logo" width="200"/>
 </p>
